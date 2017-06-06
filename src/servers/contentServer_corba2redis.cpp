@@ -9,6 +9,7 @@
 using namespace SmartMet;
 
 
+ContentServer::Corba::Server *server = NULL;
 ContentServer::RedisImplementation *redisImplementation = NULL;
 
 
@@ -21,6 +22,7 @@ void sig_handler(int signum)
       {
         printf("\n**** SHUTTING DOWN ****\n");
         redisImplementation->shutdown();
+        server->shutdown();
       }
       else
         exit(-1);
@@ -80,16 +82,16 @@ int main(int argc, char *argv[])
     redisImplementation = new ContentServer::RedisImplementation();
     redisImplementation->init(redisAddress,redisPort);
 
-    ContentServer::Corba::Server server(corbaAddress,corbaPort);
-    server.init(redisImplementation);
+    server = new ContentServer::Corba::Server(corbaAddress,corbaPort);
+    server->init(redisImplementation);
 
     // Let's print the service IOR. This is necessary for accessing the service. Usually the best way
     // to handle an IOR is to store it into an environment variable.
 
-    std::string ior = server.getServiceIor();
+    std::string ior = server->getServiceIor();
     printf("\n%s\n",ior.c_str());
 
-    server.run();
+    server->run();
 
     delete redisImplementation;
 

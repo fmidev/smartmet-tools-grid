@@ -15,6 +15,7 @@
 
 using namespace SmartMet;
 
+QueryServer::Corba::Server *corbaServer = NULL;
 QueryServer::ServiceImplementation *queryServer = NULL;
 
 
@@ -35,6 +36,7 @@ void sig_handler(int signum)
       {
         printf("\n**** SHUTTING DOWN ****\n");
         queryServer->shutdown();
+        corbaServer->shutdown();
       }
       else
         exit(-1);
@@ -84,8 +86,8 @@ int main(int argc, char *argv[])
 
     queryServer = new QueryServer::ServiceImplementation();
 
-    QueryServer::Corba::Server corbaServer(corbaAddress,corbaPort);
-    corbaServer.init(queryServer);
+    corbaServer = new QueryServer::Corba::Server(corbaAddress,corbaPort);
+    corbaServer->init(queryServer);
 
     ContentServer::Corba::ClientImplementation contentServerClient;
     contentServerClient.init(contentServerIor);
@@ -95,10 +97,10 @@ int main(int argc, char *argv[])
     // Let's print the service IOR. This is necessary for accessing the service. Usually the best way
     // to handle an IOR is to store it into an environment variable.
 
-    std::string ior = corbaServer.getServiceIor();
+    std::string ior = corbaServer->getServiceIor();
     printf("\n%s\n",ior.c_str());
 
-    corbaServer.run();
+    corbaServer->run();
 
     delete queryServer;
     return 0;

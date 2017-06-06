@@ -179,12 +179,22 @@ void saveAllImages(uint fileIndex,SmartMet::GRID::GridFile& gridFile,const char 
 {
   try
   {
-    auto parameterIdList = gridFile.getParameterIdentifiers();
+    printf("SAVE ALL IMAGES\n");
 
-    std::size_t size = parameterIdList.size();
-    for (std::size_t t=0; t<size; t++)
+    T::ParamValue minValue = 0;
+    T::ParamValue maxValue = 0;
+    T::InterpolationMethod interpolationMethod = T::InterpolationMethod::Linear;
+
+    std::size_t messageCount = gridFile.getNumberOfMessages();
+    for (std::size_t m=0; m<messageCount; m++)
     {
-      saveImagesByParameterId(fileIndex,gridFile,parameterIdList[t],imageDir,scaleFactor,valueLevels,flags);
+      const GRID::Message *message = gridFile.getMessageByIndex(m);
+      auto level = message->getParameterLevel();
+      message->getParameterMinAndMaxValues(minValue,maxValue);
+
+      char imageFile[300];
+      sprintf(imageFile,"%s/image-%04u-%04u-%09u-%s.jpg",imageDir,fileIndex,(uint)m,level,toString(message->getForecastStartTime()).c_str());
+      saveMessageImage(imageFile,message,minValue,maxValue,interpolationMethod,scaleFactor,valueLevels,flags);
     }
   }
   catch (...)

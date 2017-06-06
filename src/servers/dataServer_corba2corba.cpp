@@ -16,6 +16,7 @@
 
 using namespace SmartMet;
 
+DataServer::Corba::Server *corbaServer = NULL;
 DataServer::ServiceImplementation *dataServer = NULL;
 
 
@@ -36,6 +37,7 @@ void sig_handler(int signum)
       {
         printf("\n**** SHUTTING DOWN ****\n");
         dataServer->shutdown();
+        corbaServer->shutdown();
       }
       else
         exit(-1);
@@ -153,16 +155,16 @@ int main(int argc, char *argv[])
 
     dataServer = new DataServer::ServiceImplementation();
 
-    DataServer::Corba::Server corbaServer(corbaAddress,corbaPort);
-    corbaServer.init(dataServer);
+    corbaServer = new DataServer::Corba::Server(corbaAddress,corbaPort);
+    corbaServer->init(dataServer);
 
     ContentServer::Corba::ClientImplementation contentServerClient;
     contentServerClient.init(contentServerIor);
 
-    dataServer->init(sessionId,serverId,serverName,corbaServer.getServiceIor().c_str(),gridFileDir,&contentServerClient);
+    dataServer->init(sessionId,serverId,serverName,corbaServer->getServiceIor().c_str(),gridFileDir,&contentServerClient);
     dataServer->startEventProcessing();
 
-    corbaServer.run();
+    corbaServer->run();
 
     delete dataServer;
     return 0;
