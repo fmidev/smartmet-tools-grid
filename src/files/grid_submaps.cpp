@@ -89,7 +89,7 @@ void saveMessageSubmap(const char *imageFile,const GRID::Message *message,double
             lon -= 360;
 
           T::ParamValue val = message->getParameterValueByLatLon(lat,lon,interpolationMethod);
-          uint v = (uint)((val - minValue) / vstep / levelSize);
+          uint v = 255 - (uint)((val - minValue) / vstep / levelSize);
           v = v * levelSize;
 
           if ((flags & IMGF_REVERSE) != 0)

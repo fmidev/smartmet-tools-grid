@@ -81,7 +81,7 @@ void saveMessageMap(const char *imageFile,const GRID::Message *message,T::ParamV
       {
         T::ParamValue val = message->getParameterValueByLatLon(lat,lon,interpolationMethod);
 
-        uint v = (uint)((val - minValue) / step / levelSize);
+        uint v = 255 - (uint)((val - minValue) / step / levelSize);
         v = v * levelSize;
         if ((flags & IMGF_REVERSE) != 0)
           v = 255-v;

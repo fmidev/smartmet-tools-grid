@@ -90,7 +90,7 @@ void saveMessageImage(const char *imageFile,const GRID::Message *message,T::Para
         for (int x=0; x<width; x++)
         {
           T::ParamValue val = message->getParameterValueByGridPosition((double)x/scaleFactor,(double)y/scaleFactor,interpolationMethod);
-          uint v = (uint)((val - minValue) / step / levelSize);
+          uint v = 255 - (uint)((val - minValue) / step / levelSize);
           v = v * levelSize;
           if ((flags & IMGF_REVERSE) != 0)
             v = 255-v;
@@ -110,7 +110,7 @@ void saveMessageImage(const char *imageFile,const GRID::Message *message,T::Para
         for (int x=0; x<width; x++)
         {
           T::ParamValue val = message->getParameterValueByGridPosition((double)x/scaleFactor,(double)y/scaleFactor,interpolationMethod);
-          uint v = (uint)((val - minValue) / step / levelSize);
+          uint v = 255 - (uint)((val - minValue) / step / levelSize);
           v = v * levelSize;
           if ((flags & IMGF_REVERSE) != 0)
             v = 255-v;

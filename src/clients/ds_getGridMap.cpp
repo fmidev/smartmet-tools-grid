@@ -58,7 +58,7 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
       {
         T::ParamValue val = values[c];
         //printf("Val(%u,%u) : %f\n",x,y,val);
-        uint v = (uint)((val - minValue) / step);
+        uint v = 255 - (uint)((val - minValue) / step);
         uint col = hsv_to_rgb(hue,saturation,(unsigned char)v);
         if (val == ParamValueMissing)
           col = 0xE8E8E8;
