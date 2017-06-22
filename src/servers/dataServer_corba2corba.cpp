@@ -74,13 +74,9 @@ void init()
     SmartMet::Identification::gribDef.init(configDir);
 
 
-    // 2. Initializing the size of the grid value cache. The first number is the number of the cached grids
-    //    and the second number is the minimum number of the seconds that the cached grid should be kept
-    //    in the memory after its last access. The point is that the oldest cache information is automatically
-    //    removed if there is no space for the a grid. On the other hand, if there is no need for caching
-    //    new grids then the old grids can stay in memory.
+    // 2. Initializing the size of the grid value cache.
 
-    GRID::valueCache.init(8000,30);
+    GRID::valueCache.init(8000,10000,10000);
 
   }
   catch (...)
