@@ -221,7 +221,7 @@ int main(int argc,char ** argv)
 {
   try
   {
-    if (argc != 5)
+    if (argc != 6)
     {
       printf("\n");
       printf("##################################################################################\n");
@@ -232,12 +232,13 @@ int main(int argc,char ** argv)
       printf("   its services. The actual content information is stored into the Redis database.\n");
       printf("\n");
       printf(" USAGE:\n");
-      printf("   contentServer_http2redis <httpPort> <redisAddress> <redisPort>\n");
+      printf("   contentServer_http2redis <httpPort> <redisAddress> <redisPort> <tablePrefix> <mainPage>\n");
       printf("\n");
       printf(" WHERE:\n");
       printf("   <httpPort>        => The TCP port of the HTTP server.\n");
       printf("   <redisAddress>    => The IP address of the Redis database.\n");
       printf("   <redisPort>       => The TCP port of the Redis database.\n");
+      printf("   <tablePrefix>     => The table prefix (=> separates different instances).\n");
       printf("   <mainPage>        => The HTTP file that is returned when there is no \n");
       printf("                        parameters in the HTTP request.\n");
       printf("##################################################################################\n");
@@ -248,10 +249,11 @@ int main(int argc,char ** argv)
     unsigned short httpPort = (unsigned short)atoi(argv[1]);
     char *redisAddress = (char*)argv[2];
     int redisPort = atoi(argv[3]);
-    mainPage = argv[4];
+    char *tablePrefix = (char*)argv[4];
+    mainPage = argv[5];
 
     redisImplementation = new SmartMet::ContentServer::RedisImplementation();
-    redisImplementation->init(redisAddress,redisPort);
+    redisImplementation->init(redisAddress,redisPort,tablePrefix);
 
     httpServer = new SmartMet::ContentServer::HTTP::ServerInterface();
     httpServer->init(redisImplementation);

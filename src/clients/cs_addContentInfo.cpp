@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc < 23)
+    if (argc < 24)
     {
       fprintf(stdout,"USAGE:\n");
       fprintf(stdout,"  cs_addContentInfo <1:sessionId> <2:fileId> <3:fileType> <4:messageIndex>\n");
@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
       fprintf(stdout,"     <10:fmiParameterId> <11:gribParameterId> <12:cdmParameterId> <13:cdmParameterName>\n");
       fprintf(stdout,"     <14:newbaseParameterId> <15:newbaseParameterName>\n");
       fprintf(stdout,"     <16:fmiParameterLevelId> <17:grib1ParameterLevelId> <18:grib2ParameterLevelId> \n");
-      fprintf(stdout,"     <19:parameterLevel> <20:fmiParameterUnits> <21:gribParameterUnits> <22:flags> [-http <url>]\n");
+      fprintf(stdout,"     <19:parameterLevel> <20:fmiParameterUnits> <21:gribParameterUnits> <22:sourceId> <23:flags> [-http <url>]\n");
       return -1;
     }
 
@@ -51,16 +51,17 @@ int main(int argc, char *argv[])
     info.mParameterLevel  = (uint)atoll(argv[19]);
     info.mFmiParameterUnits = argv[20];
     info.mGribParameterUnits = argv[21];
-    info.mFlags  = (uint)atoll(argv[22]);
+    info.mSourceId  = (uint)atoll(argv[22]);
+    info.mFlags  = (uint)atoll(argv[23]);
 
     int result = 0;
     unsigned long long startTime = 0;
     unsigned long long endTime = 0;
 
-    if (argc == 25  &&  strcmp(argv[23],"-http") == 0)
+    if (argc == 26  &&  strcmp(argv[24],"-http") == 0)
     {
       ContentServer::HTTP::ClientImplementation service;
-      service.init(argv[24]);
+      service.init(argv[25]);
 
       startTime = getTime();
       result = service.addContentInfo(sessionId,info);

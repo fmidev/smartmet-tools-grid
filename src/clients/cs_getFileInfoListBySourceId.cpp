@@ -10,33 +10,29 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 9)
+    if (argc < 5)
     {
-      fprintf(stdout,"USAGE: cs_addFileInfo <sessionId> <groupFlags> <producerId> <generationId> <fileType> <sourceId> <flags> <filename> [-http <url>]\n");
+      fprintf(stdout,"USAGE: cs_getFileInfoListBySourceId <sessionId> <sourceId> <startFileId> <maxRecords> [-http <url>]\n");
       return -1;
     }
 
-    T::FileInfo info;
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
-    info.mGroupFlags  = (uint)atoll(argv[2]);
-    info.mProducerId = (uint)atoll(argv[3]);
-    info.mGenerationId = (uint)atoll(argv[4]);
-    info.mFileType = (T::FileType)atoll(argv[5]);
-    info.mSourceId = (uint)atoll(argv[6]);
-    info.mFlags = (uint)atoll(argv[7]);
-    info.mName = argv[8];
+    T::FileInfoList infoList;
+    uint sourceId = (uint)atoll(argv[2]);
+    uint startFileId = (uint)atoll(argv[3]);
+    uint maxRecords = (uint)atoll(argv[4]);
 
     int result = 0;
     unsigned long long startTime = 0;
     unsigned long long endTime = 0;
 
-    if (argc == 11  &&  strcmp(argv[9],"-http") == 0)
+    if (argc == 7  &&  strcmp(argv[5],"-http") == 0)
     {
       ContentServer::HTTP::ClientImplementation service;
-      service.init(argv[10]);
+      service.init(argv[6]);
 
       startTime = getTime();
-      result = service.addFileInfo(sessionId,info);
+      result = service.getFileInfoListBySourceId(sessionId,sourceId,startFileId,maxRecords,infoList);
       endTime = getTime();
     }
     else
@@ -52,7 +48,7 @@ int main(int argc, char *argv[])
       service.init(serviceIor);
 
       startTime = getTime();
-      result = service.addFileInfo(sessionId,info);
+      result = service.getFileInfoListBySourceId(sessionId,sourceId,startFileId,maxRecords,infoList);
       endTime = getTime();
     }
 
@@ -63,11 +59,11 @@ int main(int argc, char *argv[])
     }
 
     // ### Result:
-    info.print(std::cout,0,0);
+    infoList.print(std::cout,0,0);
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 
-    return info.mFileId;
+    return 0;
   }
   catch (SmartMet::Spine::Exception& e)
   {

@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc != 5)
+    if (argc != 6)
     {
       printf("\n");
       printf("##################################################################################\n");
@@ -60,13 +60,14 @@ int main(int argc, char *argv[])
       printf("   can store it in your shell start-up scripts (like '.bashrc').\n");
       printf("\n");
       printf(" USAGE:\n");
-      printf("   contentServer_corba2redis <corbaAddress> <corbaPort> <redisAddress> <redisPort>\n");
+      printf("   contentServer_corba2redis <corbaAddress> <corbaPort> <redisAddress> <redisPort> <tablePrefix>\n");
       printf("\n");
       printf(" WHERE:\n");
       printf("   <corbaAddress>    => The IP address of the server.\n");
       printf("   <corbaPort>       => The TCP port of the server.\n");
       printf("   <redisAddress>    => The IP address of the Redis database.\n");
       printf("   <redisPort>       => The TCP port of the Redis database.\n");
+      printf("   <tablePrefix>     => The table prefix (=> separates different instances).\n");
       printf("##################################################################################\n");
       printf("\n");
       return -1;
@@ -78,9 +79,10 @@ int main(int argc, char *argv[])
     char *corbaPort = (char*)argv[2];
     char *redisAddress = (char*)argv[3];
     int redisPort = atoi(argv[4]);
+    char *tablePrefix = (char*)argv[5];
 
     redisImplementation = new ContentServer::RedisImplementation();
-    redisImplementation->init(redisAddress,redisPort);
+    redisImplementation->init(redisAddress,redisPort,tablePrefix);
 
     server = new ContentServer::Corba::Server(corbaAddress,corbaPort);
     server->init(redisImplementation);

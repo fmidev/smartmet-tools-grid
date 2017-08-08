@@ -10,9 +10,9 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 7)
+    if (argc < 9)
     {
-      fprintf(stdout,"USAGE: cs_addGenerationInfo <sessionId> <producerId> <generationType> <name> <description> <status> [-http <url>]\n");
+      fprintf(stdout,"USAGE: cs_addGenerationInfo <sessionId> <producerId> <generationType> <sourceId> <flags> <name> <description> <status> [-http <url>]\n");
       return -1;
     }
 
@@ -20,18 +20,20 @@ int main(int argc, char *argv[])
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
     info.mProducerId = (uint)atoll(argv[2]);
     info.mGenerationType = (uint)atoll(argv[3]);
-    info.mName = argv[4];
-    info.mDescription = argv[5];
-    info.mStatus = (T::GenerationStatus)atoll(argv[6]);
+    info.mSourceId = (uint)atoll(argv[4]);
+    info.mFlags = (uint)atoll(argv[5]);
+    info.mName = argv[6];
+    info.mDescription = argv[7];
+    info.mStatus = (T::GenerationStatus)atoll(argv[8]);
 
     int result = 0;
     unsigned long long startTime = 0;
     unsigned long long endTime = 0;
 
-    if (argc == 9  &&  strcmp(argv[7],"-http") == 0)
+    if (argc == 11  &&  strcmp(argv[9],"-http") == 0)
     {
       ContentServer::HTTP::ClientImplementation service;
-      service.init(argv[8]);
+      service.init(argv[10]);
 
       startTime = getTime();
       result = service.addGenerationInfo(sessionId,info);

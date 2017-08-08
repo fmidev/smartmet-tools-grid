@@ -19,9 +19,9 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc != 7)
+    if (argc < 9)
     {
-      fprintf(stdout,"USAGE: cs_addFileInfoListFromFile <sessionId> <groupFlags> <producerId> <generationId> <fileType> <filename> [-http <url>]\n");
+      fprintf(stdout,"USAGE: cs_addFileInfoListFromFile <sessionId> <groupFlags> <producerId> <generationId> <fileType> <sourceId> <flags> <filename> [-http <url>]\n");
       return -1;
     }
 
@@ -32,8 +32,10 @@ int main(int argc, char *argv[])
     info.mProducerId = (uint)atoll(argv[3]);
     info.mGenerationId = (uint)atoll(argv[4]);
     info.mFileType = (T::FileType)atoll(argv[5]);
+    info.mSourceId = (uint)atoll(argv[6]);
+    info.mFlags = (uint)atoll(argv[7]);
 
-    char* filename = argv[6];
+    char* filename = argv[8];
 
     FILE *file = fopen(filename,"r");
     if (file == NULL)
@@ -42,13 +44,12 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-
     ContentServer::ServiceInterface *service = NULL;
 
-    if (argc == 5  &&  strcmp(argv[3],"-http") == 0)
+    if (argc == 11  &&  strcmp(argv[9],"-http") == 0)
     {
       ContentServer::HTTP::ClientImplementation *httpService = new ContentServer::HTTP::ClientImplementation();
-      httpService->init(argv[4]);
+      httpService->init(argv[10]);
       service = httpService;
     }
     else

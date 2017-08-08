@@ -10,27 +10,29 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 6)
+    if (argc < 8)
     {
-      fprintf(stdout,"USAGE: cs_addProducerInfo <sessionId> <producerId> <name> <title> <descr>  [-http <url>]\n");
+      fprintf(stdout,"USAGE: cs_addProducerInfo <sessionId> <producerId> <sourceId> <flags> <name> <title> <descr>  [-http <url>]\n");
       return -1;
     }
 
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
     T::ProducerInfo info;
     info.mProducerId = atoi(argv[2]);
-    info.mName = argv[3];
-    info.mTitle = argv[4];
-    info.mDescription = argv[5];
+    info.mSourceId = atoi(argv[3]);
+    info.mFlags = atoi(argv[4]);
+    info.mName = argv[5];
+    info.mTitle = argv[6];
+    info.mDescription = argv[7];
 
     int result = 0;
     unsigned long long startTime = 0;
     unsigned long long endTime = 0;
 
-    if (argc == 8  &&  strcmp(argv[6],"-http") == 0)
+    if (argc == 10  &&  strcmp(argv[8],"-http") == 0)
     {
       ContentServer::HTTP::ClientImplementation service;
-      service.init(argv[7]);
+      service.init(argv[9]);
 
       startTime = getTime();
       result = service.addProducerInfo(sessionId,info);
