@@ -115,6 +115,7 @@ LIBS = -L$(libdir) \
 	-lhiredis \
 	-lmicrohttpd \
 	-lcurl \
+	-lpq \
 	$(CORBA_LIBS)
 
 # What to install
@@ -141,11 +142,13 @@ endif
 vpath %.cpp src \
 			src/clients \
 			src/files \
+			src/fmi \
 			src/servers
 			
 vpath %.h 	src \
 			src/clients \
 			src/files \
+			src/fmi \
 			src/servers
 
 vpath %.o obj
@@ -201,10 +204,12 @@ objdir:
 	@mkdir -p obj
 	@mkdir -p obj/clients
 	@mkdir -p obj/files
+	@mkdir -p obj/fmi
 	@mkdir -p obj/servers
 	@mkdir -p bin
 	@mkdir -p bin/clients
 	@mkdir -p bin/files
+	@mkdir -p bin/fmi
 	@mkdir -p bin/servers
 
 rpm: clean

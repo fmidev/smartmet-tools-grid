@@ -187,7 +187,7 @@ static int processRequest(void *cls,struct MHD_Connection *connection,const char
 
     uint lineCount = responseMessage.getLineCount();
     uint size = responseMessage.getContentSize();
-    char *content = new char[size+100];
+    char *content = new char[size+30000];
     char *p = content;
 
     //p += sprintf(p,"<HTML><BODY><PRE>\n");
