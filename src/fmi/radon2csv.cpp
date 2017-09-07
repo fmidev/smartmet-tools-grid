@@ -102,7 +102,7 @@ bool producerEnabled(const char *producerName)
 
 
 
-void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uint fileType,char *startTime,char *endTime,char *fmiParameterId,char *fmiLevelId,char *parameterLevel,char *forecastType,char *pertubationNumber)
+void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uint fileType,char *geometryId,char *startTime,char *endTime,char *fmiParameterId,char *fmiLevelId,char *parameterLevel,char *forecastType,char *pertubationNumber)
 {
   FUNCTION_TRACE
   try
@@ -142,7 +142,7 @@ void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uin
     }
 
 
-    fprintf(contentFile,"%u;%u;%u;%s;%u;%u;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%u;%u;%u;\n",
+    fprintf(contentFile,"%u;%u;%u;%s;%u;%u;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%u;%u;%u;%s;\n",
            fileId,
            0, // messageIndex
            fileType,
@@ -168,7 +168,8 @@ void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uin
            pertubationNumber,
            0, // serverFlags,
            0, // flags,
-           sourceId
+           sourceId,
+           geometryId
         );
   }
   catch (...)
@@ -187,7 +188,7 @@ uint readFiles(PGconn *conn,char *producerId,uint generationId,char *schemaName,
   try
   {
     char sql[1000];
-    sprintf(sql,"SELECT file_location,param_id,level_id,level_value::int,to_char((analysis_time+forecast_period) at time zone 'utc','yyyymmddThh240000'),forecast_type_id,forecast_type_value::int,forecast_type_id,forecast_type_value FROM %s.%s WHERE to_char(analysis_time, 'yyyymmddThh240000') = '%s' AND producer_id = %s",schemaName,partitionName,analysisTime,producerId);
+    sprintf(sql,"SELECT file_location,param_id,level_id,level_value::int,to_char((analysis_time+forecast_period) at time zone 'utc','yyyymmddThh240000'),forecast_type_id,forecast_type_value::int,geometry_id FROM %s.%s WHERE to_char(analysis_time, 'yyyymmddThh240000') = '%s' AND producer_id = %s",schemaName,partitionName,analysisTime,producerId);
 
     PGresult *res = PQexec(conn,sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
@@ -212,7 +213,7 @@ uint readFiles(PGconn *conn,char *producerId,uint generationId,char *schemaName,
                sourceId
               );
 
-        readContent(conn,producerId,generationId,globalFileId,0,PQgetvalue(res, i, 4),PQgetvalue(res, i, 4),PQgetvalue(res, i, 1),PQgetvalue(res, i, 2),PQgetvalue(res, i, 3),PQgetvalue(res, i, 5),PQgetvalue(res, i, 6));
+        readContent(conn,producerId,generationId,globalFileId,0,PQgetvalue(res, i, 7),PQgetvalue(res, i, 4),PQgetvalue(res, i, 4),PQgetvalue(res, i, 1),PQgetvalue(res, i, 2),PQgetvalue(res, i, 3),PQgetvalue(res, i, 5),PQgetvalue(res, i, 6));
 
         globalFileId++;
         fileCount++;

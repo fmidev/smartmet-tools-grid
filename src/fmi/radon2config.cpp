@@ -24,6 +24,238 @@ void error(char *mess)
 
 
 
+void create_geometryDef(PGconn *conn,const char *dir)
+{
+  FUNCTION_TRACE
+  try
+  {
+    char filename[300];
+    sprintf(filename,"%s/geometryDef.csv",dir);
+
+    FILE *file = fopen(filename,"w");
+    if (file == NULL)
+    {
+      SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
+      exception.addParameter("Filename",filename);
+      throw exception;
+    }
+
+    char sql[3000];
+    char *p = sql;
+
+    p += sprintf(p,"SELECT\n");
+    p += sprintf(p,"  %u,\n",(uint)T::GridProjection::LatLon);
+    p += sprintf(p,"  id,\n");
+    p += sprintf(p,"  name,\n");
+    p += sprintf(p,"  ni,\n");
+    p += sprintf(p,"  nj,\n");
+    p += sprintf(p,"  ST_X(first_point),\n");
+    p += sprintf(p,"  ST_Y(first_point),\n");
+    p += sprintf(p,"  di,\n");
+    p += sprintf(p,"  dj,\n");
+    p += sprintf(p,"  scanning_mode,\n");
+    p += sprintf(p,"  description\n");
+    p += sprintf(p,"FROM\n");
+    p += sprintf(p,"  geom_latitude_longitude\n");
+    p += sprintf(p,"ORDER BY\n");
+    p += sprintf(p,"  id;\n");
+
+    PGresult *res = PQexec(conn,sql);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+      error(PQresultErrorMessage(res));
+
+    int fieldCount = PQnfields(res);
+    int rowCount = PQntuples(res);
+
+    for (int i = 0; i < rowCount; i++)
+    {
+      for (int f=0; f< fieldCount; f++)
+      {
+        fprintf(file,"%s;",PQgetvalue(res,i,f));
+      }
+      fprintf(file,"\n");
+    }
+
+    PQclear(res);
+
+
+    p = sql;
+
+    p += sprintf(p,"SELECT\n");
+    p += sprintf(p,"  %u,\n",(uint)T::GridProjection::RotatedLatLon);
+    p += sprintf(p,"  id,\n");
+    p += sprintf(p,"  name,\n");
+    p += sprintf(p,"  ni,\n");
+    p += sprintf(p,"  nj,\n");
+    p += sprintf(p,"  ST_X(first_point),\n");
+    p += sprintf(p,"  ST_Y(first_point),\n");
+    p += sprintf(p,"  di,\n");
+    p += sprintf(p,"  dj,\n");
+    p += sprintf(p,"  scanning_mode,\n");
+    p += sprintf(p,"  ST_X(south_pole),\n");
+    p += sprintf(p,"  ST_Y(south_pole),\n");
+    p += sprintf(p,"  description\n");
+    p += sprintf(p,"FROM\n");
+    p += sprintf(p,"  geom_rotated_latitude_longitude\n");
+    p += sprintf(p,"ORDER BY\n");
+    p += sprintf(p,"  id;\n");
+
+
+    res = PQexec(conn,sql);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+      error(PQresultErrorMessage(res));
+
+    fieldCount = PQnfields(res);
+    rowCount = PQntuples(res);
+
+    for (int i = 0; i < rowCount; i++)
+    {
+      for (int f=0; f< fieldCount; f++)
+      {
+        fprintf(file,"%s;",PQgetvalue(res,i,f));
+      }
+      fprintf(file,"\n");
+    }
+
+    PQclear(res);
+
+
+
+    p = sql;
+
+    p += sprintf(p,"SELECT\n");
+    p += sprintf(p,"  %u,\n",(uint)T::GridProjection::LambertConformal);
+    p += sprintf(p,"  id,\n");
+    p += sprintf(p,"  name,\n");
+    p += sprintf(p,"  ni,\n");
+    p += sprintf(p,"  nj,\n");
+    p += sprintf(p,"  ST_X(first_point),\n");
+    p += sprintf(p,"  ST_Y(first_point),\n");
+    p += sprintf(p,"  di,\n");
+    p += sprintf(p,"  dj,\n");
+    p += sprintf(p,"  scanning_mode,\n");
+    p += sprintf(p,"  orientation,\n");
+    p += sprintf(p,"  latin1,\n");
+    p += sprintf(p,"  latin2,\n");
+    p += sprintf(p,"  ST_X(south_pole),\n");
+    p += sprintf(p,"  ST_Y(south_pole),\n");
+    p += sprintf(p,"  description\n");
+    p += sprintf(p,"FROM\n");
+    p += sprintf(p,"  geom_lambert_conformal\n");
+    p += sprintf(p,"ORDER BY\n");
+    p += sprintf(p,"  id;\n");
+
+
+    res = PQexec(conn,sql);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+      error(PQresultErrorMessage(res));
+
+    fieldCount = PQnfields(res);
+    rowCount = PQntuples(res);
+
+    for (int i = 0; i < rowCount; i++)
+    {
+      for (int f=0; f< fieldCount; f++)
+      {
+        fprintf(file,"%s;",PQgetvalue(res,i,f));
+      }
+      fprintf(file,"\n");
+    }
+
+    PQclear(res);
+
+
+
+
+    p = sql;
+
+    p += sprintf(p,"SELECT\n");
+    p += sprintf(p,"  %u,\n",(uint)T::GridProjection::Gaussian);
+    p += sprintf(p,"  id,\n");
+    p += sprintf(p,"  name,\n");
+    p += sprintf(p,"  nj,\n");
+    p += sprintf(p,"  ST_X(first_point),\n");
+    p += sprintf(p,"  ST_Y(first_point),\n");
+    p += sprintf(p,"  scanning_mode,\n");
+    p += sprintf(p,"  n,\n");
+    p += sprintf(p,"  points_along_parallels,\n");
+    p += sprintf(p,"  description\n");
+    p += sprintf(p,"FROM\n");
+    p += sprintf(p,"  geom_reduced_gaussian\n");
+    p += sprintf(p,"ORDER BY\n");
+    p += sprintf(p,"  id;\n");
+
+
+    res = PQexec(conn,sql);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+      error(PQresultErrorMessage(res));
+
+    fieldCount = PQnfields(res);
+    rowCount = PQntuples(res);
+
+    for (int i = 0; i < rowCount; i++)
+    {
+      for (int f=0; f< fieldCount; f++)
+      {
+        fprintf(file,"%s;",PQgetvalue(res,i,f));
+      }
+      fprintf(file,"\n");
+    }
+
+    PQclear(res);
+
+
+
+    p = sql;
+
+    p += sprintf(p,"SELECT\n");
+    p += sprintf(p,"  %u,\n",(uint)T::GridProjection::PolarStereographic);
+    p += sprintf(p,"  id,\n");
+    p += sprintf(p,"  name,\n");
+    p += sprintf(p,"  ni,\n");
+    p += sprintf(p,"  nj,\n");
+    p += sprintf(p,"  ST_X(first_point),\n");
+    p += sprintf(p,"  ST_Y(first_point),\n");
+    p += sprintf(p,"  di,\n");
+    p += sprintf(p,"  dj,\n");
+    p += sprintf(p,"  scanning_mode,\n");
+    p += sprintf(p,"  orientation,\n");
+    p += sprintf(p,"  description\n");
+    p += sprintf(p,"FROM\n");
+    p += sprintf(p,"  geom_stereographic\n");
+    p += sprintf(p,"ORDER BY\n");
+    p += sprintf(p,"  id;\n");
+
+
+    res = PQexec(conn,sql);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+      error(PQresultErrorMessage(res));
+
+    fieldCount = PQnfields(res);
+    rowCount = PQntuples(res);
+
+    for (int i = 0; i < rowCount; i++)
+    {
+      for (int f=0; f< fieldCount; f++)
+      {
+        fprintf(file,"%s;",PQgetvalue(res,i,f));
+      }
+      fprintf(file,"\n");
+    }
+
+    PQclear(res);
+
+    fclose(file);
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+  }
+}
+
+
+
+
 void create_levelDef_grib2_fmi(PGconn *conn,const char *dir)
 {
   FUNCTION_TRACE
@@ -363,6 +595,7 @@ int main(int argc, char *argv[])
     create_parameterDef_grib2_fmi(conn,dir);
     create_levelDef_grib1_fmi(conn,dir);
     create_levelDef_grib2_fmi(conn,dir);
+    create_geometryDef(conn,dir);
 
     PQfinish(conn);
 

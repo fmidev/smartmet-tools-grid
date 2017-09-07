@@ -141,6 +141,7 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
       T::TimeString endTime;
       std::size_t messages = 0;
 
+
       std::vector<T::ParamLevel> levels = gridFile.getLevelsByParameterId(id);
 
       auto levelCount = levels.size();
@@ -152,6 +153,7 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
         gridFile.getTimeRangeByParameterIdAndLevel(id,level,startTime,endTime,messages);
 
         const GRID::Message *msg = gridFile.getMessageByIndex(messageIndex[0]);
+        T::Hash hash = msg->getGridHash();
 
         double firstLat = 0, firstLon = 0, lastLat = 0,lastLon = 0;
 
@@ -175,6 +177,8 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
         printf(" - Projection                    : %s\n",msg->getGridProjectionString().c_str());
         printf(" - Grid type                     : %s\n",T::get_gridProjectionString(msg->getGridProjection()).c_str());
         printf(" - Grid layout                   : %s\n",T::get_gridLayoutString(msg->getGridLayout()).c_str());
+        printf(" - Grid hash                     : %llu\n",(unsigned long long)hash);
+        printf(" - Grid geometry id              : %u\n",(uint)msg->getGridGeometryId());
 
         if (d)
           printf(" - Dimensions                    : %u x %u\n",d->nx(),d->ny());
