@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
           contentInfo->mProducerId = fileInfo.mProducerId;
           contentInfo->mGenerationId = fileInfo.mGenerationId;
           contentInfo->mMessageIndex = (uint)atoll(field[6]);
-          contentInfo->mStartTime = field[7];
+          contentInfo->mForecastTime = field[7];
           contentInfo->mFmiParameterId = field[8];
           contentInfo->mFmiParameterName = field[9];
           contentInfo->mGribParameterId = field[10];

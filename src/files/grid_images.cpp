@@ -162,7 +162,7 @@ void saveImagesByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T
           message->getParameterMinAndMaxValues(minValue,maxValue);
 
         char imageFile[300];
-        sprintf(imageFile,"%s/image-%04u-%s-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId.c_str(),level,toString(message->getForecastStartTime()).c_str(),(unsigned long long)m);
+        sprintf(imageFile,"%s/image-%04u-%s-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId.c_str(),level,toString(message->getForecastTime()).c_str(),(unsigned long long)m);
         saveMessageImage(imageFile,message,minValue,maxValue,interpolationMethod,scaleFactor,valueLevels,flags);
       }
     }
@@ -193,7 +193,7 @@ void saveAllImages(uint fileIndex,SmartMet::GRID::GridFile& gridFile,const char 
       message->getParameterMinAndMaxValues(minValue,maxValue);
 
       char imageFile[300];
-      sprintf(imageFile,"%s/image-%04u-%04u-%09u-%s.jpg",imageDir,fileIndex,(uint)m,level,toString(message->getForecastStartTime()).c_str());
+      sprintf(imageFile,"%s/image-%04u-%04u-%09u-%s.jpg",imageDir,fileIndex,(uint)m,level,toString(message->getForecastTime()).c_str());
       saveMessageImage(imageFile,message,minValue,maxValue,interpolationMethod,scaleFactor,valueLevels,flags);
     }
   }

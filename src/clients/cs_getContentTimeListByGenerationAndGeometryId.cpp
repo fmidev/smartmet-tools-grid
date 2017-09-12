@@ -12,27 +12,28 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 3)
+    if (argc < 4)
     {
-      fprintf(stdout,"USAGE: cs_getContentTimeListByGenerationId <sessionId> <generationId> [-http <url>]\n");
+      fprintf(stdout,"USAGE: cs_getContentTimeListByGenerationAndGeometryId <sessionId> <generationId> <geometryId>[-http <url>]\n");
       return -1;
     }
 
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
     uint generationId = (uint)atoll(argv[2]);
-    std::vector<std::string> timeList;
+    uint geometryId = (uint)atoll(argv[2]);
+    std::set<std::string> timeList;
 
     int result = 0;
     unsigned long long startTime = 0;
     unsigned long long endTime = 0;
 
-    if (argc == 5  &&  strcmp(argv[3],"-http") == 0)
+    if (argc == 6  &&  strcmp(argv[4],"-http") == 0)
     {
       ContentServer::HTTP::ClientImplementation service;
-      service.init(argv[4]);
+      service.init(argv[5]);
 
       startTime = getTime();
-      result = service.getContentTimeListByGenerationId(sessionId,generationId,timeList);
+      result = service.getContentTimeListByGenerationAndGeometryId(sessionId,generationId,geometryId,timeList);
       endTime = getTime();
     }
     else
@@ -48,7 +49,7 @@ int main(int argc, char *argv[])
       service.init(serviceIor);
 
       startTime = getTime();
-      result = service.getContentTimeListByGenerationId(sessionId,generationId,timeList);
+      result = service.getContentTimeListByGenerationAndGeometryId(sessionId,generationId,geometryId,timeList);
       endTime = getTime();
     }
 
@@ -59,9 +60,8 @@ int main(int argc, char *argv[])
     }
 
     // ### Result:
-    uint len = (uint)timeList.size();
-    for (uint t=0; t<len; t++)
-      printf("%s\n",timeList[t].c_str());
+    for (auto it=timeList.begin(); it!=timeList.end(); ++it)
+      printf("%s\n",it->c_str());
 
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);

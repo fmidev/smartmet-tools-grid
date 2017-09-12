@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         cinfo->mGroupFlags = info.mGroupFlags;
         cinfo->mProducerId = info.mProducerId;
         cinfo->mMessageIndex = (uint)atoll(argv[t+1]);
-        cinfo->mStartTime = argv[t+2];
+        cinfo->mForecastTime = argv[t+2];
         cinfo->mFmiParameterId = argv[t+3];
         cinfo->mGribParameterId = argv[t+4];
 

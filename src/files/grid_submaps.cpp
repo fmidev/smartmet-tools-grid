@@ -145,7 +145,7 @@ void saveSubmapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,
 
         auto level = message->getParameterLevel();
         char imageFile[300];
-        sprintf(imageFile,"%s/submap-%04u-%s-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId.c_str(),level,toString(message->getForecastStartTime()).c_str(),(unsigned long long)m);
+        sprintf(imageFile,"%s/submap-%04u-%s-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId.c_str(),level,toString(message->getForecastTime()).c_str(),(unsigned long long)m);
         saveMessageSubmap(imageFile,message,lat,lon,width,height,step,minValue,maxValue,interpolationMethod,valueLevels,flags);
       }
     }

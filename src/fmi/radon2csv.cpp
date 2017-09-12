@@ -2,7 +2,7 @@
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ShowFunction.h"
-#include "identification/GribDef.h"
+#include "grid-files/identification/GribDef.h"
 
 #include <postgresql/libpq-fe.h>
 #include <stdlib.h>
@@ -102,7 +102,7 @@ bool producerEnabled(const char *producerName)
 
 
 
-void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uint fileType,char *geometryId,char *startTime,char *endTime,char *fmiParameterId,char *fmiLevelId,char *parameterLevel,char *forecastType,char *pertubationNumber)
+void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uint fileType,char *geometryId,char *forecastTime,char *fmiParameterId,char *fmiLevelId,char *parameterLevel,char *forecastType,char *pertubationNumber)
 {
   FUNCTION_TRACE
   try
@@ -142,15 +142,14 @@ void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uin
     }
 
 
-    fprintf(contentFile,"%u;%u;%u;%s;%u;%u;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%u;%u;%u;%s;\n",
+    fprintf(contentFile,"%u;%u;%u;%s;%u;%u;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%u;%u;%u;%s;\n",
            fileId,
            0, // messageIndex
            fileType,
            producerId,
            generationId,
            0, // groupFlags
-           startTime,
-           endTime,
+           forecastTime,
            fmiParameterId,
            fmiParameterName.c_str(),
            gribParameterId.c_str(),
@@ -213,7 +212,7 @@ uint readFiles(PGconn *conn,char *producerId,uint generationId,char *schemaName,
                sourceId
               );
 
-        readContent(conn,producerId,generationId,globalFileId,0,PQgetvalue(res, i, 7),PQgetvalue(res, i, 4),PQgetvalue(res, i, 4),PQgetvalue(res, i, 1),PQgetvalue(res, i, 2),PQgetvalue(res, i, 3),PQgetvalue(res, i, 5),PQgetvalue(res, i, 6));
+        readContent(conn,producerId,generationId,globalFileId,0,PQgetvalue(res, i, 7),PQgetvalue(res, i, 4),PQgetvalue(res, i, 1),PQgetvalue(res, i, 2),PQgetvalue(res, i, 3),PQgetvalue(res, i, 5),PQgetvalue(res, i, 6));
 
         globalFileId++;
         fileCount++;

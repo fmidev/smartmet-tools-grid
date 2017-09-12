@@ -139,7 +139,7 @@ void saveMapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::
 
         auto level = message->getParameterLevel();
         char imageFile[300];
-        sprintf(imageFile,"%s/map-%04u-%s-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId.c_str(),level,toString(message->getForecastStartTime()).c_str(),(unsigned long long)m);
+        sprintf(imageFile,"%s/map-%04u-%s-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId.c_str(),level,toString(message->getForecastTime()).c_str(),(unsigned long long)m);
         saveMessageMap(imageFile,message,minValue,maxValue,interpolationMethod,valueLevels,flags);
       }
     }

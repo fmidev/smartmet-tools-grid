@@ -179,9 +179,9 @@ int main(int argc, char *argv[])
       T::ContentInfo *contentInfo = contentInfoList.getContentInfoByIndex(t);
       T::GridPointValue *point = valueList.getGridPointValueByIndex(t);
       if (point != NULL  &&  point->mValue != ParamValueMissing)
-        printf("%u;%u;%s;%s;%u;%f\n",contentInfo->mGenerationId,contentInfo->mGrib1ParameterLevelId,contentInfo->mStartTime.c_str(),contentInfo->mEndTime.c_str(),contentInfo->mParameterLevel,point->mValue);
+        printf("%u;%u;%s;%u;%f\n",contentInfo->mGenerationId,contentInfo->mGrib1ParameterLevelId,contentInfo->mForecastTime.c_str(),contentInfo->mParameterLevel,point->mValue);
       else
-        printf("%u;%u;%s;%s;%u;None\n",contentInfo->mGenerationId,contentInfo->mGrib1ParameterLevelId,contentInfo->mStartTime.c_str(),contentInfo->mEndTime.c_str(),contentInfo->mParameterLevel);
+        printf("%u;%u;%s;%u;None\n",contentInfo->mGenerationId,contentInfo->mGrib1ParameterLevelId,contentInfo->mForecastTime.c_str(),contentInfo->mParameterLevel);
     }
 
     // ### Result:
