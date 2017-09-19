@@ -1,5 +1,6 @@
 #include "contentServer/corba/client/ClientImplementation.h"
 #include "contentServer/http/client/ClientImplementation.h"
+#include "contentServer/redis/RedisImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
 
@@ -12,7 +13,7 @@ int main(int argc, char *argv[])
   {
     if (argc < 3)
     {
-      fprintf(stdout,"USAGE: cs_deleteContentListBySourceId <sessionId> <sourceId> [-http <url>]\n");
+      fprintf(stdout,"USAGE: cs_deleteContentListBySourceId <sessionId> <sourceId> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
@@ -27,6 +28,16 @@ int main(int argc, char *argv[])
     {
       ContentServer::HTTP::ClientImplementation service;
       service.init(argv[4]);
+
+      startTime = getTime();
+      result = service.deleteContentListBySourceId(sessionId,sourceId);
+      endTime = getTime();
+    }
+    else
+    if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
+    {
+      ContentServer::RedisImplementation service;
+      service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
       result = service.deleteContentListBySourceId(sessionId,sourceId);

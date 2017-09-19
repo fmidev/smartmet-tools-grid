@@ -2,6 +2,8 @@
 #include "contentServer/http/client/ClientImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
+#include "contentServer/redis/RedisImplementation.h"
+
 
 using namespace SmartMet;
 
@@ -12,7 +14,7 @@ int main(int argc, char *argv[])
   {
     if (argc < 9)
     {
-      fprintf(stdout,"USAGE: cs_addFileInfo <sessionId> <groupFlags> <producerId> <generationId> <fileType> <sourceId> <flags> <filename> [-http <url>]\n");
+      fprintf(stdout,"USAGE: cs_addFileInfo <sessionId> <groupFlags> <producerId> <generationId> <fileType> <sourceId> <flags> <filename> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
@@ -34,6 +36,16 @@ int main(int argc, char *argv[])
     {
       ContentServer::HTTP::ClientImplementation service;
       service.init(argv[10]);
+
+      startTime = getTime();
+      result = service.addFileInfo(sessionId,info);
+      endTime = getTime();
+    }
+    else
+    if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
+    {
+      ContentServer::RedisImplementation service;
+      service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
       result = service.addFileInfo(sessionId,info);

@@ -1,5 +1,6 @@
 #include "contentServer/corba/client/ClientImplementation.h"
 #include "contentServer/http/client/ClientImplementation.h"
+#include "contentServer/redis/RedisImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
 
@@ -25,7 +26,7 @@ int main(int argc, char *argv[])
       fprintf(stdout,"     <10:fmiParameterId> <11:gribParameterId> <12:cdmParameterId> <13:cdmParameterName>\n");
       fprintf(stdout,"     <14:newbaseParameterId> <15:newbaseParameterName>\n");
       fprintf(stdout,"     <16:fmiParameterLevelId> <17:grib1ParameterLevelId> <18:grib2ParameterLevelId> \n");
-      fprintf(stdout,"     <19:parameterLevel> <20:fmiParameterUnits> <21:gribParameterUnits> <22:sourceId> <23:flags> [-http <url>]\n");
+      fprintf(stdout,"     <19:parameterLevel> <20:fmiParameterUnits> <21:gribParameterUnits> <22:sourceId> <23:flags> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
@@ -61,6 +62,16 @@ int main(int argc, char *argv[])
     {
       ContentServer::HTTP::ClientImplementation service;
       service.init(argv[25]);
+
+      startTime = getTime();
+      result = service.addContentInfo(sessionId,info);
+      endTime = getTime();
+    }
+    else
+    if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
+    {
+      ContentServer::RedisImplementation service;
+      service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
       result = service.addContentInfo(sessionId,info);

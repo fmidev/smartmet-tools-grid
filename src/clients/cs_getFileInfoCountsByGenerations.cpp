@@ -7,40 +7,63 @@
 using namespace SmartMet;
 
 
+
 int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 3)
+    if (argc < 2)
     {
-      fprintf(stdout,"USAGE: cs_getGenerationInfoListByGeometryId <sessionId> <geometryId> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"USAGE: cs_getFileInfoCountsByGenerations <sessionId> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
-    uint geometryId = (uint)atoll(argv[2]);
     T::GenerationInfoList infoList;
     int result = 0;
     unsigned long long startTime = 0;
     unsigned long long endTime = 0;
 
-    if (argc == 5  &&  strcmp(argv[3],"-http") == 0)
+    if (argc == 4  &&  strcmp(argv[argc-2],"-http") == 0)
     {
       ContentServer::HTTP::ClientImplementation service;
-      service.init(argv[4]);
+      service.init(argv[argc-1]);
 
       startTime = getTime();
-      result = service.getGenerationInfoListByGeometryId(sessionId,geometryId,infoList);
+      result = service.getGenerationInfoList(sessionId,infoList);
+
+      uint len = infoList.getLength();
+      for (uint t=0; t<len; t++)
+      {
+        T::GenerationInfo *info = infoList.getGenerationInfoByIndex(t);
+        uint count = 0;
+        if (service.getFileInfoCountByGenerationId(sessionId,info->mGenerationId,count) == 0)
+        {
+          printf("%s:%u\n",info->mName.c_str(),count);
+        }
+      }
+
       endTime = getTime();
     }
     else
-    if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
+    if (argc == 6  &&  strcmp(argv[argc-4],"-redis") == 0)
     {
       ContentServer::RedisImplementation service;
       service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
-      result = service.getGenerationInfoListByGeometryId(sessionId,geometryId,infoList);
+      result = service.getGenerationInfoList(sessionId,infoList);
+
+      uint len = infoList.getLength();
+      for (uint t=0; t<len; t++)
+      {
+        T::GenerationInfo *info = infoList.getGenerationInfoByIndex(t);
+        uint count = 0;
+        if (service.getFileInfoCountByGenerationId(sessionId,info->mGenerationId,count) == 0)
+        {
+          printf("%s:%u\n",info->mName.c_str(),count);
+        }
+      }
       endTime = getTime();
     }
     else
@@ -56,7 +79,18 @@ int main(int argc, char *argv[])
       service.init(serviceIor);
 
       startTime = getTime();
-      result = service.getGenerationInfoListByGeometryId(sessionId,geometryId,infoList);
+      result = service.getGenerationInfoList(sessionId,infoList);
+
+      uint len = infoList.getLength();
+      for (uint t=0; t<len; t++)
+      {
+        T::GenerationInfo *info = infoList.getGenerationInfoByIndex(t);
+        uint count = 0;
+        if (service.getFileInfoCountByGenerationId(sessionId,info->mGenerationId,count) == 0)
+        {
+          printf("%s:%u\n",info->mName.c_str(),count);
+        }
+      }
       endTime = getTime();
     }
 
@@ -65,9 +99,6 @@ int main(int argc, char *argv[])
       fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
       return -3;
     }
-
-    // ### Result:
-    infoList.print(std::cout,0,0);
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

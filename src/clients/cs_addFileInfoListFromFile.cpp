@@ -1,5 +1,6 @@
 #include "contentServer/corba/client/ClientImplementation.h"
 #include "contentServer/http/client/ClientImplementation.h"
+#include "contentServer/redis/RedisImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
 #include "string.h"
@@ -21,7 +22,7 @@ int main(int argc, char *argv[])
 
     if (argc < 9)
     {
-      fprintf(stdout,"USAGE: cs_addFileInfoListFromFile <sessionId> <groupFlags> <producerId> <generationId> <fileType> <sourceId> <flags> <filename> [-http <url>]\n");
+      fprintf(stdout,"USAGE: cs_addFileInfoListFromFile <sessionId> <groupFlags> <producerId> <generationId> <fileType> <sourceId> <flags> <filename> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
@@ -51,6 +52,13 @@ int main(int argc, char *argv[])
       ContentServer::HTTP::ClientImplementation *httpService = new ContentServer::HTTP::ClientImplementation();
       httpService->init(argv[10]);
       service = httpService;
+    }
+    else
+    if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
+    {
+      ContentServer::RedisImplementation *redis = new ContentServer::RedisImplementation();
+      redis->init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+      service = redis;
     }
     else
     {

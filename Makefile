@@ -143,13 +143,15 @@ vpath %.cpp src \
 			src/clients \
 			src/files \
 			src/fmi \
-			src/servers
+			src/servers \
+			src/utils
 			
 vpath %.h 	src \
 			src/clients \
 			src/files \
 			src/fmi \
-			src/servers
+			src/servers \
+			src/utils
 
 vpath %.o obj
 
@@ -206,11 +208,13 @@ objdir:
 	@mkdir -p obj/files
 	@mkdir -p obj/fmi
 	@mkdir -p obj/servers
+	@mkdir -p obj/utils
 	@mkdir -p bin
 	@mkdir -p bin/clients
 	@mkdir -p bin/files
 	@mkdir -p bin/fmi
 	@mkdir -p bin/servers
+	@mkdir -p bin/utils
 
 rpm: clean
 	if [ -e $(SPEC).spec ]; \
