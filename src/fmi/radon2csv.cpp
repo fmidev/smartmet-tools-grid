@@ -272,7 +272,7 @@ uint readGenerations(PGconn *conn,char *producerId,char *producerName)
           strcpy(prev,PQgetvalue(res, i, 1));
           globalGenerationId++;
           generationCount++;
-          if (generationCount == 2)
+          if (generationCount == 1)
           {
             PQclear(res);
             return generationCount;

@@ -18,72 +18,41 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc != 9)
+    if (argc != 8)
     {
-      fprintf(stdout,"USAGE: ds_getGridValue <sessionId> <dataServerId> <fileId> <messageIndex> <coordinateType> <x> <y> <interpolationMethod>\n");
+      fprintf(stdout,"USAGE: ds_getGridValue <sessionId> <fileId> <messageIndex> <coordinateType> <x> <y> <interpolationMethod>\n");
       return -1;
     }
 
+
+    char *serviceIor = getenv("SMARTMET_DS_IOR");
+    if (serviceIor == NULL)
+    {
+      fprintf(stdout,"SMARTMET_DS_IOR not defined!\n");
+      return -2;
+    }
 
     // ### Session:
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
 
 
-    // #######################################################################
-    // ### STEP 1: Getting the dataServer IOR from the contentServer.
-    // #######################################################################
-
-    // ### Creating a contentServer client:
-
-    ContentServer::Corba::ClientImplementation contentServer;
-    contentServer.init(contentServiceIor);
-
-    // ### Calling the contentServer:
-
-    uint dataServerId = (uint)atoll(argv[2]);
-    T::ServerInfo dataServerInfo;
-    int result = 0;
-
-    if (dataServerId != 0)
-      result = contentServer.getDataServerInfoById(sessionId,dataServerId,dataServerInfo);
-    else
-      result = contentServer.getDataServerInfoByName(sessionId,std::string(argv[2]),dataServerInfo);
-
-
-    if (result == ContentServer::Result::DATA_NOT_FOUND)
-    {
-      fprintf(stdout,"Unknown data server (%s)!\n",argv[2]);
-      return -3;
-    }
-
-    if (result != 0)
-    {
-      fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
-      return -4;
-    }
-
-
-    // #######################################################################
-    // ### STEP 2: Requesting data from the dataServer.
-    // #######################################################################
-
     // ### Creating a dataServer client:
 
     DataServer::Corba::ClientImplementation dataServer;
-    dataServer.init(dataServerInfo.mServerIor);
+    dataServer.init(serviceIor);
 
     // ### Calling the dataServer:
 
-    uint fileId = (uint)atoll(argv[3]);
-    uint messageIndex = (uint)atoll(argv[4]);
-    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[5]);
-    double x = (double)atof(argv[6]);
-    double y = (double)atof(argv[7]);
-    T::InterpolationMethod interpolationMethod = (T::InterpolationMethod)atoll(argv[8]);
+    uint fileId = (uint)atoll(argv[2]);
+    uint messageIndex = (uint)atoll(argv[3]);
+    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[4]);
+    double x = (double)atof(argv[5]);
+    double y = (double)atof(argv[6]);
+    T::InterpolationMethod interpolationMethod = (T::InterpolationMethod)atoll(argv[7]);
     T::ParamValue value = 0;
 
     unsigned long long startTime = getTime();
-    result = dataServer.getGridValue(sessionId,fileId,messageIndex,coordinateType,x,y,interpolationMethod,value);
+    int result = dataServer.getGridValue(sessionId,fileId,messageIndex,coordinateType,x,y,interpolationMethod,value);
     unsigned long long endTime = getTime();
 
 

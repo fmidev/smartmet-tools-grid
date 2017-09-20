@@ -160,6 +160,9 @@ int main(int argc, char *argv[])
     dataServer->init(sessionId,serverId,serverName,corbaServer->getServiceIor().c_str(),gridFileDir,&contentServerClient);
     dataServer->startEventProcessing();
 
+    std::string ior = corbaServer->getServiceIor();
+    printf("\n%s\n",ior.c_str());
+
     corbaServer->run();
 
     delete dataServer;
