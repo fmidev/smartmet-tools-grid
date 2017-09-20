@@ -5,7 +5,7 @@
 #include "grid-files/identification/GribDef.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 
-#include <postgresql/libpq-fe.h>
+#include <libpq-fe.h>
 #include <stdlib.h>
 #include <string.h>
 
