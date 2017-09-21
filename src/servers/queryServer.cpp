@@ -43,7 +43,7 @@ void sig_handler(int signum)
     }
     catch (...)
     {
-      SmartMet::Spine::Exception exception(BCP,"Operation failed!",NULL);
+      SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
       exception.printError();
       exit(-1);
     }
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,"Operation failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
     exception.printError();
     return -1;
   }

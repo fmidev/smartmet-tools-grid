@@ -42,7 +42,7 @@ void getMainPage(SmartMet::T::ResponseMessage& response)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -73,7 +73,7 @@ static int addParameter(void *cls, enum MHD_ValueKind kind, const char *key,cons
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -91,7 +91,7 @@ static void requestCompleted (void *cls, struct MHD_Connection *connection,void 
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -207,7 +207,7 @@ static int processRequest(void *cls,struct MHD_Connection *connection,const char
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,"Operation failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
     exception.printError();
     return MHD_NO;
   }
@@ -274,7 +274,7 @@ int main(int argc,char ** argv)
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,"Operation failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
     exception.printError();
     return -1;
   }

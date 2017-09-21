@@ -48,8 +48,8 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
 
     unsigned long *image = new unsigned long[width*height];
 
-    unsigned char hue = 30;
-    unsigned char saturation = 128;
+    unsigned char hue = 0;
+    unsigned char saturation = 0;
     uint c = 0;
 
     for (int y=0; y<height; y++)
@@ -76,7 +76,7 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -87,17 +87,16 @@ int main(int argc, char *argv[])
 {
   try
   {
-    char *contentServiceIor = getenv("SMARTMET_CS_IOR");
-    if (contentServiceIor == NULL)
+    char *serviceIor = getenv("SMARTMET_DS_IOR");
+    if (serviceIor == NULL)
     {
-      fprintf(stdout,"SMARTMET_CS_IOR not defined!\n");
+      fprintf(stdout,"SMARTMET_DS_IOR not defined!\n");
       return -2;
     }
 
-
-    if (argc != 6)
+    if (argc != 5)
     {
-      fprintf(stdout,"USAGE: cs_getGridMap <sessionId> <dataServerId> <fileId> <messageIndex> <jpgFile>\n");
+      fprintf(stdout,"USAGE: cs_getGridMap <sessionId> <fileId> <messageIndex> <jpgFile>\n");
       return -1;
     }
 
@@ -105,59 +104,21 @@ int main(int argc, char *argv[])
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
 
 
-    // #######################################################################
-    // ### STEP 1: Getting the dataServer IOR from the contentServer.
-    // #######################################################################
-
-    // ### Creating a contentServer client:
-
-    ContentServer::Corba::ClientImplementation contentServer;
-    contentServer.init(contentServiceIor);
-
-    // ### Calling the contentServer:
-
-    uint dataServerId = (uint)atoll(argv[2]);
-    T::ServerInfo dataServerInfo;
-    int result = 0;
-
-    if (dataServerId != 0)
-      result = contentServer.getDataServerInfoById(sessionId,dataServerId,dataServerInfo);
-    else
-      result = contentServer.getDataServerInfoByName(sessionId,std::string(argv[2]),dataServerInfo);
-
-
-    if (result == ContentServer::Result::DATA_NOT_FOUND)
-    {
-      fprintf(stdout,"Unknown data server id (%s)!\n",argv[2]);
-      return -3;
-    }
-
-    if (result != 0)
-    {
-      fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
-      return -4;
-    }
-
-
-    // #######################################################################
-    // ### STEP 2: Requesting data from the dataServer.
-    // #######################################################################
-
     // ### Creating a dataServer client:
 
     DataServer::Corba::ClientImplementation dataServer;
-    dataServer.init(dataServerInfo.mServerIor);
+    dataServer.init(serviceIor);
 
     // ### Calling the data server:
 
-    uint fileId = (uint)atoll(argv[3]);
-    uint messageIndex = (uint)atoll(argv[4]);
+    uint fileId = (uint)atoll(argv[2]);
+    uint messageIndex = (uint)atoll(argv[3]);
     uint columns = 1800;
     uint rows = 900;
     T::ParamValue_vec values;
 
     unsigned long long startTime = getTime();
-    result = dataServer.getGridValuesByArea(sessionId,fileId,messageIndex,T::CoordinateType::LATLON_COORDINATES,columns,rows,-180,90,360/(double)columns,-180/(double)rows,T::InterpolationMethod::Nearest,values);
+    int result = dataServer.getGridValuesByArea(sessionId,fileId,messageIndex,T::CoordinateType::LATLON_COORDINATES,columns,rows,-180,90,360/(double)columns,-180/(double)rows,T::InterpolationMethod::Nearest,values);
     unsigned long long endTime = getTime();
 
     if (result != 0)
@@ -168,7 +129,7 @@ int main(int argc, char *argv[])
 
     // ### Saving the grid data as an image:
 
-    saveImage(argv[5],columns,rows,values);
+    saveImage(argv[4],columns,rows,values);
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

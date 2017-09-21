@@ -45,7 +45,7 @@ void writeProducers(T::SessionId sessionId,ContentServer::ServiceInterface *serv
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -90,7 +90,7 @@ void writeGenerations(T::SessionId sessionId,ContentServer::ServiceInterface *se
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -142,7 +142,7 @@ void writeFiles(T::SessionId sessionId,ContentServer::ServiceInterface *serviceI
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -199,7 +199,7 @@ void writeContent(T::SessionId sessionId,ContentServer::ServiceInterface *servic
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 

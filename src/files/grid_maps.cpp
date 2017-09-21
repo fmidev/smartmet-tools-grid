@@ -46,7 +46,7 @@ void init()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -106,7 +106,7 @@ void saveMessageMap(const char *imageFile,const GRID::Message *message,T::ParamV
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -146,7 +146,7 @@ void saveMapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -167,7 +167,7 @@ void saveAllMaps(uint fileIndex,SmartMet::GRID::GridFile& gridFile,const char *i
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -275,7 +275,7 @@ int run(int argc, char **argv)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -292,6 +292,6 @@ int main(int argc, char **argv) try
 }
 catch (...)
 {
-  SmartMet::Spine::Exception exception(BCP,"Operation failed!",NULL);
+  SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
   exception.printError();
 }

@@ -10,13 +10,12 @@ int main(int argc, char *argv[])
 {
   try
   {
-    char *contentServiceIor = getenv("SMARTMET_CS_IOR");
-    if (contentServiceIor == NULL)
+    char *serviceIor = getenv("SMARTMET_DS_IOR");
+    if (serviceIor == NULL)
     {
-      fprintf(stdout,"SMARTMET_CS_IOR not defined!\n");
+      fprintf(stdout,"SMARTMET_DS_IOR not defined!\n");
       return -2;
     }
-
 
     if (argc != 8)
     {
@@ -24,13 +23,6 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-
-    char *serviceIor = getenv("SMARTMET_DS_IOR");
-    if (serviceIor == NULL)
-    {
-      fprintf(stdout,"SMARTMET_DS_IOR not defined!\n");
-      return -2;
-    }
 
     // ### Session:
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);

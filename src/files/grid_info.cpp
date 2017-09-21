@@ -38,7 +38,7 @@ void init()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -111,7 +111,7 @@ void showInfo(SmartMet::GRID::GridFile& gridFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -199,7 +199,7 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -282,7 +282,7 @@ int run(int argc, char **argv)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,"Operation failed!",NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
 
@@ -302,6 +302,6 @@ int main(int argc, char **argv) try
 }
 catch (...)
 {
-  SmartMet::Spine::Exception exception(BCP,"Operation failed!",NULL);
+  SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
   exception.printError();
 }
