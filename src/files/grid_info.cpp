@@ -77,30 +77,13 @@ void showInfo(SmartMet::GRID::GridFile& gridFile)
         auto level = levels[l];
         gridFile.getTimeRangeByParameterIdAndLevel(id,level,startTime,endTime,messages);
 
-        double firstLat = 0;
-        double firstLon = 0;
-        double lastLat = 0;
-        double lastLon = 0;
 
-        try
-        {
-          gridFile.getGridLatlonAreaCoordinatesByParameterIdAndLevel(id,level,firstLat,firstLon,lastLat,lastLon);
-        }
-        catch (...)
-        {
-        }
-
-        char area[100];
-        sprintf(area,"%.0f,%.0f,%.0f,%.0f",firstLat,firstLon,lastLat,lastLon);
-
-
-        printf(" %-9s %9u %s %s %-4llu %-13s %-9s %s (%s)\n",
+        printf(" %-9s %9u %s %s %-4llu %-9s %s (%s)\n",
             id.c_str(),
             level,
             startTime.c_str(),
             endTime.c_str(),
             (unsigned long long)messages,
-            area,
             paramDef->mParameterName.c_str(),
             paramDef->mParameterDescription.c_str(),
             paramDef->mParameterUnits.c_str()
@@ -155,19 +138,6 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
         const GRID::Message *msg = gridFile.getMessageByIndex(messageIndex[0]);
         T::Hash hash = msg->getGridHash();
 
-        double firstLat = 0, firstLon = 0, lastLat = 0,lastLon = 0;
-
-        try
-        {
-          msg->getGridLatlonAreaCoordinates(firstLat,firstLon,lastLat,lastLon);
-        }
-        catch (...)
-        {
-        }
-
-        double x1 = 0, y1 = 0, x2 = 0, y2 = 0;
-        msg->getGridOriginalAreaCoordinates(x1,y1,x2,y2);
-
         T::Dimensions_opt d = msg->getGridDimensions();
 
         printf(" PARAMETER [%s] : %s\n",id.c_str(),paramDef->mParameterDescription.c_str());
@@ -187,8 +157,6 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
 
         printf(" - Grid rows                     : %u\n",(uint)msg->getGridOriginalRowCount());
         printf(" - Grid columns                  : %u\n",(uint)msg->getGridOriginalColumnCount());
-        printf(" - Corner coordinates (original) : (%.2f, %.2f) - (%.2f, %.2f)\n",x1,y1,x2,y2);
-        printf(" - Corner coordinates (latlon)   : (%.2f, %.2f) - (%.2f, %.2f)\n",firstLat,firstLon,lastLat,lastLon);
         printf(" - Units                         : %s\n",paramDef->mParameterUnits.c_str());
         printf(" - Time range                    : %s - %s\n",startTime.c_str(),endTime.c_str());
         printf(" - Number of messages            : %llu\n",(unsigned long long)messages);

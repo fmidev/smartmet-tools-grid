@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 
     if (argc != 12)
     {
-      fprintf(stdout,"USAGE: ds_getGridValuesByArea <sessionId> <fileId> <messageIndex> <coordinateType> <columns> <rows> <x> <y> <xStep> <yStep> <interpolationMethod>\n");
+      fprintf(stdout,"USAGE: ds_getGridValueVectorByRectangle <sessionId> <fileId> <messageIndex> <coordinateType> <columns> <rows> <x> <y> <xStep> <yStep> <interpolationMethod>\n");
       return -1;
     }
 
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     T::ParamValue_vec values;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValuesByArea(sessionId,fileId,messageIndex,coordinateType,columns,rows,x,y,xStep,yStep,interpolationMethod,values);
+    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,coordinateType,columns,rows,x,y,xStep,yStep,interpolationMethod,values);
     unsigned long long endTime = getTime();
 
 
