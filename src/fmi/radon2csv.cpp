@@ -187,7 +187,7 @@ uint readFiles(PGconn *conn,char *producerId,uint generationId,char *schemaName,
   try
   {
     char sql[1000];
-    sprintf(sql,"SELECT file_location,param_id,level_id,level_value::int,to_char((analysis_time+forecast_period) at time zone 'utc','yyyymmddThh240000'),forecast_type_id,forecast_type_value::int,geometry_id FROM %s.%s WHERE to_char(analysis_time, 'yyyymmddThh240000') = '%s' AND producer_id = %s",schemaName,partitionName,analysisTime,producerId);
+    sprintf(sql,"SELECT file_location,param_id,level_id,level_value::int,to_char((analysis_time+forecast_period) at time zone 'utc','yyyymmddThh24MISS'),forecast_type_id,forecast_type_value::int,geometry_id FROM %s.%s WHERE to_char(analysis_time, 'yyyymmddThh24MISS') = '%s' AND producer_id = %s",schemaName,partitionName,analysisTime,producerId);
 
     PGresult *res = PQexec(conn,sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
@@ -237,7 +237,7 @@ uint readGenerations(PGconn *conn,char *producerId,char *producerName)
   try
   {
     char sql[1000];
-    sprintf(sql,"SELECT producer_id, to_char(analysis_time, 'yyyymmddThh240000'),to_char(analysis_time at time zone 'utc', 'yyyymmddThh240000'),schema_name, partition_name FROM as_grid_v WHERE producer_id = %s ORDER BY analysis_time desc",producerId);
+    sprintf(sql,"SELECT producer_id, to_char(analysis_time, 'yyyymmddThh24MISS'),to_char(analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),schema_name, partition_name FROM as_grid_v WHERE producer_id = %s ORDER BY analysis_time desc",producerId);
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
       error(PQresultErrorMessage(res));
