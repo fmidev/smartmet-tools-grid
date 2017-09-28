@@ -89,7 +89,7 @@ void saveMessageImage(const char *imageFile,const GRID::Message *message,T::Para
       {
         for (int x=0; x<width; x++)
         {
-          T::ParamValue val = message->getParameterValueByGridPosition((double)x/scaleFactor,(double)y/scaleFactor,interpolationMethod);
+          T::ParamValue val = message->getGridValueByGridPoint((double)x/scaleFactor,(double)y/scaleFactor,interpolationMethod);
           uint v = 255 - (uint)((val - minValue) / step / levelSize);
           v = v * levelSize;
           if ((flags & IMGF_REVERSE) != 0)
@@ -109,7 +109,7 @@ void saveMessageImage(const char *imageFile,const GRID::Message *message,T::Para
       {
         for (int x=0; x<width; x++)
         {
-          T::ParamValue val = message->getParameterValueByGridPosition((double)x/scaleFactor,(double)y/scaleFactor,interpolationMethod);
+          T::ParamValue val = message->getGridValueByGridPoint((double)x/scaleFactor,(double)y/scaleFactor,interpolationMethod);
           uint v = 255 - (uint)((val - minValue) / step / levelSize);
           v = v * levelSize;
           if ((flags & IMGF_REVERSE) != 0)
@@ -149,7 +149,7 @@ void saveImagesByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T
       interpolationMethod = Identification::gribDef.getPreferredInterpolationMethodByUnits(def->mParameterUnits);
 
     if ((flags & IMGF_PARAM) != 0)
-      gridFile.getParameterMinAndMaxValues(parameterId,minValue,maxValue);
+      gridFile.getGridMinAndMaxValues(parameterId,minValue,maxValue);
 
     std::size_t messageCount = gridFile.getNumberOfMessages();
     for (std::size_t m=0; m<messageCount; m++)
@@ -157,9 +157,9 @@ void saveImagesByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T
       const GRID::Message *message = gridFile.getMessageByIndex(m);
       if (message->getGribParameterId() == parameterId)
       {
-        auto level = message->getParameterLevel();
+        auto level = message->getGridParameterLevel();
         if ((flags & IMGF_PARAM) == 0)
-          message->getParameterMinAndMaxValues(minValue,maxValue);
+          message->getGridMinAndMaxValues(minValue,maxValue);
 
         char imageFile[300];
         sprintf(imageFile,"%s/image-%04u-%s-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId.c_str(),level,toString(message->getForecastTime()).c_str(),(unsigned long long)m);
@@ -189,8 +189,8 @@ void saveAllImages(uint fileIndex,SmartMet::GRID::GridFile& gridFile,const char 
     for (std::size_t m=0; m<messageCount; m++)
     {
       const GRID::Message *message = gridFile.getMessageByIndex(m);
-      auto level = message->getParameterLevel();
-      message->getParameterMinAndMaxValues(minValue,maxValue);
+      auto level = message->getGridParameterLevel();
+      message->getGridMinAndMaxValues(minValue,maxValue);
 
       char imageFile[300];
       sprintf(imageFile,"%s/image-%04u-%04u-%09u-%s.jpg",imageDir,fileIndex,(uint)m,level,toString(message->getForecastTime()).c_str());

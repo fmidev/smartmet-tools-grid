@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     }
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueList(sessionId,valueRecordList);
+    int result = dataServer.getMultipleGridValues(sessionId,valueRecordList);
     unsigned long long endTime = getTime();
 
 

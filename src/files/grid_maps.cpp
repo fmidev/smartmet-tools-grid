@@ -79,7 +79,7 @@ void saveMessageMap(const char *imageFile,const GRID::Message *message,T::ParamV
       uint x = startLon;
       for (double lon = -179.8; lon < 180; lon=lon + 0.2)
       {
-        T::ParamValue val = message->getParameterValueByLatLon(lat,lon,interpolationMethod);
+        T::ParamValue val = message->getGridValueByLatLonCoordinate(lat,lon,interpolationMethod);
 
         uint v = 255 - (uint)((val - minValue) / step / levelSize);
         v = v * levelSize;
@@ -126,7 +126,7 @@ void saveMapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::
       interpolationMethod = Identification::gribDef.getPreferredInterpolationMethodByUnits(def->mParameterUnits);
 
     if ((flags & IMGF_PARAM) != 0)
-      gridFile.getParameterMinAndMaxValues(parameterId,minValue,maxValue);
+      gridFile.getGridMinAndMaxValues(parameterId,minValue,maxValue);
 
     std::size_t messageCount = gridFile.getNumberOfMessages();
     for (std::size_t m=0; m<messageCount; m++)
@@ -135,9 +135,9 @@ void saveMapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::
       if (message->getGribParameterId() == parameterId)
       {
         if ((flags & IMGF_PARAM) == 0)
-          message->getParameterMinAndMaxValues(minValue,maxValue);
+          message->getGridMinAndMaxValues(minValue,maxValue);
 
-        auto level = message->getParameterLevel();
+        auto level = message->getGridParameterLevel();
         char imageFile[300];
         sprintf(imageFile,"%s/map-%04u-%s-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId.c_str(),level,toString(message->getForecastTime()).c_str(),(unsigned long long)m);
         saveMessageMap(imageFile,message,minValue,maxValue,interpolationMethod,valueLevels,flags);

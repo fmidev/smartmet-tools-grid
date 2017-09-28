@@ -88,7 +88,7 @@ void saveMessageSubmap(const char *imageFile,const GRID::Message *message,double
           if (lon > 180)
             lon -= 360;
 
-          T::ParamValue val = message->getParameterValueByLatLon(lat,lon,interpolationMethod);
+          T::ParamValue val = message->getGridValueByLatLonCoordinate(lat,lon,interpolationMethod);
           uint v = 255 - (uint)((val - minValue) / vstep / levelSize);
           v = v * levelSize;
 
@@ -132,7 +132,7 @@ void saveSubmapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,
       interpolationMethod = Identification::gribDef.getPreferredInterpolationMethodByUnits(def->mParameterUnits);
 
     if ((flags & IMGF_PARAM) != 0)
-      gridFile.getParameterMinAndMaxValues(parameterId,minValue,maxValue);
+      gridFile.getGridMinAndMaxValues(parameterId,minValue,maxValue);
 
     std::size_t messageCount = gridFile.getNumberOfMessages();
     for (std::size_t m=0; m<messageCount; m++)
@@ -141,9 +141,9 @@ void saveSubmapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,
       if (message->getGribParameterId() == parameterId)
       {
         if ((flags & IMGF_PARAM) == 0)
-          message->getParameterMinAndMaxValues(minValue,maxValue);
+          message->getGridMinAndMaxValues(minValue,maxValue);
 
-        auto level = message->getParameterLevel();
+        auto level = message->getGridParameterLevel();
         char imageFile[300];
         sprintf(imageFile,"%s/submap-%04u-%s-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId.c_str(),level,toString(message->getForecastTime()).c_str(),(unsigned long long)m);
         saveMessageSubmap(imageFile,message,lat,lon,width,height,step,minValue,maxValue,interpolationMethod,valueLevels,flags);

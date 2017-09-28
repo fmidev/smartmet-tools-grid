@@ -142,7 +142,7 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
 
         printf(" PARAMETER [%s] : %s\n",id.c_str(),paramDef->mParameterDescription.c_str());
         printf(" - Name                          : %s\n",paramDef->mParameterName.c_str());
-        printf(" - Level type                    : %s\n",msg->getParameterLevelIdString().c_str());
+        printf(" - Level type                    : %s\n",msg->getGridParameterLevelIdString().c_str());
         printf(" - Level                         : %u\n",level);
         printf(" - Projection                    : %s\n",msg->getGridProjectionString().c_str());
         printf(" - Grid type                     : %s\n",T::get_gridProjectionString(msg->getGridProjection()).c_str());
