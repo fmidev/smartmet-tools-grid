@@ -17,14 +17,15 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc != 14)
+    if (argc != 12)
     {
       fprintf(stdout,"USAGE:\n");
-      fprintf(stdout,"  cs_getContentListByParameter <sessionId>  <parameterIdType> <parameterKey> \n");
-      fprintf(stdout,"     <parameterLevelIdType> <parameterLevelId> <minLevel> <maxLevel> \n");
-      fprintf(stdout,"     <forecastType> <forecastNumber> <geometryId> <startTime> <endTime> <requestFlags>\n");
+      fprintf(stdout,"  cs_getContentListByParameterGenerationIdAndForecastTime <sessionId>  <generationId> <parameterIdType>\n");
+      fprintf(stdout,"     <parameterKey>  <parameterLevelIdType> <parameterLevelId> <level> <geometryId>\n");
+      fprintf(stdout,"     <forecastType> <forecastNumber> <forecastTime>\n");
       fprintf(stdout,"WHERE:\n");
       fprintf(stdout,"  sessionId             = Session identifier\n");
+      fprintf(stdout,"  generationId          = Generation identifier\n");
       fprintf(stdout,"  parameterKeyType      = Parameter search key type:\n");
       fprintf(stdout,"                            fmi-id       => Radon identifier\n");
       fprintf(stdout,"                            fmi-name     => Radon name\n");
@@ -40,14 +41,11 @@ int main(int argc, char *argv[])
       fprintf(stdout,"                             grib1       => GRIB 1 level identifier\n");
       fprintf(stdout,"                             grib2       => GRIB 2 level identifier\n");
       fprintf(stdout,"                             ignore      => All level types and values are accepted\n");
-      fprintf(stdout,"  minLevel               = Minimum parameter level\n");
-      fprintf(stdout,"  maxLevel               = Maximum parameter level\n");
+      fprintf(stdout,"  level                  = Parameter level\n");
       fprintf(stdout,"  forecastType           = Forecast type\n");
       fprintf(stdout,"  forecastNumber         = Forecast number\n");
       fprintf(stdout,"  geometryId             = Geometry identifier\n");
-      fprintf(stdout,"  startTime              = First accepted grid time\n");
-      fprintf(stdout,"  endTime                = Last accepted grid time\n");
-      fprintf(stdout,"  requestFlags           = Request flags\n");
+      fprintf(stdout,"  forecastTime           = Forecast time\n");
 
       return -1;
     }
@@ -60,59 +58,58 @@ int main(int argc, char *argv[])
     contentServer.init(serviceIor);
 
     // ### Service parameters:
+    uint generationId = (uint)atoll(argv[2]);
+
     T::ParamKeyType paramKeyType = T::ParamKeyType::FMI_ID;
-    if (strcmp(argv[2],"fmi-id") == 0)
+    if (strcmp(argv[3],"fmi-id") == 0)
       paramKeyType = T::ParamKeyType::FMI_ID;
     else
-    if (strcmp(argv[2],"fmi-name") == 0)
+    if (strcmp(argv[3],"fmi-name") == 0)
       paramKeyType = T::ParamKeyType::FMI_NAME;
     else
-    if (strcmp(argv[2],"grib-id") == 0)
+    if (strcmp(argv[3],"grib-id") == 0)
       paramKeyType = T::ParamKeyType::GRIB_ID;
     else
-    if (strcmp(argv[2],"cdm-id") == 0)
+    if (strcmp(argv[3],"cdm-id") == 0)
       paramKeyType = T::ParamKeyType::CDM_ID;
     else
-    if (strcmp(argv[2],"cdm-name") == 0)
+    if (strcmp(argv[3],"cdm-name") == 0)
       paramKeyType = T::ParamKeyType::CDM_NAME;
     else
-    if (strcmp(argv[2],"newbase-id") == 0)
+    if (strcmp(argv[3],"newbase-id") == 0)
       paramKeyType = T::ParamKeyType::NEWBASE_ID;
     else
-    if (strcmp(argv[2],"newbase-name") == 0)
+    if (strcmp(argv[3],"newbase-name") == 0)
       paramKeyType = T::ParamKeyType::NEWBASE_NAME;
 
-    T::ParamId parameterKey = argv[3];
+    T::ParamId parameterKey = argv[4];
     T::ParamLevelIdType parameterLevelIdType = T::ParamLevelIdType::ANY;
 
-    if (strcmp(argv[4],"any") == 0)
+    if (strcmp(argv[5],"any") == 0)
       parameterLevelIdType = T::ParamLevelIdType::ANY;
     else
-    if (strcmp(argv[4],"fmi") == 0)
+    if (strcmp(argv[5],"fmi") == 0)
       parameterLevelIdType = T::ParamLevelIdType::FMI;
     else
-    if (strcmp(argv[4],"grib1") == 0)
+    if (strcmp(argv[5],"grib1") == 0)
       parameterLevelIdType = T::ParamLevelIdType::GRIB1;
     else
-    if (strcmp(argv[4],"grib2") == 0)
+    if (strcmp(argv[5],"grib2") == 0)
       parameterLevelIdType = T::ParamLevelIdType::GRIB2;
     else
-    if (strcmp(argv[4],"ignore") == 0)
+    if (strcmp(argv[5],"ignore") == 0)
       parameterLevelIdType = T::ParamLevelIdType::IGNORE;
 
-    T::ParamLevelId parameterLevelId = (T::ParamLevelId)atoll(argv[5]);
-    T::ParamLevel minLevel = (T::ParamLevel)atoll(argv[6]);
-    T::ParamLevel maxLevel = (T::ParamLevel)atoll(argv[7]);
+    T::ParamLevelId parameterLevelId = (T::ParamLevelId)atoll(argv[6]);
+    T::ParamLevel level = (T::ParamLevel)atoll(argv[7]);
     T::ForecastType forecastType = (T::ForecastType)atoll(argv[8]);
     T::ForecastNumber forecastNumber = (T::ForecastNumber)atoll(argv[9]);
     T::GeometryId geometryId = (T::GeometryId)atoll(argv[10]);
-    std::string start = argv[11];
-    std::string end = argv[12];
-    uint requestFlags = (uint)atoll(argv[13]);
+    std::string forecastTime = argv[11];
     T::ContentInfoList infoList;
 
     unsigned long long startTime = getTime();
-    int result = contentServer.getContentListByParameter(sessionId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,minLevel,maxLevel,forecastType,forecastNumber,geometryId,start,end,requestFlags,infoList);
+    int result = contentServer.getContentListByParameterGenerationIdAndForecastTime(sessionId,generationId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,level,forecastType,forecastNumber,geometryId,forecastTime,infoList);
     unsigned long long endTime = getTime();
 
     if (result != 0)

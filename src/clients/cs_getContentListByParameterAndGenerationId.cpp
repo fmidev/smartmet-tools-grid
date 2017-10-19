@@ -17,12 +17,12 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc != 12)
+    if (argc != 15)
     {
       fprintf(stdout,"USAGE:\n");
       fprintf(stdout,"  cs_getContentListByParameterAndGenerationId <sessionId>  <generationId> <parameterIdType>\n");
       fprintf(stdout,"     <parameterKey>  <parameterLevelIdType> <parameterLevelId> <minLevel> <maxLevel> \n");
-      fprintf(stdout,"     <startTime> <endTime> <requestFlags>\n");
+      fprintf(stdout,"     <forecastType> <forecastNumber> <geometryId> <startTime> <endTime> <requestFlags>\n");
       fprintf(stdout,"WHERE:\n");
       fprintf(stdout,"  sessionId             = Session identifier\n");
       fprintf(stdout,"  generationId          = Generation identifier\n");
@@ -43,6 +43,9 @@ int main(int argc, char *argv[])
       fprintf(stdout,"                             ignore      => All level types and values are accepted\n");
       fprintf(stdout,"  minLevel               = Minimum parameter level\n");
       fprintf(stdout,"  maxLevel               = Maximum parameter level\n");
+      fprintf(stdout,"  forecastType           = Forecast type\n");
+      fprintf(stdout,"  forecastNumber         = Forecast number\n");
+      fprintf(stdout,"  geometryId             = Geometry identifier\n");
       fprintf(stdout,"  startTime              = First accepted grid time\n");
       fprintf(stdout,"  endTime                = Last accepted grid time\n");
       fprintf(stdout,"  requestFlags           = Request flags\n");
@@ -103,13 +106,16 @@ int main(int argc, char *argv[])
     T::ParamLevelId parameterLevelId = (T::ParamLevelId)atoll(argv[6]);
     T::ParamLevel minLevel = (T::ParamLevel)atoll(argv[7]);
     T::ParamLevel maxLevel = (T::ParamLevel)atoll(argv[8]);
-    std::string start = argv[9];
-    std::string end = argv[10];
-    uint requestFlags = (uint)atoll(argv[11]);
+    T::ForecastType forecastType = (T::ForecastType)atoll(argv[9]);
+    T::ForecastNumber forecastNumber = (T::ForecastNumber)atoll(argv[10]);
+    T::GeometryId geometryId = (T::GeometryId)atoll(argv[11]);
+    std::string start = argv[12];
+    std::string end = argv[13];
+    uint requestFlags = (uint)atoll(argv[14]);
     T::ContentInfoList infoList;
 
     unsigned long long startTime = getTime();
-    int result = contentServer.getContentListByParameterAndGenerationId(sessionId,generationId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,minLevel,maxLevel,start,end,requestFlags,infoList);
+    int result = contentServer.getContentListByParameterAndGenerationId(sessionId,generationId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,minLevel,maxLevel,forecastType,forecastNumber,geometryId,start,end,requestFlags,infoList);
     unsigned long long endTime = getTime();
 
     if (result != 0)

@@ -148,7 +148,7 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
         printf(" - Grid type                     : %s\n",T::get_gridProjectionString(msg->getGridProjection()).c_str());
         printf(" - Grid layout                   : %s\n",T::get_gridLayoutString(msg->getGridLayout()).c_str());
         printf(" - Grid hash                     : %llu\n",(unsigned long long)hash);
-        printf(" - Grid geometry id              : %u\n",(uint)msg->getGridGeometryId());
+        printf(" - Grid geometry id              : %d\n",msg->getGridGeometryId());
 
         if (d)
           printf(" - Dimensions                    : %u x %u\n",d->nx(),d->ny());

@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc != 4)
+    if (argc < 4)
     {
       printf("\n");
       printf("##################################################################################\n");
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
       printf(" DESCRIPTION:\n");
       printf("\n");
       printf(" USAGE:\n");
-      printf("   queryServer <corbaAddress> <corbaPort> <contentServerIor>\n");
+      printf("   queryServer <corbaAddress> <corbaPort> <contentServerIor> [-log logFile]\n");
       printf("\n");
       printf(" WHERE:\n");
       printf("   <corbaAddress>     => The IP address of the server.\n");
@@ -93,6 +93,13 @@ int main(int argc, char *argv[])
     contentServerClient.init(contentServerIor);
 
     queryServer->init (&contentServerClient,NULL);;
+
+    Log processingLog;
+    if (argc == 6  && strcmp(argv[4],"-log") == 0)
+    {
+      processingLog.init(true,argv[5],10000000,5000000);
+      queryServer->setProcessingLog(&processingLog);
+    }
 
     // Let's print the service IOR. This is necessary for accessing the service. Usually the best way
     // to handle an IOR is to store it into an environment variable.

@@ -27,11 +27,11 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc < 14)
+    if (argc < 17)
     {
       fprintf(stdout,"USAGE:\n");
       fprintf(stdout,"  qs_getParameterValues <sessionId>  <parameterIdType> <parameterKey> \n");
-      fprintf(stdout,"     <parameterLevelIdType> <parameterLevelId> <minLevel> <maxLevel> \n");
+      fprintf(stdout,"     <parameterLevelIdType> <parameterLevelId> <minLevel> <maxLevel> <forecastType> <forecastNumber> \n");
       fprintf(stdout,"     <startTime> <endTime> <coordinatesType> <x-coordinate> <y-coordinate> \n");
       fprintf(stdout,"     <interpolationMethod>\n");
       fprintf(stdout,"WHERE:\n");
@@ -53,6 +53,9 @@ int main(int argc, char *argv[])
       fprintf(stdout,"                             ignore      => All level types and values are accepted\n");
       fprintf(stdout,"  minLevel               = Minimum parameter level\n");
       fprintf(stdout,"  maxLevel               = Maximum parameter level\n");
+      fprintf(stdout,"  forcastType            = Forecast type\n");
+      fprintf(stdout,"  forecastNumber         = Forecast number\n");
+      fprintf(stdout,"  geometryId             = GeometryId\n");
       fprintf(stdout,"  startTime              = First accepted grid time\n");
       fprintf(stdout,"  endTime                = Last accepted grid time\n");
       fprintf(stdout,"  coordinatesType        = Coordinates type: \n");
@@ -116,29 +119,32 @@ int main(int argc, char *argv[])
     T::ParamLevelId parameterLevelId = (T::ParamLevelId)atoll(argv[5]);
     T::ParamLevel minLevel = (T::ParamLevel)atoll(argv[6]);
     T::ParamLevel maxLevel = (T::ParamLevel)atoll(argv[7]);
-    std::string start = argv[8];
-    std::string end = argv[9];
+    T::ForecastType forecastType = (T::ForecastType)atoll(argv[8]);
+    T::ForecastNumber forecastNumber = (T::ForecastNumber)atoll(argv[9]);
+    T::GeometryId geometryId = (T::GeometryId)atoll(argv[10]);
+    std::string start = argv[11];
+    std::string end = argv[12];
 
     T::CoordinateType coordinateType = T::CoordinateType::LATLON_COORDINATES;
 
-    if (strcmp(argv[10],"latlon") == 0)
+    if (strcmp(argv[13],"latlon") == 0)
       coordinateType = T::CoordinateType::LATLON_COORDINATES;
     else
-    if (strcmp(argv[10],"grid") == 0)
+    if (strcmp(argv[13],"grid") == 0)
       coordinateType = T::CoordinateType::GRID_COORDINATES;
     else
-    if (strcmp(argv[10],"original") == 0)
+    if (strcmp(argv[13],"original") == 0)
       coordinateType = T::CoordinateType::ORIGINAL_COORDINATES;
 
-    double x = atof(argv[11]);
-    double y = atof(argv[12]);
+    double x = atof(argv[14]);
+    double y = atof(argv[15]);
 
     T::InterpolationMethod interpolationMethod = T::InterpolationMethod::Linear;
 
-    if (strcmp(argv[13],"linear") == 0)
+    if (strcmp(argv[16],"linear") == 0)
       interpolationMethod = T::InterpolationMethod::Linear;
     else
-    if (strcmp(argv[13],"nearest") == 0)
+    if (strcmp(argv[16],"nearest") == 0)
       interpolationMethod = T::InterpolationMethod::Nearest;
 
 
@@ -154,7 +160,7 @@ int main(int argc, char *argv[])
     unsigned long long startTime = getTime();
     T::ContentInfoList contentInfoList;
 
-    int result = contentService.getContentListByParameter(sessionId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,minLevel,maxLevel,start,end,0,contentInfoList);
+    int result = contentService.getContentListByParameter(sessionId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,minLevel,maxLevel,forecastType,forecastNumber,geometryId,start,end,0,contentInfoList);
 
     T::GridPointValueList valueList;
 

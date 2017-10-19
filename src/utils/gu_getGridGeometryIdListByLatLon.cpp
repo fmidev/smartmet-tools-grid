@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 
     double lat = atof(argv[1]);
     double lon = atof(argv[2]);
-    std::set<uint> geometryIdList;
+    std::set<T::GeometryId> geometryIdList;
 
     unsigned long long startTime = getTime();
     Identification::gribDef.getGeometryIdListByLatLon(lat,lon,geometryIdList);

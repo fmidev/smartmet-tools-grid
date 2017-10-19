@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc != 7)
+    if (argc < 7)
     {
       printf("\n");
       printf("##################################################################################\n");
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
       printf("   made for this server.\n");
       printf("\n");
       printf(" USAGE:\n");
-      printf("   dataServer_corba2corba <serverId> <serverName> <gridFileDir> <corbaAddress> <corbaPort> <contentServerIor>\n");
+      printf("   dataServer_corba2corba <serverId> <serverName> <gridFileDir> <corbaAddress> <corbaPort> <contentServerIor> [-log logFile]\n");
       printf("\n");
       printf(" WHERE:\n");
       printf("   <serverId>         => Unique server identifier used for content registration,\n");
@@ -159,6 +159,14 @@ int main(int argc, char *argv[])
 
     dataServer->init(sessionId,serverId,serverName,corbaServer->getServiceIor().c_str(),gridFileDir,&contentServerClient);
     dataServer->startEventProcessing();
+
+    Log processingLog;
+    if (argc == 9  && strcmp(argv[7],"-log") == 0)
+    {
+      processingLog.init(true,argv[8],10000000,5000000);
+      dataServer->setProcessingLog(&processingLog);
+    }
+
 
     std::string ior = corbaServer->getServiceIor();
     printf("\n%s\n",ior.c_str());

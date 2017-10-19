@@ -3,26 +3,25 @@
 #include "contentServer/redis/RedisImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
-#include <vector>
-
 
 using namespace SmartMet;
+
 
 
 int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 3)
+    if (argc < 4)
     {
-      fprintf(stdout,"USAGE: cs_getContentGeometryIdListByGenerationId <sessionId> <generationId> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"USAGE: cs_getProducerInfoListBySource <sessionId> <paramKeyType> <paramKey> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
-    uint generationId = (uint)atoll(argv[2]);
-    std::set<T::GeometryId> geometryIdList;
-
+    T::ParamKeyType paramKeyType = (T::ParamKeyType)atol(argv[2]);
+    std::string paramKey = argv[3];
+    T::ProducerInfoList infoList;
     int result = 0;
     unsigned long long startTime = 0;
     unsigned long long endTime = 0;
@@ -33,7 +32,7 @@ int main(int argc, char *argv[])
       service.init(argv[4]);
 
       startTime = getTime();
-      result = service.getContentGeometryIdListByGenerationId(sessionId,generationId,geometryIdList);
+      result = service.getProducerInfoListByParameter(sessionId,paramKeyType,paramKey,infoList);
       endTime = getTime();
     }
     else
@@ -43,7 +42,7 @@ int main(int argc, char *argv[])
       service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
-      result = service.getContentGeometryIdListByGenerationId(sessionId,generationId,geometryIdList);
+      result = service.getProducerInfoListByParameter(sessionId,paramKeyType,paramKey,infoList);
       endTime = getTime();
     }
     else
@@ -59,7 +58,7 @@ int main(int argc, char *argv[])
       service.init(serviceIor);
 
       startTime = getTime();
-      result = service.getContentGeometryIdListByGenerationId(sessionId,generationId,geometryIdList);
+      result = service.getProducerInfoListByParameter(sessionId,paramKeyType,paramKey,infoList);
       endTime = getTime();
     }
 
@@ -70,11 +69,7 @@ int main(int argc, char *argv[])
     }
 
     // ### Result:
-    for (auto it=geometryIdList.begin(); it!=geometryIdList.end(); ++it)
-    {
-      printf("GeometryId : %u\n",*it);
-    }
-
+    infoList.print(std::cout,0,0);
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

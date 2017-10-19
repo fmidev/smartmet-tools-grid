@@ -258,7 +258,6 @@ int main(int argc,char ** argv)
     httpServer = new SmartMet::ContentServer::HTTP::ServerInterface();
     httpServer->init(redisImplementation);
 
-
     struct MHD_Daemon *daemon = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY, httpPort, NULL, NULL,&processRequest, NULL,
                                  MHD_OPTION_NOTIFY_COMPLETED, requestCompleted,NULL, MHD_OPTION_END);
     if (daemon == NULL)
