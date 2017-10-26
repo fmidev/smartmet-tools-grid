@@ -1,7 +1,7 @@
 #include "grid-files/common/Exception.h"
 #include "grid-files/identification/GribDef.h"
 #include "grid-files/common/GeneralFunctions.h"
-#include "grid-files/common/ImageFunctions.h"
+#include "grid-files/common/GraphFunctions.h"
 
 
 using namespace SmartMet;

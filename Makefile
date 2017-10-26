@@ -99,6 +99,8 @@ CFLAGS_PROFILE = $(DEFINES) $(FLAGS) $(FLAGS_PROFILE) -DNDEBUG -O2 -g -pg
 
 LIBS = -L$(libdir) \
 	-lsmartmet-spine \
+	-lsmartmet-macgyver \
+	-lsmartmet-newbase \
 	-lsmartmet-grid-files \
 	-lsmartmet-grid-content \
 	-lboost_program_options \
