@@ -9,13 +9,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-#define FUNCTION_TRACE FUNCTION_TRACE_OFF
-
+#define FUNCTION_TRACE FUNCTION_TRACE_ON
 
 
 using namespace SmartMet;
-
 
 
 struct ForecastRec
@@ -49,6 +46,7 @@ T::SessionId mSessionId = 0;
 uint sourceId = 200;
 uint globalFileId = 0;
 std::string lastUpdateTime("19000101T000000");
+std::set<std::string> producerList;
 
 T::ProducerInfoList      mSourceProducerList;
 T::GenerationInfoList    mSourceGenerationList;
@@ -110,174 +108,47 @@ void readTargetGenerations(ContentServer::ServiceInterface *targetInterface)
 
 
 
-#if 0
-void readTargetFiles(ContentServer::ServiceInterface *targetInterface)
+void readProducerList(const char *filename)
 {
-  FUNCTION_TRACE
   try
   {
-    printf("Reading files from the target data storage\n");
-    mTargetFileList.clear();
-    uint len = 1;
-    uint startFileId = 0;
-    uint maxRecords = 10000;
-
-    while (len > 0)
+    FILE *file = fopen(filename,"r");
+    if (file == NULL)
     {
-      T::FileInfoList fileList;
-      int result = targetInterface->getFileInfoList(mSessionId,startFileId,maxRecords,fileList);
-      if (result != 0)
-      {
-        SmartMet::Spine::Exception exception(BCP,"Cannot read the file list from the target data storage!");
-        exception.addParameter("Result",ContentServer::getResultString(result));
-        throw exception;
-      }
-
-      len = fileList.getLength();
-      for (uint t=0; t<len; t++)
-      {
-        T::FileInfo *fileInfo = fileList.getFileInfoByIndex(t);
-        mTargetFileList.addFileInfo(fileInfo->duplicate());
-        if (fileInfo->mFileId >= startFileId)
-          startFileId = fileInfo->mFileId + 1;
-
-      }
+      printf("Producer file not available. Accepting all produces");
+      return;
     }
-  }
-  catch (...)
-  {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
-  }
-}
 
+    producerList.clear();
 
-
-
-
-void readTargetContent(ContentServer::ServiceInterface *targetInterface)
-{
-  FUNCTION_TRACE
-  try
-  {
-    printf("Reading content from the target data storage\n");
-    mTargetContentList.clear();
-    uint len = 1;
-    uint startFileId = 0;
-    uint startMessageIndex = 0;
-    uint maxRecords = 10000;
-
-    while (len > 0)
+    char st[1000];
+    while (!feof(file))
     {
-      T::ContentInfoList contentList;
-      int result = targetInterface->getContentListBySourceId(mSessionId,mTargetId,startFileId,startMessageIndex,maxRecords,contentList);
-      if (result != 0)
+      if (fgets(st,1000,file) != NULL)
       {
-        SmartMet::Spine::Exception exception(BCP,"Cannot read the content list from the target data storage!");
-        exception.addParameter("Result",ContentServer::getResultString(result));
-        throw exception;
-      }
-
-      len = contentList.getLength();
-      for (uint t=0; t<len; t++)
-      {
-        T::ContentInfo *contentInfo = contentList.getContentInfoByIndex(t);
-        mTargetContentList.addContentInfo(contentInfo->duplicate());
-        if (contentInfo->mFileId > startFileId  || (contentInfo->mFileId == startFileId  &&  contentInfo->mMessageIndex >= startMessageIndex))
+        if (st[0] != '#')
         {
-          startFileId = contentInfo->mFileId;
-          startMessageIndex = contentInfo->mMessageIndex + 1;
+          char *p = st;
+          while (*p != '\0')
+          {
+            if (*p <= ' ')
+              *p = '\0';
+            else
+              p++;
+          }
+          //printf("Add producer [%s]\n",st);
+          producerList.insert(toLowerString(std::string(st)));
         }
       }
     }
-  }
-  catch (...)
-  {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
-  }
-}
-#endif
-
-
-
-
-
-#if 0
-void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uint fileType,char *geometryId,char *startTime,char *endTime,char *fmiParameterId,char *fmiLevelId,char *parameterLevel,char *forecastType,char *pertubationNumber)
-{
-  FUNCTION_TRACE
-  try
-  {
-
-    std::string fmiParameterName;
-    std::string fmiParameterUnits;
-    std::string newbaseParameterId;
-    std::string newbaseParameterName;
-    std::string gribParameterId;
-    std::string gribParameterUnits;
-
-    std::string grib1ParameterLevelId;
-    std::string grib2ParameterLevelId;
-
-
-    const Identification::ParameterDefinition_fmi_cptr fmiDef = Identification::gribDef.mMessageIdentifier_fmi.getParameterDefById(fmiParameterId);
-
-    if (fmiDef != NULL)
-    {
-      fmiParameterName = fmiDef->mParameterName;
-      fmiParameterUnits = fmiDef->mParameterUnits;
-      newbaseParameterId = fmiDef->mNewbaseId;
-
-      const Identification::Parameter_newbase_cptr  nbDef = Identification::gribDef.mMessageIdentifier_fmi.getParameter_newbaseId(fmiDef->mNewbaseId);
-      if (nbDef != NULL)
-        newbaseParameterName = nbDef->mParameterName;
-
-      const Identification::Parameter_grib1_fmi_cptr g1Def = Identification::gribDef.mMessageIdentifier_fmi.getParameter_grib1(fmiParameterId);
-      if (g1Def != NULL)
-        grib1ParameterLevelId = toString(g1Def->mGribParameterLevelId);
-
-      const Identification::Parameter_grib2_fmi_cptr g2Def = Identification::gribDef.mMessageIdentifier_fmi.getParameter_grib2(fmiParameterId);
-      if (g2Def != NULL)
-        grib2ParameterLevelId = toString(g2Def->mGribParameterLevelId);
-
-    }
-
-
-    fprintf(contentFile,"%u;%u;%u;%s;%u;%u;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%u;%u;%u;%s;\n",
-           fileId,
-           0, // messageIndex
-           fileType,
-           producerId,
-           generationId,
-           0, // groupFlags
-           startTime,
-           endTime,
-           fmiParameterId,
-           fmiParameterName.c_str(),
-           gribParameterId.c_str(),
-           "", // cdmParameterId
-           "", // cdmParameterName
-           newbaseParameterId.c_str(),
-           newbaseParameterName.c_str(),
-           fmiLevelId,
-           grib1ParameterLevelId.c_str(),
-           grib2ParameterLevelId.c_str(),
-           parameterLevel,
-           fmiParameterUnits.c_str(),
-           gribParameterId.c_str(),
-           forecastType,
-           pertubationNumber,
-           0, // serverFlags,
-           0, // flags,
-           sourceId,
-           geometryId
-        );
+    fclose(file);
   }
   catch (...)
   {
     throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
   }
 }
-#endif
+
 
 
 
@@ -382,7 +253,10 @@ void readSourceForecastTimes(PGconn *conn)
     p+= sprintf(p,"  ss_state.forecast_type_value,\n");
     p+= sprintf(p,"  to_char(ss_state.last_updated at time zone 'utc', 'yyyymmddThh24MISS')\n");
     p+= sprintf(p,"FROM\n");
-    p+= sprintf(p,"  ss_state LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_state.producer_id;\n");
+    p+= sprintf(p,"  ss_state LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_state.producer_id\n");
+    p+= sprintf(p,"ORDER BY\n");
+    p+= sprintf(p,"  to_char(ss_state.analysis_time at time zone 'utc', 'yyyymmddThh24MISS') desc,\n");
+    p+= sprintf(p,"  to_char((ss_state.analysis_time+ss_state.forecast_period) at time zone 'utc', 'yyyymmddThh24MISS');\n");
 
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
@@ -473,7 +347,9 @@ void readSourceGenerations(PGconn *conn)
     p += sprintf(p,"  fmi_producer.name,\n");
     p += sprintf(p,"  to_char(ss_state.analysis_time at time zone 'utc', 'yyyymmddThh24MISS')\n");
     p += sprintf(p,"FROM\n");
-    p += sprintf(p,"  ss_state LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_state.producer_id;");
+    p += sprintf(p,"  ss_state LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_state.producer_id\n");
+    p += sprintf(p,"ORDER BY");
+    p += sprintf(p,"  fmi_producer.id,to_char(ss_state.analysis_time at time zone 'utc', 'yyyymmddThh24MISS') desc;");
 
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
@@ -551,15 +427,19 @@ void readSourceProducers(PGconn *conn)
 
     for (int i = 0; i < rowCount; i++)
     {
-      T::ProducerInfo *producer = new T::ProducerInfo();
-      producer->mProducerId = atoi(PQgetvalue(res, i, 0));
-      producer->mName = PQgetvalue(res, i, 1);
-      producer->mTitle = PQgetvalue(res, i, 1);
-      producer->mDescription = PQgetvalue(res, i, 2);
-      producer->mFlags = 0;
-      producer->mSourceId = sourceId;
+      std::string searchStr = toLowerString(std::string(PQgetvalue(res, i, 1)));
+      if (producerList.size() == 0 || producerList.find(searchStr) != producerList.end())
+      {
+        T::ProducerInfo *producer = new T::ProducerInfo();
+        producer->mProducerId = atoi(PQgetvalue(res, i, 0));
+        producer->mName = PQgetvalue(res, i, 1);
+        producer->mTitle = PQgetvalue(res, i, 1);
+        producer->mDescription = PQgetvalue(res, i, 2);
+        producer->mFlags = 0;
+        producer->mSourceId = sourceId;
 
-      mSourceProducerList.addProducerInfo(producer);
+        mSourceProducerList.addProducerInfo(producer);
+      }
     }
     PQclear(res);
     //mSourceProducerList.print(std::cout,0,0);
@@ -995,7 +875,7 @@ int main(int argc, char *argv[])
   {
     if (argc < 5)
     {
-      fprintf(stderr,"USAGE: radon2smartmet <sourceId> <dbConnectionString> [-redis <redisAddress> <redisPort> <tablePrefix>]\n");
+      fprintf(stderr,"USAGE: radon2smartmet <sourceId> <dbConnectionString> <producerFile> <waitTimeInSec> [-redis <redisAddress> <redisPort> <tablePrefix>]\n");
       return -1;
     }
 
@@ -1012,13 +892,15 @@ int main(int argc, char *argv[])
 
     sourceId = (uint)atoi(argv[1]);
     char *connectionString = argv[2];
-    char *connectionType = argv[3];
+    char *producerFile = argv[3];
+    uint waitTime = atoi(argv[4]);
+    char *connectionType = argv[5];
 
     if (strcasecmp(connectionType,"-redis") == 0)
     {
-      char *redisAddress = (char*)argv[4];
-      int redisPort = atoi(argv[5]);
-      char *tablePrefix = (char*)argv[6];
+      char *redisAddress = (char*)argv[6];
+      int redisPort = atoi(argv[7]);
+      char *tablePrefix = (char*)argv[8];
       ContentServer::RedisImplementation *redisImplementation = new ContentServer::RedisImplementation();
       redisImplementation->init(redisAddress,redisPort,tablePrefix);
       targetInterface = redisImplementation;
@@ -1044,6 +926,8 @@ int main(int argc, char *argv[])
       printf("****************************** UPDATE ******************************\n");
       printf("********************************************************************\n");
 
+      printf("* Reading producer names that belongs to this update\n");
+      readProducerList(producerFile);
       printf("* Reading producer information from the target data storage\n");
       readTargetProducers(targetInterface);
       printf("* Reading producer information from the source data storage\n");
@@ -1070,7 +954,7 @@ int main(int argc, char *argv[])
 
       printf("********************************************************************\n\n");
 
-      sleep(300);
+      sleep(waitTime);
     }
 
     PQfinish(conn);
