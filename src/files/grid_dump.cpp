@@ -1,4 +1,4 @@
-#include "grid-files/grid/GridFile.h"
+#include "grid-files/grid/PhysicalGridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GribDef.h"
 #include "grid-files/common/Exception.h"
@@ -128,7 +128,7 @@ int run(int argc, char **argv)
     {
       fileIndex++;
       unsigned long long readStartTime = getTime();
-      SmartMet::GRID::GridFile gridFile;
+      SmartMet::GRID::PhysicalGridFile gridFile;
       gridFile.read(file);
       unsigned long long readEndTime = getTime();
 

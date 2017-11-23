@@ -1,4 +1,4 @@
-#include "grid-files/grid/GridFile.h"
+#include "grid-files/grid/PhysicalGridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GribDef.h"
 #include "grid-files/common/Exception.h"
@@ -50,6 +50,8 @@ void showInfo(SmartMet::GRID::GridFile& gridFile)
 {
   try
   {
+    /*
+
     auto parameterIdList = gridFile.getParameterIdentifiers();
     std::size_t idCount = parameterIdList.size();
 
@@ -68,7 +70,6 @@ void showInfo(SmartMet::GRID::GridFile& gridFile)
       T::TimeString startTime;
       T::TimeString endTime;
       std::size_t messages = 0;
-
       std::vector<T::ParamLevel> levels = gridFile.getLevelsByParameterId(id);
 
       auto levelCount = levels.size();
@@ -91,6 +92,7 @@ void showInfo(SmartMet::GRID::GridFile& gridFile)
       }
     }
     printf("\n");
+      */
   }
   catch (...)
   {
@@ -106,6 +108,7 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
 {
   try
   {
+/*
     auto parameterIdList = gridFile.getParameterIdentifiers();
     std::size_t idCount = parameterIdList.size();
 
@@ -123,7 +126,6 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
       T::TimeString startTime;
       T::TimeString endTime;
       std::size_t messages = 0;
-
 
       std::vector<T::ParamLevel> levels = gridFile.getLevelsByParameterId(id);
 
@@ -164,6 +166,7 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
       }
     }
     printf("\n");
+*/
   }
   catch (...)
   {
@@ -228,7 +231,7 @@ int run(int argc, char **argv)
     {
       fileIndex++;
       unsigned long long readStartTime = getTime();
-      SmartMet::GRID::GridFile gridFile;
+      SmartMet::GRID::PhysicalGridFile gridFile;
       gridFile.read(file);
       unsigned long long readEndTime = getTime();
 

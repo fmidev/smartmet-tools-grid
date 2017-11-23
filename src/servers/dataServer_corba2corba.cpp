@@ -1,5 +1,6 @@
 #include "contentServer/corba/client/ClientImplementation.h"
 #include "dataServer/implementation/ServiceImplementation.h"
+#include "dataServer/implementation/VirtualContentFactory_type1.h"
 #include "dataServer/corba/server/ServerInterface.h"
 #include "dataServer/corba/server/Server.h"
 #include "grid-files/common/Exception.h"
@@ -93,7 +94,7 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 7)
+    if (argc < 8)
     {
       printf("\n");
       printf("##################################################################################\n");
@@ -119,7 +120,7 @@ int main(int argc, char *argv[])
       printf("   made for this server.\n");
       printf("\n");
       printf(" USAGE:\n");
-      printf("   dataServer_corba2corba <serverId> <serverName> <gridFileDir> <corbaAddress> <corbaPort> <contentServerIor> [-log logFile]\n");
+      printf("   dataServer_corba2corba <serverId> <serverName> <gridFileDir> <corbaAddress> <corbaPort> <contentServerIor> <conversionFile> [-log logFile] [-lua luaFile]\n");
       printf("\n");
       printf(" WHERE:\n");
       printf("   <serverId>         => Unique server identifier used for content registration,\n");
@@ -131,6 +132,7 @@ int main(int argc, char *argv[])
       printf("   <corbaAddress>     => The IP address of the server.\n");
       printf("   <corbaPort>        => The TCP port of the server.\n");
       printf("   <contentServerIor> => The IOR of the ContentServer.\n");
+      printf("   <conversionFile>   => Conversion file for VirtualContentFactory_type1.\n");
       printf("##################################################################################\n");
       printf("\n");
       return -1;
@@ -147,26 +149,44 @@ int main(int argc, char *argv[])
     char *corbaAddress = (char*)argv[4];
     char *corbaPort = (char*)argv[5];
     char *contentServerIor = (char*)argv[6];
-
+    char *conversionFile = (char*)argv[7];
+    std::vector<std::string> luaFiles;
+    Log processingLog;
 
     dataServer = new DataServer::ServiceImplementation();
 
     corbaServer = new DataServer::Corba::Server(corbaAddress,corbaPort);
     corbaServer->init(dataServer);
 
+
+    for (int t=7; t<argc; t++)
+    {
+      if (strcmp(argv[t],"-log") == 0  && (t+1) < argc)
+      {
+        processingLog.init(true,argv[t+1],10000000,5000000);
+        dataServer->setProcessingLog(&processingLog);
+      }
+
+      if (strcmp(argv[t],"-lua") == 0  && (t+1) < argc)
+      {
+        luaFiles.push_back(std::string(argv[t+1]));
+      }
+    }
+
+
+
     ContentServer::Corba::ClientImplementation contentServerClient;
     contentServerClient.init(contentServerIor);
 
-    dataServer->init(sessionId,serverId,serverName,corbaServer->getServiceIor().c_str(),gridFileDir,&contentServerClient);
+    dataServer->init(sessionId,serverId,serverName,corbaServer->getServiceIor().c_str(),gridFileDir,&contentServerClient,luaFiles);
+
+    DataServer::VirtualContentFactory_type1 *factory = new DataServer::VirtualContentFactory_type1();
+    factory->init(conversionFile);
+
+    dataServer->addVirtualContentFactory(factory);
+
+
     dataServer->startEventProcessing();
-
-    Log processingLog;
-    if (argc == 9  && strcmp(argv[7],"-log") == 0)
-    {
-      processingLog.init(true,argv[8],10000000,5000000);
-      dataServer->setProcessingLog(&processingLog);
-    }
-
 
     std::string ior = corbaServer->getServiceIor();
     printf("\n%s\n",ior.c_str());

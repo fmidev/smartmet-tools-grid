@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define FUNCTION_TRACE FUNCTION_TRACE_ON
+#define FUNCTION_TRACE FUNCTION_TRACE_OFF
 
 
 using namespace SmartMet;

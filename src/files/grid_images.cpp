@@ -1,4 +1,4 @@
-#include "grid-files/grid/GridFile.h"
+#include "grid-files/grid/PhysicalGridFile.h"
 #include "grib1/GribFile.h"
 #include "grib2/GribFile.h"
 #include "grid-files/grid/PrintOptions.h"
@@ -29,6 +29,41 @@ enum ImageFlags
   IMGF_PARAM      = 1 << 2
 };
 
+
+
+void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::ParamId parameterId,T::ParamValue& minValue,T::ParamValue& maxValue)
+{
+  try
+  {
+    minValue = 1000000000;
+    maxValue = -1000000000;
+
+    std::size_t messageCount = gridFile.getNumberOfMessages();
+    for (std::size_t t=0; t<messageCount; t++)
+    {
+      auto message = gridFile.getMessageByIndex(t);
+      if (message != NULL  &&  message->getGribParameterId() == parameterId)
+      {
+        T::ParamValue min = 1000000000;
+        T::ParamValue max = -1000000000;
+        message->getGridMinAndMaxValues(min,max);
+
+        if (min != 1000000000  &&  max != -1000000000)
+        {
+          if (min < minValue)
+            minValue = min;
+
+          if (max > maxValue)
+            maxValue = max;
+        }
+      }
+    }
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+  }
+}
 
 
 
@@ -149,7 +184,7 @@ void saveImagesByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T
       interpolationMethod = Identification::gribDef.getPreferredInterpolationMethodByUnits(def->mParameterUnits);
 
     if ((flags & IMGF_PARAM) != 0)
-      gridFile.getGridMinAndMaxValues(parameterId,minValue,maxValue);
+      getGridMinAndMaxValues(gridFile,parameterId,minValue,maxValue);
 
     std::size_t messageCount = gridFile.getNumberOfMessages();
     for (std::size_t m=0; m<messageCount; m++)
@@ -296,7 +331,7 @@ int run(int argc, char **argv)
     {
       fileIndex++;
       unsigned long long readStartTime = getTime();
-      SmartMet::GRID::GridFile gridFile;
+      SmartMet::GRID::PhysicalGridFile gridFile;
       gridFile.read(file);
       unsigned long long readEndTime = getTime();
 

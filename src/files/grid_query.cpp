@@ -1,4 +1,4 @@
-#include "grid-files/grid/GridFile.h"
+#include "grid-files/grid/PhysicalGridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GribDef.h"
 #include "grid-files/common/Exception.h"
@@ -50,6 +50,7 @@ void executeQuery(SmartMet::GRID::GridFile& gridFile,double lat,double lon,std::
 {
   try
   {
+#if 0
     std::size_t pos[100] = {0};
     typedef std::vector<SmartMet::T::GridPointValue> ValueVector;
 
@@ -143,7 +144,7 @@ void executeQuery(SmartMet::GRID::GridFile& gridFile,double lat,double lon,std::
       }
       c++;
     }
-
+#endif
   }
   catch (...)
   {
@@ -213,7 +214,7 @@ int run(int argc, char **argv)
     {
       fileIndex++;
       unsigned long long readStartTime = getTime();
-      SmartMet::GRID::GridFile gridFile;
+      SmartMet::GRID::PhysicalGridFile gridFile;
       gridFile.read(file);
       unsigned long long readEndTime = getTime();
 

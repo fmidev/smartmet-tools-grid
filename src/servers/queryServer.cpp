@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
 {
   try
   {
+#if 0
     if (argc < 9)
     {
       printf("\n");
@@ -138,6 +139,7 @@ int main(int argc, char *argv[])
     corbaServer->run();
 
     delete queryServer;
+#endif
     return 0;
   }
   catch (...)

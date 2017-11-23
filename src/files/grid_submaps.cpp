@@ -1,4 +1,4 @@
-#include "grid-files/grid/GridFile.h"
+#include "grid-files/grid/PhysicalGridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GribDef.h"
 #include "grid-files/common/Exception.h"
@@ -26,6 +26,69 @@ enum ImageFlags
   IMGF_REVERSE    = 1 << 0,
   IMGF_PARAM      = 1 << 1
 };
+
+
+
+
+void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::ParamId parameterId,T::ParamValue& minValue,T::ParamValue& maxValue)
+{
+  try
+  {
+    minValue = 1000000000;
+    maxValue = -1000000000;
+
+    std::size_t messageCount = gridFile.getNumberOfMessages();
+    for (std::size_t t=0; t<messageCount; t++)
+    {
+      auto message = gridFile.getMessageByIndex(t);
+      if (message != NULL  &&  message->getGribParameterId() == parameterId)
+      {
+        T::ParamValue min = 1000000000;
+        T::ParamValue max = -1000000000;
+        message->getGridMinAndMaxValues(min,max);
+
+        if (min != 1000000000  &&  max != -1000000000)
+        {
+          if (min < minValue)
+            minValue = min;
+
+          if (max > maxValue)
+            maxValue = max;
+        }
+      }
+    }
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+  }
+}
+
+
+
+
+void getParameterIdentifiers(GRID::GridFile& gridFile,std::set<T::ParamId>& parameterIdList)
+{
+  try
+  {
+    std::size_t messageCount = gridFile.getNumberOfMessages();
+    for (std::size_t t=0; t<messageCount; t++)
+    {
+      auto message = gridFile.getMessageByIndex(t);
+      if (message != NULL)
+      {
+        auto paramId = message->getGribParameterId();
+        if (parameterIdList.find(paramId) == parameterIdList.end())
+          parameterIdList.insert(paramId);
+      }
+    }
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+  }
+}
+
 
 
 void init()
@@ -132,7 +195,7 @@ void saveSubmapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,
       interpolationMethod = Identification::gribDef.getPreferredInterpolationMethodByUnits(def->mParameterUnits);
 
     if ((flags & IMGF_PARAM) != 0)
-      gridFile.getGridMinAndMaxValues(parameterId,minValue,maxValue);
+      getGridMinAndMaxValues(gridFile,parameterId,minValue,maxValue);
 
     std::size_t messageCount = gridFile.getNumberOfMessages();
     for (std::size_t m=0; m<messageCount; m++)
@@ -163,12 +226,12 @@ void saveAllSubmaps(uint fileIndex,SmartMet::GRID::GridFile& gridFile,double lat
 {
   try
   {
-    auto parameterIdList = gridFile.getParameterIdentifiers();
+    std::set<T::ParamId> parameterIdList;
+    getParameterIdentifiers(gridFile,parameterIdList);
 
-    std::size_t size = parameterIdList.size();
-    for (std::size_t t=0; t<size; t++)
+    for (auto id = parameterIdList.begin();id != parameterIdList.end(); ++id)
     {
-      saveSubmapsByParameterId(fileIndex,gridFile,parameterIdList[t],lat,lon,width,height,step,imageDir,valueLevels,flags);
+      saveSubmapsByParameterId(fileIndex,gridFile,*id,lat,lon,width,height,step,imageDir,valueLevels,flags);
     }
   }
   catch (...)
@@ -269,7 +332,7 @@ int run(int argc, char **argv)
     {
       fileIndex++;
       unsigned long long readStartTime = getTime();
-      SmartMet::GRID::GridFile gridFile;
+      SmartMet::GRID::PhysicalGridFile gridFile;
       gridFile.read(file);
       unsigned long long readEndTime = getTime();
 
