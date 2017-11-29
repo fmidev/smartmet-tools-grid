@@ -1,3 +1,4 @@
+#include "contentServer/cache/CacheImplementation.h"
 #include "contentServer/corba/client/ClientImplementation.h"
 #include "dataServer/implementation/ServiceImplementation.h"
 #include "dataServer/implementation/VirtualContentFactory_type1.h"
@@ -20,6 +21,7 @@ using namespace SmartMet;
 DataServer::Corba::Server *corbaServer = NULL;
 DataServer::ServiceImplementation *dataServer = NULL;
 
+ContentServer::CacheImplementation *cacheContentServer = new ContentServer::CacheImplementation();
 
 
 
@@ -37,6 +39,7 @@ void sig_handler(int signum)
       if (dataServer != NULL)
       {
         printf("\n**** SHUTTING DOWN ****\n");
+        cacheContentServer->shutdown();
         dataServer->shutdown();
         corbaServer->shutdown();
       }
@@ -132,7 +135,7 @@ int main(int argc, char *argv[])
       printf("   <corbaAddress>     => The IP address of the server.\n");
       printf("   <corbaPort>        => The TCP port of the server.\n");
       printf("   <contentServerIor> => The IOR of the ContentServer.\n");
-      printf("   <conversionFile>   => Conversion file for VirtualContentFactory_type1.\n");
+      printf("   <conversionFile>   => Conversion definitions.\n");
       printf("##################################################################################\n");
       printf("\n");
       return -1;
@@ -177,6 +180,11 @@ int main(int argc, char *argv[])
 
     ContentServer::Corba::ClientImplementation contentServerClient;
     contentServerClient.init(contentServerIor);
+
+    cacheContentServer = new ContentServer::CacheImplementation();
+    //cacheContentServer->init(sessionId,&contentServerClient);
+    //cacheContentServer->startEventProcessing();
+
 
     dataServer->init(sessionId,serverId,serverName,corbaServer->getServiceIor().c_str(),gridFileDir,&contentServerClient,luaFiles);
 
