@@ -1,4 +1,4 @@
-#include "contentServer/cache/MemoryImplementation.h"
+#include "contentServer/memory/MemoryImplementation.h"
 #include "contentServer/corba/client/ClientImplementation.h"
 #include "contentServer/corba/server/Server.h"
 #include "grid-files/common/Exception.h"
@@ -12,15 +12,22 @@ using namespace SmartMet;
 ContentServer::Corba::Server *server = NULL;
 ContentServer::MemoryImplementation *memoryImplementation = NULL;
 
+bool shutdownRequested = false;
+
 
 void sig_handler(int signum)
 {
   {
     try
     {
+      if (shutdownRequested)
+        sprintf(NULL,"Crashing the system for the core dump");
+
       if (memoryImplementation != NULL)
       {
         printf("\n**** SHUTTING DOWN ****\n");
+        shutdownRequested = true;
+        sleep(2);
         memoryImplementation->shutdown();
         server->shutdown();
       }

@@ -46,9 +46,13 @@ int main(int argc, char *argv[])
     else
     {
       char *serviceIor = getenv("SMARTMET_CS_IOR");
+
+      if (strcmp(argv[argc-2],"-ior") == 0)
+        serviceIor = argv[argc-1];
+
       if (serviceIor == NULL)
       {
-        fprintf(stdout,"SMARTMET_CS_IOR not defined!\n");
+        fprintf(stdout,"Service IOR not defined!\n");
         return -2;
       }
 

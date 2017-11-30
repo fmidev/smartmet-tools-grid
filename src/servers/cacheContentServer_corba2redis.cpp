@@ -27,9 +27,10 @@ void sig_handler(int signum)
       if (cacheImplementation != NULL)
       {
         printf("\n**** SHUTTING DOWN ****\n");
+        shutdownRequested = true;
+        sleep(2);
         cacheImplementation->shutdown();
         server->shutdown();
-        shutdownRequested = true;
       }
       else
         exit(-1);

@@ -20,12 +20,10 @@ using namespace SmartMet;
 
 DataServer::Corba::Server *corbaServer = NULL;
 DataServer::ServiceImplementation *dataServer = NULL;
-
 ContentServer::CacheImplementation *cacheContentServer = new ContentServer::CacheImplementation();
 
-
-
 bool shutdownRequested = false;
+
 
 
 void sig_handler(int signum)
@@ -39,6 +37,8 @@ void sig_handler(int signum)
       if (dataServer != NULL)
       {
         printf("\n**** SHUTTING DOWN ****\n");
+        shutdownRequested = true;
+        sleep(2);
         cacheContentServer->shutdown();
         dataServer->shutdown();
         corbaServer->shutdown();

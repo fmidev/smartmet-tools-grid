@@ -12,14 +12,6 @@ int main(int argc, char *argv[])
 {
   try
   {
-    char *serviceIor = getenv("SMARTMET_CS_IOR");
-    if (serviceIor == NULL)
-    {
-      fprintf(stdout,"SMARTMET_CS_IOR not defined!\n");
-      return -2;
-    }
-
-
     if (argc < 9)
     {
       fprintf(stdout,"USAGE: cs_addFileInfoListFromFile <sessionId> <groupFlags> <producerId> <generationId> <fileType> <sourceId> <flags> <filename> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
@@ -63,10 +55,14 @@ int main(int argc, char *argv[])
     else
     {
       char *serviceIor = getenv("SMARTMET_CS_IOR");
+
+      if (strcmp(argv[argc-2],"-ior") == 0)
+        serviceIor = argv[argc-1];
+
       if (serviceIor == NULL)
       {
-        fprintf(stdout,"SMARTMET_CS_IOR not defined!\n");
-        return -3;
+        fprintf(stdout,"Service IOR not defined!\n");
+        return -2;
       }
 
       ContentServer::Corba::ClientImplementation *corbaService = new ContentServer::Corba::ClientImplementation();

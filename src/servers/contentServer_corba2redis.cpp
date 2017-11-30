@@ -11,6 +11,7 @@ using namespace SmartMet;
 
 ContentServer::Corba::Server *server = NULL;
 ContentServer::RedisImplementation *redisImplementation = NULL;
+bool shutdownRequested = false;
 
 
 void sig_handler(int signum)
@@ -18,9 +19,14 @@ void sig_handler(int signum)
   {
     try
     {
+      if (shutdownRequested)
+        sprintf(NULL,"Crashing the system for the core dump");
+
       if (redisImplementation != NULL)
       {
         printf("\n**** SHUTTING DOWN ****\n");
+        shutdownRequested = true;
+        sleep(2);
         redisImplementation->shutdown();
         server->shutdown();
       }
