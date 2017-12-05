@@ -67,7 +67,8 @@ int main(int argc, char *argv[])
       printf("   can store it in your shell start-up scripts (like '.bashrc').\n");
       printf("\n");
       printf(" USAGE:\n");
-      printf("   contentServer_corba2memory <corbaAddress> <corbaPort> [-log logFile]\n");
+      printf("   contentServer_corba2memory <corbaAddress> <corbaPort>\n");
+      printf("     [-plog processingLogFile] [-dlog debugLogFile] [-lua luaFile]\n");
       printf("\n");
       printf(" WHERE:\n");
       printf("   <corbaAddress>    => The IP address of the server.\n");
@@ -89,10 +90,21 @@ int main(int argc, char *argv[])
     server->init(memoryImplementation);
 
     Log processingLog;
-    if (argc == 5  && strcmp(argv[3],"-log") == 0)
+    Log debugLog;
+
+    for (int t=3; t<argc; t++)
     {
-      processingLog.init(true,argv[4],100000000,50000000);
-      memoryImplementation->setProcessingLog(&processingLog);
+      if (strcmp(argv[t],"-plog") == 0  &&  (t+1 < argc))
+      {
+        processingLog.init(true,argv[t+1],10000000,5000000);
+        memoryImplementation->setProcessingLog(&processingLog);
+      }
+
+      if (strcmp(argv[t],"-dlog") == 0  &&  (t+1 < argc))
+      {
+        debugLog.init(true,argv[t+1],10000000,5000000);
+        memoryImplementation->setDebugLog(&debugLog);
+      }
     }
 
     // Let's print the service IOR. This is necessary for accessing the service. Usually the best way

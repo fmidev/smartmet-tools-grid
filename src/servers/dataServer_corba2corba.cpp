@@ -123,7 +123,8 @@ int main(int argc, char *argv[])
       printf("   made for this server.\n");
       printf("\n");
       printf(" USAGE:\n");
-      printf("   dataServer_corba2corba <serverId> <serverName> <gridFileDir> <corbaAddress> <corbaPort> <contentServerIor> <conversionFile> [-log logFile] [-lua luaFile]\n");
+      printf("   dataServer_corba2corba <serverId> <serverName> <gridFileDir> <corbaAddress> <corbaPort> <contentServerIor>\n");
+      printf("     [-vf virtualFileDef] [-plog processingLogFile] [-dlog debugLogFile] [-lua luaFile]\n");
       printf("\n");
       printf(" WHERE:\n");
       printf("   <serverId>         => Unique server identifier used for content registration,\n");
@@ -135,7 +136,7 @@ int main(int argc, char *argv[])
       printf("   <corbaAddress>     => The IP address of the server.\n");
       printf("   <corbaPort>        => The TCP port of the server.\n");
       printf("   <contentServerIor> => The IOR of the ContentServer.\n");
-      printf("   <conversionFile>   => Conversion definitions.\n");
+      printf("   <virtualFileDef>   => Virtual file definitions.\n");
       printf("##################################################################################\n");
       printf("\n");
       return -1;
@@ -152,8 +153,9 @@ int main(int argc, char *argv[])
     char *corbaAddress = (char*)argv[4];
     char *corbaPort = (char*)argv[5];
     char *contentServerIor = (char*)argv[6];
-    char *conversionFile = (char*)argv[7];
+    std::string virtualFileDef;
     std::vector<std::string> luaFiles;
+    Log debugLog;
     Log processingLog;
 
     dataServer = new DataServer::ServiceImplementation();
@@ -164,10 +166,21 @@ int main(int argc, char *argv[])
 
     for (int t=7; t<argc; t++)
     {
-      if (strcmp(argv[t],"-log") == 0  && (t+1) < argc)
+      if (strcmp(argv[t],"-vf") == 0  && (t+1) < argc)
+      {
+        virtualFileDef = argv[t+1];
+      }
+
+      if (strcmp(argv[t],"-plog") == 0  && (t+1) < argc)
       {
         processingLog.init(true,argv[t+1],10000000,5000000);
         dataServer->setProcessingLog(&processingLog);
+      }
+
+      if (strcmp(argv[t],"-dlog") == 0  && (t+1) < argc)
+      {
+        debugLog.init(true,argv[t+1],10000000,5000000);
+        dataServer->setDebugLog(&debugLog);
       }
 
       if (strcmp(argv[t],"-lua") == 0  && (t+1) < argc)
@@ -188,11 +201,13 @@ int main(int argc, char *argv[])
 
     dataServer->init(sessionId,serverId,serverName,corbaServer->getServiceIor().c_str(),gridFileDir,&contentServerClient,luaFiles);
 
-    DataServer::VirtualContentFactory_type1 *factory = new DataServer::VirtualContentFactory_type1();
-    factory->init(conversionFile);
+    if (virtualFileDef.length() > 0)
+    {
+      DataServer::VirtualContentFactory_type1 *factory = new DataServer::VirtualContentFactory_type1();
+      factory->init(virtualFileDef);
 
-    dataServer->addVirtualContentFactory(factory);
-
+      dataServer->addVirtualContentFactory(factory);
+    }
 
     dataServer->startEventProcessing();
 

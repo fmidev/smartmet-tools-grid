@@ -73,7 +73,8 @@ int main(int argc, char *argv[])
       printf("   can store it in your shell start-up scripts (like '.bashrc').\n");
       printf("\n");
       printf(" USAGE:\n");
-      printf("   cacheContentServer_corba2redis <corbaAddress> <corbaPort> <redisAddress> <redisPort> <tablePrefix> [-log logFile]\n");
+      printf("   cacheContentServer_corba2redis <corbaAddress> <corbaPort> <redisAddress> <redisPort> <tablePrefix>\n");
+      printf("     [-plog processingLogFile] [-dlog debugLogFile]\n");
       printf("\n");
       printf(" WHERE:\n");
       printf("   <corbaAddress>    => The IP address of the server.\n");
@@ -103,14 +104,22 @@ int main(int argc, char *argv[])
     ContentServer::RedisImplementation redis;
     redis.init(redisAddress,redisPort,tablePrefix);
 
-    cacheImplementation->init(sessionId,&redis);
-    cacheImplementation->startEventProcessing();
-
     Log processingLog;
-    if (argc == 8  && strcmp(argv[6],"-log") == 0)
+    Log debugLog;
+
+    for (int t=6; t<argc; t++)
     {
-      processingLog.init(true,argv[7],10000000,5000000);
-      cacheImplementation->setProcessingLog(&processingLog);
+      if (strcmp(argv[t],"-plog") == 0  &&  (t+1 < argc))
+      {
+        processingLog.init(true,argv[t+1],10000000,5000000);
+        cacheImplementation->setProcessingLog(&processingLog);
+      }
+
+      if (strcmp(argv[t],"-dlog") == 0  &&  (t+1 < argc))
+      {
+        debugLog.init(true,argv[t+1],10000000,5000000);
+        cacheImplementation->setDebugLog(&debugLog);
+      }
     }
 
     // Let's print the service IOR. This is necessary for accessing the service. Usually the best way
@@ -118,6 +127,9 @@ int main(int argc, char *argv[])
 
     std::string ior = server->getServiceIor();
     printf("\n%s\n",ior.c_str());
+
+    cacheImplementation->init(sessionId,&redis);
+    cacheImplementation->startEventProcessing();
 
     server->run();
 

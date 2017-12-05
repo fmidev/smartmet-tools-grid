@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     {
       case 1:
       {
-        double val = luaFile.executeFunctionType1(function,inParams);
+        double val = luaFile.executeFunctionCall1(function,inParams);
         printf("RESULT : %f\n",val);
       }
       break;
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
       case 2:
       {
         std::vector<double> outParams;
-        luaFile.executeFunctionType2(function,inParams,outParams);
+        luaFile.executeFunctionCall2(function,inParams.size(),1,inParams,outParams);
         printf("RESULT : ");
         for (auto it = outParams.begin(); it != outParams.end(); ++it)
         {
