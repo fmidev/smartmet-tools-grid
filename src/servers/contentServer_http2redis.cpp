@@ -1,11 +1,13 @@
 #include "contentServer/http/server/ServerInterface.h"
 #include "contentServer/redis/RedisImplementation.h"
+#include "grid-files/common/Log.h"
 
 #include <microhttpd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
+using namespace SmartMet;
 
 
 SmartMet::ContentServer::HTTP::ServerInterface *httpServer = NULL;
@@ -138,6 +140,19 @@ static int processRequest(void *cls,struct MHD_Connection *connection,const char
       {
         char line[10000];
         uint c = 0;
+
+        uint lCount = requestMessage->getLineCount();
+        if (lCount > 0)
+        {
+          std::string lastLine = requestMessage->getLineByIndex(lCount-1);
+          if (lastLine.length() > 0  &&  lastLine[lastLine.length()-1] == '\n')
+          {
+            c = lastLine.length() - 1;
+            strncpy(line,lastLine.c_str(),c);
+            requestMessage->deleteLineByIndex(lCount-1);
+          }
+        }
+
         for (size_t t=0; t<sz; t++)
         {
           char ch = upload_data[t];
@@ -158,6 +173,8 @@ static int processRequest(void *cls,struct MHD_Connection *connection,const char
 
         if (c > 0)
         {
+          line[c] = '\n';
+          c++;
           line[c] = '\0';
           requestMessage->addLine(line);
         }
@@ -221,7 +238,7 @@ int main(int argc,char ** argv)
 {
   try
   {
-    if (argc != 6)
+    if (argc < 6)
     {
       printf("\n");
       printf("##################################################################################\n");
@@ -233,6 +250,7 @@ int main(int argc,char ** argv)
       printf("\n");
       printf(" USAGE:\n");
       printf("   contentServer_http2redis <httpPort> <redisAddress> <redisPort> <tablePrefix> <mainPage>\n");
+      printf("     [-plog processingLogFile] [-dlog debugLogFile]\n");
       printf("\n");
       printf(" WHERE:\n");
       printf("   <httpPort>        => The TCP port of the HTTP server.\n");
@@ -257,6 +275,24 @@ int main(int argc,char ** argv)
 
     httpServer = new SmartMet::ContentServer::HTTP::ServerInterface();
     httpServer->init(redisImplementation);
+
+    Log processingLog;
+    Log debugLog;
+
+    for (int t=6; t<argc; t++)
+    {
+      if (strcmp(argv[t],"-plog") == 0  &&  (t+1 < argc))
+      {
+        processingLog.init(true,argv[t+1],10000000,5000000);
+        redisImplementation->setProcessingLog(&processingLog);
+      }
+
+      if (strcmp(argv[t],"-dlog") == 0  &&  (t+1 < argc))
+      {
+        debugLog.init(true,argv[t+1],10000000,5000000);
+        redisImplementation->setDebugLog(&debugLog);
+      }
+    }
 
     struct MHD_Daemon *daemon = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY, httpPort, NULL, NULL,&processRequest, NULL,
                                  MHD_OPTION_NOTIFY_COMPLETED, requestCompleted,NULL, MHD_OPTION_END);

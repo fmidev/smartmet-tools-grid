@@ -1,10 +1,12 @@
 #include "grid-files/common/Exception.h"
+#include "grid-files/common/Log.h"
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/identification/GribDef.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
+#include "grid-content/contentServer/http/client/ClientImplementation.h"
 
 #include <libpq-fe.h>
 #include <stdlib.h>
@@ -48,7 +50,9 @@ uint sourceId = 200;
 uint globalFileId = 0;
 std::string lastUpdateTime("19000101T000000");
 std::set<std::string> producerList;
-bool verbose = false;
+Log debugLog;
+Log *debugLogPtr = NULL;
+
 
 T::ProducerInfoList      mSourceProducerList;
 T::GenerationInfoList    mSourceGenerationList;
@@ -58,7 +62,6 @@ T::ProducerInfoList      mTargetProducerList;
 T::GenerationInfoList    mTargetGenerationList;
 T::FileInfoList          mTargetFileList;
 T::ContentInfoList       mTargetContentList;
-
 
 
 
@@ -117,8 +120,7 @@ void readProducerList(const char *filename)
     FILE *file = fopen(filename,"r");
     if (file == NULL)
     {
-      if (verbose)
-        printf("Producer file not available. Accepting all produces");
+      PRINT_DATA(debugLogPtr,"Producer file not available. Accepting all produces");
       return;
     }
 
@@ -475,8 +477,7 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
           // The producer information is not available in the source data storage. So, we should remove
           // it also from the target data storage.
 
-          if (verbose)
-            printf("  -- Remove producer : %s\n",targetProducer->mName.c_str());
+          PRINT_DATA(debugLogPtr,"  -- Remove producer : %s\n",targetProducer->mName.c_str());
 
           int result = targetInterface->deleteProducerInfoById(mSessionId,targetProducer->mProducerId);
           if (result != 0)
@@ -507,8 +508,7 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
           producer.mProducerId = 0;
           producer.mSourceId = sourceId;
 
-          if (verbose)
-            printf("  -- Add producer : %s\n",producer.mName.c_str());
+          PRINT_DATA(debugLogPtr,"  -- Add producer : %s\n",producer.mName.c_str());
 
           int result = targetInterface->addProducerInfo(mSessionId,producer);
           if (result != 0)
@@ -538,6 +538,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
   FUNCTION_TRACE
   try
   {
+    std::set<uint> generationIdList;
     uint len = mTargetGenerationList.getLength();
     for (uint t=0; t<len; t++)
     {
@@ -550,21 +551,24 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
           // The generation information is not available in the source data storage. So, we should remove
           // it also from the target data storage.
 
-          if (verbose)
-            printf("  -- Remove generation : %s\n",targetGeneration->mName.c_str());
+          PRINT_DATA(debugLogPtr,"  -- Remove generation : %s\n",targetGeneration->mName.c_str());
 
-          int result = targetInterface->deleteGenerationInfoById(mSessionId,targetGeneration->mGenerationId);
-          if (result != 0)
-          {
-            SmartMet::Spine::Exception exception(BCP,"Cannot delete the generation information from the target data storage!");
-            exception.addParameter("GenerationId",std::to_string(targetGeneration->mGenerationId));
-            exception.addParameter("GenerationName",targetGeneration->mName);
-            exception.addParameter("Result",ContentServer::getResultString(result));
-            throw exception;
-          }
+          generationIdList.insert(targetGeneration->mGenerationId);
         }
       }
     }
+
+    if (generationIdList.size() > 0)
+    {
+      int result = targetInterface->deleteGenerationInfoListByIdList(mSessionId,generationIdList);
+      if (result != 0)
+      {
+        SmartMet::Spine::Exception exception(BCP,"Cannot delete the generation information from the target data storage!");
+        exception.addParameter("Result",ContentServer::getResultString(result));
+        throw exception;
+      }
+    }
+
 
     len = mSourceGenerationList.getLength();
     for (uint t=0; t<len; t++)
@@ -596,8 +600,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
             generationInfo.mProducerId = targetProducer.mProducerId;
             generationInfo.mSourceId = sourceId;
 
-            if (verbose)
-              printf("  -- Add generation : %s\n",generationInfo.mName.c_str());
+            PRINT_DATA(debugLogPtr,"  -- Add generation : %s\n",generationInfo.mName.c_str());
 
             result = targetInterface->addGenerationInfo(mSessionId,generationInfo);
             if (result != 0)
@@ -702,8 +705,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
     T::GenerationInfo *generation = mTargetGenerationList.getGenerationInfoByName(forecast.generationName);
     if (generation == NULL)
     {
-      if (verbose)
-        printf("**** Unknown generation : %s\n",forecast.generationName.c_str());
+      PRINT_DATA(debugLogPtr,"**** Unknown generation : %s\n",forecast.generationName.c_str());
       return 0;
     }
 
@@ -804,8 +806,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
 
       fileAndContentList.push_back(fc);
 
-      if (verbose)
-        printf("      * Add file :  %s\n",it->fileName.c_str());
+      PRINT_DATA(debugLogPtr,"      * Add file :  %s\n",it->fileName.c_str());
     }
 
     return cnt;
@@ -835,15 +836,22 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
       throw exception;
     }
 
+    std::vector<T::ForecastTime> forecastTimeList;
     for (auto forecast=forecastList.begin(); forecast!=forecastList.end(); ++forecast)
     {
       if (!isForecastValid(*forecast))
       {
-        if (verbose)
-          printf("  -- Delete forecast : %s\n",forecast->c_str());
-        deleteForecast(targetInterface,*forecast);
+        PRINT_DATA(debugLogPtr,"  -- Delete forecast : %s\n",forecast->c_str());
+        forecastTimeList.push_back(T::ForecastTime(forecast->c_str()));
+        //deleteForecast(targetInterface,*forecast);
       }
     }
+
+    if (forecastTimeList.size() > 0)
+    {
+      targetInterface->deleteFileInfoListByForecastTimeList(mSessionId,forecastTimeList);
+    }
+
 
     std::vector<T::FileAndContent> fileAndContentList;
 
@@ -851,8 +859,7 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
     {
       if (!it->checked  &&  it->lastUpdated > lastUpdateTime)
       {
-        if (verbose)
-          printf("  -- Add forecast : %u;%s;%s;%s;%s;%u;%d;%d;%s;\n",
+        PRINT_DATA(debugLogPtr,"  -- Add forecast : %u;%s;%s;%s;%s;%u;%d;%d;%s;\n",
             it->producerId,
             it->producerName.c_str(),
             it->analysisTime.c_str(),
@@ -867,7 +874,11 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
 
         if (fileAndContentList.size() > 10000)
         {
-          targetInterface->addFileInfoListWithContent(mSessionId,fileAndContentList);
+          int result = targetInterface->addFileInfoListWithContent(mSessionId,fileAndContentList);
+          if (result != 0)
+          {
+            fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
+          }
           fileAndContentList.clear();
         }
 
@@ -878,7 +889,11 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
 
     if (fileAndContentList.size() > 0)
     {
-      targetInterface->addFileInfoListWithContent(mSessionId,fileAndContentList);
+      int result = targetInterface->addFileInfoListWithContent(mSessionId,fileAndContentList);
+      if (result != 0)
+      {
+        fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
+      }
       fileAndContentList.clear();
     }
 
@@ -902,7 +917,9 @@ int main(int argc, char *argv[])
   {
     if (argc < 5)
     {
-      fprintf(stderr,"USAGE: radon2smartmet <sourceId> <dbConnectionString> <producerFile> <waitTimeInSec> [-redis <redisAddress> <redisPort> <tablePrefix>][-v]\n");
+      fprintf(stderr,"USAGE: radon2smartmet <sourceId> <dbConnectionString> <producerFile> <waitTimeInSec>\n");
+      fprintf(stderr,"  [-redis <redisAddress> <redisPort> <tablePrefix>] [-corba <contentServerIOR>\n");
+      fprintf(stderr,"  [-http <contentServerURL>\n");
       return -1;
     }
 
@@ -942,11 +959,18 @@ int main(int argc, char *argv[])
         targetInterface = client;
       }
 
-      if (strcasecmp(argv[t],"-v") == 0)
+      if (strcasecmp(argv[t],"-http") == 0  &&  (t+1) < argc)
       {
-        verbose = true;
+        ContentServer::HTTP::ClientImplementation *httpClient = new ContentServer::HTTP::ClientImplementation();
+        httpClient->init(argv[t+1]);
+        targetInterface = httpClient;
       }
 
+      if (strcmp(argv[t],"-log") == 0  && (t+1) < argc)
+      {
+        debugLog.init(true,argv[t+1],1000000,500000);
+        debugLogPtr = &debugLog;
+      }
     }
 
     if (targetInterface == NULL)
@@ -964,70 +988,45 @@ int main(int argc, char *argv[])
 
     while (true)
     {
-      if (verbose)
-      {
-        printf("\n");
-        printf("********************************************************************\n");
-        printf("****************************** UPDATE ******************************\n");
-        printf("********************************************************************\n");
-      }
+      PRINT_DATA(debugLogPtr,"\n");
+      PRINT_DATA(debugLogPtr,"********************************************************************\n");
+      PRINT_DATA(debugLogPtr,"****************************** UPDATE ******************************\n");
+      PRINT_DATA(debugLogPtr,"********************************************************************\n");
 
-      if (verbose)
-        printf("* Reading producer names that belongs to this update\n");
-
+      PRINT_DATA(debugLogPtr,"* Reading producer names that belongs to this update\n");
       readProducerList(producerFile);
 
-      if (verbose)
-        printf("* Reading producer information from the target data storage\n");
-
+      PRINT_DATA(debugLogPtr,"* Reading producer information from the target data storage\n");
       readTargetProducers(targetInterface);
 
-      if (verbose)
-        printf("* Reading producer information from the source data storage\n");
-
+      PRINT_DATA(debugLogPtr,"* Reading producer information from the source data storage\n");
       readSourceProducers(conn);
 
-      if (verbose)
-        printf("* Updating producer information into the target data storage\n");
-
+      PRINT_DATA(debugLogPtr,"* Updating producer information into the target data storage\n");
       updateProducers(targetInterface);
 
-      if (verbose)
-        printf("* Reading updated producer information from the target data storage\n");
-
+      PRINT_DATA(debugLogPtr,"* Reading updated producer information from the target data storage\n");
       readTargetProducers(targetInterface);
 
-      if (verbose)
-        printf("* Reading generation information from the target data storage\n");
-
+      PRINT_DATA(debugLogPtr,"* Reading generation information from the target data storage\n");
       readTargetGenerations(targetInterface);
 
-      if (verbose)
-        printf("* Reading generation information from the source data storage\n");
-
+      PRINT_DATA(debugLogPtr,"* Reading generation information from the source data storage\n");
       readSourceGenerations(conn);
 
-      if (verbose)
-        printf("* Updating generation information into the target data storage\n");
-
+      PRINT_DATA(debugLogPtr,"* Updating generation information into the target data storage\n");
       updateGenerations(targetInterface);
+
+      PRINT_DATA(debugLogPtr,"* Reading updated generation information from the target data storage\n");
       readTargetGenerations(targetInterface);
 
-      if (verbose)
-        printf("* Reading updated generation information from the target data storage\n");
-
-      if (verbose)
-        printf("* Reading forecast time information from the source data storage\n");
-
+      PRINT_DATA(debugLogPtr,"* Reading forecast time information from the source data storage\n");
       readSourceForecastTimes(conn);
 
-      if (verbose)
-        printf("* Updating forecast time information into the target data storage\n");
-
+      PRINT_DATA(debugLogPtr,"* Updating forecast time information into the target data storage\n");
       updateForecastTimes(targetInterface,conn);
 
-      if (verbose)
-        printf("********************************************************************\n\n");
+      PRINT_DATA(debugLogPtr,"********************************************************************\n\n");
 
       sleep(waitTime);
     }

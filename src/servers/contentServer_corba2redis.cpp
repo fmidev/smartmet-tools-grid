@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
       printf("\n");
       printf(" USAGE:\n");
       printf("   contentServer_corba2redis <corbaAddress> <corbaPort> <redisAddress> <redisPort> <tablePrefix>\n");
-      printf("     [-plog processingLogFile] [-dlog debugLogFile] [-lua luaFile]\n");
+      printf("     [-plog processingLogFile] [-dlog debugLogFile]\n");
       printf("\n");
       printf(" WHERE:\n");
       printf("   <corbaAddress>    => The IP address of the server.\n");
