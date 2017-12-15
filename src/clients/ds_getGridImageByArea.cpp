@@ -108,9 +108,9 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc < 13)
+    if (argc < 14)
     {
-      fprintf(stdout,"USAGE: cs_getGridImageByArea <sessionId> <fileId> <messageIndex> <coordinateType> <columns> <rows> <x> <y> <xStep> <yStep> <interpolationMethod> <image.jpg> [-rotate]\n");
+      fprintf(stdout,"USAGE: cs_getGridImageByArea <sessionId> <fileId> <messageIndex> <flags> <coordinateType> <columns> <rows> <x> <y> <xStep> <yStep> <interpolationMethod> <image.jpg> [-rotate]\n");
       return -1;
     }
 
@@ -127,19 +127,20 @@ int main(int argc, char *argv[])
 
     uint fileId = (uint)atoll(argv[2]);
     uint messageIndex = (uint)atoll(argv[3]);
-    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[4]);
-    uint columns = (uint)atoll(argv[5]);
-    uint rows = (uint)atoll(argv[6]);
-    double x = (double)atof(argv[7]);
-    double y = (double)atof(argv[8]);
-    double xStep = (double)atof(argv[9]);
-    double yStep = (double)atof(argv[10]);
-    T::InterpolationMethod interpolationMethod = (T::InterpolationMethod)atoll(argv[11]);
-    char *imageFile = argv[12];
+    uint flags = (uint)atoll(argv[4]);
+    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[5]);
+    uint columns = (uint)atoll(argv[6]);
+    uint rows = (uint)atoll(argv[7]);
+    double x = (double)atof(argv[8]);
+    double y = (double)atof(argv[9]);
+    double xStep = (double)atof(argv[10]);
+    double yStep = (double)atof(argv[11]);
+    T::InterpolationMethod interpolationMethod = (T::InterpolationMethod)atoll(argv[12]);
+    char *imageFile = argv[13];
     T::ParamValue_vec values;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,coordinateType,columns,rows,x,y,xStep,yStep,interpolationMethod,values);
+    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,flags,coordinateType,columns,rows,x,y,xStep,yStep,interpolationMethod,values);
     unsigned long long endTime = getTime();
 
     if (result != 0)

@@ -18,9 +18,9 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc != 5)
+    if (argc != 6)
     {
-      fprintf(stdout,"USAGE: cs_getGridCoordinates <sessionId> <fileId> <messageIndex> <coordinateType>\n");
+      fprintf(stdout,"USAGE: cs_getGridCoordinates <sessionId> <fileId> <messageIndex> <flags> <coordinateType>\n");
       return -1;
     }
 
@@ -38,11 +38,12 @@ int main(int argc, char *argv[])
 
     uint fileId = (uint)atoll(argv[2]);
     uint messageIndex = (uint)atoll(argv[3]);
-    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[4]);
+    uint flags = (uint)atoll(argv[4]);
+    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[5]);
     T::GridCoordinates gridCoordinates;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridCoordinates(sessionId,fileId,messageIndex,coordinateType,gridCoordinates);
+    int result = dataServer.getGridCoordinates(sessionId,fileId,messageIndex,flags,coordinateType,gridCoordinates);
     unsigned long long endTime = getTime();
 
 

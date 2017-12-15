@@ -18,9 +18,9 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc != 8)
+    if (argc != 9)
     {
-      fprintf(stdout,"USAGE: ds_getGridValueListByCircle <sessionId> <fileId> <messageIndex> <coordinateType> <origo-x> <origo-y> <radius>\n");
+      fprintf(stdout,"USAGE: ds_getGridValueListByCircle <sessionId> <fileId> <messageIndex> <flags> <coordinateType> <origo-x> <origo-y> <radius>\n");
       return -1;
     }
 
@@ -38,15 +38,15 @@ int main(int argc, char *argv[])
 
     uint fileId = (uint)atoll(argv[2]);
     uint messageIndex = (uint)atoll(argv[3]);
-    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[4]);
-
-    double origoX = (double)atof(argv[5]);
-    double origoY = (double)atof(argv[6]);
-    double radius = (double)atof(argv[7]);
+    uint flags = (uint)atoll(argv[4]);
+    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[5]);
+    double origoX = (double)atof(argv[6]);
+    double origoY = (double)atof(argv[7]);
+    double radius = (double)atof(argv[8]);
     T::GridValueList valueList;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueListByCircle(sessionId,fileId,messageIndex,coordinateType,origoX,origoY,radius,valueList);
+    int result = dataServer.getGridValueListByCircle(sessionId,fileId,messageIndex,flags,coordinateType,origoX,origoY,radius,valueList);
     unsigned long long endTime = getTime();
 
 

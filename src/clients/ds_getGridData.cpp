@@ -20,9 +20,9 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc != 4)
+    if (argc != 5)
     {
-      fprintf(stdout,"USAGE: ds_getGridData <sessionId> <fileId> <messageIndex>\n");
+      fprintf(stdout,"USAGE: ds_getGridData <sessionId> <fileId> <messageIndex> <flags>\n");
       return -1;
     }
 
@@ -40,10 +40,11 @@ int main(int argc, char *argv[])
 
     uint fileId = (uint)atoll(argv[2]);
     uint messageIndex = (uint)atoll(argv[3]);
+    uint flags = (uint)atoll(argv[4]);
     T::GridData gridData;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridData(sessionId,fileId,messageIndex,gridData);
+    int result = dataServer.getGridData(sessionId,fileId,messageIndex,flags,gridData);
     unsigned long long endTime = getTime();
 
 

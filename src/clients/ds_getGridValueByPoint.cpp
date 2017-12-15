@@ -17,9 +17,9 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc != 8)
+    if (argc != 9)
     {
-      fprintf(stdout,"USAGE: ds_getGridValueByPoint <sessionId> <fileId> <messageIndex> <coordinateType> <x> <y> <interpolationMethod>\n");
+      fprintf(stdout,"USAGE: ds_getGridValueByPoint <sessionId> <fileId> <messageIndex> <flags> <coordinateType> <x> <y> <interpolationMethod>\n");
       return -1;
     }
 
@@ -37,14 +37,15 @@ int main(int argc, char *argv[])
 
     uint fileId = (uint)atoll(argv[2]);
     uint messageIndex = (uint)atoll(argv[3]);
-    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[4]);
-    double x = (double)atof(argv[5]);
-    double y = (double)atof(argv[6]);
-    T::InterpolationMethod interpolationMethod = (T::InterpolationMethod)atoll(argv[7]);
+    uint flags = (uint)atoll(argv[4]);
+    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[5]);
+    double x = (double)atof(argv[6]);
+    double y = (double)atof(argv[7]);
+    T::InterpolationMethod interpolationMethod = (T::InterpolationMethod)atoll(argv[8]);
     T::ParamValue value = 0;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueByPoint(sessionId,fileId,messageIndex,coordinateType,x,y,interpolationMethod,value);
+    int result = dataServer.getGridValueByPoint(sessionId,fileId,messageIndex,flags,coordinateType,x,y,interpolationMethod,value);
     unsigned long long endTime = getTime();
 
 

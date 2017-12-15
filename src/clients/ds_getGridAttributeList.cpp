@@ -10,17 +10,16 @@ int main(int argc, char *argv[])
 {
   try
   {
-    char *contentServiceIor = getenv("SMARTMET_CS_IOR");
-    if (contentServiceIor == NULL)
+    char *serviceIor = getenv("SMARTMET_DS_IOR");
+    if (serviceIor == NULL)
     {
-      fprintf(stdout,"SMARTMET_CS_IOR not defined!\n");
+      fprintf(stdout,"SMARTMET_DS_IOR not defined!\n");
       return -2;
     }
 
-
-    if (argc != 5)
+    if (argc != 6)
     {
-      fprintf(stdout,"USAGE: cs_getGridAttributeList <sessionId> <dataServerId> <fileId> <messageIndex>\n");
+      fprintf(stdout,"USAGE: ds_getGridAttributeList <sessionId> <fileId> <messageIndex> <flags>\n");
       return -1;
     }
 
@@ -29,56 +28,20 @@ int main(int argc, char *argv[])
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
 
 
-    // #######################################################################
-    // ### STEP 1: Getting the dataServer IOR from the contentServer.
-    // #######################################################################
-
-    // ### Creating a contentServer client:
-
-    ContentServer::Corba::ClientImplementation contentServer;
-    contentServer.init(contentServiceIor);
-
-    // ### Calling the contentServer:
-
-    uint dataServerId = (uint)atoll(argv[2]);
-    T::ServerInfo dataServerInfo;
-    int result = 0;
-
-    if (dataServerId != 0)
-      result = contentServer.getDataServerInfoById(sessionId,dataServerId,dataServerInfo);
-    else
-      result = contentServer.getDataServerInfoByName(sessionId,std::string(argv[2]),dataServerInfo);
-
-    if (result == ContentServer::Result::DATA_NOT_FOUND)
-    {
-      fprintf(stdout,"Unknown data server id (%s)!\n",argv[2]);
-      return -3;
-    }
-
-    if (result != 0)
-    {
-      fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
-      return -4;
-    }
-
-
-    // #######################################################################
-    // ### STEP 2: Requesting data from the dataServer.
-    // #######################################################################
-
     // ### Creating a dataServer client:
 
     DataServer::Corba::ClientImplementation dataServer;
-    dataServer.init(dataServerInfo.mServerIor);
+    dataServer.init(serviceIor);
 
     // ### Calling the dataServer:
 
-    uint fileId = (uint)atoll(argv[3]);
-    uint messageIndex = (uint)atoll(argv[4]);
+    uint fileId = (uint)atoll(argv[2]);
+    uint messageIndex = (uint)atoll(argv[3]);
+    uint flags = (uint)atoll(argv[4]);
     T::AttributeList attributeList;
 
     unsigned long long startTime = getTime();
-    result = dataServer.getGridAttributeList(sessionId,fileId,messageIndex,attributeList);
+    int result = dataServer.getGridAttributeList(sessionId,fileId,messageIndex,flags,attributeList);
     unsigned long long endTime = getTime();
 
 

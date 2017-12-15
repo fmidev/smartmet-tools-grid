@@ -113,11 +113,11 @@ int main(int argc, char *argv[])
 
     if (argc < 5)
     {
-      fprintf(stdout,"USAGE: cs_getGridData <sessionId> <fileId> <messageIndex> <jpgFile> [-rotate]\n");
+      fprintf(stdout,"USAGE: cs_getGridData <sessionId> <fileId> <messageIndex> <flags> <jpgFile> [-rotate]\n");
       return -1;
     }
 
-    if (argc == 6  &&  strcmp(argv[5],"-rotate") == 0)
+    if (argc == 7  &&  strcmp(argv[5],"-rotate") == 0)
       rotate = true;
 
 
@@ -134,10 +134,11 @@ int main(int argc, char *argv[])
 
     uint fileId = (uint)atoll(argv[2]);
     uint messageIndex = (uint)atoll(argv[3]);
+    uint flags = (uint)atoll(argv[4]);
     T::GridData gridData;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridData(sessionId,fileId,messageIndex,gridData);
+    int result = dataServer.getGridData(sessionId,fileId,messageIndex,flags,gridData);
     unsigned long long endTime = getTime();
 
     if (result != 0)
@@ -152,7 +153,7 @@ int main(int argc, char *argv[])
 
     // ### Saving the grid data as an image:
 
-    saveImage(argv[4],gridData);
+    saveImage(argv[5],gridData);
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 
