@@ -65,7 +65,7 @@ void showInfo(SmartMet::GRID::GridFile& gridFile)
     {
       T::ParamId id = parameterIdList[t];
 
-      Identification::ParameterDefinition_cptr paramDef = Identification::gribDef.getGribParamDefById(id);
+      Identification::ParamDef_cptr paramDef = Identification::gribDef.getGribParamDefById(id);
 
       T::TimeString startTime;
       T::TimeString endTime;
@@ -120,7 +120,7 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
     {
       T::ParamId id = parameterIdList[t];
 
-      Identification::ParameterDefinition_cptr paramDef = Identification::gribDef.getGribParamDefById(id);
+      Identification::ParamDef_cptr paramDef = Identification::gribDef.getGribParamDefById(id);
 
 
       T::TimeString startTime;

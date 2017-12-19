@@ -748,25 +748,24 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
       contentInfo->mGeometryId = forecast.geometryId;
       contentInfo->mModificationTime = forecast.lastUpdated;
 
-      const Identification::ParameterDefinition_fmi_cptr fmiDef = Identification::gribDef.mMessageIdentifier_fmi.getParameterDefById(it->paramId);
-
-      if (fmiDef != NULL)
+      Identification::ParameterDefinition_fmi fmiDef;
+      if (Identification::gribDef.mMessageIdentifier_fmi.getParameterDefById(it->paramId,fmiDef))
       {
-        contentInfo->mFmiParameterName = fmiDef->mParameterName;
-        contentInfo->mFmiParameterUnits = fmiDef->mParameterUnits;
-        contentInfo->mNewbaseParameterId = fmiDef->mNewbaseId;
+        contentInfo->mFmiParameterName = fmiDef.mParameterName;
+        contentInfo->mFmiParameterUnits = fmiDef.mParameterUnits;
+        contentInfo->mNewbaseParameterId = fmiDef.mNewbaseId;
 
-        const Identification::Parameter_newbase_cptr  nbDef = Identification::gribDef.mMessageIdentifier_fmi.getParameter_newbaseId(fmiDef->mNewbaseId);
-        if (nbDef != NULL)
-          contentInfo->mNewbaseParameterName = nbDef->mParameterName;
+        Identification::Parameter_newbase  nbDef;
+        if (Identification::gribDef.mMessageIdentifier_fmi.getParameter_newbaseId(fmiDef.mNewbaseId,nbDef))
+          contentInfo->mNewbaseParameterName = nbDef.mParameterName;
 
-        const Identification::Parameter_grib1_fmi_cptr g1Def = Identification::gribDef.mMessageIdentifier_fmi.getParameter_grib1(it->paramId);
-        if (g1Def != NULL)
-          contentInfo->mGrib1ParameterLevelId = (T::ParamLevelId)(*g1Def->mGribParameterLevelId);
+        Identification::Parameter_grib1_fmi g1Def;
+        if (Identification::gribDef.mMessageIdentifier_fmi.getParameter_grib1(it->paramId,g1Def))
+          contentInfo->mGrib1ParameterLevelId = (T::ParamLevelId)(*g1Def.mGribParameterLevelId);
 
-        const Identification::Parameter_grib2_fmi_cptr g2Def = Identification::gribDef.mMessageIdentifier_fmi.getParameter_grib2(it->paramId);
-        if (g2Def != NULL)
-          contentInfo->mGrib2ParameterLevelId = (T::ParamLevelId)(*g2Def->mGribParameterLevelId);
+        Identification::Parameter_grib2_fmi g2Def;
+        if (Identification::gribDef.mMessageIdentifier_fmi.getParameter_grib2(it->paramId,g2Def))
+          contentInfo->mGrib2ParameterLevelId = (T::ParamLevelId)(*g2Def.mGribParameterLevelId);
 
       }
 #if 0

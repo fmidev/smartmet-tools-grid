@@ -27,19 +27,17 @@ int main(int argc, char *argv[])
     Identification::gribDef.init(configDir);
 
     uint geometryId = atoll(argv[1]);
+    T::Coordinate_vec coordinates;
 
     unsigned long long startTime = getTime();
-    GRIB2::GridDefinition_ptr def = Identification::gribDef.getGridDefinition2ByGeometryId(geometryId);
-    unsigned long long endTime = getTime();
 
-    if (def == NULL)
+    if (!Identification::gribDef.getGridLatLonCoordinatesByGeometryId(geometryId,coordinates))
     {
       printf("Geometry (%u) not found!\n",geometryId);
       return -3;
     }
 
-    //T::Dimensions_opt d = def->getGridDimensions();
-    T::Coordinate_vec coordinates = def->getGridLatLonCoordinates();
+    unsigned long long endTime = getTime();
 
     for (auto it = coordinates.begin(); it != coordinates.end(); ++it)
     {

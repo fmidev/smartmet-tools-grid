@@ -7,7 +7,7 @@ using namespace SmartMet;
 
 
 
-void loadNewbaseParameterDefinitions(char *configDir,Identification::Parameter_newbase_vec& parameters)
+void loadNewbaseParameterDefinitions(char *configDir,Identification::Param_newbase_vec& parameters)
 {
   try
   {
@@ -96,16 +96,16 @@ int main(int argc, char *argv[])
     Identification::gribDef.init(configDir);
 
 
-    Identification::Parameter_newbase_vec parameters;
+    Identification::Param_newbase_vec parameters;
     loadNewbaseParameterDefinitions(configDir,parameters);
 
     for (auto it = parameters.begin(); it != parameters.end(); ++it)
     {
-      Identification::ParameterDefinition_fmi_cptr rec = Identification::gribDef.mMessageIdentifier_fmi.getParameterDefByNewbaseId(it->mNewbaseParameterId);
-      if (rec != NULL)
+      Identification::ParameterDefinition_fmi rec;
+      if (Identification::gribDef.mMessageIdentifier_fmi.getParameterDefByNewbaseId(it->mNewbaseParameterId,rec))
       {
         if (!reverse)
-          std::cout << "newbase." << it->mParameterName << ";" << rec->mParameterName << "\n";
+          std::cout << "newbase." << it->mParameterName << ";" << rec.mParameterName << "\n";
         else
           std::cout << it->mParameterName << ";newbase." << it->mParameterName << "\n";
       }

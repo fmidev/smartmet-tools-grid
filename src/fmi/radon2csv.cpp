@@ -119,26 +119,24 @@ void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uin
     std::string grib2ParameterLevelId;
 
 
-    const Identification::ParameterDefinition_fmi_cptr fmiDef = Identification::gribDef.mMessageIdentifier_fmi.getParameterDefById(fmiParameterId);
-
-    if (fmiDef != NULL)
+    Identification::ParameterDefinition_fmi fmiDef;
+    if (Identification::gribDef.mMessageIdentifier_fmi.getParameterDefById(fmiParameterId,fmiDef))
     {
-      fmiParameterName = fmiDef->mParameterName;
-      fmiParameterUnits = fmiDef->mParameterUnits;
-      newbaseParameterId = fmiDef->mNewbaseId;
+      fmiParameterName = fmiDef.mParameterName;
+      fmiParameterUnits = fmiDef.mParameterUnits;
+      newbaseParameterId = fmiDef.mNewbaseId;
 
-      const Identification::Parameter_newbase_cptr  nbDef = Identification::gribDef.mMessageIdentifier_fmi.getParameter_newbaseId(fmiDef->mNewbaseId);
-      if (nbDef != NULL)
-        newbaseParameterName = nbDef->mParameterName;
+      Identification::Parameter_newbase nbDef;
+      if (Identification::gribDef.mMessageIdentifier_fmi.getParameter_newbaseId(fmiDef.mNewbaseId,nbDef))
+        newbaseParameterName = nbDef.mParameterName;
 
-      const Identification::Parameter_grib1_fmi_cptr g1Def = Identification::gribDef.mMessageIdentifier_fmi.getParameter_grib1(fmiParameterId);
-      if (g1Def != NULL)
-        grib1ParameterLevelId = toString(g1Def->mGribParameterLevelId);
+      Identification::Parameter_grib1_fmi g1Def;
+      if (Identification::gribDef.mMessageIdentifier_fmi.getParameter_grib1(fmiParameterId,g1Def))
+        grib1ParameterLevelId = toString(g1Def.mGribParameterLevelId);
 
-      const Identification::Parameter_grib2_fmi_cptr g2Def = Identification::gribDef.mMessageIdentifier_fmi.getParameter_grib2(fmiParameterId);
-      if (g2Def != NULL)
-        grib2ParameterLevelId = toString(g2Def->mGribParameterLevelId);
-
+      Identification::Parameter_grib2_fmi g2Def;
+      if (Identification::gribDef.mMessageIdentifier_fmi.getParameter_grib2(fmiParameterId,g2Def))
+        grib2ParameterLevelId = toString(g2Def.mGribParameterLevelId);
     }
 
 

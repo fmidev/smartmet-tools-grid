@@ -190,9 +190,9 @@ void saveSubmapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,
     T::ParamValue minValue = 0;
     T::ParamValue maxValue = 0;
     T::InterpolationMethod interpolationMethod = T::InterpolationMethod::Linear;
-    Identification::ParameterDefinition_cptr def = Identification::gribDef.getGribParamDefById(parameterId);
-    if (def != NULL)
-      interpolationMethod = Identification::gribDef.getPreferredInterpolationMethodByUnits(def->mParameterUnits);
+    Identification::ParameterDefinition def;
+    if (Identification::gribDef.getGribParamDefById(parameterId,def))
+      interpolationMethod = Identification::gribDef.getPreferredInterpolationMethodByUnits(def.mParameterUnits);
 
     if ((flags & IMGF_PARAM) != 0)
       getGridMinAndMaxValues(gridFile,parameterId,minValue,maxValue);
