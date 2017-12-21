@@ -570,6 +570,68 @@ void create_parameterDef_fmi(PGconn *conn,const char *dir)
 
 
 
+void create_producerDef_grib_fmi(PGconn *conn,const char *dir)
+{
+  FUNCTION_TRACE
+  try
+  {
+    char filename[300];
+    sprintf(filename,"%s/producerDef_grib_fmi.csv",dir);
+
+    FILE *file = fopen(filename,"w");
+    if (file == NULL)
+    {
+      SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
+      exception.addParameter("Filename",filename);
+      throw exception;
+    }
+
+    char sql[3000];
+    char *p = sql;
+
+    p += sprintf(p,"SELECT DISTINCT\n");
+    p += sprintf(p,"  fmi_producer.id,\n");
+    p += sprintf(p,"  fmi_producer.type_id,\n");
+    p += sprintf(p,"  producer_grib.centre,\n");
+    p += sprintf(p,"  producer_grib.ident,\n");
+    p += sprintf(p,"  fmi_producer.name,\n");
+    p += sprintf(p,"  fmi_producer.description\n");
+    p += sprintf(p,"FROM\n");
+    p += sprintf(p,"  fmi_producer,producer_grib\n");
+    p += sprintf(p,"WHERE\n");
+    p += sprintf(p,"  fmi_producer.id=producer_grib.producer_id\n");
+    p += sprintf(p,"ORDER BY\n");
+    p += sprintf(p,"  producer_grib.centre,producer_grib.ident;\n");
+
+    PGresult *res = PQexec(conn,sql);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+      error(PQresultErrorMessage(res));
+
+    int fieldCount = PQnfields(res);
+    int rowCount = PQntuples(res);
+
+    for (int i = 0; i < rowCount; i++)
+    {
+      for (int f=0; f< fieldCount; f++)
+      {
+        fprintf(file,"%s;",PQgetvalue(res,i,f));
+      }
+      fprintf(file,"\n");
+    }
+
+    fclose(file);
+    PQclear(res);
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+  }
+}
+
+
+
+
+
 int main(int argc, char *argv[])
 {
   FUNCTION_TRACE
@@ -596,6 +658,7 @@ int main(int argc, char *argv[])
     create_levelDef_grib1_fmi(conn,dir);
     create_levelDef_grib2_fmi(conn,dir);
     create_geometryDef(conn,dir);
+    create_producerDef_grib_fmi(conn,dir);
 
     PQfinish(conn);
 
