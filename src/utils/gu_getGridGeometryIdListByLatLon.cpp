@@ -1,5 +1,5 @@
 #include "grid-files/common/Exception.h"
-#include "grid-files/identification/GribDef.h"
+#include "grid-files/identification/GridDef.h"
 #include "grid-files/common/GeneralFunctions.h"
 
 
@@ -17,21 +17,24 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    char *configDir = getenv("SMARTMET_GRID_CONFIG_DIR");
-    if (configDir == NULL)
+    char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
+    if (configFile == NULL)
     {
-      fprintf(stderr,"SMARTMET_GRID_CONFIG_DIR not defined!\n");
-      return -2;
+      printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
+      exit(-1);
     }
 
-    Identification::gribDef.init(configDir);
+    // Initializing the global structures. These are needed when
+    // extracting information from GRIB files.
+
+    Identification::gridDef.init(configFile);
 
     double lat = atof(argv[1]);
     double lon = atof(argv[2]);
     std::set<T::GeometryId> geometryIdList;
 
     unsigned long long startTime = getTime();
-    Identification::gribDef.getGeometryIdListByLatLon(lat,lon,geometryIdList);
+    Identification::gridDef.getGeometryIdListByLatLon(lat,lon,geometryIdList);
     unsigned long long endTime = getTime();
 
     for (auto it = geometryIdList.begin(); it != geometryIdList.end(); ++it)

@@ -4,7 +4,7 @@
 #include "queryServer/corba/server/Server.h"
 #include "queryServer/implementation/ServiceImplementation.h"
 #include "grid-files/common/Exception.h"
-#include "grid-files/identification/GribDef.h"
+#include "grid-files/identification/GridDef.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -98,17 +98,17 @@ int main(int argc, char *argv[])
     char *producerFile = (char*)argv[7];
     char *luaFunctionFile = (char*)argv[8];
 
-    char *configDir = getenv("SMARTMET_GRID_CONFIG_DIR");
-    if (configDir == NULL)
+    char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
+    if (configFile == NULL)
     {
-      printf("SMARTMET_GRID_CONFIG_DIR not defined!\n");
+      printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
       exit(-1);
     }
 
     // Initializing the global structures. These are needed when
     // extracting information from GRIB files.
 
-    SmartMet::Identification::gribDef.init(configDir);
+    Identification::gridDef.init(configFile);
 
     queryServer = new QueryServer::ServiceImplementation();
 

@@ -1,5 +1,5 @@
 #include "grid-files/common/Exception.h"
-#include "grid-files/identification/GribDef.h"
+#include "grid-files/identification/GridDef.h"
 #include "grid-files/common/GeneralFunctions.h"
 
 
@@ -17,21 +17,24 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    char *configDir = getenv("SMARTMET_GRID_CONFIG_DIR");
-    if (configDir == NULL)
+    char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
+    if (configFile == NULL)
     {
-      fprintf(stderr,"SMARTMET_GRID_CONFIG_DIR not defined!\n");
-      return -2;
+      printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
+      exit(-1);
     }
 
-    Identification::gribDef.init(configDir);
+    // Initializing the global structures. These are needed when
+    // extracting information from GRIB files.
+
+    Identification::gridDef.init(configFile);
 
     uint geometryId = atoll(argv[1]);
     T::Coordinate_vec coordinates;
 
     unsigned long long startTime = getTime();
 
-    if (!Identification::gribDef.getGridLatLonCoordinatesByGeometryId(geometryId,coordinates))
+    if (!Identification::gridDef.getGridLatLonCoordinatesByGeometryId(geometryId,coordinates))
     {
       printf("Geometry (%u) not found!\n",geometryId);
       return -3;

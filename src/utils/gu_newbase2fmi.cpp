@@ -1,5 +1,5 @@
 #include "grid-files/common/Exception.h"
-#include "grid-files/identification/GribDef.h"
+#include "grid-files/identification/GridDef.h"
 #include "grid-files/common/GeneralFunctions.h"
 
 
@@ -7,12 +7,12 @@ using namespace SmartMet;
 
 
 
-void loadNewbaseParameterDefinitions(char *configDir,Identification::Param_newbase_vec& parameters)
+void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_vec& parameters)
 {
   try
   {
     char filename[200];
-    sprintf(filename,"%s/parameterDef_newbase.csv",configDir);
+    sprintf(filename,"%s/newbase_parameters.csv",configDir);
 
 
     FILE *file = fopen(filename,"r");
@@ -54,7 +54,7 @@ void loadNewbaseParameterDefinitions(char *configDir,Identification::Param_newba
 
         if (c > 1)
         {
-          Identification::Parameter_newbase rec;
+          Identification::NewbaseParameterDef rec;
 
           if (field[0][0] != '\0')
             rec.mNewbaseParameterId = field[0];
@@ -93,16 +93,16 @@ int main(int argc, char *argv[])
     if (argc == 3  &&  strcmp(argv[2],"-rev") == 0)
       reverse = true;
 
-    Identification::gribDef.init(configDir);
+    Identification::gridDef.init(configDir);
 
 
-    Identification::Param_newbase_vec parameters;
-    loadNewbaseParameterDefinitions(configDir,parameters);
+    Identification::NewbaseParamDef_vec parameters;
+    loadNewbaseParameterDefs(configDir,parameters);
 
     for (auto it = parameters.begin(); it != parameters.end(); ++it)
     {
-      Identification::ParameterDefinition_fmi rec;
-      if (Identification::gribDef.mMessageIdentifier_fmi.getParameterDefByNewbaseId(it->mNewbaseParameterId,rec))
+      Identification::FmiParameterDef rec;
+      if (Identification::gridDef.getFmiParameterDefByNewbaseId(it->mNewbaseParameterId,rec))
       {
         if (!reverse)
           std::cout << "newbase." << it->mParameterName << ";" << rec.mParameterName << "\n";

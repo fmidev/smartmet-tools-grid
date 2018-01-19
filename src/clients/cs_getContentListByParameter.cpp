@@ -1,4 +1,6 @@
 #include "contentServer/corba/client/ClientImplementation.h"
+#include "contentServer/http/client/ClientImplementation.h"
+#include "contentServer/redis/RedisImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
 
@@ -17,7 +19,7 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc != 14)
+    if (argc < 14)
     {
       fprintf(stdout,"USAGE:\n");
       fprintf(stdout,"  cs_getContentListByParameter <sessionId>  <parameterIdType> <parameterKey> \n");
@@ -111,16 +113,58 @@ int main(int argc, char *argv[])
     uint requestFlags = (uint)atoll(argv[13]);
     T::ContentInfoList infoList;
 
-    unsigned long long startTime = getTime();
-    int result = contentServer.getContentListByParameter(sessionId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,minLevel,maxLevel,forecastType,forecastNumber,geometryId,start,end,requestFlags,infoList);
-    unsigned long long endTime = getTime();
+    int result = 0;
+    unsigned long long startTime = 0;
+    unsigned long long endTime = 0;
+
+    if (strcmp(argv[argc-2],"-http") == 0)
+    {
+      ContentServer::HTTP::ClientImplementation service;
+      service.init(argv[argc-2]);
+
+      startTime = getTime();
+      result = service.getContentListByParameter(sessionId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,minLevel,maxLevel,forecastType,forecastNumber,geometryId,start,end,requestFlags,infoList);
+      endTime = getTime();
+    }
+    else
+    if (strcmp(argv[argc-4],"-redis") == 0)
+    {
+      ContentServer::RedisImplementation service;
+      service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+
+      //processingLog.init(true,"/dev/stdout",10000000,5000000);
+      //service.setProcessingLog(&processingLog);
+
+      startTime = getTime();
+      result = service.getContentListByParameter(sessionId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,minLevel,maxLevel,forecastType,forecastNumber,geometryId,start,end,requestFlags,infoList);
+      endTime = getTime();
+    }
+    else
+    {
+      char *serviceIor = getenv("SMARTMET_CS_IOR");
+
+      if (strcmp(argv[argc-2],"-ior") == 0)
+        serviceIor = argv[argc-1];
+
+      if (serviceIor == NULL)
+      {
+        fprintf(stdout,"Service IOR not defined!\n");
+        return -2;
+      }
+
+      ContentServer::Corba::ClientImplementation service;
+      service.init(serviceIor);
+
+      startTime = getTime();
+      result = service.getContentListByParameter(sessionId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,minLevel,maxLevel,forecastType,forecastNumber,geometryId,start,end,requestFlags,infoList);
+      endTime = getTime();
+    }
 
     if (result != 0)
     {
       fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
       return -3;
     }
-
 
     // ### Result:
     infoList.print(std::cout,0,0);

@@ -115,6 +115,7 @@ int main(int argc, char *argv[])
     std::string end = argv[13];
     uint requestFlags = (uint)atoll(argv[14]);
     T::ContentInfoList infoList;
+    //Log processingLog;
 
     int result = 0;
     unsigned long long startTime = 0;
@@ -134,6 +135,9 @@ int main(int argc, char *argv[])
     {
       ContentServer::RedisImplementation service;
       service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+
+      //processingLog.init(true,"/dev/stdout",10000000,5000000);
+      //service.setProcessingLog(&processingLog);
 
       startTime = getTime();
       result = service.getContentListByParameterAndGenerationId(sessionId,generationId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,minLevel,maxLevel,forecastType,forecastNumber,geometryId,start,end,requestFlags,infoList);

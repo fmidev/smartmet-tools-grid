@@ -1,14 +1,12 @@
 #include "grid-files/grid/PhysicalGridFile.h"
 #include "grid-files/grid/PrintOptions.h"
-#include "grid-files/identification/GribDef.h"
+#include "grid-files/identification/GridDef.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/GeneralDefinitions.h"
 #include "grid-files/common/ImageFunctions.h"
 #include "grid-files/grid/Typedefs.h"
 #include "grid-files/grid/ValueCache.h"
-#include "grid-files/identification/MessageIdentifier_grib1.h"
-#include "grid-files/identification/MessageIdentifier_grib2.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -25,17 +23,17 @@ void init()
 {
   try
   {
-    char *configDir = getenv("SMARTMET_GRID_CONFIG_DIR");
-    if (configDir == NULL)
+    char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
+    if (configFile == NULL)
     {
-      printf("SMARTMET_GRID_CONFIG_DIR not defined!\n");
+      printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
       exit(-1);
     }
 
     // Initializing the global structures. These are needed when
     // extracting information from GRIB files.
 
-    SmartMet::Identification::gribDef.init(configDir);
+    Identification::gridDef.init(configFile);
   }
   catch (...)
   {

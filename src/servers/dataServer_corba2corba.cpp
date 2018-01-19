@@ -6,7 +6,7 @@
 #include "dataServer/corba/server/Server.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/grid/ValueCache.h"
-#include "grid-files/identification/GribDef.h"
+#include "grid-files/identification/GridDef.h"
 #include <iostream>
 #include <stdexcept>
 #include <string.h>
@@ -68,20 +68,19 @@ void init()
 
     // 1. Initializing information that is needed for identifying the content of the grid files.
 
-    char *configDir = getenv("SMARTMET_GRID_CONFIG_DIR");
-    if (configDir == NULL)
+    char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
+    if (configFile == NULL)
     {
-      printf("SMARTMET_GRID_CONFIG_DIR not defined!\n");
+      printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
       exit(-1);
     }
 
-    SmartMet::Identification::gribDef.init(configDir);
+    Identification::gridDef.init(configFile);
 
 
     // 2. Initializing the size of the grid value cache.
 
     GRID::valueCache.init(8000,10000,10000);
-
   }
   catch (...)
   {

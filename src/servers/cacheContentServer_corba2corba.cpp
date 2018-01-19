@@ -4,7 +4,7 @@
 #include "contentServer/corba/server/Server.h"
 #include "grid-files/common/Exception.h"
 #include "contentServer/corba/server/ServerInterface.h"
-#include "grid-files/identification/GribDef.h"
+#include "grid-files/identification/GridDef.h"
 #include <signal.h>
 
 using namespace SmartMet;

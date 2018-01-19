@@ -3,7 +3,7 @@
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ShowFunction.h"
-#include "grid-files/identification/GribDef.h"
+#include "grid-files/identification/GridDef.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
@@ -748,25 +748,27 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
       contentInfo->mGeometryId = forecast.geometryId;
       contentInfo->mModificationTime = forecast.lastUpdated;
 
-      Identification::ParameterDefinition_fmi fmiDef;
-      if (Identification::gribDef.mMessageIdentifier_fmi.getParameterDefById(it->paramId,fmiDef))
+      Identification::FmiParameterDef fmiDef;
+      if (Identification::gridDef.getFmiParameterDefById(it->paramId,fmiDef))
       {
         contentInfo->mFmiParameterName = fmiDef.mParameterName;
         contentInfo->mFmiParameterUnits = fmiDef.mParameterUnits;
-        contentInfo->mNewbaseParameterId = fmiDef.mNewbaseId;
 
-        Identification::Parameter_newbase  nbDef;
-        if (Identification::gribDef.mMessageIdentifier_fmi.getParameter_newbaseId(fmiDef.mNewbaseId,nbDef))
-          contentInfo->mNewbaseParameterName = nbDef.mParameterName;
-
-        Identification::Parameter_grib1_fmi g1Def;
-        if (Identification::gribDef.mMessageIdentifier_fmi.getParameter_grib1(it->paramId,g1Def))
+        Identification::NewbaseParameterDef newbaseDef;
+        if (Identification::gridDef.getNewbaseParameterDefByFmiId(it->paramId,newbaseDef))
+        {
+          contentInfo->mNewbaseParameterId = newbaseDef.mNewbaseParameterId;
+          contentInfo->mNewbaseParameterName = newbaseDef.mParameterName;
+        }
+/*
+        Identification::FmiParameterId_grib1 g1Def;
+        if (Identification::gridDef.mMessageIdentifier_fmi.getGrib1ParameterDef(it->paramId,g1Def))
           contentInfo->mGrib1ParameterLevelId = (T::ParamLevelId)(*g1Def.mGribParameterLevelId);
 
-        Identification::Parameter_grib2_fmi g2Def;
-        if (Identification::gribDef.mMessageIdentifier_fmi.getParameter_grib2(it->paramId,g2Def))
+        Identification::FmiParameterId_grib2 g2Def;
+        if (Identification::gridDef.mMessageIdentifier_fmi.getGrib2ParameterDef(it->paramId,g2Def))
           contentInfo->mGrib2ParameterLevelId = (T::ParamLevelId)(*g2Def.mGribParameterLevelId);
-
+*/
       }
 #if 0
       fprintf(contentFile,"%u;%u;%u;%s;%u;%u;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%u;%u;%u;%s;\n",
@@ -922,14 +924,17 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    char *configDir = getenv("SMARTMET_GRID_CONFIG_DIR");
-    if (configDir == NULL)
+    char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
+    if (configFile == NULL)
     {
-      fprintf(stderr,"SMARTMET_GRID_CONFIG_DIR not defined!\n");
-      return -2;
+      printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
+      exit(-1);
     }
 
-    SmartMet::Identification::gribDef.init(configDir);
+    // Initializing the global structures. These are needed when
+    // extracting information from GRIB files.
+
+    Identification::gridDef.init(configFile);
 
     ContentServer::ServiceInterface *targetInterface = NULL;
 

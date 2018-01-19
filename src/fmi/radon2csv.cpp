@@ -2,7 +2,7 @@
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ShowFunction.h"
-#include "grid-files/identification/GribDef.h"
+#include "grid-files/identification/GridDef.h"
 
 #include <libpq-fe.h>
 #include <stdlib.h>
@@ -119,24 +119,27 @@ void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uin
     std::string grib2ParameterLevelId;
 
 
-    Identification::ParameterDefinition_fmi fmiDef;
-    if (Identification::gribDef.mMessageIdentifier_fmi.getParameterDefById(fmiParameterId,fmiDef))
+    Identification::FmiParameterDef fmiDef;
+    if (Identification::gridDef.getFmiParameterDefById(fmiParameterId,fmiDef))
     {
       fmiParameterName = fmiDef.mParameterName;
       fmiParameterUnits = fmiDef.mParameterUnits;
-      newbaseParameterId = fmiDef.mNewbaseId;
 
-      Identification::Parameter_newbase nbDef;
-      if (Identification::gribDef.mMessageIdentifier_fmi.getParameter_newbaseId(fmiDef.mNewbaseId,nbDef))
-        newbaseParameterName = nbDef.mParameterName;
-
-      Identification::Parameter_grib1_fmi g1Def;
-      if (Identification::gribDef.mMessageIdentifier_fmi.getParameter_grib1(fmiParameterId,g1Def))
+      Identification::NewbaseParameterDef newbaseDef;
+      if (Identification::gridDef.getNewbaseParameterDefByFmiId(fmiParameterId,newbaseDef))
+      {
+        newbaseParameterId = newbaseDef.mNewbaseParameterId;
+        newbaseParameterName = newbaseDef.mParameterName;
+      }
+/*
+      Identification::FmiParameterId_grib1 g1Def;
+      if (Identification::gridDef.getGrib1ParameterDefByFmiId(fmiParameterId,g1Def))
         grib1ParameterLevelId = toString(g1Def.mGribParameterLevelId);
 
-      Identification::Parameter_grib2_fmi g2Def;
-      if (Identification::gribDef.mMessageIdentifier_fmi.getParameter_grib2(fmiParameterId,g2Def))
+      Identification::FmiParameterId_grib2 g2Def;
+      if (Identification::gridDef.getGrib2ParameterDef(fmiParameterId,g2Def))
         grib2ParameterLevelId = toString(g2Def.mGribParameterLevelId);
+        */
     }
 
 
@@ -348,15 +351,17 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    char *configDir = getenv("SMARTMET_GRID_CONFIG_DIR");
-    if (configDir == NULL)
+    char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
+    if (configFile == NULL)
     {
-      fprintf(stderr,"SMARTMET_GRID_CONFIG_DIR not defined!\n");
-      return -2;
+      printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
+      exit(-1);
     }
 
-    SmartMet::Identification::gribDef.init(configDir);
+    // Initializing the global structures. These are needed when
+    // extracting information from GRIB files.
 
+    Identification::gridDef.init(configFile);
 
     char *dir = argv[1];
     sourceId = (uint)atoi(argv[2]);
