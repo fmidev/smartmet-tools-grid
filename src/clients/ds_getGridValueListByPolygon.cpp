@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
     if (argc < 9)
     {
-      fprintf(stdout,"USAGE: ds_getGridValueListByPolygon <sessionId> <fileId> <messageIndex> <flags> <coordinateType> <x1,y1> <x2,y2> <x3,y3> [<x4,y4> ... <xN,yN>]\n");
+      fprintf(stdout,"USAGE: ds_getGridValueListByPolygon <sessionId> <fileId> <messageIndex> <areaExtension> <flags> <coordinateType> <x1,y1> <x2,y2> <x3,y3> [<x4,y4> ... <xN,yN>]\n");
       return -1;
     }
 
@@ -38,13 +38,14 @@ int main(int argc, char *argv[])
 
     uint fileId = (uint)atoll(argv[2]);
     uint messageIndex = (uint)atoll(argv[3]);
-    uint flags = (uint)atoll(argv[4]);
-    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[5]);
+    double areaExtension = atof(argv[4]);
+    uint flags = (uint)atoll(argv[5]);
+    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[6]);
     std::vector<T::Coordinate> polygonPoints;
     T::GridValueList valueList;
 
     char buf[100];
-    for (int t=6; t<argc; t++)
+    for (int t=7; t<argc; t++)
     {
       strcpy(buf,argv[t]);
       char *p = strstr(buf,",");
@@ -55,12 +56,12 @@ int main(int argc, char *argv[])
         double x = atof(buf);
         double y = atof(p);
         polygonPoints.push_back(T::Coordinate(x,y));
-        //printf("Coordinate %f,%f\n",x,y);
+        printf("Coordinate %f,%f\n",x,y);
       }
     }
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueListByPolygon(sessionId,fileId,messageIndex,flags,coordinateType,polygonPoints,valueList);
+    int result = dataServer.getGridValueListByPolygon(sessionId,fileId,messageIndex,flags,coordinateType,polygonPoints,areaExtension,valueList);
     unsigned long long endTime = getTime();
 
 

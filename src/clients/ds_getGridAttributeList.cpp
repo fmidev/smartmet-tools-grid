@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc != 6)
+    if (argc != 5)
     {
       fprintf(stdout,"USAGE: ds_getGridAttributeList <sessionId> <fileId> <messageIndex> <flags>\n");
       return -1;
