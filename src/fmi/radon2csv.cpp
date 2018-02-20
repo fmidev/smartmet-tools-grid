@@ -253,12 +253,13 @@ uint readGenerations(PGconn *conn,char *producerId,char *producerName)
     for (int i = 0; i < rowCount; i++)
     {
       char st[1000];
-      sprintf(st,"%u;%u;%s;%s:%s;Producer %s generation %s;%u;%u;%u;",
+      sprintf(st,"%u;%u;%s;%s:%s;Producer %s generation %s;%s;%u;%u;%u;",
               globalGenerationId,
               0,  // type
               producerId,
               producerName,PQgetvalue(res, i, 2),  // Name,
               producerName,PQgetvalue(res, i, 2),  // Description,
+              PQgetvalue(res, i, 2),
               1,  // status,
               0,  // flags
               sourceId

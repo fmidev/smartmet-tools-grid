@@ -23,10 +23,10 @@ int main(int argc, char *argv[])
     unsigned long long startTime = 0;
     unsigned long long endTime = 0;
 
-    if (argc == 4  &&  strcmp(argv[2],"-http") == 0)
+    if (strcmp(argv[argc-2],"-http") == 0)
     {
       ContentServer::HTTP::ClientImplementation service;
-      service.init(argv[3]);
+      service.init(argv[argc-1]);
 
       startTime = getTime();
       result = service.clear(sessionId);

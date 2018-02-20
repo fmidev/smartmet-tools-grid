@@ -51,17 +51,17 @@ int main(int argc, char *argv[])
     unsigned long long startTime = 0;
     unsigned long long endTime = 0;
 
-    if (argc == 26  &&  strcmp(argv[24],"-http") == 0)
+    if (strcmp(argv[argc-2],"-http") == 0)
     {
       ContentServer::HTTP::ClientImplementation service;
-      service.init(argv[25]);
+      service.init(argv[argc-1]);
 
       startTime = getTime();
       result = service.addContentInfo(sessionId,info);
       endTime = getTime();
     }
     else
-    if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
+    if (strcmp(argv[argc-4],"-redis") == 0)
     {
       ContentServer::RedisImplementation service;
       service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);

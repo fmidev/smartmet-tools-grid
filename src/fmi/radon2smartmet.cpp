@@ -383,6 +383,7 @@ void readSourceGenerations(PGconn *conn)
         generation->mName = st;
         sprintf(st,"Producer %s generation %s",producer->mName.c_str(),PQgetvalue(res, i, 2));
         generation->mDescription = st;
+        generation->mAnalysisTime = PQgetvalue(res, i, 2);
         generation->mStatus = T::GenerationStatus::STATUS_READY;
         generation->mFlags = 0;
         generation->mSourceId = sourceId;

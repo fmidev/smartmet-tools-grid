@@ -3,6 +3,8 @@
 #include "contentServer/redis/RedisImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
+#include <vector>
+
 
 using namespace SmartMet;
 
@@ -13,12 +15,13 @@ int main(int argc, char *argv[])
   {
     if (argc < 3)
     {
-      fprintf(stdout,"USAGE: cs_deleteFileInfoById <sessionId> <filename> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"USAGE: cs_getContentTimeListByProducerId <sessionId> <producerId> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
-    std::string filename = argv[2];
+    uint producerId = (uint)atoll(argv[2]);
+    std::set<std::string> timeList;
 
     int result = 0;
     unsigned long long startTime = 0;
@@ -30,7 +33,7 @@ int main(int argc, char *argv[])
       service.init(argv[argc-1]);
 
       startTime = getTime();
-      result = service.deleteFileInfoByName(sessionId,filename);
+      result = service.getContentTimeListByProducerId(sessionId,producerId,timeList);
       endTime = getTime();
     }
     else
@@ -40,7 +43,7 @@ int main(int argc, char *argv[])
       service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
-      result = service.deleteFileInfoByName(sessionId,filename);
+      result = service.getContentTimeListByProducerId(sessionId,producerId,timeList);
       endTime = getTime();
     }
     else
@@ -60,7 +63,7 @@ int main(int argc, char *argv[])
       service.init(serviceIor);
 
       startTime = getTime();
-      result = service.deleteFileInfoByName(sessionId,filename);
+      result = service.getContentTimeListByProducerId(sessionId,producerId,timeList);
       endTime = getTime();
     }
 
@@ -71,7 +74,9 @@ int main(int argc, char *argv[])
     }
 
     // ### Result:
-    printf("OK\n");
+    for (auto it=timeList.begin(); it!=timeList.end(); ++it)
+      printf("%s\n",it->c_str());
+
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

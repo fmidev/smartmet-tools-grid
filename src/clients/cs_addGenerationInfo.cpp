@@ -11,9 +11,9 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 9)
+    if (argc < 10)
     {
-      fprintf(stdout,"USAGE: cs_addGenerationInfo <sessionId> <producerId> <generationType> <sourceId> <flags> <name> <description> <status> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"USAGE: cs_addGenerationInfo <sessionId> <producerId> <generationType> <sourceId> <flags> <name> <description> <analysisTime> <status> [[-http <url>]|[-redis <address> <port> <tablePrefix>][-ior <contentServerIor>]]\n");
       return -1;
     }
 
@@ -25,23 +25,24 @@ int main(int argc, char *argv[])
     info.mFlags = (uint)atoll(argv[5]);
     info.mName = argv[6];
     info.mDescription = argv[7];
-    info.mStatus = (T::GenerationStatus)atoll(argv[8]);
+    info.mAnalysisTime = argv[8];
+    info.mStatus = (T::GenerationStatus)atoll(argv[9]);
 
     int result = 0;
     unsigned long long startTime = 0;
     unsigned long long endTime = 0;
 
-    if (argc == 11  &&  strcmp(argv[9],"-http") == 0)
+    if (strcmp(argv[argc-2],"-http") == 0)
     {
       ContentServer::HTTP::ClientImplementation service;
-      service.init(argv[10]);
+      service.init(argv[argc-1]);
 
       startTime = getTime();
       result = service.addGenerationInfo(sessionId,info);
       endTime = getTime();
     }
     else
-    if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
+    if (strcmp(argv[argc-4],"-redis") == 0)
     {
       ContentServer::RedisImplementation service;
       service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);

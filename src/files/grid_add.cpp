@@ -25,6 +25,7 @@ ContentServer::ServiceInterface *service = NULL;
 
 char *producerNamePtr = NULL;
 char *generationNamePtr = NULL;
+char *analysisTimePtr = NULL;
 
 
 
@@ -120,7 +121,10 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
 
     gridFile.setProducerId(producerId);
 
-    generationName = producerName + ":" + referenceTime;
+    if (analysisTimePtr != NULL)
+      generationName = producerName + ":" + analysisTimePtr;
+    else
+      generationName = producerName + ":" + referenceTime;
 
     if (generationNamePtr != NULL)
       generationName = generationNamePtr;
@@ -141,6 +145,8 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
         generationInfo.mProducerId = producerId;
         generationInfo.mName = generationName;
         generationInfo.mDescription = "";
+        if (analysisTimePtr != NULL)
+          generationInfo.mAnalysisTime = analysisTimePtr;
         generationInfo.mStatus = T::GenerationStatus::STATUS_READY;
         generationInfo.mFlags = 0;
         generationInfo.mSourceId = 0;
@@ -361,6 +367,9 @@ int run(int argc, char **argv)
 
       if (strcmp(argv[t],"-generation") == 0  &&  (t+1) < argc)
         generationNamePtr = argv[t+1];
+
+      if (strcmp(argv[t],"-analysisTime") == 0  &&  (t+1) < argc)
+        analysisTimePtr = argv[t+1];
     }
 
     if (service == NULL)

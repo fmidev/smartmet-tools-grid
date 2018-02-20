@@ -21,17 +21,17 @@ int main(int argc, char *argv[])
 
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
     uint generationId = (uint)atoll(argv[2]);
-    uint geometryId = (uint)atoll(argv[2]);
+    uint geometryId = (uint)atoll(argv[3]);
     std::set<std::string> timeList;
 
     int result = 0;
     unsigned long long startTime = 0;
     unsigned long long endTime = 0;
 
-    if (argc == 6  &&  strcmp(argv[4],"-http") == 0)
+    if (strcmp(argv[argc-2],"-http") == 0)
     {
       ContentServer::HTTP::ClientImplementation service;
-      service.init(argv[5]);
+      service.init(argv[argc-1]);
 
       startTime = getTime();
       result = service.getContentTimeListByGenerationAndGeometryId(sessionId,generationId,geometryId,timeList);

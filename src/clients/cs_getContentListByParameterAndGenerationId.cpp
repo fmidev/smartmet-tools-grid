@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
     if (strcmp(argv[argc-2],"-http") == 0)
     {
       ContentServer::HTTP::ClientImplementation service;
-      service.init(argv[argc-2]);
+      service.init(argv[argc-1]);
 
       startTime = getTime();
       result = service.getContentListByParameterAndGenerationId(sessionId,generationId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,minLevel,maxLevel,forecastType,forecastNumber,geometryId,start,end,requestFlags,infoList);

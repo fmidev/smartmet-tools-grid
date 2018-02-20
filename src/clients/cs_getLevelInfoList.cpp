@@ -7,19 +7,19 @@
 using namespace SmartMet;
 
 
+
 int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 3)
+    if (argc < 2)
     {
-      fprintf(stdout,"USAGE: cs_deleteFileInfoById <sessionId> <filename> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"USAGE: cs_getLevelInfoList <sessionId> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
-    std::string filename = argv[2];
-
+    T::LevelInfoList infoList;
     int result = 0;
     unsigned long long startTime = 0;
     unsigned long long endTime = 0;
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
       service.init(argv[argc-1]);
 
       startTime = getTime();
-      result = service.deleteFileInfoByName(sessionId,filename);
+      result = service.getLevelInfoList(sessionId,infoList);
       endTime = getTime();
     }
     else
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
       service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
-      result = service.deleteFileInfoByName(sessionId,filename);
+      result = service.getLevelInfoList(sessionId,infoList);
       endTime = getTime();
     }
     else
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
       service.init(serviceIor);
 
       startTime = getTime();
-      result = service.deleteFileInfoByName(sessionId,filename);
+      result = service.getLevelInfoList(sessionId,infoList);
       endTime = getTime();
     }
 
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     }
 
     // ### Result:
-    printf("OK\n");
+    infoList.print(std::cout,0,0);
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

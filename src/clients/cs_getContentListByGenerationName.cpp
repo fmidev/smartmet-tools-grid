@@ -28,10 +28,10 @@ int main(int argc, char *argv[])
     unsigned long long startTime = 0;
     unsigned long long endTime = 0;
 
-    if (argc == 8  &&  strcmp(argv[6],"-http") == 0)
+    if (strcmp(argv[argc-2],"-http") == 0)
     {
       ContentServer::HTTP::ClientImplementation service;
-      service.init(argv[7]);
+      service.init(argv[argc-1]);
 
       startTime = getTime();
       result = service.getContentListByGenerationName(sessionId,generationName,startFileId,startMessageIndex,maxRecords,infoList);
