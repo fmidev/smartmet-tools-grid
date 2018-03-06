@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
     T::ParamValue_vec values;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,flags,T::CoordinateType::LATLON_COORDINATES,columns,rows,-180,90,360/(double)columns,-180/(double)rows,T::InterpolationMethod::Nearest,values);
+    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,flags,T::CoordinateType::LATLON_COORDINATES,columns,rows,-180,90,360/(double)columns,-180/(double)rows,T::AreaInterpolationMethod::Nearest,values);
     unsigned long long endTime = getTime();
 
     if (result != 0)

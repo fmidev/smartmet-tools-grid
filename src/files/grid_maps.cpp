@@ -115,7 +115,7 @@ void init()
 
 
 
-void saveMessageMap(const char *imageFile,const GRID::Message *message,T::ParamValue minValue,T::ParamValue maxValue,T::InterpolationMethod interpolationMethod,uint valueLevels,uint flags)
+void saveMessageMap(const char *imageFile,const GRID::Message *message,T::ParamValue minValue,T::ParamValue maxValue,T::AreaInterpolationMethod interpolationMethod,uint valueLevels,uint flags)
 {
   try
   {
@@ -183,7 +183,7 @@ void saveMapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::
 
     T::ParamValue minValue = 0;
     T::ParamValue maxValue = 0;
-    T::InterpolationMethod interpolationMethod = T::InterpolationMethod::Linear;
+    T::AreaInterpolationMethod interpolationMethod = T::AreaInterpolationMethod::Linear;
     Identification::GribParameterDef def;
     if (Identification::gridDef.getGribParamDefById(parameterId,def))
       interpolationMethod = Identification::gridDef.getPreferredInterpolationMethodByUnits(def.mParameterUnits);

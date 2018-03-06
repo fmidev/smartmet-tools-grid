@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 
     if (argc != 9)
     {
-      fprintf(stdout,"USAGE: ds_getGridValueByPoint <sessionId> <fileId> <messageIndex> <flags> <coordinateType> <x> <y> <interpolationMethod>\n");
+      fprintf(stdout,"USAGE: ds_getGridValueVectorByPoint <sessionId> <fileId> <messageIndex> <flags> <coordinateType> <x> <y> <vectorType>\n");
       return -1;
     }
 
@@ -41,11 +41,11 @@ int main(int argc, char *argv[])
     T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[5]);
     double x = (double)atof(argv[6]);
     double y = (double)atof(argv[7]);
-    T::AreaInterpolationMethod interpolationMethod = (T::AreaInterpolationMethod)atoll(argv[8]);
-    T::ParamValue value = 0;
+    uint vectorType = (uint)atoll(argv[8]);
+    double_vec valueVector;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueByPoint(sessionId,fileId,messageIndex,flags,coordinateType,x,y,interpolationMethod,value);
+    int result = dataServer.getGridValueVectorByPoint(sessionId,fileId,messageIndex,flags,coordinateType,x,y,vectorType,valueVector);
     unsigned long long endTime = getTime();
 
 
@@ -57,7 +57,8 @@ int main(int argc, char *argv[])
 
     // ### Printing the result:
 
-    printf("VALUE %f\n",value);
+    for (auto it = valueVector.begin(); it != valueVector.end(); ++it)
+      std::cout << *it << "\n";
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

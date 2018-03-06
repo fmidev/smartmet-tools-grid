@@ -622,7 +622,7 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  param LEFT OUTER JOIN param_newbase ON (param.id = param_newbase.param_id),param_unit\n");
     p += sprintf(p,"WHERE\n");
-    p += sprintf(p,"  param.unit_id=param_unit.id\n");
+    p += sprintf(p,"  param.unit_id=param_unit.id AND param_newbase.base = 0 AND param_newbase.scale = 1\n");
     p += sprintf(p,"ORDER BY\n");
     p += sprintf(p,"  param.id;\n");
 
@@ -682,8 +682,9 @@ void create_fmi_parameters(PGconn *conn,const char *dir)
     fprintf(file,"# 2) Version\n");
     fprintf(file,"# 3) FmiParameterName\n");
     fprintf(file,"# 4) FmiParameterDescription\n");
-    fprintf(file,"# 5) InterpolationMethod\n");
-//    fprintf(file,"# 6) NewbaseParameterId\n");
+    fprintf(file,"# 5) AreaInterpolationMethod\n");
+    fprintf(file,"# 6) TimeInterpolationMethod\n");
+    fprintf(file,"# 7) LevelInterpolationMethod\n");
     fprintf(file,"#\n");
 
     char sql[3000];
@@ -695,10 +696,11 @@ void create_fmi_parameters(PGconn *conn,const char *dir)
     p += sprintf(p,"  param.name,\n");
     p += sprintf(p,"  param_unit.name,\n");
     p += sprintf(p,"  param.description,\n");
+    p += sprintf(p,"  param.interpolation_id,\n");
+    p += sprintf(p,"  param.interpolation_id,\n");
     p += sprintf(p,"  param.interpolation_id\n");
-//    p += sprintf(p,"  coalesce(param_newbase.univ_id,0)\n");
     p += sprintf(p,"FROM\n");
-    p += sprintf(p,"  param LEFT OUTER JOIN param_newbase ON (param.id = param_newbase.param_id),param_unit\n");
+    p += sprintf(p,"  param,param_unit\n");
     p += sprintf(p,"WHERE\n");
     p += sprintf(p,"  param.unit_id=param_unit.id\n");
     p += sprintf(p,"ORDER BY\n");
@@ -714,7 +716,7 @@ void create_fmi_parameters(PGconn *conn,const char *dir)
 
     for (int i = 0; i < rowCount; i++)
     {
-      for (int f=0; f< fieldCount; f++)
+      for (int f=0; f < fieldCount; f++)
       {
         fprintf(file,"%s;",PQgetvalue(res,i,f));
       }

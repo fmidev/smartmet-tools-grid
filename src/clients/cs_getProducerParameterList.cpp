@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
         Identification::FmiParameterDef paramDef;
         if (Identification::gridDef.getFmiParameterDefByName(partList[3],paramDef))
         {
-          std::cout << (int)paramDef.mInterpolationMethod << ";E;\n";
+          std::cout << (int)paramDef.mAreaInterpolationMethod << ";E;\n";
         }
         else
         {

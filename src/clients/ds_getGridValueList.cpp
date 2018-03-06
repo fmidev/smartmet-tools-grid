@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
       rec->mFileId = t;
       rec->mMessageIndex = messageIndex;
       rec->mCoordinateType = T::CoordinateType::LATLON_COORDINATES;
-      rec->mInterpolationMethod = T::InterpolationMethod::Linear;
+      rec->mAreaInterpolationMethod = T::AreaInterpolationMethod::Linear;
       rec->mX = lon;
       rec->mY = lat;
       valueRecordList.addValueRecord(rec);

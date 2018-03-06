@@ -139,13 +139,13 @@ int main(int argc, char *argv[])
     double x = atof(argv[14]);
     double y = atof(argv[15]);
 
-    T::InterpolationMethod interpolationMethod = T::InterpolationMethod::Linear;
+    T::AreaInterpolationMethod interpolationMethod = T::AreaInterpolationMethod::Linear;
 
     if (strcmp(argv[16],"linear") == 0)
-      interpolationMethod = T::InterpolationMethod::Linear;
+      interpolationMethod = T::AreaInterpolationMethod::Linear;
     else
     if (strcmp(argv[16],"nearest") == 0)
-      interpolationMethod = T::InterpolationMethod::Nearest;
+      interpolationMethod = T::AreaInterpolationMethod::Nearest;
 
 
     // ### Service:

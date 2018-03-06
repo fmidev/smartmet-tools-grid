@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
             (int)m2->mParameterLevelIdType,
             (int)m2->mParameterLevelId,
             (int)m2->mParameterLevel,
-            (int)m2->mInterpolationMethod);
+            (int)m2->mAreaInterpolationMethod);
       }
     }
 

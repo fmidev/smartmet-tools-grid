@@ -281,6 +281,8 @@ void addFile(GRID::GridFile& gridFile)
       const GRID::Message *message = gridFile.getMessageByIndex(m);
       if ((m+1) < messageCount)
         nextMessage = gridFile.getMessageByIndex(m+1);
+      else
+        nextMessage = NULL;
 
       if (prevMessage != NULL  && message->getForecastTime() == prevMessage->getForecastTime()  &&  message->getFmiParameterId() == prevMessage->getFmiParameterId())
       {

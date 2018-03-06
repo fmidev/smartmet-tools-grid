@@ -114,7 +114,7 @@ void init()
 
 
 
-void saveMessageSubmap(const char *imageFile,const GRID::Message *message,double startLat,double startLon,uint width,uint height,double step,T::ParamValue minValue,T::ParamValue maxValue,T::InterpolationMethod interpolationMethod,uint valueLevels,uint flags)
+void saveMessageSubmap(const char *imageFile,const GRID::Message *message,double startLat,double startLon,uint width,uint height,double step,T::ParamValue minValue,T::ParamValue maxValue,T::AreaInterpolationMethod interpolationMethod,uint valueLevels,uint flags)
 {
   try
   {
@@ -187,7 +187,7 @@ void saveSubmapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,
 
     T::ParamValue minValue = 0;
     T::ParamValue maxValue = 0;
-    T::InterpolationMethod interpolationMethod = T::InterpolationMethod::Linear;
+    T::AreaInterpolationMethod interpolationMethod = T::AreaInterpolationMethod::Linear;
     Identification::GribParameterDef def;
     if (Identification::gridDef.getGribParamDefById(parameterId,def))
       interpolationMethod = Identification::gridDef.getPreferredInterpolationMethodByUnits(def.mParameterUnits);

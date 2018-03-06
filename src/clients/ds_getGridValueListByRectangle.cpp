@@ -18,9 +18,9 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc != 11)
+    if (argc != 10)
     {
-      fprintf(stdout,"USAGE: ds_getGridValueListByArea <sessionId> <fileId> <messageIndex> <flags> <coordinateType> <x1> <y1> <x2> <y2> <radius>\n");
+      fprintf(stdout,"USAGE: ds_getGridValueListByArea <sessionId> <fileId> <messageIndex> <flags> <coordinateType> <x1> <y1> <x2> <y2>\n");
       return -1;
     }
 
@@ -44,11 +44,10 @@ int main(int argc, char *argv[])
     double y1 = (double)atof(argv[7]);
     double x2 = (double)atof(argv[8]);
     double y2 = (double)atof(argv[9]);
-    double radius = (double)atof(argv[10]);
     T::GridValueList valueList;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueListByRectangle(sessionId,fileId,messageIndex,flags,coordinateType,x1,y1,x2,y2,radius,valueList);
+    int result = dataServer.getGridValueListByRectangle(sessionId,fileId,messageIndex,flags,coordinateType,x1,y1,x2,y2,valueList);
     unsigned long long endTime = getTime();
 
 
