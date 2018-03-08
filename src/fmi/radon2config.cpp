@@ -2,6 +2,7 @@
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ShowFunction.h"
+#include "grid-files/identification/GridDef.h"
 
 #include <libpq-fe.h>
 #include <stdlib.h>
@@ -609,6 +610,7 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
     fprintf(file,"# FIELDS:\n");
     fprintf(file,"# 1) FmiParameterId\n");
     fprintf(file,"# 2) NewbaseParameterId\n");
+    fprintf(file,"# 3) ConversionFunction\n");
     fprintf(file,"#\n");
 
     char sql[3000];
@@ -618,11 +620,15 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
     p += sprintf(p,"  param.name,\n");
     p += sprintf(p,"  param.description,\n");
     p += sprintf(p,"  param.id,\n");
-    p += sprintf(p,"  coalesce(param_newbase.univ_id,0)\n");
+    p += sprintf(p,"  coalesce(param_newbase.univ_id,0),\n");
+    p += sprintf(p,"  param_newbase.base,\n");
+    p += sprintf(p,"  param_newbase.scale,\n");
+    p += sprintf(p,"  param_unit.name\n");
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  param LEFT OUTER JOIN param_newbase ON (param.id = param_newbase.param_id),param_unit\n");
     p += sprintf(p,"WHERE\n");
-    p += sprintf(p,"  param.unit_id=param_unit.id AND param_newbase.base = 0 AND param_newbase.scale = 1\n");
+    p += sprintf(p,"  param.unit_id=param_unit.id\n");
+    // p += sprintf(p,"  param.unit_id=param_unit.id AND param_newbase.base = 0 AND param_newbase.scale = 1\n");
     p += sprintf(p,"ORDER BY\n");
     p += sprintf(p,"  param.id;\n");
 
@@ -631,17 +637,54 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
       error(PQresultErrorMessage(res));
 
-    int fieldCount = PQnfields(res);
+    //int fieldCount = PQnfields(res);
     int rowCount = PQntuples(res);
 
     for (int i = 0; i < rowCount; i++)
     {
-      fprintf(file,"\n# %s; %s\n",PQgetvalue(res,i,0),PQgetvalue(res,i,1));
-      for (int f=2; f < fieldCount; f++)
+      std::string newbaseId = PQgetvalue(res,i,3);
+      double base = atof(PQgetvalue(res,i,4));
+      double scale = atof(PQgetvalue(res,i,5));
+      std::string unit = PQgetvalue(res,i,6);
+
+
+      Identification::NewbaseParameterDef paramDef;
+      fprintf(file,"\n# %s\n",PQgetvalue(res,i,1));
+      if (newbaseId > "0")
       {
-        fprintf(file,"%s;",PQgetvalue(res,i,f));
+        if (Identification::gridDef.getNewbaseParameterDefById(newbaseId,paramDef))
+          fprintf(file,"# %s => %s\n",PQgetvalue(res,i,0),paramDef.mParameterName.c_str());
+        else
+          fprintf(file,"# %s => NEWBASE-PARAMETER[%s]\n",PQgetvalue(res,i,0),newbaseId.c_str());
       }
-      fprintf(file,"\n");
+      else
+        fprintf(file,"# %s => UNKNOWN\n",PQgetvalue(res,i,0));
+
+      fprintf(file,"%s;%s;",PQgetvalue(res,i,2),PQgetvalue(res,i,3));
+
+      // We have to do some assumption when we define conversion functions. That's because
+      // there seems to be a lot of strange conversion mappings in the Radon database.
+
+      if (newbaseId > "0")
+      {
+        if (unit == "K")
+          fprintf(file,"SUM{$,-273.15}\n"); // Converting all kelvin values to celcius (assuming that the newbase has no Kelvin parameters)
+        else
+        if (unit == "C")
+          fprintf(file,";\n"); // Assuming that celcius parameters do not need any conversion)
+        else
+        if (base != 0  &&  scale == 1)
+          fprintf(file,"SUM{$,%f}\n",base);
+        else
+        if (base == 0  &&  scale != 1  &&  scale != 0)
+          fprintf(file,"MUL{$,%f}\n",scale);
+        else
+          fprintf(file,";\n");
+      }
+      else
+      {
+        fprintf(file,";\n");
+      }
     }
 
     fclose(file);
@@ -827,6 +870,14 @@ int main(int argc, char *argv[])
     char *dir = argv[1];
     char *connectionString = argv[2];
 
+    char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
+    if (configFile == NULL)
+    {
+      fprintf(stderr,"%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
+      return -1;
+    }
+
+    Identification::gridDef.init(configFile);
 
     PGconn *conn = PQconnectdb(connectionString);
     if (PQstatus(conn) != CONNECTION_OK)

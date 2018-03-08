@@ -96,11 +96,21 @@ int main(int argc, char *argv[])
         Identification::FmiParameterDef paramDef;
         if (Identification::gridDef.getFmiParameterDefByName(partList[3],paramDef))
         {
-          std::cout << (int)paramDef.mAreaInterpolationMethod << ";E;\n";
+          std::cout << (int)paramDef.mAreaInterpolationMethod << ";" << (int)paramDef.mTimeInterpolationMethod << ";" << (int)paramDef.mLevelInterpolationMethod << ";E;";
+
+          if (parameterKeyType == T::ParamKeyType::NEWBASE_ID || parameterKeyType == T::ParamKeyType::NEWBASE_NAME)
+          {
+            Identification::FmiParameterId_newbase paramMapping;
+            if (Identification::gridDef.getNewbaseParameterMappingByFmiId(paramDef.mFmiParameterId,paramMapping))
+            {
+              std::cout << paramMapping.mConversionFunction;
+            }
+          }
+          std::cout << ";\n";
         }
         else
         {
-          std::cout << "1;E;\n";
+          std::cout << "1;1;1;E;;\n";
         }
       }
 
