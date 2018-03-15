@@ -1,4 +1,6 @@
 #include "contentServer/corba/client/ClientImplementation.h"
+#include "contentServer/http/client/ClientImplementation.h"
+#include "contentServer/redis/RedisImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
 
@@ -17,65 +19,108 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc != 3)
+    if (argc < 3)
     {
       fprintf(stdout,"USAGE: cs_saveData <sessionId> <directory>\n");
+      fprintf(stdout,"  [[-http <url>]|[-redis <address> <port> <tablePrefix>]|[-ior <ior>]]\n");
       return -1;
     }
 
-
     // ### Session:
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
-
-
-    // ### Service:
-    ContentServer::Corba::ClientImplementation service;
-    service.init(serviceIor);
-
     std::string dir = argv[2];
+
+    ContentServer::ServiceInterface *service = NULL;
+    ContentServer::HTTP::ClientImplementation httpClient;
+    ContentServer::RedisImplementation redisClient;
+    ContentServer::Corba::ClientImplementation corbaClient;
+
+    if (strcmp(argv[argc-2],"-http") == 0)
+    {
+      httpClient.init(argv[argc-1]);
+      service = &httpClient;
+    }
+    else
+    if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
+    {
+      redisClient.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+      service = &redisClient;
+    }
+    else
+    {
+      char *serviceIor = getenv("SMARTMET_CS_IOR");
+
+      if (strcmp(argv[argc-2],"-ior") == 0)
+        serviceIor = argv[argc-1];
+
+      if (serviceIor == NULL)
+      {
+        fprintf(stdout,"Service IOR not defined!\n");
+        return -2;
+      }
+
+      corbaClient.init(serviceIor);
+      service = &corbaClient;
+    }
+
+    if (service == NULL)
+    {
+      fprintf(stdout,"Service not defined!\n");
+      return -2;
+    }
+
 
     unsigned long long startTime = getTime();
 
+
+    // Reading data server information
+
     T::ServerInfoList serverInfoList;
-    int result = service.getDataServerInfoList(sessionId,serverInfoList);
+    int result = service->getDataServerInfoList(sessionId,serverInfoList);
     if (result != 0)
     {
       fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
-      return -3;
+      return -4;
     }
     serverInfoList.writeToFile(dir + "/dataServers.csv");
 
 
+    // Reading producer information
 
     T::ProducerInfoList producerInfoList;
-    result = service.getProducerInfoList(sessionId,producerInfoList);
+    result = service->getProducerInfoList(sessionId,producerInfoList);
     if (result != 0)
     {
       fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
-      return -3;
+      return -5;
     }
     producerInfoList.writeToFile(dir + "/producers.csv");
 
+
+    // Reading generation information
+
     T::GenerationInfoList generationInfoList;
-    result = service.getGenerationInfoList(sessionId,generationInfoList);
+    result = service->getGenerationInfoList(sessionId,generationInfoList);
     if (result != 0)
     {
       fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
-      return -3;
+      return -6;
     }
     generationInfoList.writeToFile(dir + "/generations.csv");
 
+
+    // Reading file information
 
     bool ind = true;
     uint startFileId = 0;
     while (ind)
     {
       T::FileInfoList fileInfoList;
-      result = service.getFileInfoList(sessionId,startFileId,10000,fileInfoList);
+      result = service->getFileInfoList(sessionId,startFileId,10000,fileInfoList);
       if (result != 0)
       {
         fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
-        return -3;
+        return -7;
       }
 
       if (startFileId == 0)
@@ -96,6 +141,7 @@ int main(int argc, char *argv[])
     }
 
 
+    // Reading content information
 
     ind = true;
     startFileId = 0;
@@ -103,11 +149,11 @@ int main(int argc, char *argv[])
     while (ind)
     {
       T::ContentInfoList contentInfoList;
-      result = service.getContentList(sessionId,startFileId,startMessageIndex,10000,contentInfoList);
+      result = service->getContentList(sessionId,startFileId,startMessageIndex,10000,contentInfoList);
       if (result != 0)
       {
         fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
-        return -3;
+        return -8;
       }
 
       if (startFileId == 0)
@@ -138,7 +184,7 @@ int main(int argc, char *argv[])
   {
     SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
     exception.printError();
-    return -4;
+    return -10;
   }
 }
 
