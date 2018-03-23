@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     double y = (double)atof(argv[9]);
     double xStep = (double)atof(argv[10]);
     double yStep = (double)atof(argv[11]);
-    T::AreaInterpolationMethod interpolationMethod = (T::AreaInterpolationMethod)atoll(argv[12]);
+    short interpolationMethod = (short)atoll(argv[12]);
     T::ParamValue_vec values;
 
     unsigned long long startTime = getTime();

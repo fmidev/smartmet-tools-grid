@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
     double x = atof(argv[14]);
     double y = atof(argv[15]);
 
-    T::AreaInterpolationMethod interpolationMethod = T::AreaInterpolationMethod::Linear;
+    short interpolationMethod = T::AreaInterpolationMethod::Linear;
 
     if (strcmp(argv[16],"linear") == 0)
       interpolationMethod = T::AreaInterpolationMethod::Linear;

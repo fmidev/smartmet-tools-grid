@@ -90,7 +90,7 @@ void init()
 
 
 
-void saveMessageImage(const char *imageFile,const GRID::Message *message,T::ParamValue minValue,T::ParamValue maxValue,T::AreaInterpolationMethod interpolationMethod,double scaleFactor,uint valueLevels,uint flags)
+void saveMessageImage(const char *imageFile,const GRID::Message *message,T::ParamValue minValue,T::ParamValue maxValue,short interpolationMethod,double scaleFactor,uint valueLevels,uint flags)
 {
   try
   {
@@ -176,7 +176,7 @@ void saveImagesByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T
 
     T::ParamValue minValue = 0;
     T::ParamValue maxValue = 0;
-    T::AreaInterpolationMethod interpolationMethod = T::AreaInterpolationMethod::Linear;
+    short interpolationMethod = T::AreaInterpolationMethod::Linear;
     Identification::GribParameterDef def;
     if (Identification::gridDef.getGribParamDefById(parameterId,def))
       interpolationMethod = Identification::gridDef.getPreferredInterpolationMethodByUnits(def.mParameterUnits);
@@ -216,7 +216,7 @@ void saveAllImages(uint fileIndex,SmartMet::GRID::GridFile& gridFile,const char 
 
     T::ParamValue minValue = 0;
     T::ParamValue maxValue = 0;
-    T::AreaInterpolationMethod interpolationMethod = T::AreaInterpolationMethod::Linear;
+    short interpolationMethod = T::AreaInterpolationMethod::Linear;
 
     std::size_t messageCount = gridFile.getNumberOfMessages();
     for (std::size_t m=0; m<messageCount; m++)

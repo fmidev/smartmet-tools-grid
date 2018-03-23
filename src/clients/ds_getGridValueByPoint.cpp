@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[5]);
     double x = (double)atof(argv[6]);
     double y = (double)atof(argv[7]);
-    T::AreaInterpolationMethod interpolationMethod = (T::AreaInterpolationMethod)atoll(argv[8]);
+    short interpolationMethod = (short)atoll(argv[8]);
     T::ParamValue value = 0;
 
     unsigned long long startTime = getTime();
