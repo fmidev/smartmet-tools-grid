@@ -50,6 +50,7 @@ uint sourceId = 200;
 uint globalFileId = 0;
 std::string lastUpdateTime("19000101T000000");
 std::set<std::string> producerList;
+std::set<std::string> preloadList;
 Log debugLog;
 Log *debugLogPtr = NULL;
 
@@ -154,6 +155,56 @@ void readProducerList(const char *filename)
   }
 }
 
+
+
+
+
+void readPreloadList(const char *filename)
+{
+  try
+  {
+    FILE *file = fopen(filename,"r");
+    if (file == NULL)
+    {
+      PRINT_DATA(debugLogPtr,"Preload file not available.");
+      return;
+    }
+
+    preloadList.clear();
+
+    char st[1000];
+    while (!feof(file))
+    {
+      if (fgets(st,1000,file) != NULL)
+      {
+        if (st[0] != '#')
+        {
+          char *p = st;
+          while (*p != '\0')
+          {
+            if (*p <= ' ')
+              *p = '\0';
+            else
+              p++;
+          }
+
+          std::vector<std::string> partList;
+          splitString(st,';',partList);
+          if (partList.size() >= 8)
+          {
+            if (partList[7] == "1")
+              preloadList.insert(toLowerString(std::string(st)));
+          }
+        }
+      }
+    }
+    fclose(file);
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+  }
+}
 
 
 
@@ -771,6 +822,21 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
           contentInfo->mGrib2ParameterLevelId = (T::ParamLevelId)(*g2Def.mGribParameterLevelId);
 */
       }
+
+      char st[200];
+      sprintf(st,"%s;%s;%d;%d;%05d;%d;%d;1;",
+          forecast.producerName.c_str(),
+          contentInfo->mFmiParameterName.c_str(),
+          (int)T::ParamLevelIdType::FMI,
+          (int)contentInfo->mFmiParameterLevelId,
+          (int)contentInfo->mParameterLevel,
+          (int)contentInfo->mForecastType,
+          (int)contentInfo->mForecastNumber);
+
+      if (preloadList.find(toLowerString(std::string(st))) != preloadList.end())
+        contentInfo->mFlags = CONTENT_INFO_PRELOAD;
+
+
 #if 0
       fprintf(contentFile,"%u;%u;%u;%s;%u;%u;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%u;%u;%u;%s;\n",
              fileId,
@@ -919,9 +985,9 @@ int main(int argc, char *argv[])
   {
     if (argc < 5)
     {
-      fprintf(stderr,"USAGE: radon2smartmet <sourceId> <dbConnectionString> <producerFile> <waitTimeInSec>\n");
-      fprintf(stderr,"  [-redis <redisAddress> <redisPort> <tablePrefix>] [-corba <contentServerIOR>\n");
-      fprintf(stderr,"  [-http <contentServerURL>\n");
+      fprintf(stderr,"USAGE: radon2smartmet <sourceId> <dbConnectionString> <producerFile> <preloadFile> <waitTimeInSec>\n");
+      fprintf(stderr,"  [-redis <redisAddress> <redisPort> <tablePrefix>] [-corba <contentServerIOR>]\n");
+      fprintf(stderr,"  [-http <contentServerURL>]\n");
       return -1;
     }
 
@@ -942,9 +1008,10 @@ int main(int argc, char *argv[])
     sourceId = (uint)atoi(argv[1]);
     char *connectionString = argv[2];
     char *producerFile = argv[3];
-    uint waitTime = atoi(argv[4]);
+    char *preloadFile = argv[4];
+    uint waitTime = atoi(argv[5]);
 
-    for (int t=5; t<argc; t++)
+    for (int t=6; t<argc; t++)
     {
       if (strcasecmp(argv[t],"-redis") == 0  &&  (t+3) < argc)
       {
@@ -1000,6 +1067,9 @@ int main(int argc, char *argv[])
 
       PRINT_DATA(debugLogPtr,"* Reading producer names that belongs to this update\n");
       readProducerList(producerFile);
+
+      PRINT_DATA(debugLogPtr,"* Reading preload parameters\n");
+      readPreloadList(preloadFile);
 
       PRINT_DATA(debugLogPtr,"* Reading producer information from the target data storage\n");
       readTargetProducers(targetInterface);

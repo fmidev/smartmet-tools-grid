@@ -14,14 +14,14 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 3)
+    if (argc < 2)
     {
-      fprintf(stdout,"USAGE: cs_getProducerParameterList <sessionId> <parameterKeyType> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"USAGE: cs_getParameterPreloadList <sessionId> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
-    T::ParamKeyType parameterKeyType = (T::ParamKeyType)atoll(argv[2]);
+    T::ParamKeyType parameterKeyType = T::ParamKeyType::FMI_NAME;
 
     std::set<std::string> infoList;
     int result = 0;
@@ -89,44 +89,9 @@ int main(int argc, char *argv[])
     {
       std::vector<std::string> partList;
       splitString(it->c_str(),';',partList);
-      if (partList.size() >= 7)
+      if (partList.size() >= 10)
       {
-        std::cout << partList[0] << ";" << partList[1] << ";" << partList[2] << ";" << partList[3] << ";" << partList[4] << ";" << partList[5] << ";" << partList[6] << ";";
-
-        Identification::FmiParameterDef paramDef;
-        if (Identification::gridDef.getFmiParameterDefByName(partList[3],paramDef))
-        {
-          if (paramDef.mAreaInterpolationMethod >= 0)
-            std::cout << (int)paramDef.mAreaInterpolationMethod << ";";
-          else
-            std::cout << ";";
-
-          if (paramDef.mTimeInterpolationMethod >= 0)
-            std::cout << (int)paramDef.mTimeInterpolationMethod << ";";
-          else
-            std::cout << ";";
-
-          if (paramDef.mLevelInterpolationMethod >= 0)
-            std::cout << (int)paramDef.mLevelInterpolationMethod << ";";
-          else
-            std::cout << ";";
-
-          std::cout << "E;";
-
-          if (parameterKeyType == T::ParamKeyType::NEWBASE_ID || parameterKeyType == T::ParamKeyType::NEWBASE_NAME)
-          {
-            Identification::FmiParameterId_newbase paramMapping;
-            if (Identification::gridDef.getNewbaseParameterMappingByFmiId(paramDef.mFmiParameterId,paramMapping))
-            {
-              std::cout << paramMapping.mConversionFunction;
-            }
-          }
-          std::cout << ";\n";
-        }
-        else
-        {
-          std::cout << "1;1;1;E;;\n";
-        }
+        std::cout << partList[0] << ";" << partList[3] << ";" << partList[4] << ";" << partList[5] << ";" << partList[6] << ";" << partList[7] << ";" << partList[8]<< ";" << partList[9] << ";\n";
       }
 
       //printf("%s\n",it->c_str());
