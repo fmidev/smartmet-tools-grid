@@ -256,6 +256,9 @@ uint readFiles(PGconn *conn,const char *tableName,uint producerId,uint geometryI
         rec.levelId = atoi(PQgetvalue(res, i, 2));
         rec.levelValue = atoi(PQgetvalue(res, i, 3));
 
+        if (rec.levelId == 2)
+          rec.levelValue = rec.levelValue * 100;
+
         fileRecList.push_back(rec);
 #if 0
         printf("%u;%u;%s;%u;%u;%u;%u;%u\n",
@@ -776,7 +779,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
       fc.mFileInfo.mFileId = 0;
       fc.mFileInfo.mFileType = T::FileType::Unknown;
       fc.mFileInfo.mName = it->fileName;
-      fc.mFileInfo.mFlags = (uint)T::FileInfoFlags::CONTENT_PREDEFINED;
+      fc.mFileInfo.mFlags = T::FileInfo::Flags::PredefinedContent;
       fc.mFileInfo.mSourceId = sourceId;
 
 
@@ -834,7 +837,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
           (int)contentInfo->mForecastNumber);
 
       if (preloadList.find(toLowerString(std::string(st))) != preloadList.end())
-        contentInfo->mFlags = CONTENT_INFO_PRELOAD;
+        contentInfo->mFlags = T::ContentInfo::Flags::PreloadRequired;
 
 
 #if 0

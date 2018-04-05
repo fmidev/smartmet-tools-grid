@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     info.mGenerationId = (uint)atoll(argv[4]);
     info.mFileType = (T::FileType)atoll(argv[5]);
     info.mName = argv[6];
-    info.mFlags = (uint)T::FileInfoFlags::CONTENT_PREDEFINED;
+    info.mFlags = T::FileInfo::Flags::PredefinedContent;
 
     T::ContentInfoList contentList;
     for (int t=7;t<argc; t++)

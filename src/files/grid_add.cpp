@@ -183,7 +183,7 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
         fileInfo.mFileType = gridFile.getFileType();
         fileInfo.mName = filename;
         fileInfo.mGroupFlags = 0;
-        fileInfo.mFlags = (uint)T::FileInfoFlags::CONTENT_PREDEFINED;
+        fileInfo.mFlags = T::FileInfo::Flags::PredefinedContent;
         fileInfo.mSourceId = 0;
 
         int res = service->addFileInfo(0,fileInfo);

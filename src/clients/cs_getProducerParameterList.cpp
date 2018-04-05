@@ -87,7 +87,9 @@ int main(int argc, char *argv[])
     // ### Result:
     for (auto it=infoList.begin(); it != infoList.end(); ++it)
     {
+      std::cout << *it << "\n";
       std::vector<std::string> partList;
+
       splitString(it->c_str(),';',partList);
       if (partList.size() >= 7)
       {
@@ -111,7 +113,7 @@ int main(int argc, char *argv[])
           else
             std::cout << ";";
 
-          std::cout << "E;";
+          std::cout << "D;";
 
           if (parameterKeyType == T::ParamKeyType::NEWBASE_ID || parameterKeyType == T::ParamKeyType::NEWBASE_NAME)
           {
@@ -125,7 +127,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-          std::cout << "1;1;1;E;;\n";
+          std::cout << "1;1;1;D;;\n";
         }
       }
 

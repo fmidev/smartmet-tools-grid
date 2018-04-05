@@ -11,9 +11,9 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 6)
+    if (argc < 7)
     {
-      fprintf(stdout,"USAGE: cs_getContentListByGenerationId <sessionId> <generationId> <startFileId> <startMessageIndex> <maxRecords> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"USAGE: cs_getContentListByGenerationId <sessionId> <generationId> <startFileId> <startMessageIndex> <maxRecords> <requestFlags> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
     uint startFileId = (uint)atoll(argv[3]);
     uint startMessageIndex = (uint)atoll(argv[4]);
     uint maxRecords = (uint)atoll(argv[5]);
+    uint requestFlags = (uint)atoll(argv[6]);
 
     int result = 0;
     unsigned long long startTime = 0;
@@ -34,7 +35,7 @@ int main(int argc, char *argv[])
       service.init(argv[argc-1]);
 
       startTime = getTime();
-      result = service.getContentListByGenerationId(sessionId,generationId,startFileId,startMessageIndex,maxRecords,infoList);
+      result = service.getContentListByGenerationId(sessionId,generationId,startFileId,startMessageIndex,maxRecords,requestFlags,infoList);
       endTime = getTime();
     }
     else
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
       service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
-      result = service.getContentListByGenerationId(sessionId,generationId,startFileId,startMessageIndex,maxRecords,infoList);
+      result = service.getContentListByGenerationId(sessionId,generationId,startFileId,startMessageIndex,maxRecords,requestFlags,infoList);
       endTime = getTime();
     }
     else
@@ -64,7 +65,7 @@ int main(int argc, char *argv[])
       service.init(serviceIor);
 
       startTime = getTime();
-      result = service.getContentListByGenerationId(sessionId,generationId,startFileId,startMessageIndex,maxRecords,infoList);
+      result = service.getContentListByGenerationId(sessionId,generationId,startFileId,startMessageIndex,maxRecords,requestFlags,infoList);
       endTime = getTime();
     }
 
