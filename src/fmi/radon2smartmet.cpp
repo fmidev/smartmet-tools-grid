@@ -989,7 +989,7 @@ int main(int argc, char *argv[])
     if (argc < 5)
     {
       fprintf(stderr,"USAGE: radon2smartmet <sourceId> <dbConnectionString> <producerFile> <preloadFile> <waitTimeInSec>\n");
-      fprintf(stderr,"  [-redis <redisAddress> <redisPort> <tablePrefix>] [-corba <contentServerIOR>]\n");
+      fprintf(stderr,"  [-redis <redisAddress> <redisPort> <tablePrefix>] [-ior <contentServerIOR>]\n");
       fprintf(stderr,"  [-http <contentServerURL>]\n");
       return -1;
     }
@@ -1026,7 +1026,7 @@ int main(int argc, char *argv[])
         targetInterface = redisImplementation;
       }
 
-      if (strcasecmp(argv[t],"-corba") == 0  &&  (t+1) < argc)
+      if (strcasecmp(argv[t],"-ior") == 0  &&  (t+1) < argc)
       {
         char *serviceIor = (char*)argv[t+1];
         ContentServer::Corba::ClientImplementation *client = new ContentServer::Corba::ClientImplementation();

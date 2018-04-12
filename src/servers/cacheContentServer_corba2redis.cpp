@@ -50,6 +50,8 @@ void sig_handler(int signum)
 
 int main(int argc, char *argv[])
 {
+  return 0;
+#if 0
   try
   {
     if (argc < 6)
@@ -143,4 +145,5 @@ int main(int argc, char *argv[])
     exception.printError();
     return -1;
   }
+#endif
 }
