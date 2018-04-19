@@ -112,7 +112,6 @@ LIBS = -L$(libdir) \
 	-lboost_date_time \
 	-lpthread \
 	-lgdal \
-	-lopenjpeg \
 	-ljpeg \
 	-lpng \
 	-lhiredis \

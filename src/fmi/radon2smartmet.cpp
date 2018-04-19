@@ -18,6 +18,8 @@
 using namespace SmartMet;
 
 
+// Some temporary storage structures:
+
 struct ForecastRec
 {
   uint        producerId = 0;
@@ -45,24 +47,109 @@ struct FileRec
 };
 
 
-T::SessionId mSessionId = 0;
-uint sourceId = 200;
-uint globalFileId = 0;
-std::string lastUpdateTime("19000101T000000");
-std::set<std::string> producerList;
-std::set<std::string> preloadList;
-Log debugLog;
-Log *debugLogPtr = NULL;
+
+// Global variables:
+
+ConfigurationFile         mConfigurationFile;
+std::string               mGridConfigFile;
+uint                      mSourceId = 100;
+std::string               mProducerFile;
+std::string               mPreloadFile;
+std::string               mRadonConnectionString;
+std::string               mStorageType;
+std::string               mRedisAddress;
+int                       mRedisPort = 6379;
+std::string               mRedisTablePrefix;
+std::string               mContentServerIor;
+std::string               mContentServerUrl;
+bool                      mDebugLogEnabled = false;
+std::string               mDebugLogFile;
+int                       mDebugLogMaxSize = 100000000;
+int                       mDebugLogTruncateSize = 20000000;
+Log                       mDebugLog;
+Log*                      mDebugLogPtr = NULL;
+T::SessionId              mSessionId = 0;
+uint                      mGlobalFileId = 0;
+std::string               mLastUpdateTime = "19000101T000000";
+
+std::set<std::string>     mProducerList;
+std::set<std::string>     mPreloadList;
+T::ProducerInfoList       mSourceProducerList;
+T::GenerationInfoList     mSourceGenerationList;
+std::vector<ForecastRec>  mSourceForacastList;
+T::ProducerInfoList       mTargetProducerList;
+T::GenerationInfoList     mTargetGenerationList;
+T::FileInfoList           mTargetFileList;
+T::ContentInfoList        mTargetContentList;
 
 
-T::ProducerInfoList      mSourceProducerList;
-T::GenerationInfoList    mSourceGenerationList;
-std::vector<ForecastRec> mSourceForacastList;
 
-T::ProducerInfoList      mTargetProducerList;
-T::GenerationInfoList    mTargetGenerationList;
-T::FileInfoList          mTargetFileList;
-T::ContentInfoList       mTargetContentList;
+
+
+void readConfigFile(const char* configFile)
+{
+  try
+  {
+    const char *configAttribute[] =
+    {
+      "smartmet.library.grid-files.configFile",
+      "smartmet.tools.grid.radon-to-smartmet.source-id",
+      "smartmet.tools.grid.radon-to-smartmet.producerFile",
+      "smartmet.tools.grid.radon-to-smartmet.preloadFile",
+      "smartmet.tools.grid.radon-to-smartmet.radon.connection-string",
+      "smartmet.tools.grid.radon-to-smartmet.content-storage.type",
+      "smartmet.tools.grid.radon-to-smartmet.content-storage.redis.address",
+      "smartmet.tools.grid.radon-to-smartmet.content-storage.redis.port",
+      "smartmet.tools.grid.radon-to-smartmet.content-storage.redis.tablePrefix",
+      "smartmet.tools.grid.radon-to-smartmet.content-storage.corba.ior",
+      "smartmet.tools.grid.radon-to-smartmet.content-storage.http.url",
+      "smartmet.tools.grid.radon-to-smartmet.debug-log.enabled",
+      "smartmet.tools.grid.radon-to-smartmet.debug-log.file",
+      "smartmet.tools.grid.radon-to-smartmet.debug-log.maxSize",
+      "smartmet.tools.grid.radon-to-smartmet.debug-log.truncateSize",
+      NULL
+    };
+
+
+    mConfigurationFile.readFile(configFile);
+    //mConfigurationFile.print(std::cout,0,0);
+
+    uint t=0;
+    while (configAttribute[t] != NULL)
+    {
+      if (!mConfigurationFile.findAttribute(configAttribute[t]))
+      {
+        SmartMet::Spine::Exception exception(BCP, "Missing configuration attribute!");
+        exception.addParameter("File",configFile);
+        exception.addParameter("Attribute",configAttribute[t]);
+        throw exception;
+      }
+      t++;
+    }
+
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.configFile", mGridConfigFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.source-id",mSourceId);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.producerFile",mProducerFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.preloadFile",mPreloadFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.radon.connection-string",mRadonConnectionString);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.content-storage.type",mStorageType);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.content-storage.redis.address",mRedisAddress);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.content-storage.redis.port",mRedisPort);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.content-storage.redis.tablePrefix",mRedisTablePrefix);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.content-storage.corba.ior",mContentServerIor);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.content-storage.http.url",mContentServerUrl);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.debug-log.enabled", mDebugLogEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.debug-log.file", mDebugLogFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.debug-log.maxSize", mDebugLogMaxSize);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.debug-log.truncateSize", mDebugLogTruncateSize);
+
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", NULL);
+  }
+}
+
 
 
 
@@ -114,6 +201,7 @@ void readTargetGenerations(ContentServer::ServiceInterface *targetInterface)
 
 
 
+
 void readProducerList(const char *filename)
 {
   try
@@ -121,11 +209,11 @@ void readProducerList(const char *filename)
     FILE *file = fopen(filename,"r");
     if (file == NULL)
     {
-      PRINT_DATA(debugLogPtr,"Producer file not available. Accepting all produces");
+      PRINT_DATA(mDebugLogPtr,"Producer file not available. Accepting all produces");
       return;
     }
 
-    producerList.clear();
+    mProducerList.clear();
 
     char st[1000];
     while (!feof(file))
@@ -143,7 +231,7 @@ void readProducerList(const char *filename)
               p++;
           }
           //printf("Add producer [%s]\n",st);
-          producerList.insert(toLowerString(std::string(st)));
+          mProducerList.insert(toLowerString(std::string(st)));
         }
       }
     }
@@ -166,11 +254,11 @@ void readPreloadList(const char *filename)
     FILE *file = fopen(filename,"r");
     if (file == NULL)
     {
-      PRINT_DATA(debugLogPtr,"Preload file not available.");
+      PRINT_DATA(mDebugLogPtr,"Preload file not available.");
       return;
     }
 
-    preloadList.clear();
+    mPreloadList.clear();
 
     char st[1000];
     while (!feof(file))
@@ -193,7 +281,7 @@ void readPreloadList(const char *filename)
           if (partList.size() >= 8)
           {
             if (partList[7] == "1")
-              preloadList.insert(toLowerString(std::string(st)));
+              mPreloadList.insert(toLowerString(std::string(st)));
           }
         }
       }
@@ -205,6 +293,7 @@ void readPreloadList(const char *filename)
     throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
   }
 }
+
 
 
 
@@ -262,18 +351,18 @@ uint readFiles(PGconn *conn,const char *tableName,uint producerId,uint geometryI
         fileRecList.push_back(rec);
 #if 0
         printf("%u;%u;%s;%u;%u;%u;%u;%u\n",
-               globalFileId,
+               mGlobalFileId,
                0,   // Type
                PQgetvalue(res, i, 0),  // fileName
                producerId,
                0, //generationId,
                0,   // GroupFlas
                1,   // Flags (1 = content predefined)
-               sourceId
+               mSourceId
               );
 
-        //readContent(conn,producerId,generationId,globalFileId,0,PQgetvalue(res, i, 7),PQgetvalue(res, i, 4),PQgetvalue(res, i, 4),PQgetvalue(res, i, 1),PQgetvalue(res, i, 2),PQgetvalue(res, i, 3),PQgetvalue(res, i, 5),PQgetvalue(res, i, 6));
-        globalFileId++;
+        //readContent(conn,producerId,generationId,mGlobalFileId,0,PQgetvalue(res, i, 7),PQgetvalue(res, i, 4),PQgetvalue(res, i, 4),PQgetvalue(res, i, 1),PQgetvalue(res, i, 2),PQgetvalue(res, i, 3),PQgetvalue(res, i, 5),PQgetvalue(res, i, 6));
+        mGlobalFileId++;
 #endif
         fileCount++;
       }
@@ -440,7 +529,7 @@ void readSourceGenerations(PGconn *conn)
         generation->mAnalysisTime = PQgetvalue(res, i, 2);
         generation->mStatus = T::GenerationStatus::STATUS_READY;
         generation->mFlags = 0;
-        generation->mSourceId = sourceId;
+        generation->mSourceId = mSourceId;
         mSourceGenerationList.addGenerationInfo(generation);
       }
     }
@@ -488,7 +577,7 @@ void readSourceProducers(PGconn *conn)
     for (int i = 0; i < rowCount; i++)
     {
       std::string searchStr = toLowerString(std::string(PQgetvalue(res, i, 1)));
-      if (producerList.size() == 0 || producerList.find(searchStr) != producerList.end())
+      if (mProducerList.size() == 0 || mProducerList.find(searchStr) != mProducerList.end())
       {
         T::ProducerInfo *producer = new T::ProducerInfo();
         producer->mProducerId = atoi(PQgetvalue(res, i, 0));
@@ -496,7 +585,7 @@ void readSourceProducers(PGconn *conn)
         producer->mTitle = PQgetvalue(res, i, 1);
         producer->mDescription = PQgetvalue(res, i, 2);
         producer->mFlags = 0;
-        producer->mSourceId = sourceId;
+        producer->mSourceId = mSourceId;
 
         mSourceProducerList.addProducerInfo(producer);
       }
@@ -513,6 +602,7 @@ void readSourceProducers(PGconn *conn)
 
 
 
+
 void updateProducers(ContentServer::ServiceInterface *targetInterface)
 {
   FUNCTION_TRACE
@@ -524,7 +614,7 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
       T::ProducerInfo *targetProducer = mTargetProducerList.getProducerInfoByIndex(t);
 
       // Checking if we have created the current producers - if so, then we can also remove it.
-      if (targetProducer->mSourceId == sourceId)
+      if (targetProducer->mSourceId == mSourceId)
       {
         T::ProducerInfo *sourceProducer = mSourceProducerList.getProducerInfoByName(targetProducer->mName);
         if (sourceProducer == NULL)
@@ -532,7 +622,7 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
           // The producer information is not available in the source data storage. So, we should remove
           // it also from the target data storage.
 
-          PRINT_DATA(debugLogPtr,"  -- Remove producer : %s\n",targetProducer->mName.c_str());
+          PRINT_DATA(mDebugLogPtr,"  -- Remove producer : %s\n",targetProducer->mName.c_str());
 
           int result = targetInterface->deleteProducerInfoById(mSessionId,targetProducer->mProducerId);
           if (result != 0)
@@ -552,7 +642,7 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
     for (uint t=0; t<len; t++)
     {
       T::ProducerInfo *sourceProducer = mSourceProducerList.getProducerInfoByIndex(t);
-      if (sourceProducer->mSourceId == sourceId)
+      if (sourceProducer->mSourceId == mSourceId)
       {
         T::ProducerInfo *targetProducer = mTargetProducerList.getProducerInfoByName(sourceProducer->mName);
         if (targetProducer == NULL)
@@ -561,9 +651,9 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
 
           T::ProducerInfo producer(*sourceProducer);
           producer.mProducerId = 0;
-          producer.mSourceId = sourceId;
+          producer.mSourceId = mSourceId;
 
-          PRINT_DATA(debugLogPtr,"  -- Add producer : %s\n",producer.mName.c_str());
+          PRINT_DATA(mDebugLogPtr,"  -- Add producer : %s\n",producer.mName.c_str());
 
           int result = targetInterface->addProducerInfo(mSessionId,producer);
           if (result != 0)
@@ -598,7 +688,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
     for (uint t=0; t<len; t++)
     {
       T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoByIndex(t);
-      if (targetGeneration->mSourceId == sourceId)
+      if (targetGeneration->mSourceId == mSourceId)
       {
         T::GenerationInfo *sourceGeneration = mSourceGenerationList.getGenerationInfoByName(targetGeneration->mName);
         if (sourceGeneration == NULL)
@@ -606,7 +696,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
           // The generation information is not available in the source data storage. So, we should remove
           // it also from the target data storage.
 
-          PRINT_DATA(debugLogPtr,"  -- Remove generation : %s\n",targetGeneration->mName.c_str());
+          PRINT_DATA(mDebugLogPtr,"  -- Remove generation : %s\n",targetGeneration->mName.c_str());
 
           generationIdList.insert(targetGeneration->mGenerationId);
         }
@@ -629,7 +719,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
     for (uint t=0; t<len; t++)
     {
       T::GenerationInfo *sourceGeneration = mSourceGenerationList.getGenerationInfoByIndex(t);
-      if (sourceGeneration->mSourceId == sourceId)
+      if (sourceGeneration->mSourceId == mSourceId)
       {
         T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoByName(sourceGeneration->mName);
         if (targetGeneration == NULL)
@@ -653,9 +743,9 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
 
             T::GenerationInfo generationInfo(*sourceGeneration);
             generationInfo.mProducerId = targetProducer.mProducerId;
-            generationInfo.mSourceId = sourceId;
+            generationInfo.mSourceId = mSourceId;
 
-            PRINT_DATA(debugLogPtr,"  -- Add generation : %s\n",generationInfo.mName.c_str());
+            PRINT_DATA(mDebugLogPtr,"  -- Add generation : %s\n",generationInfo.mName.c_str());
 
             result = targetInterface->addGenerationInfo(mSessionId,generationInfo);
             if (result != 0)
@@ -675,6 +765,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
     throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
   }
 }
+
 
 
 
@@ -760,7 +851,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
     T::GenerationInfo *generation = mTargetGenerationList.getGenerationInfoByName(forecast.generationName);
     if (generation == NULL)
     {
-      PRINT_DATA(debugLogPtr,"**** Unknown generation : %s\n",forecast.generationName.c_str());
+      PRINT_DATA(mDebugLogPtr,"**** Unknown generation : %s\n",forecast.generationName.c_str());
       return 0;
     }
 
@@ -780,7 +871,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
       fc.mFileInfo.mFileType = T::FileType::Unknown;
       fc.mFileInfo.mName = it->fileName;
       fc.mFileInfo.mFlags = T::FileInfo::Flags::PredefinedContent;
-      fc.mFileInfo.mSourceId = sourceId;
+      fc.mFileInfo.mSourceId = mSourceId;
 
 
       T::ContentInfo *contentInfo = new T::ContentInfo();
@@ -799,7 +890,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
       contentInfo->mForecastNumber = forecast.forecastTypeValue;
       contentInfo->mServerFlags = 0;
       contentInfo->mFlags = 0;
-      contentInfo->mSourceId = sourceId;
+      contentInfo->mSourceId = mSourceId;
       contentInfo->mGeometryId = forecast.geometryId;
       contentInfo->mModificationTime = forecast.lastUpdated;
 
@@ -836,7 +927,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
           (int)contentInfo->mForecastType,
           (int)contentInfo->mForecastNumber);
 
-      if (preloadList.find(toLowerString(std::string(st))) != preloadList.end())
+      if (mPreloadList.find(toLowerString(std::string(st))) != mPreloadList.end())
         contentInfo->mFlags = T::ContentInfo::Flags::PreloadRequired;
 
 
@@ -867,7 +958,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
              pertubationNumber,
              0, // serverFlags,
              0, // flags,
-             sourceId,
+             mSourceId,
              geometryId
           );
 #endif
@@ -877,7 +968,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
 
       fileAndContentList.push_back(fc);
 
-      PRINT_DATA(debugLogPtr,"      * Add file :  %s\n",it->fileName.c_str());
+      PRINT_DATA(mDebugLogPtr,"      * Add file :  %s\n",it->fileName.c_str());
     }
 
     return cnt;
@@ -897,7 +988,7 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
   FUNCTION_TRACE
   try
   {
-    std::string lastUpdated = lastUpdateTime;
+    std::string lastUpdated = mLastUpdateTime;
 
     std::set<std::string> forecastList;
     int result = targetInterface->getGenerationIdGeometryIdAndForecastTimeList(mSessionId,forecastList);
@@ -912,7 +1003,7 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
     {
       if (!isForecastValid(*forecast))
       {
-        PRINT_DATA(debugLogPtr,"  -- Delete forecast : %s\n",forecast->c_str());
+        PRINT_DATA(mDebugLogPtr,"  -- Delete forecast : %s\n",forecast->c_str());
         forecastTimeList.push_back(T::ForecastTime(forecast->c_str()));
         //deleteForecast(targetInterface,*forecast);
       }
@@ -928,9 +1019,9 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
 
     for (auto it=mSourceForacastList.begin(); it!=mSourceForacastList.end(); ++it)
     {
-      if (!it->checked  &&  it->lastUpdated > lastUpdateTime)
+      if (!it->checked  &&  it->lastUpdated > mLastUpdateTime)
       {
-        PRINT_DATA(debugLogPtr,"  -- Add forecast : %u;%s;%s;%s;%s;%u;%d;%d;%s;\n",
+        PRINT_DATA(mDebugLogPtr,"  -- Add forecast : %u;%s;%s;%s;%s;%u;%d;%d;%s;\n",
             it->producerId,
             it->producerName.c_str(),
             it->analysisTime.c_str(),
@@ -968,8 +1059,8 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
       fileAndContentList.clear();
     }
 
-    if (lastUpdated > lastUpdateTime)
-      lastUpdateTime = lastUpdated;
+    if (lastUpdated > mLastUpdateTime)
+      mLastUpdateTime = lastUpdated;
   }
   catch (...)
   {
@@ -986,66 +1077,48 @@ int main(int argc, char *argv[])
   FUNCTION_TRACE
   try
   {
-    if (argc < 5)
+    if (argc != 3)
     {
-      fprintf(stderr,"USAGE: radon2smartmet <sourceId> <dbConnectionString> <producerFile> <preloadFile> <waitTimeInSec>\n");
-      fprintf(stderr,"  [-redis <redisAddress> <redisPort> <tablePrefix>] [-ior <contentServerIOR>]\n");
-      fprintf(stderr,"  [-http <contentServerURL>]\n");
+      fprintf(stderr,"USAGE: radon2smartmet <configFile> <loopWaitTime>\n");
       return -1;
     }
 
-    char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
-    if (configFile == NULL)
-    {
-      printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
-      exit(-1);
-    }
+    readConfigFile(argv[1]);
 
     // Initializing the global structures. These are needed when
     // extracting information from GRIB files.
 
-    Identification::gridDef.init(configFile);
+    Identification::gridDef.init(mGridConfigFile.c_str());
 
     ContentServer::ServiceInterface *targetInterface = NULL;
 
-    sourceId = (uint)atoi(argv[1]);
-    char *connectionString = argv[2];
-    char *producerFile = argv[3];
-    char *preloadFile = argv[4];
-    uint waitTime = atoi(argv[5]);
+    uint waitTime = atoi(argv[2]);
 
-    for (int t=6; t<argc; t++)
+    if (mStorageType =="redis")
     {
-      if (strcasecmp(argv[t],"-redis") == 0  &&  (t+3) < argc)
-      {
-        char *redisAddress = (char*)argv[t+1];
-        int redisPort = atoi(argv[t+2]);
-        char *tablePrefix = (char*)argv[t+3];
-        ContentServer::RedisImplementation *redisImplementation = new ContentServer::RedisImplementation();
-        redisImplementation->init(redisAddress,redisPort,tablePrefix);
-        targetInterface = redisImplementation;
-      }
+      ContentServer::RedisImplementation *redisImplementation = new ContentServer::RedisImplementation();
+      redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str());
+      targetInterface = redisImplementation;
+    }
 
-      if (strcasecmp(argv[t],"-ior") == 0  &&  (t+1) < argc)
-      {
-        char *serviceIor = (char*)argv[t+1];
-        ContentServer::Corba::ClientImplementation *client = new ContentServer::Corba::ClientImplementation();
-        client->init(serviceIor);
-        targetInterface = client;
-      }
+    if (mStorageType =="corba")
+    {
+      ContentServer::Corba::ClientImplementation *client = new ContentServer::Corba::ClientImplementation();
+      client->init(mContentServerIor.c_str());
+      targetInterface = client;
+    }
 
-      if (strcasecmp(argv[t],"-http") == 0  &&  (t+1) < argc)
-      {
-        ContentServer::HTTP::ClientImplementation *httpClient = new ContentServer::HTTP::ClientImplementation();
-        httpClient->init(argv[t+1]);
-        targetInterface = httpClient;
-      }
+    if (mStorageType =="http")
+    {
+      ContentServer::HTTP::ClientImplementation *httpClient = new ContentServer::HTTP::ClientImplementation();
+      httpClient->init(mContentServerUrl.c_str());
+      targetInterface = httpClient;
+    }
 
-      if (strcmp(argv[t],"-log") == 0  && (t+1) < argc)
-      {
-        debugLog.init(true,argv[t+1],1000000,500000);
-        debugLogPtr = &debugLog;
-      }
+    if (mDebugLogEnabled)
+    {
+      mDebugLog.init(true,mDebugLogFile.c_str(),mDebugLogMaxSize,mDebugLogTruncateSize);
+      mDebugLogPtr = &mDebugLog;
     }
 
     if (targetInterface == NULL)
@@ -1054,7 +1127,7 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    PGconn *conn = PQconnectdb(connectionString);
+    PGconn *conn = PQconnectdb(mRadonConnectionString.c_str());
     if (PQstatus(conn) != CONNECTION_OK)
     {
       fprintf(stderr,"Postgresql error: %s\n",PQerrorMessage(conn));
@@ -1063,48 +1136,48 @@ int main(int argc, char *argv[])
 
     while (true)
     {
-      PRINT_DATA(debugLogPtr,"\n");
-      PRINT_DATA(debugLogPtr,"********************************************************************\n");
-      PRINT_DATA(debugLogPtr,"****************************** UPDATE ******************************\n");
-      PRINT_DATA(debugLogPtr,"********************************************************************\n");
+      PRINT_DATA(mDebugLogPtr,"\n");
+      PRINT_DATA(mDebugLogPtr,"********************************************************************\n");
+      PRINT_DATA(mDebugLogPtr,"****************************** UPDATE ******************************\n");
+      PRINT_DATA(mDebugLogPtr,"********************************************************************\n");
 
-      PRINT_DATA(debugLogPtr,"* Reading producer names that belongs to this update\n");
-      readProducerList(producerFile);
+      PRINT_DATA(mDebugLogPtr,"* Reading producer names that belongs to this update\n");
+      readProducerList(mProducerFile.c_str());
 
-      PRINT_DATA(debugLogPtr,"* Reading preload parameters\n");
-      readPreloadList(preloadFile);
+      PRINT_DATA(mDebugLogPtr,"* Reading preload parameters\n");
+      readPreloadList(mPreloadFile.c_str());
 
-      PRINT_DATA(debugLogPtr,"* Reading producer information from the target data storage\n");
+      PRINT_DATA(mDebugLogPtr,"* Reading producer information from the target data storage\n");
       readTargetProducers(targetInterface);
 
-      PRINT_DATA(debugLogPtr,"* Reading producer information from the source data storage\n");
+      PRINT_DATA(mDebugLogPtr,"* Reading producer information from the source data storage\n");
       readSourceProducers(conn);
 
-      PRINT_DATA(debugLogPtr,"* Updating producer information into the target data storage\n");
+      PRINT_DATA(mDebugLogPtr,"* Updating producer information into the target data storage\n");
       updateProducers(targetInterface);
 
-      PRINT_DATA(debugLogPtr,"* Reading updated producer information from the target data storage\n");
+      PRINT_DATA(mDebugLogPtr,"* Reading updated producer information from the target data storage\n");
       readTargetProducers(targetInterface);
 
-      PRINT_DATA(debugLogPtr,"* Reading generation information from the target data storage\n");
+      PRINT_DATA(mDebugLogPtr,"* Reading generation information from the target data storage\n");
       readTargetGenerations(targetInterface);
 
-      PRINT_DATA(debugLogPtr,"* Reading generation information from the source data storage\n");
+      PRINT_DATA(mDebugLogPtr,"* Reading generation information from the source data storage\n");
       readSourceGenerations(conn);
 
-      PRINT_DATA(debugLogPtr,"* Updating generation information into the target data storage\n");
+      PRINT_DATA(mDebugLogPtr,"* Updating generation information into the target data storage\n");
       updateGenerations(targetInterface);
 
-      PRINT_DATA(debugLogPtr,"* Reading updated generation information from the target data storage\n");
+      PRINT_DATA(mDebugLogPtr,"* Reading updated generation information from the target data storage\n");
       readTargetGenerations(targetInterface);
 
-      PRINT_DATA(debugLogPtr,"* Reading forecast time information from the source data storage\n");
+      PRINT_DATA(mDebugLogPtr,"* Reading forecast time information from the source data storage\n");
       readSourceForecastTimes(conn);
 
-      PRINT_DATA(debugLogPtr,"* Updating forecast time information into the target data storage\n");
+      PRINT_DATA(mDebugLogPtr,"* Updating forecast time information into the target data storage\n");
       updateForecastTimes(targetInterface,conn);
 
-      PRINT_DATA(debugLogPtr,"********************************************************************\n\n");
+      PRINT_DATA(mDebugLogPtr,"********************************************************************\n\n");
 
       sleep(waitTime);
     }

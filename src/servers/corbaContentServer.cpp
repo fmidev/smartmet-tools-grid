@@ -12,8 +12,8 @@
 using namespace SmartMet;
 
 
-ContentServer::Corba::Server *server = NULL;
-ContentServer::ServiceInterface *dataSource = NULL;
+ContentServer::Corba::Server *corbaServer = NULL;
+ContentServer::ServiceInterface *contentSource = NULL;
 ContentServer::Corba::ClientImplementation *corbaClient = NULL;
 ContentServer::HTTP::ClientImplementation *httpClient = NULL;
 ContentServer::RedisImplementation *redisImplementation = NULL;
@@ -28,7 +28,7 @@ std::string         mServerPort;
 std::string         mServerIorFile;
 bool                mCacheEnabled = false;
 uint                mCacheContentSortingFlags = 0;
-std::string         mDataSourceType;
+std::string         mContentSourceType;
 bool                mDataLoadEnabled = false;
 bool                mDataSaveEnabled = false;
 std::string         mDataDir;
@@ -61,12 +61,12 @@ void sig_handler(int signum)
       if (shutdownRequested)
         sprintf(NULL,"Crashing the system for the core dump");
 
-      if (server != NULL)
+      if (corbaServer != NULL)
       {
         printf("\n**** SHUTTING DOWN ****\n");
         shutdownRequested = true;
         sleep(2);
-        server->shutdown();
+        corbaServer->shutdown();
       }
       else
         exit(-1);
@@ -90,30 +90,30 @@ void readConfigFile(const char* configFile)
   {
     const char *configAttribute[] =
     {
-        "smartmet.service.grid.content-server.address",
-        "smartmet.service.grid.content-server.port",
-        "smartmet.service.grid.content-server.iorFile",
-        "smartmet.service.grid.content-server.cache.enabled",
-        "smartmet.service.grid.content-server.cache.contentSortingFlags",
-        "smartmet.service.grid.content-server.data-source.type",
-        "smartmet.service.grid.content-server.data-source.redis.address",
-        "smartmet.service.grid.content-server.data-source.redis.port",
-        "smartmet.service.grid.content-server.data-source.redis.tablePrefix",
-        "smartmet.service.grid.content-server.data-source.corba.ior",
-        "smartmet.service.grid.content-server.data-source.http.url",
-        "smartmet.service.grid.content-server.data-source.memory.dataLoadEnabled",
-        "smartmet.service.grid.content-server.data-source.memory.dataSaveEnabled",
-        "smartmet.service.grid.content-server.data-source.memory.dataDir",
-        "smartmet.service.grid.content-server.data-source.memory.dataSaveInterval",
-        "smartmet.service.grid.content-server.data-source.memory.contentSortingFlags",
-        "smartmet.service.grid.content-server.processing-log.enabled",
-        "smartmet.service.grid.content-server.processing-log.file",
-        "smartmet.service.grid.content-server.processing-log.maxSize",
-        "smartmet.service.grid.content-server.processing-log.truncateSize",
-        "smartmet.service.grid.content-server.debug-log.enabled",
-        "smartmet.service.grid.content-server.debug-log.file",
-        "smartmet.service.grid.content-server.debug-log.maxSize",
-        "smartmet.service.grid.content-server.debug-log.truncateSize",
+        "smartmet.tools.grid.content-server.address",
+        "smartmet.tools.grid.content-server.port",
+        "smartmet.tools.grid.content-server.iorFile",
+        "smartmet.tools.grid.content-server.cache.enabled",
+        "smartmet.tools.grid.content-server.cache.contentSortingFlags",
+        "smartmet.tools.grid.content-server.content-source.type",
+        "smartmet.tools.grid.content-server.content-source.redis.address",
+        "smartmet.tools.grid.content-server.content-source.redis.port",
+        "smartmet.tools.grid.content-server.content-source.redis.tablePrefix",
+        "smartmet.tools.grid.content-server.content-source.corba.ior",
+        "smartmet.tools.grid.content-server.content-source.http.url",
+        "smartmet.tools.grid.content-server.content-source.memory.contentLoadEnabled",
+        "smartmet.tools.grid.content-server.content-source.memory.contentSaveEnabled",
+        "smartmet.tools.grid.content-server.content-source.memory.contentDir",
+        "smartmet.tools.grid.content-server.content-source.memory.contentSaveInterval",
+        "smartmet.tools.grid.content-server.content-source.memory.contentSortingFlags",
+        "smartmet.tools.grid.content-server.processing-log.enabled",
+        "smartmet.tools.grid.content-server.processing-log.file",
+        "smartmet.tools.grid.content-server.processing-log.maxSize",
+        "smartmet.tools.grid.content-server.processing-log.truncateSize",
+        "smartmet.tools.grid.content-server.debug-log.enabled",
+        "smartmet.tools.grid.content-server.debug-log.file",
+        "smartmet.tools.grid.content-server.debug-log.maxSize",
+        "smartmet.tools.grid.content-server.debug-log.truncateSize",
         NULL
     };
 
@@ -134,38 +134,38 @@ void readConfigFile(const char* configFile)
       t++;
     }
 
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.address", mServerAddress);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.port", mServerPort);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.iorFile", mServerIorFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.address", mServerAddress);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.port", mServerPort);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.iorFile", mServerIorFile);
 
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.cache.enabled", mCacheEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.cache.contentSortingFlags", mCacheContentSortingFlags);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.enabled", mCacheEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.contentSortingFlags", mCacheContentSortingFlags);
 
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.data-source.type", mDataSourceType);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.type", mContentSourceType);
 
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.data-source.redis.address", mRedisAddress);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.data-source.redis.port", mRedisPort);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.data-source.redis.tablePrefix", mRedisTablePrefix);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.address", mRedisAddress);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.port", mRedisPort);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.tablePrefix", mRedisTablePrefix);
 
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.data-source.corba.ior", mCorbaIor);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.corba.ior", mCorbaIor);
 
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.data-source.http.url", mHttpUrl);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.http.url", mHttpUrl);
 
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.data-source.memory.dataLoadEnabled", mDataLoadEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.data-source.memory.dataSaveEnabled", mDataSaveEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.data-source.memory.dataDir", mDataDir);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.data-source.memory.dataSaveInterval", mDataSaveInterval);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.data-source.memory.contentSortingFlags", mMemoryContentSortingFlags);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.contentLoadEnabled", mDataLoadEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.contentSaveEnabled", mDataSaveEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.contentDir", mDataDir);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.contentSaveInterval", mDataSaveInterval);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.contentSortingFlags", mMemoryContentSortingFlags);
 
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.processing-log.enabled", mProcessingLogEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.processing-log.file", mProcessingLogFile);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.processing-log.maxSize", mProcessingLogMaxSize);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.processing-log.truncateSize", mProcessingLogTruncateSize);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.processing-log.enabled", mProcessingLogEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.processing-log.file", mProcessingLogFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.processing-log.maxSize", mProcessingLogMaxSize);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.processing-log.truncateSize", mProcessingLogTruncateSize);
 
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.debug-log.enabled", mDebugLogEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.debug-log.file", mDebugLogFile);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.debug-log.maxSize", mDebugLogMaxSize);
-    mConfigurationFile.getAttributeValue("smartmet.service.grid.content-server.debug-log.truncateSize", mDebugLogTruncateSize);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.debug-log.enabled", mDebugLogEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.debug-log.file", mDebugLogFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.debug-log.maxSize", mDebugLogMaxSize);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.debug-log.truncateSize", mDebugLogTruncateSize);
   }
   catch (...)
   {
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
       printf("##################################################################################\n");
       printf(" DESCRIPTION:\n");
       printf("   This is a contentServer that offers a CORBA service interface for accessing\n");
-      printf("   content information in the data source. Notice that this is just an interface");
+      printf("   content information in the content source. Notice that this is just an interface");
       printf("   and it does not contain any caching capabilities.");
       printf("\n");
       printf("   When the server starts, it prints its IOR (International Object Reference) \n");
@@ -212,40 +212,40 @@ int main(int argc, char *argv[])
 
     readConfigFile(argv[1]);
 
-    server = new ContentServer::Corba::Server(mServerAddress.c_str(),mServerPort.c_str());
+    corbaServer = new ContentServer::Corba::Server(mServerAddress.c_str(),mServerPort.c_str());
 
 
-    if (strcasecmp(mDataSourceType.c_str(),"redis") == 0)
+    if (strcasecmp(mContentSourceType.c_str(),"redis") == 0)
     {
       redisImplementation = new ContentServer::RedisImplementation();
       redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str());
-      dataSource = redisImplementation;
+      contentSource = redisImplementation;
     }
     else
-    if (strcasecmp(mDataSourceType.c_str(),"corba") == 0)
+    if (strcasecmp(mContentSourceType.c_str(),"corba") == 0)
     {
       corbaClient = new ContentServer::Corba::ClientImplementation();
       corbaClient->init(mCorbaIor.c_str());
-      dataSource = corbaClient;
+      contentSource = corbaClient;
     }
     else
-    if (strcasecmp(mDataSourceType.c_str(),"http") == 0)
+    if (strcasecmp(mContentSourceType.c_str(),"http") == 0)
     {
       httpClient = new ContentServer::HTTP::ClientImplementation();
       httpClient->init(mHttpUrl.c_str());
-      dataSource = httpClient;
+      contentSource = httpClient;
     }
     else
-    if (strcasecmp(mDataSourceType.c_str(),"memory") == 0)
+    if (strcasecmp(mContentSourceType.c_str(),"memory") == 0)
     {
       memoryImplementation = new ContentServer::MemoryImplementation();
       memoryImplementation->init(mDataLoadEnabled,mDataSaveEnabled,mDataDir,mDataSaveInterval,mMemoryContentSortingFlags);
-      dataSource = memoryImplementation;
+      contentSource = memoryImplementation;
     }
 
-    if (dataSource == NULL)
+    if (contentSource == NULL)
     {
-      SmartMet::Spine::Exception exception(BCP,"No acceptable data source defined!");
+      SmartMet::Spine::Exception exception(BCP,"No acceptable content source defined!");
       throw exception;
     }
 
@@ -264,33 +264,33 @@ int main(int argc, char *argv[])
         cacheImplementation->setDebugLog(&mDebugLog);
       }
 
-      cacheImplementation->init(0,dataSource,mCacheContentSortingFlags);
+      cacheImplementation->init(0,contentSource,mCacheContentSortingFlags);
       cacheImplementation->startEventProcessing();
-      dataSource = cacheImplementation;
+      contentSource = cacheImplementation;
     }
     else
     {
       if (mProcessingLogEnabled)
       {
         mProcessingLog.init(true,mProcessingLogFile.c_str(),mProcessingLogMaxSize,mProcessingLogTruncateSize);
-        dataSource->setProcessingLog(&mProcessingLog);
+        contentSource->setProcessingLog(&mProcessingLog);
       }
 
       if (mDebugLogEnabled)
       {
         mDebugLog.init(true,mDebugLogFile.c_str(),mDebugLogMaxSize,mDebugLogTruncateSize);
-        dataSource->setDebugLog(&mDebugLog);
+        contentSource->setDebugLog(&mDebugLog);
       }
     }
 
 
-    server->init(dataSource);
+    corbaServer->init(contentSource);
 
 
     // Let's print the service IOR. This is necessary for accessing the service. Usually the best way
     // to handle an IOR is to store it into an environment variable.
 
-    std::string ior = server->getServiceIor();
+    std::string ior = corbaServer->getServiceIor();
     if (mServerIorFile.length() == 0)
     {
       printf("\n%s\n",ior.c_str());
@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
       fclose(file);
     }
 
-    server->run();
+    corbaServer->run();
 
     if (redisImplementation != NULL)
       delete redisImplementation;
@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
     if (memoryImplementation != NULL)
       delete memoryImplementation;
 
-    delete server;
+    delete corbaServer;
 
     return 0;
   }

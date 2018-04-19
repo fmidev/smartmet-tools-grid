@@ -13,29 +13,6 @@ int main(int argc, char *argv[])
 {
   try
   {
-    double southPoleLat = -30;
-    double southPoleLon = 0;
-
-
-    for (double lat=-89; lat < 90; lat= lat+1)
-    {
-      for (double lon=-179; lon < 180; lon = lon+1)
-      {
-        double rotLat = lat;
-        double rotLon = lon;
-        double newLat = 0;
-        double newLon = 0;
-
-        //latlon_to_rotatedLatlon(lat,lon,southPoleLat,southPoleLon,rotLat,rotLon);
-        rotatedLatlon_to_latlon(rotLat,rotLon,southPoleLat,southPoleLon,newLat,newLon);
-        //if (round(lat) != round(newLat)  ||  round(lon) != round(newLon))
-          printf("%f,%f => %f,%f => %f,%f\n",lat,lon,rotLat,rotLon,newLat,newLon);
-      }
-
-    }
-
-    return 0;
-
     if (argc < 2)
     {
       fprintf(stderr,"USAGE: gu_showConfigurationAttributes <configurationFile> [-val]\n");
