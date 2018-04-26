@@ -337,8 +337,6 @@ int run(int argc, char **argv)
 {
   try
   {
-    uint optionFlags = 0;
-
     if (argc < 2)
     {
       print_usage();

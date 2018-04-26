@@ -622,17 +622,17 @@ int main(int argc, char *argv[])
     readConfigFile(argv[1]);
 
 
+    queryServer = new QueryServer::ServiceImplementation();
+
+    corbaServer = new QueryServer::Corba::Server(mServerAddress.c_str(),mServerPort.c_str());
+    corbaServer->init(queryServer);
+
     contentServer = new ContentServer::Corba::ClientImplementation();
     contentServer->init(mContentServerIor);
 
     dataServer = new DataServer::Corba::ClientImplementation();
     dataServer->init(mDataServerIor);
 
-
-    queryServer = new QueryServer::ServiceImplementation();
-
-    corbaServer = new QueryServer::Corba::Server(mServerAddress.c_str(),mServerPort.c_str());
-    corbaServer->init(queryServer);
 
     queryServer->init(contentServer,dataServer,mGridConfigFile,mParameterMappingFiles,mParameterAliasFiles,mProducerFile,mProducerAliasFile,mQueryServerLuaFiles);
 
@@ -672,10 +672,6 @@ int main(int argc, char *argv[])
       queryServer->setDebugLog(&mQueryServerDebugLog);
     }
 
-    mProducerAliases.init(mProducerAliasFile,true);
-
-    startUpdateProcessing();
-
     // Let's print the service IOR. This is necessary for accessing the service. Usually the best way
     // to handle an IOR is to store it into an environment variable.
 
@@ -696,6 +692,10 @@ int main(int argc, char *argv[])
       fprintf(file,"%s\n",ior.c_str());
       fclose(file);
     }
+
+    mProducerAliases.init(mProducerAliasFile,true);
+
+    startUpdateProcessing();
 
     corbaServer->run();
 
