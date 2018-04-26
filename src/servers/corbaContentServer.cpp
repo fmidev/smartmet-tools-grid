@@ -20,7 +20,7 @@ ContentServer::RedisImplementation *redisImplementation = NULL;
 ContentServer::MemoryImplementation *memoryImplementation = NULL;
 ContentServer::CacheImplementation *cacheImplementation = NULL;
 
-bool shutdownRequested = false;
+bool mShutdownRequested = false;
 
 ConfigurationFile   mConfigurationFile;
 std::string         mServerAddress;
@@ -58,13 +58,13 @@ void sig_handler(int signum)
   {
     try
     {
-      if (shutdownRequested)
+      if (mShutdownRequested)
         sprintf(NULL,"Crashing the system for the core dump");
 
       if (corbaServer != NULL)
       {
         printf("\n**** SHUTTING DOWN ****\n");
-        shutdownRequested = true;
+        mShutdownRequested = true;
         sleep(2);
         corbaServer->shutdown();
       }

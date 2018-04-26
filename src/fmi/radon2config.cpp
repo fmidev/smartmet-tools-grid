@@ -219,7 +219,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     PQclear(res);
 
 
-    fprintf(file,"\n# POLAR STEREOGRAPHIC : projection,id,name,ni,nj,first_point.x,first_point.y,di,dj,scanning_mode,orientation,description\n");
+    fprintf(file,"\n# POLAR STEREOGRAPHIC : projection,id,name,ni,nj,first_point.x,first_point.y,di,dj,scanning_mode,orientation,laD,description\n");
 
     p = sql;
 
@@ -235,6 +235,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     p += sprintf(p,"  dj,\n");
     p += sprintf(p,"  scanning_mode,\n");
     p += sprintf(p,"  orientation,\n");
+    p += sprintf(p,"  60.0,\n");
     p += sprintf(p,"  description\n");
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  geom_stereographic\n");

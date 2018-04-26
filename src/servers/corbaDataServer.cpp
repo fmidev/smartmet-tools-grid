@@ -50,7 +50,7 @@ uint                mMaxCompressedMegaBytesOfCachedGrids = 10000;
 uint                mMaxUncompressedMegaBytesOfCachedGrids = 10000;
 
 
-bool shutdownRequested = false;
+bool mShutdownRequested = false;
 
 
 
@@ -59,13 +59,13 @@ void sig_handler(int signum)
   {
     try
     {
-      if (shutdownRequested)
+      if (mShutdownRequested)
         sprintf(NULL,"Crashing the system for the core dump");
 
       if (dataServer != NULL)
       {
         printf("\n**** SHUTTING DOWN ****\n");
-        shutdownRequested = true;
+        mShutdownRequested = true;
         sleep(2);
         dataServer->shutdown();
         corbaServer->shutdown();
