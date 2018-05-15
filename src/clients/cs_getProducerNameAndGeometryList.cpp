@@ -3,8 +3,34 @@
 #include "contentServer/redis/RedisImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
+#include "grid-files/identification/GridDef.h"
 
 using namespace SmartMet;
+
+
+
+
+void init()
+{
+  try
+  {
+    char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
+    if (configFile == NULL)
+    {
+      printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
+      exit(-1);
+    }
+
+    // Initializing the global structures. These are needed when
+    // extracting information from GRIB files.
+
+    Identification::gridDef.init(configFile);
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+  }
+}
 
 
 
@@ -17,6 +43,8 @@ int main(int argc, char *argv[])
       fprintf(stdout,"USAGE: cs_getProducerNameAndGeometryList <sessionId> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
+
+    init();
 
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
     std::set<std::string> infoList;
@@ -73,7 +101,17 @@ int main(int argc, char *argv[])
     // ### Result:
     for (auto it=infoList.begin(); it != infoList.end(); ++it)
     {
-      printf("%s\n",it->c_str());
+      std::vector<std::string> partList;
+      splitString(it->c_str(),';',partList);
+      if (partList.size() >= 2)
+      {
+        double width = 0, height = 0;
+        if (Identification::gridDef.getGridCellAverageSizeByGeometryId((T::GeometryId)atoi(partList[1].c_str()),width,height))
+          printf("%s;%s;%.1fkm x %.1fkm;\n",partList[0].c_str(),partList[1].c_str(),width,height);
+        else
+          printf("%s;%s;;\n",partList[0].c_str(),partList[1].c_str());
+      }
+
     }
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);

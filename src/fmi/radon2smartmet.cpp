@@ -55,6 +55,7 @@ std::string               mGridConfigFile;
 uint                      mSourceId = 100;
 std::string               mProducerFile;
 std::string               mPreloadFile;
+uint                      mMaxMessageSize = 5000;
 std::string               mRadonConnectionString;
 std::string               mStorageType;
 std::string               mRedisAddress;
@@ -96,6 +97,7 @@ void readConfigFile(const char* configFile)
       "smartmet.tools.grid.radon-to-smartmet.source-id",
       "smartmet.tools.grid.radon-to-smartmet.producerFile",
       "smartmet.tools.grid.radon-to-smartmet.preloadFile",
+      "smartmet.tools.grid.radon-to-smartmet.maxMessageSize",
       "smartmet.tools.grid.radon-to-smartmet.radon.connection-string",
       "smartmet.tools.grid.radon-to-smartmet.content-storage.type",
       "smartmet.tools.grid.radon-to-smartmet.content-storage.redis.address",
@@ -131,6 +133,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.source-id",mSourceId);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.producerFile",mProducerFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.preloadFile",mPreloadFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.maxMessageSize",mMaxMessageSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.radon.connection-string",mRadonConnectionString);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.content-storage.type",mStorageType);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.content-storage.redis.address",mRedisAddress);
@@ -969,6 +972,16 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
       fileAndContentList.push_back(fc);
 
       PRINT_DATA(mDebugLogPtr,"      * Add file :  %s\n",it->fileName.c_str());
+
+      if (fileAndContentList.size() >= mMaxMessageSize)
+      {
+        int result = targetInterface->addFileInfoListWithContent(mSessionId,fileAndContentList);
+        if (result != 0)
+        {
+          fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
+        }
+        fileAndContentList.clear();
+      }
     }
 
     return cnt;
@@ -1034,7 +1047,7 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
 
         addForecast(targetInterface,conn,*it,fileAndContentList);
 
-        if (fileAndContentList.size() > 10000)
+        if (fileAndContentList.size() >= mMaxMessageSize)
         {
           int result = targetInterface->addFileInfoListWithContent(mSessionId,fileAndContentList);
           if (result != 0)
