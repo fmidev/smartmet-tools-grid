@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
       fprintf(stdout,"                             grib1       => GRIB 1 level identifier\n");
       fprintf(stdout,"                             grib2       => GRIB 2 level identifier\n");
       fprintf(stdout,"                             ignore      => All level types and values are accepted\n");
+      fprintf(stdout,"  parameterLevelId       = Parameter level id\n");
       fprintf(stdout,"  minLevel               = Minimum parameter level\n");
       fprintf(stdout,"  maxLevel               = Maximum parameter level\n");
       fprintf(stdout,"  forecastType           = Forecast type\n");

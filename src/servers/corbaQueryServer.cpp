@@ -94,6 +94,7 @@ pthread_t           mThread;
 std::string         mParameterMappingUpdateFile_fmi;
 std::string         mParameterMappingUpdateFile_newbase;
 time_t              mParameterMappingUpdateTime = 0;
+T::ParamKeyType     mMappingTargetKeyType = T::ParamKeyType::FMI_NAME;
 
 QueryServer::AliasFile mProducerAliases;
 
@@ -225,7 +226,7 @@ FILE* openMappingFile(std::string mappingFile)
 
 
 
-void updateMappings(T::ParamKeyType parameterKeyType,std::string mappingFile,QueryServer::ParamMappingFile_vec& parameterMappings)
+void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targetParameterKeyType,std::string mappingFile,QueryServer::ParamMappingFile_vec& parameterMappings)
 {
   try
   {
@@ -234,7 +235,7 @@ void updateMappings(T::ParamKeyType parameterKeyType,std::string mappingFile,Que
     std::set<std::string> infoList;
     int result = 0;
 
-    result = contentServer->getProducerParameterList(sessionId,parameterKeyType,infoList);
+    result = contentServer->getProducerParameterList(sessionId,sourceParameterKeyType,targetParameterKeyType,infoList);
     if (result != 0)
     {
       std::cerr << CODE_LOCATION << "The 'contentServer.getProducerParameterList()' service call returns an error!  Result : " << result << " : " << ContentServer::getResultString(result).c_str() << "\n";
@@ -319,7 +320,18 @@ void updateMappings(T::ParamKeyType parameterKeyType,std::string mappingFile,Que
             fprintf(file,"%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str());
 
             Identification::FmiParameterDef paramDef;
-            if (Identification::gridDef.getFmiParameterDefByName(pl[3],paramDef))
+
+            bool found = false;
+            if (targetParameterKeyType == T::ParamKeyType::FMI_NAME)
+              found = Identification::gridDef.getFmiParameterDefByName(pl[3],paramDef);
+            else
+            if (targetParameterKeyType == T::ParamKeyType::FMI_ID)
+              found = Identification::gridDef.getFmiParameterDefById(pl[3],paramDef);
+            else
+            if (targetParameterKeyType == T::ParamKeyType::NEWBASE_ID)
+              found = Identification::gridDef.getFmiParameterDefByNewbaseId(pl[3],paramDef);
+
+            if (found)
             {
               if (paramDef.mAreaInterpolationMethod >= 0)
                 fprintf(file,"%d;",(int)paramDef.mAreaInterpolationMethod);
@@ -338,7 +350,7 @@ void updateMappings(T::ParamKeyType parameterKeyType,std::string mappingFile,Que
 
               fprintf(file,"0;%c;",s);
 
-              if (parameterKeyType == T::ParamKeyType::NEWBASE_ID || parameterKeyType == T::ParamKeyType::NEWBASE_NAME)
+              if (sourceParameterKeyType == T::ParamKeyType::NEWBASE_ID || sourceParameterKeyType == T::ParamKeyType::NEWBASE_NAME)
               {
                 Identification::FmiParameterId_newbase paramMapping;
                 if (Identification::gridDef.getNewbaseParameterMappingByFmiId(paramDef.mFmiParameterId,paramMapping))
@@ -395,7 +407,7 @@ void updateMappings()
 
       if (!mParameterMappingUpdateFile_fmi.empty())
       {
-        updateMappings(T::ParamKeyType::FMI_NAME,mParameterMappingUpdateFile_fmi,parameterMappings);
+        updateMappings(T::ParamKeyType::FMI_NAME,mMappingTargetKeyType,mParameterMappingUpdateFile_fmi,parameterMappings);
       }
 
       if (mShutdownRequested)
@@ -403,7 +415,7 @@ void updateMappings()
 
       if (!mParameterMappingUpdateFile_newbase.empty())
       {
-        updateMappings(T::ParamKeyType::NEWBASE_NAME,mParameterMappingUpdateFile_newbase,parameterMappings);
+        updateMappings(T::ParamKeyType::NEWBASE_NAME,mMappingTargetKeyType,mParameterMappingUpdateFile_newbase,parameterMappings);
       }
     }
   }
@@ -510,6 +522,7 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.query-server.producerAliasFile",
         "smartmet.tools.grid.query-server.luaFiles",
         "smartmet.tools.grid.query-server.mappingFiles",
+        "smartmet.tools.grid.query-server.mappingTargetKeyType",
         "smartmet.tools.grid.query-server.mappingUpdateFile.fmi",
         "smartmet.tools.grid.query-server.mappingUpdateFile.newbase",
         "smartmet.tools.grid.query-server.aliasFiles",
@@ -578,6 +591,11 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.debug-log.file", mQueryServerDebugLogFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.debug-log.maxSize", mQueryServerDebugLogMaxSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.debug-log.truncateSize", mQueryServerDebugLogTruncateSize);
+
+    int tmp = 0;
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingTargetKeyType",tmp);
+    mMappingTargetKeyType = (T::ParamKeyType)tmp;
+
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.fmi",mParameterMappingUpdateFile_fmi);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.newbase",mParameterMappingUpdateFile_newbase);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingFiles",mParameterMappingFiles);

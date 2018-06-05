@@ -14,14 +14,15 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 3)
+    if (argc < 4)
     {
-      fprintf(stdout,"USAGE: cs_getProducerParameterList <sessionId> <parameterKeyType> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"USAGE: cs_getProducerParameterList <sessionId> <sourceParameterKeyType> <targetParameterKeyType> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
-    T::ParamKeyType parameterKeyType = (T::ParamKeyType)atoll(argv[2]);
+    T::ParamKeyType sourceParameterKeyType = (T::ParamKeyType)atoll(argv[2]);
+    T::ParamKeyType targetParameterKeyType = (T::ParamKeyType)atoll(argv[3]);
 
     std::set<std::string> infoList;
     int result = 0;
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
       service.init(argv[argc-1]);
 
       startTime = getTime();
-      result = service.getProducerParameterList(sessionId,parameterKeyType,infoList);
+      result = service.getProducerParameterList(sessionId,sourceParameterKeyType,targetParameterKeyType,infoList);
       endTime = getTime();
     }
     else
@@ -54,7 +55,7 @@ int main(int argc, char *argv[])
       service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
-      result = service.getProducerParameterList(sessionId,parameterKeyType,infoList);
+      result = service.getProducerParameterList(sessionId,sourceParameterKeyType,targetParameterKeyType,infoList);
       endTime = getTime();
     }
     else
@@ -74,7 +75,7 @@ int main(int argc, char *argv[])
       service.init(serviceIor);
 
       startTime = getTime();
-      result = service.getProducerParameterList(sessionId,parameterKeyType,infoList);
+      result = service.getProducerParameterList(sessionId,sourceParameterKeyType,targetParameterKeyType,infoList);
       endTime = getTime();
     }
 
@@ -96,7 +97,18 @@ int main(int argc, char *argv[])
         std::cout << partList[0] << ";" << partList[1] << ";" << partList[2] << ";" << partList[3] << ";" << partList[4] << ";" << partList[5] << ";" << partList[6] << ";";
 
         Identification::FmiParameterDef paramDef;
-        if (Identification::gridDef.getFmiParameterDefByName(partList[3],paramDef))
+
+        bool found = false;
+        if (targetParameterKeyType == T::ParamKeyType::FMI_NAME)
+          found = Identification::gridDef.getFmiParameterDefByName(partList[3],paramDef);
+        else
+        if (targetParameterKeyType == T::ParamKeyType::FMI_ID)
+          found = Identification::gridDef.getFmiParameterDefById(partList[3],paramDef);
+        else
+        if (targetParameterKeyType == T::ParamKeyType::NEWBASE_ID)
+          found = Identification::gridDef.getFmiParameterDefByNewbaseId(partList[3],paramDef);
+
+        if (found)
         {
           if (paramDef.mAreaInterpolationMethod >= 0)
             std::cout << (int)paramDef.mAreaInterpolationMethod << ";";
@@ -115,7 +127,7 @@ int main(int argc, char *argv[])
 
           std::cout << "D;";
 
-          if (parameterKeyType == T::ParamKeyType::NEWBASE_ID || parameterKeyType == T::ParamKeyType::NEWBASE_NAME)
+          if (sourceParameterKeyType == T::ParamKeyType::NEWBASE_ID || sourceParameterKeyType == T::ParamKeyType::NEWBASE_NAME)
           {
             Identification::FmiParameterId_newbase paramMapping;
             if (Identification::gridDef.getNewbaseParameterMappingByFmiId(paramDef.mFmiParameterId,paramMapping))

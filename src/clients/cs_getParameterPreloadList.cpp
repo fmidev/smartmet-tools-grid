@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
       service.init(argv[argc-1]);
 
       startTime = getTime();
-      result = service.getProducerParameterList(sessionId,parameterKeyType,infoList);
+      result = service.getProducerParameterList(sessionId,parameterKeyType,parameterKeyType,infoList);
       endTime = getTime();
     }
     else
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
       service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
-      result = service.getProducerParameterList(sessionId,parameterKeyType,infoList);
+      result = service.getProducerParameterList(sessionId,parameterKeyType,parameterKeyType,infoList);
       endTime = getTime();
     }
     else
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
       service.init(serviceIor);
 
       startTime = getTime();
-      result = service.getProducerParameterList(sessionId,parameterKeyType,infoList);
+      result = service.getProducerParameterList(sessionId,parameterKeyType,parameterKeyType,infoList);
       endTime = getTime();
     }
 
