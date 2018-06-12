@@ -94,21 +94,21 @@ void readConfigFile(const char* configFile)
     const char *configAttribute[] =
     {
       "smartmet.library.grid-files.configFile",
-      "smartmet.tools.grid.radon-to-smartmet.source-id",
-      "smartmet.tools.grid.radon-to-smartmet.producerFile",
-      "smartmet.tools.grid.radon-to-smartmet.preloadFile",
-      "smartmet.tools.grid.radon-to-smartmet.maxMessageSize",
-      "smartmet.tools.grid.radon-to-smartmet.radon.connection-string",
-      "smartmet.tools.grid.radon-to-smartmet.content-storage.type",
-      "smartmet.tools.grid.radon-to-smartmet.content-storage.redis.address",
-      "smartmet.tools.grid.radon-to-smartmet.content-storage.redis.port",
-      "smartmet.tools.grid.radon-to-smartmet.content-storage.redis.tablePrefix",
-      "smartmet.tools.grid.radon-to-smartmet.content-storage.corba.ior",
-      "smartmet.tools.grid.radon-to-smartmet.content-storage.http.url",
-      "smartmet.tools.grid.radon-to-smartmet.debug-log.enabled",
-      "smartmet.tools.grid.radon-to-smartmet.debug-log.file",
-      "smartmet.tools.grid.radon-to-smartmet.debug-log.maxSize",
-      "smartmet.tools.grid.radon-to-smartmet.debug-log.truncateSize",
+      "smartmet.tools.grid.radon2smartmet.maxMessageSize",
+      "smartmet.tools.grid.radon2smartmet.content-source.source-id",
+      "smartmet.tools.grid.radon2smartmet.content-source.producerFile",
+      "smartmet.tools.grid.radon2smartmet.content-source.preloadFile",
+      "smartmet.tools.grid.radon2smartmet.content-source.radon.connection-string",
+      "smartmet.tools.grid.radon2smartmet.content-storage.type",
+      "smartmet.tools.grid.radon2smartmet.content-storage.redis.address",
+      "smartmet.tools.grid.radon2smartmet.content-storage.redis.port",
+      "smartmet.tools.grid.radon2smartmet.content-storage.redis.tablePrefix",
+      "smartmet.tools.grid.radon2smartmet.content-storage.corba.ior",
+      "smartmet.tools.grid.radon2smartmet.content-storage.http.url",
+      "smartmet.tools.grid.radon2smartmet.debug-log.enabled",
+      "smartmet.tools.grid.radon2smartmet.debug-log.file",
+      "smartmet.tools.grid.radon2smartmet.debug-log.maxSize",
+      "smartmet.tools.grid.radon2smartmet.debug-log.truncateSize",
       NULL
     };
 
@@ -130,21 +130,21 @@ void readConfigFile(const char* configFile)
     }
 
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.configFile", mGridConfigFile);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.source-id",mSourceId);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.producerFile",mProducerFile);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.preloadFile",mPreloadFile);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.maxMessageSize",mMaxMessageSize);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.radon.connection-string",mRadonConnectionString);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.content-storage.type",mStorageType);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.content-storage.redis.address",mRedisAddress);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.content-storage.redis.port",mRedisPort);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.content-storage.redis.tablePrefix",mRedisTablePrefix);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.content-storage.corba.ior",mContentServerIor);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.content-storage.http.url",mContentServerUrl);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.debug-log.enabled", mDebugLogEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.debug-log.file", mDebugLogFile);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.debug-log.maxSize", mDebugLogMaxSize);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon-to-smartmet.debug-log.truncateSize", mDebugLogTruncateSize);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.maxMessageSize",mMaxMessageSize);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-source.source-id",mSourceId);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-source.producerFile",mProducerFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-source.preloadFile",mPreloadFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-source.radon.connection-string",mRadonConnectionString);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.type",mStorageType);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.address",mRedisAddress);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.port",mRedisPort);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.tablePrefix",mRedisTablePrefix);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.corba.ior",mContentServerIor);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.http.url",mContentServerUrl);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.debug-log.enabled", mDebugLogEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.debug-log.file", mDebugLogFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.debug-log.maxSize", mDebugLogMaxSize);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.debug-log.truncateSize", mDebugLogTruncateSize);
 
   }
   catch (...)
@@ -1147,7 +1147,8 @@ int main(int argc, char *argv[])
       return -4;
     }
 
-    while (true)
+    bool ind = true;
+    while (ind)
     {
       PRINT_DATA(mDebugLogPtr,"\n");
       PRINT_DATA(mDebugLogPtr,"********************************************************************\n");
@@ -1192,7 +1193,10 @@ int main(int argc, char *argv[])
 
       PRINT_DATA(mDebugLogPtr,"********************************************************************\n\n");
 
-      sleep(waitTime);
+      if (waitTime > 0)
+        sleep(waitTime);
+      else
+        ind = false;
     }
 
     PQfinish(conn);

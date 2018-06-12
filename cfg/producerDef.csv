@@ -1,0 +1,11 @@
+# This file is used by the "filesys2smartmet" program. It defines the producer
+# information when the content information is read from the file system.
+#
+# FIELDS:
+# 1. Producer abbr
+# 2. Producer name
+# 3. Producer title
+# 4. Producer desciption
+#
+ECMWF;ECMWF;ECMWF;ECMWF
+PAL;PAL;PAL;PAL
