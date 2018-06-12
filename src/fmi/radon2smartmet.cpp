@@ -443,7 +443,8 @@ void readSourceForecastTimes(PGconn *conn)
         if (generation != NULL)
         {
           char st[200];
-          sprintf(st,"%u;%u;%d;%d;%s;%s;",
+          sprintf(st,"%u;%u;%u;%d;%d;%s;%s;",
+              mSourceId,
               generation->mGenerationId,
               forecastRec.geometryId,
               forecastRec.forecastTypeId,
@@ -824,16 +825,18 @@ void deleteForecast(ContentServer::ServiceInterface *targetInterface,std::string
       }
     }
 
-    if (c >= 5)
+    if (c >= 6)
     {
-      uint generationId = (uint)atoll(field[0]);
-      uint geometryId = (uint)atoll(field[1]);
-      short forecastType = (short)atoll(field[2]);
-      short forecastNumber = (short)atoll(field[3]);
-      std::string forecastTime = field[4];
-      std::string modificationTime = field[5];
+      uint sourceId = (uint)atoll(field[0]);
+      uint generationId = (uint)atoll(field[1]);
+      uint geometryId = (uint)atoll(field[2]);
+      short forecastType = (short)atoll(field[3]);
+      short forecastNumber = (short)atoll(field[4]);
+      std::string forecastTime = field[5];
+      std::string modificationTime = field[6];
 
-      /*int result = */targetInterface->deleteFileInfoListByGenerationIdAndForecastTime(mSessionId,generationId,geometryId,forecastType,forecastNumber,forecastTime.c_str());
+      if (sourceId == mSourceId)
+        targetInterface->deleteFileInfoListByGenerationIdAndForecastTime(mSessionId,generationId,geometryId,forecastType,forecastNumber,forecastTime.c_str());
     }
   }
   catch (...)
@@ -1002,6 +1005,9 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
   try
   {
     std::string lastUpdated = mLastUpdateTime;
+    char ss[20];
+    sprintf(ss,"%u;",mSourceId);
+    int ssLen = (int)strlen(ss);
 
     std::set<std::string> forecastList;
     int result = targetInterface->getGenerationIdGeometryIdAndForecastTimeList(mSessionId,forecastList);
@@ -1014,7 +1020,7 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
     std::vector<T::ForecastTime> forecastTimeList;
     for (auto forecast=forecastList.begin(); forecast!=forecastList.end(); ++forecast)
     {
-      if (!isForecastValid(*forecast))
+      if (strncasecmp(forecast->c_str(),ss,ssLen) == 0  &&  !isForecastValid(*forecast))
       {
         PRINT_DATA(mDebugLogPtr,"  -- Delete forecast : %s\n",forecast->c_str());
         forecastTimeList.push_back(T::ForecastTime(forecast->c_str()));

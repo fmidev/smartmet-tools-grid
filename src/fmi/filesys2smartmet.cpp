@@ -195,7 +195,7 @@ void readTargetFiles(ContentServer::ServiceInterface *targetInterface)
     while (len > 0)
     {
       T::FileInfoList fileList;
-      int result = targetInterface->getFileInfoList(mSessionId,startFileId,maxRecords,fileList);
+      int result = targetInterface->getFileInfoListBySourceId(mSessionId,mSourceId,startFileId,maxRecords,fileList);
       if (result != 0)
       {
         SmartMet::Spine::Exception exception(BCP,"Cannot read the file list from the target data storage!");
@@ -415,7 +415,7 @@ void readSourceGenerations(std::vector<std::pair<std::string,std::string>>& file
                 generation->mSourceId = mSourceId;
                 mSourceGenerationList.addGenerationInfo(generation);
 
-                // generation->print(std::cout,0,0);
+                //generation->print(std::cout,0,0);
               }
               else
               {
@@ -461,7 +461,7 @@ void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Messag
     contentInfo.mForecastNumber = message.getForecastNumber();
     contentInfo.mServerFlags = 0;
     contentInfo.mFlags = 0;
-    contentInfo.mSourceId = 0;
+    contentInfo.mSourceId = mSourceId;
     contentInfo.mGeometryId = message.getGridGeometryId();
   }
   catch (...)
@@ -727,35 +727,20 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
         {
           // The generation information is not available in the target data storage. So, we should add it.
 
-          // Finding producer name:
-          T::ProducerInfo *sourceProducer = mSourceProducerList.getProducerInfoById(sourceGeneration->mProducerId);
-          if (sourceProducer != NULL)
+
+          T::GenerationInfo generationInfo(*sourceGeneration);
+          generationInfo.mSourceId = mSourceId;
+          generationInfo.mGenerationId = 0;
+
+          PRINT_DATA(mDebugLogPtr,"  -- Add generation : %s\n",generationInfo.mName.c_str());
+
+          int result = targetInterface->addGenerationInfo(mSessionId,generationInfo);
+          if (result != 0)
           {
-            // Finding producer id from the target data storage.
-            T::ProducerInfo targetProducer;
-            int result = targetInterface->getProducerInfoByName(mSessionId,sourceProducer->mName,targetProducer);
-            if (result != 0)
-            {
-              SmartMet::Spine::Exception exception(BCP,"The producer information not found from the target data storage!");
-              exception.addParameter("ProducerName",sourceProducer->mName);
-              exception.addParameter("Result",ContentServer::getResultString(result));
-              throw exception;
-            }
-
-            T::GenerationInfo generationInfo(*sourceGeneration);
-            generationInfo.mProducerId = targetProducer.mProducerId;
-            generationInfo.mSourceId = mSourceId;
-
-            PRINT_DATA(mDebugLogPtr,"  -- Add generation : %s\n",generationInfo.mName.c_str());
-
-            result = targetInterface->addGenerationInfo(mSessionId,generationInfo);
-            if (result != 0)
-            {
-              SmartMet::Spine::Exception exception(BCP,"Cannot add the generation information into the target data storage!");
-              exception.addParameter("GenerationName",generationInfo.mName);
-              exception.addParameter("Result",ContentServer::getResultString(result));
-              throw exception;
-            }
+            SmartMet::Spine::Exception exception(BCP,"Cannot add the generation information into the target data storage!");
+            exception.addParameter("GenerationName",generationInfo.mName);
+            exception.addParameter("Result",ContentServer::getResultString(result));
+            throw exception;
           }
         }
       }
