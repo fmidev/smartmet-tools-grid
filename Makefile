@@ -36,7 +36,7 @@ else
   CORBA_INCLUDE = -I/usr/include/smartmet/grid-content/contentServer/corba/stubs \
                   -I/usr/include/smartmet/grid-content/dataServer/corba/stubs \
                   -I/usr/include/smartmet/grid-content/queryServer/corba/stubs
-  CORBA_LIBS = -lomniORB4 -lomnithread  
+  CORBA_LIBS = -lomniORB4 -lomnithread
 endif
 
 
@@ -147,7 +147,7 @@ vpath %.cpp src \
 			src/fmi \
 			src/servers \
 			src/utils
-			
+
 vpath %.h 	src \
 			src/clients \
 			src/files \
@@ -191,7 +191,7 @@ $(PROGS): % : %.o
 	$(CXX) $(CFLAGS) $(LDFLAGS) $(INCLUDES) -o bin/$@ obj/$@.o $(LIBS)
 
 
-clean: 
+clean:
 	rm -f src/*~ src/*/*~ src/*/*/*~
 	rm -rf obj
 	rm -rf bin/*
@@ -200,7 +200,17 @@ format:
 	clang-format -i -style=file $(SUBNAME)/*.h $(SUBNAME)/*.cpp test/*.cpp
 
 install:
-
+	@mkdir -p $(bindir)
+	@mkdir -p $(bindir)/fmi
+	@mkdir -p $(bindir)/servers
+	@mkdir -p $(bindir)/utils
+	@mkdir -p $(bindir)/files
+	@mkdir -p $(bindir)/clients
+	@list='$(PROGS)'; \
+	for prog in $$list; do \
+	  echo $(INSTALL_PROG) bin/$$prog $(bindir)/$$prog; \
+	  $(INSTALL_PROG) bin/$$prog $(bindir)/$$prog; \
+	done
 test:
 	+cd test && make test
 
