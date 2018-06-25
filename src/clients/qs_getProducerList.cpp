@@ -1,4 +1,4 @@
-#include "queryServer/corba/client/ClientImplementation.h"
+#include "grid-content/queryServer/corba/client/ClientImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
 

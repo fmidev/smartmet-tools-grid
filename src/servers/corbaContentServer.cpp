@@ -1,11 +1,11 @@
-#include "contentServer/cache/CacheImplementation.h"
-#include "contentServer/redis/RedisImplementation.h"
-#include "contentServer/corba/client/ClientImplementation.h"
-#include "contentServer/http/client/ClientImplementation.h"
-#include "contentServer/memory/MemoryImplementation.h"
-#include "contentServer/corba/server/Server.h"
+#include "grid-content/contentServer/cache/CacheImplementation.h"
+#include "grid-content/contentServer/redis/RedisImplementation.h"
+#include "grid-content/contentServer/corba/client/ClientImplementation.h"
+#include "grid-content/contentServer/http/client/ClientImplementation.h"
+#include "grid-content/contentServer/memory/MemoryImplementation.h"
+#include "grid-content/contentServer/corba/server/Server.h"
 #include "grid-files/common/Exception.h"
-#include "contentServer/corba/server/ServerInterface.h"
+#include "grid-content/contentServer/corba/server/ServerInterface.h"
 #include "grid-files/identification/GridDef.h"
 #include <signal.h>
 

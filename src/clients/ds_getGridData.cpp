@@ -1,5 +1,5 @@
-#include "contentServer/corba/client/ClientImplementation.h"
-#include "dataServer/corba/client/ClientImplementation.h"
+#include "grid-content/contentServer/corba/client/ClientImplementation.h"
+#include "grid-content/dataServer/corba/client/ClientImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
 
@@ -20,9 +20,9 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc != 5)
+    if (argc != 6)
     {
-      fprintf(stdout,"USAGE: ds_getGridData <sessionId> <fileId> <messageIndex> <flags>\n");
+      fprintf(stdout,"USAGE: ds_getGridData <sessionId> <fileId> <messageIndex> <flags> <outputCsvFile> \n");
       return -1;
     }
 
@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
     uint fileId = (uint)atoll(argv[2]);
     uint messageIndex = (uint)atoll(argv[3]);
     uint flags = (uint)atoll(argv[4]);
+    char *outputFile = argv[5];
     T::GridData gridData;
 
     unsigned long long startTime = getTime();
@@ -60,13 +61,34 @@ int main(int argc, char *argv[])
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 
-    uint sz = (uint)gridData.mValues.size();
-    for (uint t=0; t<sz; t++)
+    FILE *file = fopen(outputFile,"w");
+    if (file == NULL)
     {
-      T::ParamValue val = gridData.mValues[t];
+      fprintf(stdout,"ERROR: Cannot create the ouput file (%s)!\n",outputFile);
+      return -6;
+    }
 
-      if (values.find(val) == values.end())
-        values.insert(val);
+    uint sz = (uint)gridData.mValues.size();
+
+    if ((gridData.mColumns*gridData.mRows) != sz)
+    {
+      fprintf(stdout,"ERROR: The size of the grid (%u x %u) and the number of the values (%u) no not match!\n",(uint)gridData.mColumns,(uint)gridData.mRows,(uint)sz);
+      return -7;
+    }
+
+    uint t = 0;
+    for (uint r=0; r<gridData.mRows; r++)
+    {
+      for (uint c=0; c<gridData.mColumns; c++)
+      {
+        T::ParamValue val = gridData.mValues[t];
+        fprintf(file,"%f;",val);
+        t++;
+
+        if (values.find(val) == values.end())
+          values.insert(val);
+      }
+      fprintf(file,"\n");
     }
     printf("VALUES %u\n",(uint)values.size());
 

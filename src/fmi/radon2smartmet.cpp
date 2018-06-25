@@ -83,6 +83,9 @@ T::GenerationInfoList     mTargetGenerationList;
 T::FileInfoList           mTargetFileList;
 T::ContentInfoList        mTargetContentList;
 
+uint                      mWaitTime = 300;
+uint                      mTimeOutTime = 900;
+bool                      mTimeOut = false;
 
 
 
@@ -1034,9 +1037,12 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
     }
 
 
+    time_t startTime = time(0);
+    mTimeOut = false;
+
     std::vector<T::FileAndContent> fileAndContentList;
 
-    for (auto it=mSourceForacastList.begin(); it!=mSourceForacastList.end(); ++it)
+    for (auto it=mSourceForacastList.begin(); it!=mSourceForacastList.end()  &&  !mTimeOut; ++it)
     {
       if (!it->checked  &&  it->lastUpdated > mLastUpdateTime)
       {
@@ -1065,6 +1071,16 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
 
         if (it->lastUpdated > lastUpdated)
           lastUpdated = it->lastUpdated;
+      }
+
+      if (mWaitTime > 0  &&  (time(0) - startTime) >= mTimeOutTime)
+      {
+        // Additions have take so much time that we should interrupt the loop
+        // and restart the update process from the begin. The point is that
+        // there can be a lot of content removals waiting and we should process
+        // them also in a reasonable time frame.
+
+        mTimeOut = true;
       }
     }
 
@@ -1111,7 +1127,7 @@ int main(int argc, char *argv[])
 
     ContentServer::ServiceInterface *targetInterface = NULL;
 
-    uint waitTime = atoi(argv[2]);
+    mWaitTime = atoi(argv[2]);
 
     if (mStorageType =="redis")
     {
@@ -1199,10 +1215,16 @@ int main(int argc, char *argv[])
 
       PRINT_DATA(mDebugLogPtr,"********************************************************************\n\n");
 
-      if (waitTime > 0)
-        sleep(waitTime);
+      if (mWaitTime > 0)
+      {
+        if (!mTimeOut)     // If we interrupted the addition process then we should not sleep.
+          sleep(mWaitTime);
+      }
       else
+      {
         ind = false;
+      }
+      mTimeOut = false;
     }
 
     PQfinish(conn);

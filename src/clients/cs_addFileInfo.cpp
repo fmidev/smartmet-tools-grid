@@ -1,8 +1,8 @@
-#include "contentServer/corba/client/ClientImplementation.h"
-#include "contentServer/http/client/ClientImplementation.h"
+#include "grid-content/contentServer/corba/client/ClientImplementation.h"
+#include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
-#include "contentServer/redis/RedisImplementation.h"
+#include "grid-content/contentServer/redis/RedisImplementation.h"
 
 
 using namespace SmartMet;

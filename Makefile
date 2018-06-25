@@ -82,8 +82,6 @@ else
  INCLUDES = \
 	-I$(includedir) \
 	-I$(includedir)/smartmet \
-	-I$(includedir)/smartmet/grid-files \
-	-I$(includedir)/smartmet/grid-content \
 	-I /usr/include/postgresql \
 	$(pkg-config --cflags icu-i18n) \
 	$(CORBA_INCLUDE)

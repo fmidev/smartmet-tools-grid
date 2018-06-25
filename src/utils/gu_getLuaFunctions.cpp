@@ -1,6 +1,6 @@
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
-#include "lua/LuaFile.h"
+#include "grid-content/lua/LuaFile.h"
 
 
 using namespace SmartMet;
