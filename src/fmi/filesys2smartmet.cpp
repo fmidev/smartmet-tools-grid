@@ -8,6 +8,7 @@
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
+#include "grid-content/lua/LuaFile.h"
 
 #include <libpq-fe.h>
 #include <stdlib.h>
@@ -57,6 +58,9 @@ std::vector<std::string>  mContentDirectories;
 std::vector<std::string>  mContentPatterns;
 std::map<std::string,std::string> mProducerAbbrList;
 
+Lua::LuaFile              mLuaFile;
+std::string               mLuaFilename;
+std::string               mLuaFunction;
 
 
 
@@ -75,6 +79,8 @@ void readConfigFile(const char* configFile)
       "smartmet.tools.grid.filesys2smartmet.content-source.preloadFile",
       "smartmet.tools.grid.filesys2smartmet.content-source.directories",
       "smartmet.tools.grid.filesys2smartmet.content-source.patterns",
+      "smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFilename",
+      "smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFunction",
       "smartmet.tools.grid.filesys2smartmet.content-storage.type",
       "smartmet.tools.grid.filesys2smartmet.content-storage.redis.address",
       "smartmet.tools.grid.filesys2smartmet.content-storage.redis.port",
@@ -112,6 +118,8 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.preloadFile",mPreloadFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.directories",mContentDirectories);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.patterns",mContentPatterns);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFilename",mLuaFilename);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFunction",mLuaFunction);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.type",mStorageType);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.address",mRedisAddress);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.port",mRedisPort);
@@ -122,6 +130,9 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.debug-log.file", mDebugLogFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.debug-log.maxSize", mDebugLogMaxSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.debug-log.truncateSize", mDebugLogTruncateSize);
+
+    if (mLuaFilename > " ")
+     mLuaFile.init(mLuaFilename);
 
   }
   catch (...)
@@ -290,8 +301,17 @@ void readSourceFiles(std::vector<std::pair<std::string,std::string>>& fileList)
 
     for (auto it = fileList.begin(); it != fileList.end(); ++it)
     {
+      std::string fn = it->second.c_str();
+      if (mLuaFunction > " ")
+      {
+        std::vector<std::string> params;
+        params.push_back(fn);
+        fn = mLuaFile.executeFunctionCall6(mLuaFunction,params);
+      }
+      //printf("FILE : %s\n",fn.c_str());
+
       std::vector<std::string> partList;
-      splitString(it->second.c_str(),'_',partList);
+      splitString(fn,'_',partList);
 
       if (partList.size() > 2)
       {
@@ -335,6 +355,7 @@ void readSourceFiles(std::vector<std::pair<std::string,std::string>>& fileList)
                 fileInfo->mModificationTime = localTimeFromTimeT(modificationTime,"UTC");
 
                 mSourceFileList.addFileInfo(fileInfo);
+                fileInfo->print(std::cout,0,0);
               }
             }
             else
@@ -368,8 +389,16 @@ void readSourceGenerations(std::vector<std::pair<std::string,std::string>>& file
 
     for (auto it = fileList.begin(); it != fileList.end(); ++it)
     {
+      std::string fn = it->second.c_str();
+      if (mLuaFunction > " ")
+      {
+        std::vector<std::string> params;
+        params.push_back(fn);
+        fn = mLuaFile.executeFunctionCall6(mLuaFunction,params);
+      }
+
       std::vector<std::string> partList;
-      splitString(it->second.c_str(),'_',partList);
+      splitString(fn,'_',partList);
 
       if (partList.size() > 2)
       {
