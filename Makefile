@@ -1,6 +1,6 @@
 SUBNAME = grid
 LIB = smartmet-$(SUBNAME)
-SPEC = smartmet-library-$(SUBNAME)
+SPEC = smartmet-tools-$(SUBNAME)
 INCDIR = smartmet/$(SUBNAME)
 
 # Enabling / disabling CORBA usage.
@@ -226,15 +226,11 @@ objdir:
 	@mkdir -p bin/servers
 	@mkdir -p bin/utils
 
-rpm: clean
-	if [ -e $(SPEC).spec ]; \
-	then \
-	  tar -czvf $(SPEC).tar.gz --transform "s,^,$(SPEC)/," * ; \
-	  rpmbuild -ta $(SPEC).tar.gz ; \
-	  rm -f $(SPEC).tar.gz ; \
-	else \
-	  echo $(SPEC).spec file missing; \
-	fi;
+rpm: $(SPEC).spec
+	rm -f $(SPEC).tar.gz # Clean a possible leftover from previous attempt
+	tar -czvf $(SPEC).tar.gz --transform "s,^,$(SPEC)/," *
+	rpmbuild -ta $(SPEC).tar.gz
+	rm -f $(SPEC).tar.gz
 
 .SUFFIXES: $(SUFFIXES) .cpp
 
