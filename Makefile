@@ -83,6 +83,7 @@ else
 	-I$(includedir) \
 	-I$(includedir)/smartmet \
 	-I /usr/include/postgresql \
+	-I /usr/pgsql-9.5/include \
 	$(pkg-config --cflags icu-i18n) \
 	$(CORBA_INCLUDE)
 
@@ -115,8 +116,9 @@ LIBS = -L$(libdir) \
 	-lhiredis \
 	-lmicrohttpd \
 	-lcurl \
-	-lpq \
-	$(CORBA_LIBS)
+	$(CORBA_LIBS) \
+	/usr/pgsql-9.5/lib/libpq.a \
+	-lssl -lcrypto -lgssapi_krb5 -lldap_r
 
 # What to install
 
