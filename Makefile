@@ -68,7 +68,6 @@ else
 	-Winline \
 	-Wno-multichar \
 	-Wno-pmf-conversions \
-	-Woverloaded-virtual  \
 	-Wpointer-arith \
 	-Wcast-qual \
 	-Wredundant-decls \
@@ -76,6 +75,9 @@ else
 	-Wno-sign-promo \
 	-Wno-unknown-pragmas \
 	-Wno-inline
+
+# Disabled for now:
+#	-Woverloaded-virtual
 
  FLAGS_RELEASE = -Wuninitialized
 
