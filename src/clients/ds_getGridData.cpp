@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
   try
   {
     char *serviceIor = getenv("SMARTMET_DS_IOR");
-    if (serviceIor == NULL)
+    if (serviceIor == nullptr)
     {
       fprintf(stdout,"SMARTMET_DS_IOR not defined!\n");
       return -2;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 
     FILE *file = fopen(outputFile,"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       fprintf(stdout,"ERROR: Cannot create the ouput file (%s)!\n",outputFile);
       return -6;
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -6;
   }

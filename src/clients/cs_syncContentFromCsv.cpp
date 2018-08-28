@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     uint sourceId = (uint)atoll(argv[3]);
     uint targetId = (uint)atoll(argv[4]);
 
-    ContentServer::ServiceInterface *service = NULL;
+    ContentServer::ServiceInterface *service = nullptr;
     ContentServer::HTTP::ClientImplementation httpClient;
     ContentServer::RedisImplementation redisClient;
     ContentServer::Corba::ClientImplementation corbaClient;
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
       if (strcmp(argv[argc-2],"-ior") == 0)
         serviceIor = argv[argc-1];
 
-      if (serviceIor == NULL)
+      if (serviceIor == nullptr)
       {
         fprintf(stdout,"Service IOR not defined!\n");
         return -2;
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
       service = &corbaClient;
     }
 
-    if (service == NULL)
+    if (service == nullptr)
     {
       fprintf(stdout,"Service not defined!\n");
       return -2;
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -4;
   }

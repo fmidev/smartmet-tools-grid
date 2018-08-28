@@ -19,8 +19,8 @@
 
 using namespace SmartMet;
 
-DataServer::Corba::Server *corbaServer = NULL;
-DataServer::ServiceImplementation *dataServer = NULL;
+DataServer::Corba::Server *corbaServer = nullptr;
+DataServer::ServiceImplementation *dataServer = nullptr;
 
 ConfigurationFile   mConfigurationFile;
 std::string         mServerName;
@@ -60,9 +60,9 @@ void sig_handler(int signum)
     try
     {
       if (mShutdownRequested)
-        sprintf(NULL,"Crashing the system for the core dump");
+        sprintf(nullptr,"Crashing the system for the core dump");
 
-      if (dataServer != NULL)
+      if (dataServer != nullptr)
       {
         printf("\n**** SHUTTING DOWN ****\n");
         mShutdownRequested = true;
@@ -75,7 +75,7 @@ void sig_handler(int signum)
     }
     catch (...)
     {
-      SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
+      SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
       exception.printError();
       exit(-1);
     }
@@ -115,7 +115,7 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.data-server.debug-log.file",
         "smartmet.tools.grid.data-server.debug-log.maxSize",
         "smartmet.tools.grid.data-server.debug-log.truncateSize",
-        NULL
+        nullptr
     };
 
 
@@ -123,7 +123,7 @@ void readConfigFile(const char* configFile)
     //mConfigurationFile.print(std::cout,0,0);
 
     uint t=0;
-    while (configAttribute[t] != NULL)
+    while (configAttribute[t] != nullptr)
     {
       if (!mConfigurationFile.findAttribute(configAttribute[t]))
       {
@@ -166,7 +166,7 @@ void readConfigFile(const char* configFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", NULL);
+    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
 
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
     else
     {
       FILE *file = fopen(mServerIorFile.c_str(),"w");
-      if (file == NULL)
+      if (file == nullptr)
       {
         SmartMet::Spine::Exception exception(BCP,"Cannot create file for IOR!");
         exception.addParameter("IorFile",mServerIorFile);
@@ -289,7 +289,7 @@ int main(int argc, char *argv[])
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
+    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
     exception.printError();
     return -1;
   }

@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
   try
   {
     char *serviceIor = getenv("SMARTMET_CS_IOR");
-    if (serviceIor == NULL)
+    if (serviceIor == nullptr)
     {
       fprintf(stdout,"SMARTMET_CS_IOR not defined!\n");
       return -2;
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
     std::string dir = argv[2];
 
-    ContentServer::ServiceInterface *service = NULL;
+    ContentServer::ServiceInterface *service = nullptr;
     ContentServer::HTTP::ClientImplementation httpClient;
     ContentServer::RedisImplementation redisClient;
     ContentServer::Corba::ClientImplementation corbaClient;
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
       if (strcmp(argv[argc-2],"-ior") == 0)
         serviceIor = argv[argc-1];
 
-      if (serviceIor == NULL)
+      if (serviceIor == nullptr)
       {
         fprintf(stdout,"Service IOR not defined!\n");
         return -2;
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
       service = &corbaClient;
     }
 
-    if (service == NULL)
+    if (service == nullptr)
     {
       fprintf(stdout,"Service not defined!\n");
       return -2;
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -10;
   }

@@ -22,14 +22,14 @@ int main(int argc, char *argv[])
 
 
     FILE *file = fopen(filename,"r");
-    if (file == NULL)
+    if (file == nullptr)
     {
       fprintf(stdout,"Cannot open file (%s) for reading!\n",filename);
       return -3;
     }
 
 
-    ContentServer::ServiceInterface *service = NULL;
+    ContentServer::ServiceInterface *service = nullptr;
 
     if (argc == 5  &&  strcmp(argv[3],"-http") == 0)
     {
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
       if (strcmp(argv[argc-2],"-ior") == 0)
         serviceIor = argv[argc-1];
 
-      if (serviceIor == NULL)
+      if (serviceIor == nullptr)
       {
         fprintf(stdout,"Service IOR not defined!\n");
         return -2;
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     char st[1000];
     while (!feof(file))
     {
-      if (fgets(st,1000,file) != NULL)
+      if (fgets(st,1000,file) != nullptr)
       {
         count++;
         if ((count % 1000) == 0)
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -4;
   }

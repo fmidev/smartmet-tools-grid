@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     }
 
     char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
-    if (configFile == NULL)
+    if (configFile == nullptr)
     {
       printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
       exit(-1);
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -7;
   }

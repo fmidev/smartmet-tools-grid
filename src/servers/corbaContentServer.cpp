@@ -12,13 +12,13 @@
 using namespace SmartMet;
 
 
-ContentServer::Corba::Server *corbaServer = NULL;
-ContentServer::ServiceInterface *contentSource = NULL;
-ContentServer::Corba::ClientImplementation *corbaClient = NULL;
-ContentServer::HTTP::ClientImplementation *httpClient = NULL;
-ContentServer::RedisImplementation *redisImplementation = NULL;
-ContentServer::MemoryImplementation *memoryImplementation = NULL;
-ContentServer::CacheImplementation *cacheImplementation = NULL;
+ContentServer::Corba::Server *corbaServer = nullptr;
+ContentServer::ServiceInterface *contentSource = nullptr;
+ContentServer::Corba::ClientImplementation *corbaClient = nullptr;
+ContentServer::HTTP::ClientImplementation *httpClient = nullptr;
+ContentServer::RedisImplementation *redisImplementation = nullptr;
+ContentServer::MemoryImplementation *memoryImplementation = nullptr;
+ContentServer::CacheImplementation *cacheImplementation = nullptr;
 
 bool mShutdownRequested = false;
 
@@ -59,9 +59,9 @@ void sig_handler(int signum)
     try
     {
       if (mShutdownRequested)
-        sprintf(NULL,"Crashing the system for the core dump");
+        sprintf(nullptr,"Crashing the system for the core dump");
 
-      if (corbaServer != NULL)
+      if (corbaServer != nullptr)
       {
         printf("\n**** SHUTTING DOWN ****\n");
         mShutdownRequested = true;
@@ -73,7 +73,7 @@ void sig_handler(int signum)
     }
     catch (...)
     {
-      SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
+      SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
       exception.printError();
       exit(-1);
     }
@@ -114,7 +114,7 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.content-server.debug-log.file",
         "smartmet.tools.grid.content-server.debug-log.maxSize",
         "smartmet.tools.grid.content-server.debug-log.truncateSize",
-        NULL
+        nullptr
     };
 
 
@@ -122,7 +122,7 @@ void readConfigFile(const char* configFile)
     //mConfigurationFile.print(std::cout,0,0);
 
     uint t=0;
-    while (configAttribute[t] != NULL)
+    while (configAttribute[t] != nullptr)
     {
       if (!mConfigurationFile.findAttribute(configAttribute[t]))
       {
@@ -169,7 +169,7 @@ void readConfigFile(const char* configFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", NULL);
+    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
 
@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
       contentSource = memoryImplementation;
     }
 
-    if (contentSource == NULL)
+    if (contentSource == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"No acceptable content source defined!");
       throw exception;
@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
     else
     {
       FILE *file = fopen(mServerIorFile.c_str(),"w");
-      if (file == NULL)
+      if (file == nullptr)
       {
         SmartMet::Spine::Exception exception(BCP,"Cannot create file for IOR!");
         exception.addParameter("IorFile",mServerIorFile);
@@ -310,16 +310,16 @@ int main(int argc, char *argv[])
 
     corbaServer->run();
 
-    if (redisImplementation != NULL)
+    if (redisImplementation != nullptr)
       delete redisImplementation;
 
-    if (corbaClient != NULL)
+    if (corbaClient != nullptr)
       delete corbaClient;
 
-    if (httpClient != NULL)
+    if (httpClient != nullptr)
       delete httpClient;
 
-    if (memoryImplementation != NULL)
+    if (memoryImplementation != nullptr)
       delete memoryImplementation;
 
     delete corbaServer;
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
+    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
     exception.printError();
     return -1;
   }

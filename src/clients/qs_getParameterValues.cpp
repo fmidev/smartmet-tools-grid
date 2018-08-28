@@ -14,14 +14,14 @@ int main(int argc, char *argv[])
   try
   {
     char *contentServerIor = getenv("SMARTMET_CS_IOR");
-    if (contentServerIor == NULL)
+    if (contentServerIor == nullptr)
     {
       fprintf(stdout,"SMARTMET_CS_IOR not defined!\n");
       return -2;
     }
 
     char *queryServerIor = getenv("SMARTMET_QS_IOR");
-    if (queryServerIor == NULL)
+    if (queryServerIor == nullptr)
     {
       fprintf(stdout,"SMARTMET_QS_IOR not defined!\n");
       return -2;
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
     {
       T::ContentInfo *contentInfo = contentInfoList.getContentInfoByIndex(t);
       T::GridPointValue *point = valueList.getGridPointValueByIndex(t);
-      if (point != NULL  &&  point->mValue != ParamValueMissing)
+      if (point != nullptr  &&  point->mValue != ParamValueMissing)
         printf("%u;%u;%s;%u;%f\n",contentInfo->mGenerationId,contentInfo->mGrib1ParameterLevelId,contentInfo->mForecastTime.c_str(),contentInfo->mParameterLevel,point->mValue);
       else
         printf("%u;%u;%s;%u;None\n",contentInfo->mGenerationId,contentInfo->mGrib1ParameterLevelId,contentInfo->mForecastTime.c_str(),contentInfo->mParameterLevel);
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -4;
   }

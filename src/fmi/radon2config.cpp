@@ -34,7 +34,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     sprintf(filename,"%s/fmi_geometries.csv",dir);
 
     FILE *file = fopen(filename,"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
@@ -265,7 +265,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -281,7 +281,7 @@ void create_fmi_levelId_grib2(PGconn *conn,const char *dir)
     sprintf(filename,"%s/fmi_levelId_grib2.csv",dir);
 
     FILE *file = fopen(filename,"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
@@ -338,7 +338,7 @@ void create_fmi_levelId_grib2(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -355,7 +355,7 @@ void create_fmi_levels(PGconn *conn,const char *dir)
     sprintf(filename,"%s/fmi_levels.csv",dir);
 
     FILE *file = fopen(filename,"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
@@ -407,7 +407,7 @@ void create_fmi_levels(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -424,7 +424,7 @@ void create_fmi_levelId_grib1(PGconn *conn,const char *dir)
     sprintf(filename,"%s/fmi_levelId_grib1.csv",dir);
 
     FILE *file = fopen(filename,"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
@@ -481,7 +481,7 @@ void create_fmi_levelId_grib1(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -498,7 +498,7 @@ void create_fmi_parameterId_grib2(PGconn *conn,const char *dir)
     sprintf(filename,"%s/fmi_parameterId_grib2.csv",dir);
 
     FILE *file = fopen(filename,"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
@@ -565,7 +565,7 @@ void create_fmi_parameterId_grib2(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -581,7 +581,7 @@ void create_fmi_parameterId_grib1(PGconn *conn,const char *dir)
     sprintf(filename,"%s/fmi_parameterId_grib1.csv",dir);
 
     FILE *file = fopen(filename,"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
@@ -649,7 +649,7 @@ void create_fmi_parameterId_grib1(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -665,7 +665,7 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
     sprintf(filename,"%s/fmi_parameterId_newbase.csv",dir);
 
     FILE *file = fopen(filename,"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
@@ -762,7 +762,7 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -778,7 +778,7 @@ void create_fmi_parameters(PGconn *conn,const char *dir)
     sprintf(filename,"%s/fmi_parameters.csv",dir);
 
     FILE *file = fopen(filename,"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
@@ -841,7 +841,7 @@ void create_fmi_parameters(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -857,7 +857,7 @@ void create_fmi_producerId_grib(PGconn *conn,const char *dir)
     sprintf(filename,"%s/fmi_producerId_grib.csv",dir);
 
     FILE *file = fopen(filename,"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
@@ -917,7 +917,7 @@ void create_fmi_producerId_grib(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -941,7 +941,7 @@ int main(int argc, char *argv[])
     char *connectionString = argv[2];
 
     char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
-    if (configFile == NULL)
+    if (configFile == nullptr)
     {
       fprintf(stderr,"%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
       return -1;
@@ -969,7 +969,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -7;
   }

@@ -16,7 +16,7 @@ void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_ve
 
 
     FILE *file = fopen(filename,"r");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot open file!");
       exception.addParameter("Filename",std::string(filename));
@@ -27,7 +27,7 @@ void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_ve
 
     while (!feof(file))
     {
-      if (fgets(st,1000,file) != NULL  &&  st[0] != '#')
+      if (fgets(st,1000,file) != nullptr  &&  st[0] != '#')
       {
         bool ind = false;
         char *field[100];
@@ -70,7 +70,7 @@ void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_ve
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -7;
   }

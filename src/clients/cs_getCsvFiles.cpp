@@ -17,7 +17,7 @@ void writeProducers(T::SessionId sessionId,ContentServer::ServiceInterface *serv
     char filename[300];
     sprintf(filename,"%s/producers.csv",dir);
     FILE *file = fopen(filename,"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create file!");
       exception.addParameter("Filename",filename);
@@ -45,7 +45,7 @@ void writeProducers(T::SessionId sessionId,ContentServer::ServiceInterface *serv
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -62,7 +62,7 @@ void writeGenerations(T::SessionId sessionId,ContentServer::ServiceInterface *se
     char filename[300];
     sprintf(filename,"%s/generations.csv",dir);
     FILE *file = fopen(filename,"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create file!");
       exception.addParameter("Filename",filename);
@@ -90,7 +90,7 @@ void writeGenerations(T::SessionId sessionId,ContentServer::ServiceInterface *se
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -107,7 +107,7 @@ void writeFiles(T::SessionId sessionId,ContentServer::ServiceInterface *serviceI
     char filename[300];
     sprintf(filename,"%s/files.csv",dir);
     FILE *file = fopen(filename,"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create file!");
       exception.addParameter("Filename",filename);
@@ -142,7 +142,7 @@ void writeFiles(T::SessionId sessionId,ContentServer::ServiceInterface *serviceI
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -159,7 +159,7 @@ void writeContent(T::SessionId sessionId,ContentServer::ServiceInterface *servic
     char filename[300];
     sprintf(filename,"%s/content.csv",dir);
     FILE *file = fopen(filename,"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create file!");
       exception.addParameter("Filename",filename);
@@ -199,7 +199,7 @@ void writeContent(T::SessionId sessionId,ContentServer::ServiceInterface *servic
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
     else
     {
       char *serviceIor = getenv("SMARTMET_CS_IOR");
-      if (serviceIor == NULL)
+      if (serviceIor == nullptr)
       {
         fprintf(stdout,"SMARTMET_CS_IOR not defined!\n");
         return -2;
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -4;
   }

@@ -21,11 +21,11 @@
 using namespace SmartMet;
 
 
-ContentServer::ServiceInterface *service = NULL;
+ContentServer::ServiceInterface *service = nullptr;
 
-char *producerNamePtr = NULL;
-char *generationNamePtr = NULL;
-char *analysisTimePtr = NULL;
+char *producerNamePtr = nullptr;
+char *generationNamePtr = nullptr;
+char *analysisTimePtr = nullptr;
 
 
 
@@ -34,7 +34,7 @@ void init()
   try
   {
     char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
-    if (configFile == NULL)
+    if (configFile == nullptr)
     {
       printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
       exit(-1);
@@ -47,7 +47,7 @@ void init()
   }
   catch (...)
   {
-    throw Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -65,7 +65,7 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
     uint messageIndex = message.getMessageIndex();
 
     std::string producerName = message.getFmiProducerName();
-    if (producerNamePtr != NULL)
+    if (producerNamePtr != nullptr)
       producerName = producerNamePtr;
 
     std::string generationName;
@@ -78,7 +78,7 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
     {
       Identification::FmiProducerId_grib producerDef;
 
-      if (producerNamePtr == NULL)
+      if (producerNamePtr == nullptr)
       {
         if (!Identification::gridDef.getFmiProducerByName(producerName,producerDef))
         {
@@ -121,12 +121,12 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
 
     gridFile.setProducerId(producerId);
 
-    if (analysisTimePtr != NULL)
+    if (analysisTimePtr != nullptr)
       generationName = producerName + ":" + analysisTimePtr;
     else
       generationName = producerName + ":" + referenceTime;
 
-    if (generationNamePtr != NULL)
+    if (generationNamePtr != nullptr)
       generationName = generationNamePtr;
 
     if (generationId == 0)
@@ -145,7 +145,7 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
         generationInfo.mProducerId = producerId;
         generationInfo.mName = generationName;
         generationInfo.mDescription = "";
-        if (analysisTimePtr != NULL)
+        if (analysisTimePtr != nullptr)
           generationInfo.mAnalysisTime = analysisTimePtr;
         generationInfo.mStatus = T::GenerationStatus::STATUS_READY;
         generationInfo.mFlags = 0;
@@ -257,7 +257,7 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
   }
   catch (...)
   {
-    throw Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -273,8 +273,8 @@ void addFile(GRID::GridFile& gridFile)
     //printf("\n");
 
 
-    const GRID::Message *prevMessage = NULL;
-    const GRID::Message *nextMessage = NULL;
+    const GRID::Message *prevMessage = nullptr;
+    const GRID::Message *nextMessage = nullptr;
     std::size_t messageCount = gridFile.getNumberOfMessages();
     for (std::size_t m=0; m<messageCount; m++)
     {
@@ -282,21 +282,21 @@ void addFile(GRID::GridFile& gridFile)
       if ((m+1) < messageCount)
         nextMessage = gridFile.getMessageByIndex(m+1);
       else
-        nextMessage = NULL;
+        nextMessage = nullptr;
 
-      if (prevMessage != NULL  && message->getForecastTime() == prevMessage->getForecastTime()  &&  message->getFmiParameterId() == prevMessage->getFmiParameterId())
+      if (prevMessage != nullptr  && message->getForecastTime() == prevMessage->getForecastTime()  &&  message->getFmiParameterId() == prevMessage->getFmiParameterId())
       {
         prevMessage = message;
-        message = NULL;
+        message = nullptr;
       }
       else
-      if (nextMessage != NULL  && message->getForecastTime() == nextMessage->getForecastTime()  &&  message->getFmiParameterId() == nextMessage->getFmiParameterId())
+      if (nextMessage != nullptr  && message->getForecastTime() == nextMessage->getForecastTime()  &&  message->getFmiParameterId() == nextMessage->getFmiParameterId())
       {
-        prevMessage = NULL;
-        message = NULL;
+        prevMessage = nullptr;
+        message = nullptr;
       }
 
-      if (message != NULL)
+      if (message != nullptr)
       {
         addMessage(gridFile,*message);
         prevMessage = message;
@@ -305,7 +305,7 @@ void addFile(GRID::GridFile& gridFile)
   }
   catch (...)
   {
-    throw Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -372,14 +372,14 @@ int run(int argc, char **argv)
         analysisTimePtr = argv[t+1];
     }
 
-    if (service == NULL)
+    if (service == nullptr)
     {
       char *serviceIor = getenv("SMARTMET_CS_IOR");
 
       if (strcmp(argv[argc-2],"-ior") == 0)
         serviceIor = argv[argc-1];
 
-      if (serviceIor == NULL)
+      if (serviceIor == nullptr)
       {
         fprintf(stdout,"Service IOR not defined!\n");
         return -2;
@@ -399,7 +399,7 @@ int run(int argc, char **argv)
   }
   catch (...)
   {
-    throw Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -416,6 +416,6 @@ int main(int argc, char **argv) try
 }
 catch (...)
 {
-  Spine::Exception exception(BCP,exception_operation_failed,NULL);
+  Spine::Exception exception(BCP,exception_operation_failed,nullptr);
   exception.printError();
 }

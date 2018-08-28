@@ -16,10 +16,10 @@
 using namespace SmartMet;
 
 
-FILE *producerFile = NULL;
-FILE *generationFile = NULL;
-FILE *fileFile = NULL;
-FILE *contentFile = NULL;
+FILE *producerFile = nullptr;
+FILE *generationFile = nullptr;
+FILE *fileFile = nullptr;
+FILE *contentFile = nullptr;
 
 uint globalGenerationId = 1;
 uint globalFileId = 1;
@@ -42,7 +42,7 @@ void readProducerList(const char *filename)
   try
   {
     FILE *file = fopen(filename,"r");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP, "Cannot open the producer list file!");
       exception.addParameter("Filename",filename);
@@ -52,7 +52,7 @@ void readProducerList(const char *filename)
     char st[1000];
     while (!feof(file))
     {
-      if (fgets(st,1000,file) != NULL)
+      if (fgets(st,1000,file) != nullptr)
       {
         if (st[0] != '#')
         {
@@ -73,7 +73,7 @@ void readProducerList(const char *filename)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -94,7 +94,7 @@ bool producerEnabled(const char *producerName)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -174,7 +174,7 @@ void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uin
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -200,7 +200,7 @@ uint readFiles(PGconn *conn,char *producerId,uint generationId,char *schemaName,
 
     for(int i = 0; i < rowCount; i++)
     {
-      if (strstr(PQgetvalue(res, i, 0),"masala") != NULL)
+      if (strstr(PQgetvalue(res, i, 0),"masala") != nullptr)
       {
         fprintf(fileFile,"%u;%u;%s;%s;%u;%u;%u;%u\n",
                globalFileId,
@@ -224,7 +224,7 @@ uint readFiles(PGconn *conn,char *producerId,uint generationId,char *schemaName,
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -288,7 +288,7 @@ uint readGenerations(PGconn *conn,char *producerId,char *producerName)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -333,7 +333,7 @@ void readProducers(PGconn *conn)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
     }
 
     char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
-    if (configFile == NULL)
+    if (configFile == nullptr)
     {
       printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
       exit(-1);
@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
 
     sprintf(filename,"%s/producers.csv",dir);
     producerFile = fopen(filename,"w");
-    if (producerFile == NULL)
+    if (producerFile == nullptr)
     {
       fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename);
       return -3;
@@ -385,7 +385,7 @@ int main(int argc, char *argv[])
 
     sprintf(filename,"%s/generations.csv",dir);
     generationFile = fopen(filename,"w");
-    if (generationFile == NULL)
+    if (generationFile == nullptr)
     {
       fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename);
       return -4;
@@ -393,7 +393,7 @@ int main(int argc, char *argv[])
 
     sprintf(filename,"%s/files.csv",dir);
     fileFile = fopen(filename,"w");
-    if (fileFile == NULL)
+    if (fileFile == nullptr)
     {
       fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename);
       return -5;
@@ -401,7 +401,7 @@ int main(int argc, char *argv[])
 
     sprintf(filename,"%s/content.csv",dir);
     contentFile = fopen(filename,"w");
-    if (contentFile == NULL)
+    if (contentFile == nullptr)
     {
       fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename);
       return -6;
@@ -423,7 +423,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -7;
   }

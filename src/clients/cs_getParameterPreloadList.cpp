@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     unsigned long long endTime = 0;
 
     char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
-    if (configFile == NULL)
+    if (configFile == nullptr)
     {
       fprintf(stderr,"%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
       return -1;
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
       if (strcmp(argv[argc-2],"-ior") == 0)
         serviceIor = argv[argc-1];
 
-      if (serviceIor == NULL)
+      if (serviceIor == nullptr)
       {
         fprintf(stdout,"Service IOR not defined!\n");
         return -2;
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -4;
   }

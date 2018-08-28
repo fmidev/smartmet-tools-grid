@@ -90,7 +90,7 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
   try
   {
     char *serviceIor = getenv("SMARTMET_DS_IOR");
-    if (serviceIor == NULL)
+    if (serviceIor == nullptr)
     {
       fprintf(stdout,"SMARTMET_DS_IOR not defined!\n");
       return -2;
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -7;
   }

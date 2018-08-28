@@ -39,7 +39,7 @@ void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::ParamId parameterId,T::P
     for (std::size_t t=0; t<messageCount; t++)
     {
       auto message = gridFile.getMessageByIndex(t);
-      if (message != NULL  &&  message->getGribParameterId() == parameterId)
+      if (message != nullptr  &&  message->getGribParameterId() == parameterId)
       {
         T::ParamValue min = 1000000000;
         T::ParamValue max = -1000000000;
@@ -58,7 +58,7 @@ void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::ParamId parameterId,T::P
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -73,7 +73,7 @@ void getParameterIdentifiers(GRID::GridFile& gridFile,std::set<T::ParamId>& para
     for (std::size_t t=0; t<messageCount; t++)
     {
       auto message = gridFile.getMessageByIndex(t);
-      if (message != NULL)
+      if (message != nullptr)
       {
         auto paramId = message->getGribParameterId();
         if (parameterIdList.find(paramId) == parameterIdList.end())
@@ -83,7 +83,7 @@ void getParameterIdentifiers(GRID::GridFile& gridFile,std::set<T::ParamId>& para
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -94,7 +94,7 @@ void init()
   try
   {
     char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
-    if (configFile == NULL)
+    if (configFile == nullptr)
     {
       printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
       exit(-1);
@@ -107,7 +107,7 @@ void init()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -121,7 +121,7 @@ void saveMessageSubmap(const char *imageFile,const GRID::Message *message,double
     printf("SAVE SUBMAP %s  (minValue=%f, maxValue=%f)\n",imageFile,minValue,maxValue);
 
     auto d = message->getGridDimensions();
-    if (!d)
+    if (d.getDimensions() != 2)
       return;
 
     double dd = maxValue - minValue;
@@ -173,7 +173,7 @@ void saveMessageSubmap(const char *imageFile,const GRID::Message *message,double
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -213,7 +213,7 @@ void saveSubmapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -234,7 +234,7 @@ void saveAllSubmaps(uint fileIndex,SmartMet::GRID::GridFile& gridFile,double lat
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -352,7 +352,7 @@ int run(int argc, char **argv)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -369,6 +369,6 @@ int main(int argc, char **argv) try
 }
 catch (...)
 {
-  SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
+  SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
   exception.printError();
 }

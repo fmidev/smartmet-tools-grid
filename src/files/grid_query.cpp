@@ -24,7 +24,7 @@ void init()
   try
   {
     char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
-    if (configFile == NULL)
+    if (configFile == nullptr)
     {
       printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
       exit(-1);
@@ -37,7 +37,7 @@ void init()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -146,7 +146,7 @@ void executeQuery(SmartMet::GRID::GridFile& gridFile,double lat,double lon,std::
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -231,7 +231,7 @@ int run(int argc, char **argv)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -248,6 +248,6 @@ int main(int argc, char **argv) try
 }
 catch (...)
 {
-  SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
+  SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
   exception.printError();
 }

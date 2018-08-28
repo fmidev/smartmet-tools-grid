@@ -68,7 +68,7 @@ std::string               mDebugLogFile;
 int                       mDebugLogMaxSize = 100000000;
 int                       mDebugLogTruncateSize = 20000000;
 Log                       mDebugLog;
-Log*                      mDebugLogPtr = NULL;
+Log*                      mDebugLogPtr = nullptr;
 T::SessionId              mSessionId = 0;
 uint                      mGlobalFileId = 0;
 std::string               mLastUpdateTime = "19000101T000000";
@@ -112,7 +112,7 @@ void readConfigFile(const char* configFile)
       "smartmet.tools.grid.radon2smartmet.debug-log.file",
       "smartmet.tools.grid.radon2smartmet.debug-log.maxSize",
       "smartmet.tools.grid.radon2smartmet.debug-log.truncateSize",
-      NULL
+      nullptr
     };
 
 
@@ -120,7 +120,7 @@ void readConfigFile(const char* configFile)
     //mConfigurationFile.print(std::cout,0,0);
 
     uint t=0;
-    while (configAttribute[t] != NULL)
+    while (configAttribute[t] != nullptr)
     {
       if (!mConfigurationFile.findAttribute(configAttribute[t]))
       {
@@ -152,7 +152,7 @@ void readConfigFile(const char* configFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", NULL);
+    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
 
@@ -176,7 +176,7 @@ void readTargetProducers(ContentServer::ServiceInterface *targetInterface)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -200,7 +200,7 @@ void readTargetGenerations(ContentServer::ServiceInterface *targetInterface)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -213,7 +213,7 @@ void readProducerList(const char *filename)
   try
   {
     FILE *file = fopen(filename,"r");
-    if (file == NULL)
+    if (file == nullptr)
     {
       PRINT_DATA(mDebugLogPtr,"Producer file not available. Accepting all produces");
       return;
@@ -224,7 +224,7 @@ void readProducerList(const char *filename)
     char st[1000];
     while (!feof(file))
     {
-      if (fgets(st,1000,file) != NULL)
+      if (fgets(st,1000,file) != nullptr)
       {
         if (st[0] != '#')
         {
@@ -245,7 +245,7 @@ void readProducerList(const char *filename)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -258,7 +258,7 @@ void readPreloadList(const char *filename)
   try
   {
     FILE *file = fopen(filename,"r");
-    if (file == NULL)
+    if (file == nullptr)
     {
       PRINT_DATA(mDebugLogPtr,"Preload file not available.");
       return;
@@ -269,7 +269,7 @@ void readPreloadList(const char *filename)
     char st[1000];
     while (!feof(file))
     {
-      if (fgets(st,1000,file) != NULL)
+      if (fgets(st,1000,file) != nullptr)
       {
         if (st[0] != '#')
         {
@@ -296,7 +296,7 @@ void readPreloadList(const char *filename)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -342,7 +342,7 @@ uint readFiles(PGconn *conn,const char *tableName,uint producerId,uint geometryI
 
     for (int i = 0; i < rowCount; i++)
     {
-      if (strstr(PQgetvalue(res, i, 0),"masala") != NULL)
+      if (strstr(PQgetvalue(res, i, 0),"masala") != nullptr)
       {
         FileRec rec;
 
@@ -378,7 +378,7 @@ uint readFiles(PGconn *conn,const char *tableName,uint producerId,uint geometryI
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -427,7 +427,7 @@ void readSourceForecastTimes(PGconn *conn)
     {
       uint producerId = atoi(PQgetvalue(res, i, 0));
       T::ProducerInfo *producer = mSourceProducerList.getProducerInfoById(producerId);
-      if (producer != NULL)
+      if (producer != nullptr)
       {
         ForecastRec forecastRec;
         forecastRec.producerId = atoi(PQgetvalue(res, i, 0));
@@ -443,7 +443,7 @@ void readSourceForecastTimes(PGconn *conn)
         forecastRec.lastUpdated = PQgetvalue(res, i, 9);
 
         T::GenerationInfo *generation = mTargetGenerationList.getGenerationInfoByName(forecastRec.generationName.c_str());
-        if (generation != NULL)
+        if (generation != nullptr)
         {
           char st[200];
           sprintf(st,"%u;%u;%u;%d;%d;%s;%s;",
@@ -480,7 +480,7 @@ void readSourceForecastTimes(PGconn *conn)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -523,7 +523,7 @@ void readSourceGenerations(PGconn *conn)
 
       uint producerId = atoi(PQgetvalue(res, i, 0));
       T::ProducerInfo *producer = mSourceProducerList.getProducerInfoById(producerId);
-      if (producer != NULL)
+      if (producer != nullptr)
       {
         T::GenerationInfo *generation = new T::GenerationInfo();
         generation->mGenerationId = i + 1;
@@ -546,7 +546,7 @@ void readSourceGenerations(PGconn *conn)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -602,7 +602,7 @@ void readSourceProducers(PGconn *conn)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, NULL);
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -624,7 +624,7 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
       if (targetProducer->mSourceId == mSourceId)
       {
         T::ProducerInfo *sourceProducer = mSourceProducerList.getProducerInfoByName(targetProducer->mName);
-        if (sourceProducer == NULL)
+        if (sourceProducer == nullptr)
         {
           // The producer information is not available in the source data storage. So, we should remove
           // it also from the target data storage.
@@ -652,7 +652,7 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
       if (sourceProducer->mSourceId == mSourceId)
       {
         T::ProducerInfo *targetProducer = mTargetProducerList.getProducerInfoByName(sourceProducer->mName);
-        if (targetProducer == NULL)
+        if (targetProducer == nullptr)
         {
           // The producer information is not available in the target data storage. So, we should add it.
 
@@ -677,7 +677,7 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -698,7 +698,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
       if (targetGeneration->mSourceId == mSourceId)
       {
         T::GenerationInfo *sourceGeneration = mSourceGenerationList.getGenerationInfoByName(targetGeneration->mName);
-        if (sourceGeneration == NULL)
+        if (sourceGeneration == nullptr)
         {
           // The generation information is not available in the source data storage. So, we should remove
           // it also from the target data storage.
@@ -729,13 +729,13 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
       if (sourceGeneration->mSourceId == mSourceId)
       {
         T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoByName(sourceGeneration->mName);
-        if (targetGeneration == NULL)
+        if (targetGeneration == nullptr)
         {
           // The generation information is not available in the target data storage. So, we should add it.
 
           // Finding producer name:
           T::ProducerInfo *sourceProducer = mSourceProducerList.getProducerInfoById(sourceGeneration->mProducerId);
-          if (sourceProducer != NULL)
+          if (sourceProducer != nullptr)
           {
             // Finding producer id from the target data storage.
             T::ProducerInfo targetProducer;
@@ -769,7 +769,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -794,7 +794,7 @@ bool isForecastValid(std::string forecast)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -844,7 +844,7 @@ void deleteForecast(ContentServer::ServiceInterface *targetInterface,std::string
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -858,7 +858,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
   try
   {
     T::GenerationInfo *generation = mTargetGenerationList.getGenerationInfoByName(forecast.generationName);
-    if (generation == NULL)
+    if (generation == nullptr)
     {
       PRINT_DATA(mDebugLogPtr,"**** Unknown generation : %s\n",forecast.generationName.c_str());
       return 0;
@@ -994,7 +994,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -1099,7 +1099,7 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -1125,7 +1125,7 @@ int main(int argc, char *argv[])
 
     Identification::gridDef.init(mGridConfigFile.c_str());
 
-    ContentServer::ServiceInterface *targetInterface = NULL;
+    ContentServer::ServiceInterface *targetInterface = nullptr;
 
     mWaitTime = atoi(argv[2]);
 
@@ -1156,7 +1156,7 @@ int main(int argc, char *argv[])
       mDebugLogPtr = &mDebugLog;
     }
 
-    if (targetInterface == NULL)
+    if (targetInterface == nullptr)
     {
       fprintf(stderr,"No target data source defined!\n");
       return -3;
@@ -1233,7 +1233,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -3;
   }

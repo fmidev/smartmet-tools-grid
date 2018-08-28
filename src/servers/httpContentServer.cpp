@@ -15,13 +15,13 @@
 using namespace SmartMet;
 
 
-ContentServer::ServiceInterface *contentSource = NULL;
-ContentServer::Corba::ClientImplementation *corbaClient = NULL;
-ContentServer::HTTP::ClientImplementation *httpClient = NULL;
-ContentServer::RedisImplementation *redisImplementation = NULL;
-ContentServer::HTTP::ServerInterface *httpServer = NULL;
-ContentServer::MemoryImplementation *memoryImplementation = NULL;
-ContentServer::CacheImplementation *cacheImplementation = NULL;
+ContentServer::ServiceInterface *contentSource = nullptr;
+ContentServer::Corba::ClientImplementation *corbaClient = nullptr;
+ContentServer::HTTP::ClientImplementation *httpClient = nullptr;
+ContentServer::RedisImplementation *redisImplementation = nullptr;
+ContentServer::HTTP::ServerInterface *httpServer = nullptr;
+ContentServer::MemoryImplementation *memoryImplementation = nullptr;
+ContentServer::CacheImplementation *cacheImplementation = nullptr;
 
 bool shutdownRequested = false;
 
@@ -84,7 +84,7 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.content-server.debug-log.file",
         "smartmet.tools.grid.content-server.debug-log.maxSize",
         "smartmet.tools.grid.content-server.debug-log.truncateSize",
-        NULL
+        nullptr
     };
 
 
@@ -92,7 +92,7 @@ void readConfigFile(const char* configFile)
     //mConfigurationFile.print(std::cout,0,0);
 
     uint t=0;
-    while (configAttribute[t] != NULL)
+    while (configAttribute[t] != nullptr)
     {
       if (!mConfigurationFile.findAttribute(configAttribute[t]))
       {
@@ -139,7 +139,7 @@ void readConfigFile(const char* configFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", NULL);
+    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
 
@@ -152,18 +152,18 @@ void getMainPage(SmartMet::T::ResponseMessage& response)
   try
   {
     FILE *file = fopen(mHelpFile.c_str(),"r");
-    if (file != NULL)
+    if (file != nullptr)
     {
       char st[10000];
 
       while (!feof(file))
       {
-        if (fgets(st,10000,file) != NULL)
+        if (fgets(st,10000,file) != nullptr)
         {
           char *p = strstr(st,"\r");
-          if (p == NULL)
+          if (p == nullptr)
             p = strstr(st,"\n");
-          if (p != NULL)
+          if (p != nullptr)
             *p = '\0';
           response.addLine(st);
         }
@@ -177,7 +177,7 @@ void getMainPage(SmartMet::T::ResponseMessage& response)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -191,16 +191,16 @@ static int addParameter(void *cls, enum MHD_ValueKind kind, const char *key,cons
   {
     //printf("%s: %s\n",key,value);
 
-    if (cls != NULL)
+    if (cls != nullptr)
     {
       SmartMet::T::RequestMessage *httpRequest = (SmartMet::T::RequestMessage*)cls;
-      if (key != NULL  &&  value != NULL)
+      if (key != nullptr  &&  value != nullptr)
         httpRequest->addLine(key,value);
 
-      if (key != NULL  &&  value == NULL)
+      if (key != nullptr  &&  value == nullptr)
         httpRequest->addLine(key,"");
 
-      if (key == NULL  &&  value != NULL)
+      if (key == nullptr  &&  value != nullptr)
         httpRequest->addLine("",value);
     }
 
@@ -208,7 +208,7 @@ static int addParameter(void *cls, enum MHD_ValueKind kind, const char *key,cons
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -221,12 +221,12 @@ static void requestCompleted (void *cls, struct MHD_Connection *connection,void 
   try
   {
     SmartMet::T::RequestMessage *request = (SmartMet::T::RequestMessage*)*ptr;
-    if (request != NULL)
+    if (request != nullptr)
       delete request;
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -239,7 +239,7 @@ static int processRequest(void *cls,struct MHD_Connection *connection,const char
 {
   try
   {
-    if (*ptr == NULL)
+    if (*ptr == nullptr)
     {
       // This is the first call. Let's initialize the request structure.
 
@@ -349,7 +349,7 @@ static int processRequest(void *cls,struct MHD_Connection *connection,const char
 
     //printf("%s",content);
 
-    *ptr = NULL; /* clear context pointer */
+    *ptr = nullptr; /* clear context pointer */
     struct MHD_Response *response = MHD_create_response_from_buffer(strlen(content),(void*)content,MHD_RESPMEM_MUST_FREE);
     int ret = MHD_queue_response(connection,MHD_HTTP_OK,response);
     MHD_destroy_response(response);
@@ -357,7 +357,7 @@ static int processRequest(void *cls,struct MHD_Connection *connection,const char
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
+    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
     exception.printError();
     return MHD_NO;
   }
@@ -423,7 +423,7 @@ int main(int argc,char ** argv)
       contentSource = memoryImplementation;
     }
 
-    if (contentSource == NULL)
+    if (contentSource == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"No acceptable content source defined!");
       throw exception;
@@ -468,27 +468,27 @@ int main(int argc,char ** argv)
     httpServer->init(contentSource);
 
 
-    struct MHD_Daemon *daemon = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY, atoi(mServerPort.c_str()), NULL, NULL,&processRequest, NULL,
-                                 MHD_OPTION_NOTIFY_COMPLETED, requestCompleted,NULL, MHD_OPTION_END);
-    if (daemon == NULL)
+    struct MHD_Daemon *daemon = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY, atoi(mServerPort.c_str()), nullptr, nullptr,&processRequest, nullptr,
+                                 MHD_OPTION_NOTIFY_COMPLETED, requestCompleted,nullptr, MHD_OPTION_END);
+    if (daemon == nullptr)
       return 1;
 
     (void) getc(stdin);
     MHD_stop_daemon(daemon);
 
-    if (redisImplementation != NULL)
+    if (redisImplementation != nullptr)
       delete redisImplementation;
 
-    if (corbaClient != NULL)
+    if (corbaClient != nullptr)
       delete corbaClient;
 
-    if (httpClient != NULL)
+    if (httpClient != nullptr)
       delete httpClient;
 
-    if (memoryImplementation != NULL)
+    if (memoryImplementation != nullptr)
       delete memoryImplementation;
 
-    if (cacheImplementation != NULL)
+    if (cacheImplementation != nullptr)
       delete cacheImplementation;
 
     delete httpServer;
@@ -497,7 +497,7 @@ int main(int argc,char ** argv)
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
+    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
     exception.printError();
     return -1;
   }

@@ -24,10 +24,10 @@
 
 using namespace SmartMet;
 
-QueryServer::Corba::Server *corbaServer = NULL;
-QueryServer::ServiceImplementation *queryServer = NULL;
-ContentServer::Corba::ClientImplementation *contentServer = NULL;
-DataServer::Corba::ClientImplementation *dataServer = NULL;
+QueryServer::Corba::Server *corbaServer = nullptr;
+QueryServer::ServiceImplementation *queryServer = nullptr;
+ContentServer::Corba::ClientImplementation *contentServer = nullptr;
+DataServer::Corba::ClientImplementation *dataServer = nullptr;
 
 
 
@@ -120,7 +120,7 @@ void loadMappings(QueryServer::ParamMappingFile_vec& parameterMappings)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw SmartMet::Spine::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -133,7 +133,7 @@ FILE* openMappingFile(std::string mappingFile)
   try
   {
     FILE *file = fopen(mappingFile.c_str(),"w");
-    if (file == NULL)
+    if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP, "Cannot open a mapping file for writing!");
       exception.addParameter("Filaname",mappingFile);
@@ -218,7 +218,7 @@ FILE* openMappingFile(std::string mappingFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw SmartMet::Spine::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -242,7 +242,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
       return;
     }
 
-    FILE *file = NULL;
+    FILE *file = nullptr;
 
     uint numOfNewMappings = 0;
     std::set<std::string> mapList;
@@ -277,7 +277,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
           {
             if (it->getFilename() != mappingFile)
             {
-              if (it->getMapping(m) != NULL)
+              if (it->getMapping(m) != nullptr)
               {
                 found = true;
               }
@@ -314,7 +314,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
             if (searchList.find(searchKey) == searchList.end())
               searchList.insert(searchKey);
 
-            if (file == NULL)
+            if (file == nullptr)
               file = openMappingFile(mappingFile);
 
             fprintf(file,"%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str());
@@ -369,7 +369,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
       }
     }
 
-    if (file == NULL  &&  numOfNewMappings == 0)
+    if (file == nullptr  &&  numOfNewMappings == 0)
     {
       // We found all mappings from the other files. That's why we should remove them
       // from the update file.
@@ -377,13 +377,13 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
       file = openMappingFile(mappingFile);
     }
 
-    if (file != NULL)
+    if (file != nullptr)
       fclose(file);
 
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw SmartMet::Spine::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -421,7 +421,7 @@ void updateMappings()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw SmartMet::Spine::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -441,7 +441,7 @@ void updateProcessing()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -454,14 +454,14 @@ static void* corbaQueryServer_updateThread(void *arg)
   try
   {
     updateProcessing();
-    pthread_exit(NULL);
-    return NULL;
+    pthread_exit(nullptr);
+    return nullptr;
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
+    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
     exception.printError();
-    pthread_exit(NULL);
+    pthread_exit(nullptr);
     exit(-1);
   }
 }
@@ -474,11 +474,11 @@ void startUpdateProcessing()
 {
   try
   {
-    pthread_create(&mThread,NULL,corbaQueryServer_updateThread,NULL);
+    pthread_create(&mThread,nullptr,corbaQueryServer_updateThread,nullptr);
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,NULL);
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
 
@@ -534,7 +534,7 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.query-server.debug-log.file",
         "smartmet.tools.grid.query-server.debug-log.maxSize",
         "smartmet.tools.grid.query-server.debug-log.truncateSize",
-        NULL
+        nullptr
     };
 
 
@@ -542,7 +542,7 @@ void readConfigFile(const char* configFile)
     //mConfigurationFile.print(std::cout,0,0);
 
     uint t=0;
-    while (configAttribute[t] != NULL)
+    while (configAttribute[t] != nullptr)
     {
       if (!mConfigurationFile.findAttribute(configAttribute[t]))
       {
@@ -609,7 +609,7 @@ void readConfigFile(const char* configFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", NULL);
+    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
 
@@ -707,7 +707,7 @@ int main(int argc, char *argv[])
     else
     {
       FILE *file = fopen(mServerIorFile.c_str(),"w");
-      if (file == NULL)
+      if (file == nullptr)
       {
         SmartMet::Spine::Exception exception(BCP,"Cannot create file for IOR!");
         exception.addParameter("IorFile",mServerIorFile);
@@ -731,7 +731,7 @@ int main(int argc, char *argv[])
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,NULL);
+    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
     exception.printError();
     return -1;
   }

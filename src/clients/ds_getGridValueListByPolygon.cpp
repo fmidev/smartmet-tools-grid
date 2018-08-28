@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
   try
   {
     char *serviceIor = getenv("SMARTMET_DS_IOR");
-    if (serviceIor == NULL)
+    if (serviceIor == nullptr)
     {
       fprintf(stdout,"SMARTMET_DS_IOR not defined!\n");
       return -2;
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     {
       strcpy(buf,argv[t]);
       char *p = strstr(buf,",");
-      if (p != NULL)
+      if (p != nullptr)
       {
         *p = '\0';
         p++;
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
   }
   catch (SmartMet::Spine::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",NULL);
+    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -6;
   }
