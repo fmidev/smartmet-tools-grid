@@ -1,6 +1,6 @@
 SUBNAME = grid
 LIB = smartmet-$(SUBNAME)
-SPEC = smartmet-library-$(SUBNAME)
+SPEC = smartmet-tools-$(SUBNAME)
 INCDIR = smartmet/$(SUBNAME)
 
 # Enabling / disabling CORBA usage.
@@ -68,7 +68,6 @@ else
 	-Winline \
 	-Wno-multichar \
 	-Wno-pmf-conversions \
-	-Woverloaded-virtual  \
 	-Wpointer-arith \
 	-Wcast-qual \
 	-Wredundant-decls \
@@ -77,12 +76,16 @@ else
 	-Wno-unknown-pragmas \
 	-Wno-inline
 
+# Disabled for now:
+#	-Woverloaded-virtual
+
  FLAGS_RELEASE = -Wuninitialized
 
  INCLUDES = \
 	-I$(includedir) \
 	-I$(includedir)/smartmet \
 	-I /usr/include/postgresql \
+	-I /usr/pgsql-9.5/include \
 	$(pkg-config --cflags icu-i18n) \
 	$(CORBA_INCLUDE)
 
@@ -115,8 +118,9 @@ LIBS = -L$(libdir) \
 	-lhiredis \
 	-lmicrohttpd \
 	-lcurl \
-	-lpq \
-	$(CORBA_LIBS)
+	$(CORBA_LIBS) \
+	/usr/pgsql-9.5/lib/libpq.a \
+	-lssl -lcrypto -lgssapi_krb5 -lldap_r
 
 # What to install
 
@@ -226,15 +230,11 @@ objdir:
 	@mkdir -p bin/servers
 	@mkdir -p bin/utils
 
-rpm: clean
-	if [ -e $(SPEC).spec ]; \
-	then \
-	  tar -czvf $(SPEC).tar.gz --transform "s,^,$(SPEC)/," * ; \
-	  rpmbuild -ta $(SPEC).tar.gz ; \
-	  rm -f $(SPEC).tar.gz ; \
-	else \
-	  echo $(SPEC).spec file missing; \
-	fi;
+rpm: $(SPEC).spec
+	rm -f $(SPEC).tar.gz # Clean a possible leftover from previous attempt
+	tar -czvf $(SPEC).tar.gz --transform "s,^,$(SPEC)/," *
+	rpmbuild -ta $(SPEC).tar.gz
+	rm -f $(SPEC).tar.gz
 
 .SUFFIXES: $(SUFFIXES) .cpp
 

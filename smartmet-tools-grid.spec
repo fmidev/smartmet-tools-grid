@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 18.6.14
+Version: 18.8.27
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel
-BuildRequires: smartmet-library-grid-files-devel
-BuildRequires: smartmet-library-grid-content-devel
+BuildRequires: smartmet-library-spine-devel >= 18.8.20
+BuildRequires: smartmet-library-grid-files-devel >= 18.8.27
+BuildRequires: smartmet-library-grid-content-devel >= 18.8.27
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -24,15 +24,21 @@ BuildRequires: postgresql-devel
 BuildRequires: libmicrohttpd-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
+BuildRequires: openldap-devel
+BuildRequires: openssl-devel
+BuildRequires: krb5-devel
 Requires: libconfig
 #Requires: smartmet-library-macgyver >= 18.2.6
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
 #Requires: smartmet-engine-grid >= 18.2.8
 Requires: boost-date-time
-Requires: smartmet-library-grid-files
-Requires: smartmet-library-grid-content
+Requires: smartmet-library-grid-files >= 18.8.27
+Requires: smartmet-library-grid-content >= 18.8.27
 #Requires: smartmet-engine-grid
+Requires: openldap
+Requires: openssl-libs
+Requires: krb5-devel
 
 Provides: radon2smartmet = %{Version}
 Provides: filesys2smartmet = %{Version}
@@ -368,5 +374,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/utils/gu_getGridLatLonCoordinatesByGeometryId
 
 %changelog
+* Mon Aug 27 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.8.27-1.fmi
+- Packaged latest version
 * Thu Jun 14 2018 Roope Tervo <roope.tervo@fmi.fi> - 18.6.14-1.fmi
 - Initial build
