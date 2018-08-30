@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
     }
 
 
-    int width = atoll(argv[1]);
-    int height = atoll(argv[2]);
+    int width = toInt64(argv[1]);
+    int height = toInt64(argv[2]);
     std::vector<T::Coordinate> polygonPoints;
     std::vector<T::Point> gridPoints;
 
@@ -33,8 +33,8 @@ int main(int argc, char *argv[])
       {
         *p = '\0';
         p++;
-        double x = atof(buf);
-        double y = atof(p);
+        double x = toDouble(buf);
+        double y = toDouble(p);
         polygonPoints.push_back(T::Coordinate(x,y));
         printf("Coordinate %f,%f\n",x,y);
       }

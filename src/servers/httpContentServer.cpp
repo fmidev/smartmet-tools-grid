@@ -6,6 +6,7 @@
 #include "grid-content/contentServer/memory/MemoryImplementation.h"
 #include "grid-files/common/ConfigurationFile.h"
 #include "grid-files/common/Log.h"
+#include "grid-files/common/GeneralFunctions.h"
 
 #include <microhttpd.h>
 #include <stdlib.h>
@@ -151,7 +152,7 @@ void getMainPage(SmartMet::T::ResponseMessage& response)
 {
   try
   {
-    FILE *file = fopen(mHelpFile.c_str(),"r");
+    FILE *file = fopen(mHelpFile.c_str(),"re");
     if (file != nullptr)
     {
       char st[10000];
@@ -468,7 +469,7 @@ int main(int argc,char ** argv)
     httpServer->init(contentSource);
 
 
-    struct MHD_Daemon *daemon = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY, atoi(mServerPort.c_str()), nullptr, nullptr,&processRequest, nullptr,
+    struct MHD_Daemon *daemon = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY, toInt64(mServerPort.c_str()), nullptr, nullptr,&processRequest, nullptr,
                                  MHD_OPTION_NOTIFY_COMPLETED, requestCompleted,nullptr, MHD_OPTION_END);
     if (daemon == nullptr)
       return 1;

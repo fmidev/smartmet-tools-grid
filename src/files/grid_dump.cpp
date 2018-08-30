@@ -144,12 +144,12 @@ int run(int argc, char **argv)
 
       unsigned long long commandEndTime = getTime();
 
-      printf("\nFile read time  : %f sec\n",(double)(readEndTime-readStartTime)/1000000);
-      printf("Processing time : %f sec\n",(double)(commandEndTime-readEndTime)/1000000);
+      printf("\nFile read time  : %f sec\n",C_DOUBLE(readEndTime-readStartTime)/1000000);
+      printf("Processing time : %f sec\n",C_DOUBLE(commandEndTime-readEndTime)/1000000);
     }
 
     unsigned long long endTime = getTime();
-    printf("Total time      : %f sec\n",(double)(endTime-startTime)/1000000);
+    printf("Total time      : %f sec\n",C_DOUBLE(endTime-startTime)/1000000);
 
     return 0;
   }

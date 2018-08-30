@@ -147,7 +147,7 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
         generationInfo.mDescription = "";
         if (analysisTimePtr != nullptr)
           generationInfo.mAnalysisTime = analysisTimePtr;
-        generationInfo.mStatus = T::GenerationStatus::STATUS_READY;
+        generationInfo.mStatus = T::GenerationInfo::Status::Ready;
         generationInfo.mFlags = 0;
         generationInfo.mSourceId = 0;
 
@@ -358,7 +358,7 @@ int run(int argc, char **argv)
       if (strcmp(argv[t],"-redis") == 0  &&  (t+3) < argc)
       {
         ContentServer::RedisImplementation *redis = new ContentServer::RedisImplementation();
-        redis->init(argv[t+1],atoi(argv[t+2]),argv[t+3]);
+        redis->init(argv[t+1],toInt64(argv[t+2]),argv[t+3]);
         service = redis;
       }
 

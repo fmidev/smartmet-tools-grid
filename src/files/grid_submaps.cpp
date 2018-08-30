@@ -128,7 +128,7 @@ void saveMessageSubmap(const char *imageFile,const GRID::Message *message,double
     double vstep = dd / 255;
     uint levelSize = 256/valueLevels;
 
-    uint size = (uint)(width*height);
+    uint size = (width*height);
     unsigned long *image = new unsigned long[size];
     memset(image,0xFF,size*sizeof(unsigned long));
 
@@ -150,7 +150,7 @@ void saveMessageSubmap(const char *imageFile,const GRID::Message *message,double
             lon -= 360;
 
           T::ParamValue val = message->getGridValueByLatLonCoordinate(lat,lon,interpolationMethod);
-          uint v = 255 - (uint)((val - minValue) / vstep / levelSize);
+          uint v = 255 - ((val - minValue) / vstep / levelSize);
           v = v * levelSize;
 
           if ((flags & IMGF_REVERSE) != 0)
@@ -283,11 +283,11 @@ int run(int argc, char **argv)
     }
 
     std::string imageDir = argv[1];
-    double lat = atof(argv[2]);
-    double lon = atof(argv[3]);
-    uint width = (uint)atoi(argv[4]);
-    uint height = (uint)atoi(argv[5]);
-    double step = atof(argv[6]);
+    double lat = toDouble(argv[2]);
+    double lon = toDouble(argv[3]);
+    uint width = toInt64(argv[4]);
+    uint height = toInt64(argv[5]);
+    double step = toDouble(argv[6]);
 
     T::ParamId parameterId;
     uint valueLevels = 256;
@@ -304,7 +304,7 @@ int run(int argc, char **argv)
       else
       if (strcmp(argv[t],"-l") == 0  &&  (t+1) < argc)
       {
-        valueLevels = (uint)atol(argv[t+1]);
+        valueLevels = atol(argv[t+1]);
         t++;
       }
       else
@@ -334,19 +334,19 @@ int run(int argc, char **argv)
       gridFile.read(file);
       unsigned long long readEndTime = getTime();
 
-      if (atoi(parameterId.c_str()) != 0)
+      if (toInt64(parameterId.c_str()) != 0)
         saveSubmapsByParameterId(fileIndex,gridFile,parameterId,lat,lon,width,height,step,imageDir.c_str(),valueLevels,flags);
       else
         saveAllSubmaps(fileIndex,gridFile,lat,lon,width,height,step,imageDir.c_str(),valueLevels,flags);
 
       unsigned long long commandEndTime = getTime();
 
-      printf("\nFile read time  : %f sec\n",(double)(readEndTime-readStartTime)/1000000);
-      printf("Processing time : %f sec\n",(double)(commandEndTime-readEndTime)/1000000);
+      printf("\nFile read time  : %f sec\n",C_DOUBLE(readEndTime-readStartTime)/1000000);
+      printf("Processing time : %f sec\n",C_DOUBLE(commandEndTime-readEndTime)/1000000);
     }
 
     unsigned long long endTime = getTime();
-    printf("Total time      : %f sec\n",(double)(endTime-startTime)/1000000);
+    printf("Total time      : %f sec\n",C_DOUBLE(endTime-startTime)/1000000);
 
     return 0;
   }

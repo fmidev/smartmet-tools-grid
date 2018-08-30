@@ -17,7 +17,7 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
     double maxValue = -1000000000;
     double minValue = 1000000000;
 
-    uint sz = (uint)values.size();
+    uint sz = values.size();
 
     if (sz != (columns * rows))
     {
@@ -57,7 +57,7 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
         for (int x=0; x<width; x++)
         {
           T::ParamValue val = values[c];
-          uint v = 255 - (uint)((val - minValue) / step);
+          uint v = 255 - ((val - minValue) / step);
           uint col = hsv_to_rgb(hue,saturation,(unsigned char)v);
           if (val == ParamValueMissing)
             col = 0xE8E8E8;
@@ -74,7 +74,7 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
         for (int x=0; x<width; x++)
         {
           T::ParamValue val = values[c];
-          uint v = 255 - (uint)((val - minValue) / step);
+          uint v = 255 - ((val - minValue) / step);
           uint col = hsv_to_rgb(hue,saturation,(unsigned char)v);
           if (val == ParamValueMissing)
             col = 0xE8E8E8;
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     }
 
     // ### Session:
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
 
 
     // ### Creating a dataServer client:
@@ -125,17 +125,17 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint fileId = (uint)atoll(argv[2]);
-    uint messageIndex = (uint)atoll(argv[3]);
-    uint flags = (uint)atoll(argv[4]);
-    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[5]);
-    uint columns = (uint)atoll(argv[6]);
-    uint rows = (uint)atoll(argv[7]);
-    double x = (double)atof(argv[8]);
-    double y = (double)atof(argv[9]);
-    double xStep = (double)atof(argv[10]);
-    double yStep = (double)atof(argv[11]);
-    short interpolationMethod = (short)atoll(argv[12]);
+    uint fileId = toInt64(argv[2]);
+    uint messageIndex = toInt64(argv[3]);
+    uint flags = toInt64(argv[4]);
+    T::CoordinateType coordinateType = toInt64(argv[5]);
+    uint columns = toInt64(argv[6]);
+    uint rows = toInt64(argv[7]);
+    double x = toDouble(argv[8]);
+    double y = toDouble(argv[9]);
+    double xStep = toDouble(argv[10]);
+    double yStep = toDouble(argv[11]);
+    short interpolationMethod = (short)toInt64(argv[12]);
     char *imageFile = argv[13];
     T::ParamValue_vec values;
 

@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 
 
     // ### Session:
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
 
 
     // ### Creating a dataServer client:

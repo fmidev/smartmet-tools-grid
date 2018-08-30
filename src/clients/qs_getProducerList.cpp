@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
     string_vec producerList;
     int result = 0;
     unsigned long long startTime = 0;

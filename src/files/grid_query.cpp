@@ -187,8 +187,8 @@ int run(int argc, char **argv)
     std::vector<std::string>files;
     std::vector<T::ParamId> parameterIdList;
 
-    double lat = atof(argv[1]);
-    double lon = atof(argv[2]);
+    double lat = toDouble(argv[1]);
+    double lon = toDouble(argv[2]);
 
 
     for (int t=3; t<argc;t++)
@@ -220,12 +220,12 @@ int run(int argc, char **argv)
 
       unsigned long long commandEndTime = getTime();
 
-      printf("\nFile read time  : %f sec\n",(double)(readEndTime-readStartTime)/1000000);
-      printf("Processing time : %f sec\n",(double)(commandEndTime-readEndTime)/1000000);
+      printf("\nFile read time  : %f sec\n",C_DOUBLE(readEndTime-readStartTime)/1000000);
+      printf("Processing time : %f sec\n",C_DOUBLE(commandEndTime-readEndTime)/1000000);
     }
 
     unsigned long long endTime = getTime();
-    printf("Total time      : %f sec\n",(double)(endTime-startTime)/1000000);
+    printf("Total time      : %f sec\n",C_DOUBLE(endTime-startTime)/1000000);
 
     return 0;
   }

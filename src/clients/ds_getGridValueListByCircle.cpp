@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 
 
     // ### Session:
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
 
 
     // ### Creating a dataServer client:
@@ -36,13 +36,13 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint fileId = (uint)atoll(argv[2]);
-    uint messageIndex = (uint)atoll(argv[3]);
-    uint flags = (uint)atoll(argv[4]);
-    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[5]);
-    double origoX = (double)atof(argv[6]);
-    double origoY = (double)atof(argv[7]);
-    double radius = (double)atof(argv[8]);
+    uint fileId = toInt64(argv[2]);
+    uint messageIndex = toInt64(argv[3]);
+    uint flags = toInt64(argv[4]);
+    T::CoordinateType coordinateType = toInt64(argv[5]);
+    double origoX = toDouble(argv[6]);
+    double origoY = toDouble(argv[7]);
+    double radius = toDouble(argv[8]);
     T::GridValueList valueList;
 
     unsigned long long startTime = getTime();

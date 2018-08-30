@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     }
 
     // ### Session:
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
 
 
     // ### Service:
@@ -36,10 +36,10 @@ int main(int argc, char *argv[])
 
     // ### Service parameters:
     T::FileInfo info;
-    info.mGroupFlags  = (uint)atoll(argv[2]);
-    info.mProducerId = (uint)atoll(argv[3]);
-    info.mGenerationId = (uint)atoll(argv[4]);
-    info.mFileType = (T::FileType)atoll(argv[5]);
+    info.mGroupFlags  = toInt64(argv[2]);
+    info.mProducerId = toInt64(argv[3]);
+    info.mGenerationId = toInt64(argv[4]);
+    info.mFileType = toInt64(argv[5]);
     info.mName = argv[6];
     info.mFlags = T::FileInfo::Flags::PredefinedContent;
 
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         cinfo->mGenerationId = info.mGenerationId;
         cinfo->mGroupFlags = info.mGroupFlags;
         cinfo->mProducerId = info.mProducerId;
-        cinfo->mMessageIndex = (uint)atoll(argv[t+1]);
+        cinfo->mMessageIndex = toInt64(argv[t+1]);
         cinfo->mForecastTime = argv[t+2];
         cinfo->mFmiParameterId = argv[t+3];
         cinfo->mGribParameterId = argv[t+4];

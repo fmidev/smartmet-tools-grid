@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 
 
     // ### Session:
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
 
 
     // ### Creating a dataServer client:
@@ -35,13 +35,13 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint fileId = (uint)atoll(argv[2]);
-    uint messageIndex = (uint)atoll(argv[3]);
-    uint flags = (uint)atoll(argv[4]);
-    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[5]);
-    double x = (double)atof(argv[6]);
-    double y = (double)atof(argv[7]);
-    short interpolationMethod = (short)atoll(argv[8]);
+    uint fileId = toInt64(argv[2]);
+    uint messageIndex = toInt64(argv[3]);
+    uint flags = toInt64(argv[4]);
+    T::CoordinateType coordinateType = toInt64(argv[5]);
+    double x = toDouble(argv[6]);
+    double y = toDouble(argv[7]);
+    short interpolationMethod = (short)toInt64(argv[8]);
     T::ParamValue value = 0;
 
     unsigned long long startTime = getTime();

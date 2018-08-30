@@ -51,60 +51,60 @@ int main(int argc, char *argv[])
     }
 
     // ### Session:
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
 
     // ### Service:
     ContentServer::Corba::ClientImplementation contentServer;
     contentServer.init(serviceIor);
 
     // ### Service parameters:
-    uint generationId = (uint)atoll(argv[2]);
+    uint generationId = toInt64(argv[2]);
 
-    T::ParamKeyType paramKeyType = T::ParamKeyType::FMI_ID;
+    T::ParamKeyType paramKeyType = T::ParamKeyTypeValue::FMI_ID;
     if (strcmp(argv[3],"fmi-id") == 0)
-      paramKeyType = T::ParamKeyType::FMI_ID;
+      paramKeyType = T::ParamKeyTypeValue::FMI_ID;
     else
     if (strcmp(argv[3],"fmi-name") == 0)
-      paramKeyType = T::ParamKeyType::FMI_NAME;
+      paramKeyType = T::ParamKeyTypeValue::FMI_NAME;
     else
     if (strcmp(argv[3],"grib-id") == 0)
-      paramKeyType = T::ParamKeyType::GRIB_ID;
+      paramKeyType = T::ParamKeyTypeValue::GRIB_ID;
     else
     if (strcmp(argv[3],"cdm-id") == 0)
-      paramKeyType = T::ParamKeyType::CDM_ID;
+      paramKeyType = T::ParamKeyTypeValue::CDM_ID;
     else
     if (strcmp(argv[3],"cdm-name") == 0)
-      paramKeyType = T::ParamKeyType::CDM_NAME;
+      paramKeyType = T::ParamKeyTypeValue::CDM_NAME;
     else
     if (strcmp(argv[3],"newbase-id") == 0)
-      paramKeyType = T::ParamKeyType::NEWBASE_ID;
+      paramKeyType = T::ParamKeyTypeValue::NEWBASE_ID;
     else
     if (strcmp(argv[3],"newbase-name") == 0)
-      paramKeyType = T::ParamKeyType::NEWBASE_NAME;
+      paramKeyType = T::ParamKeyTypeValue::NEWBASE_NAME;
 
     T::ParamId parameterKey = argv[4];
-    T::ParamLevelIdType parameterLevelIdType = T::ParamLevelIdType::ANY;
+    T::ParamLevelIdType parameterLevelIdType = T::ParamLevelIdTypeValue::ANY;
 
     if (strcmp(argv[5],"any") == 0)
-      parameterLevelIdType = T::ParamLevelIdType::ANY;
+      parameterLevelIdType = T::ParamLevelIdTypeValue::ANY;
     else
     if (strcmp(argv[5],"fmi") == 0)
-      parameterLevelIdType = T::ParamLevelIdType::FMI;
+      parameterLevelIdType = T::ParamLevelIdTypeValue::FMI;
     else
     if (strcmp(argv[5],"grib1") == 0)
-      parameterLevelIdType = T::ParamLevelIdType::GRIB1;
+      parameterLevelIdType = T::ParamLevelIdTypeValue::GRIB1;
     else
     if (strcmp(argv[5],"grib2") == 0)
-      parameterLevelIdType = T::ParamLevelIdType::GRIB2;
+      parameterLevelIdType = T::ParamLevelIdTypeValue::GRIB2;
     else
     if (strcmp(argv[5],"ignore") == 0)
-      parameterLevelIdType = T::ParamLevelIdType::IGNORE;
+      parameterLevelIdType = T::ParamLevelIdTypeValue::IGNORE;
 
-    T::ParamLevelId parameterLevelId = (T::ParamLevelId)atoll(argv[6]);
-    T::ParamLevel level = (T::ParamLevel)atoll(argv[7]);
-    T::ForecastType forecastType = (T::ForecastType)atoll(argv[8]);
-    T::ForecastNumber forecastNumber = (T::ForecastNumber)atoll(argv[9]);
-    T::GeometryId geometryId = (T::GeometryId)atoll(argv[10]);
+    T::ParamLevelId parameterLevelId = toInt64(argv[6]);
+    T::ParamLevel level = (T::ParamLevel)toInt64(argv[7]);
+    T::ForecastType forecastType = (T::ForecastType)toInt64(argv[8]);
+    T::ForecastNumber forecastNumber = (T::ForecastNumber)toInt64(argv[9]);
+    T::GeometryId geometryId = (T::GeometryId)toInt64(argv[10]);
     std::string forecastTime = argv[11];
     T::ContentInfoList infoList;
 

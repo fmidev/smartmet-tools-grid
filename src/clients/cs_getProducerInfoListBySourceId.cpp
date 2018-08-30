@@ -18,8 +18,8 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
-    uint sourceId = (uint)atol(argv[2]);
+    T::SessionId sessionId = toInt64(argv[1]);
+    uint sourceId = atol(argv[2]);
     T::ProducerInfoList infoList;
     int result = 0;
     unsigned long long startTime = 0;
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
     {
       ContentServer::RedisImplementation service;
-      service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+      service.init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
       result = service.getProducerInfoListBySourceId(sessionId,sourceId,infoList);
