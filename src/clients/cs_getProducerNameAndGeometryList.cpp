@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 
     init();
 
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
     std::set<std::string> infoList;
     int result = 0;
     unsigned long long startTime = 0;
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
     {
       ContentServer::RedisImplementation service;
-      service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+      service.init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
       result = service.getProducerNameAndGeometryList(sessionId,infoList);
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
       if (partList.size() >= 2)
       {
         double width = 0, height = 0;
-        if (Identification::gridDef.getGridCellAverageSizeByGeometryId((T::GeometryId)atoi(partList[1].c_str()),width,height))
+        if (Identification::gridDef.getGridCellAverageSizeByGeometryId((T::GeometryId)toInt64(partList[1].c_str()),width,height))
           printf("%s;%s;%.1fkm x %.1fkm;\n",partList[0].c_str(),partList[1].c_str(),width,height);
         else
           printf("%s;%s;;\n",partList[0].c_str(),partList[1].c_str());

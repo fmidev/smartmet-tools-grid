@@ -16,7 +16,7 @@ void writeProducers(T::SessionId sessionId,ContentServer::ServiceInterface *serv
 
     char filename[300];
     sprintf(filename,"%s/producers.csv",dir);
-    FILE *file = fopen(filename,"w");
+    FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create file!");
@@ -61,7 +61,7 @@ void writeGenerations(T::SessionId sessionId,ContentServer::ServiceInterface *se
 
     char filename[300];
     sprintf(filename,"%s/generations.csv",dir);
-    FILE *file = fopen(filename,"w");
+    FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create file!");
@@ -106,7 +106,7 @@ void writeFiles(T::SessionId sessionId,ContentServer::ServiceInterface *serviceI
 
     char filename[300];
     sprintf(filename,"%s/files.csv",dir);
-    FILE *file = fopen(filename,"w");
+    FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create file!");
@@ -158,7 +158,7 @@ void writeContent(T::SessionId sessionId,ContentServer::ServiceInterface *servic
 
     char filename[300];
     sprintf(filename,"%s/content.csv",dir);
-    FILE *file = fopen(filename,"w");
+    FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create file!");
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
     char *dir = argv[2];
 
     unsigned long long startTime = 0;
@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
     if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
     {
       ContentServer::RedisImplementation service;
-      service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+      service.init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
 

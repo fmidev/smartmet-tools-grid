@@ -23,9 +23,9 @@ void saveImage(const char *imageFile,T::GridData&  gridData)
     uint size = width*height;
     std::size_t sz = gridData.mValues.size();
 
-    if (sz != (uint)size)
+    if (sz != size)
     {
-      printf("ERROR: There are not enough values (= %u) for the grid (%u x %u)!\n",(uint)sz,width,height);
+      printf("ERROR: There are not enough values (= %lu) for the grid (%u x %u)!\n",sz,width,height);
       return;
     }
 
@@ -60,7 +60,7 @@ void saveImage(const char *imageFile,T::GridData&  gridData)
         for (int x=0; x<width; x++)
         {
           T::ParamValue val = gridData.mValues[c];
-          uint v = 255 - (uint)((val - minValue) / step);
+          uint v = 255 - ((val - minValue) / step);
           uint col = hsv_to_rgb(hue,saturation,(unsigned char)v);
           if (val == ParamValueMissing)
             col = 0xE8E8E8;
@@ -77,7 +77,7 @@ void saveImage(const char *imageFile,T::GridData&  gridData)
         for (int x=0; x<width; x++)
         {
           T::ParamValue val = gridData.mValues[c];
-          uint v = 255 - (uint)((val - minValue) / step);
+          uint v = 255 - ((val - minValue) / step);
           uint col = hsv_to_rgb(hue,saturation,(unsigned char)v);
           if (val == ParamValueMissing)
             col = 0xE8E8E8;
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 
 
     // ### Session:
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
 
 
     // ### Creating a dataServer client:
@@ -132,9 +132,9 @@ int main(int argc, char *argv[])
 
     // ### Calling the data server:
 
-    uint fileId = (uint)atoll(argv[2]);
-    uint messageIndex = (uint)atoll(argv[3]);
-    uint flags = (uint)atoll(argv[4]);
+    uint fileId = toInt64(argv[2]);
+    uint messageIndex = toInt64(argv[3]);
+    uint flags = toInt64(argv[4]);
     T::GridData gridData;
 
     unsigned long long startTime = getTime();

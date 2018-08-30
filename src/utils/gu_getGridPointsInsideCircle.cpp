@@ -19,11 +19,11 @@ int main(int argc, char *argv[])
     }
 
 
-    int width = atoll(argv[1]);
-    int height = atoll(argv[2]);
-    double origoX = atof(argv[3]);
-    double origoY = atof(argv[4]);
-    double radius = atof(argv[5]);
+    int width = toInt64(argv[1]);
+    int height = toInt64(argv[2]);
+    double origoX = toDouble(argv[3]);
+    double origoY = toDouble(argv[4]);
+    double radius = toDouble(argv[5]);
     std::vector<T::Point> gridPoints;
 
 

@@ -18,9 +18,9 @@ int main(int argc, char *argv[])
     }
 
     T::ServerInfo info;
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
     info.mName = argv[2];
-    info.mType = (uint)atoll(argv[3]);
+    info.mType = toInt64(argv[3]);
     info.mServerIor = argv[4];
 
     int result = 0;
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     if (strcmp(argv[argc-4],"-redis") == 0)
     {
       ContentServer::RedisImplementation service;
-      service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+      service.init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
       result = service.addDataServerInfo(sessionId,info);

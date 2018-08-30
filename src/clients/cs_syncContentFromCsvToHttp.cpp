@@ -16,11 +16,11 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
     char *sourceDir = argv[2];
     char *targetUrl = argv[3];
-    uint sourceId = (uint)atoll(argv[4]);
-    uint targetId = (uint)atoll(argv[5]);
+    uint sourceId = toInt64(argv[4]);
+    uint targetId = toInt64(argv[5]);
 
     ContentServer::HTTP::ClientImplementation target;
     target.init(targetUrl);

@@ -72,72 +72,72 @@ int main(int argc, char *argv[])
 
 
     // ### Session:
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
 
 
     // ### Service parameters:
-    T::ParamKeyType paramKeyType = T::ParamKeyType::FMI_ID;
+    T::ParamKeyType paramKeyType = T::ParamKeyTypeValue::FMI_ID;
     if (strcmp(argv[2],"fmi-id") == 0)
-      paramKeyType = T::ParamKeyType::FMI_ID;
+      paramKeyType = T::ParamKeyTypeValue::FMI_ID;
     else
     if (strcmp(argv[2],"fmi-name") == 0)
-      paramKeyType = T::ParamKeyType::FMI_NAME;
+      paramKeyType = T::ParamKeyTypeValue::FMI_NAME;
     else
     if (strcmp(argv[2],"grib-id") == 0)
-      paramKeyType = T::ParamKeyType::GRIB_ID;
+      paramKeyType = T::ParamKeyTypeValue::GRIB_ID;
     else
     if (strcmp(argv[2],"cdm-id") == 0)
-      paramKeyType = T::ParamKeyType::CDM_ID;
+      paramKeyType = T::ParamKeyTypeValue::CDM_ID;
     else
     if (strcmp(argv[2],"cdm-name") == 0)
-      paramKeyType = T::ParamKeyType::CDM_NAME;
+      paramKeyType = T::ParamKeyTypeValue::CDM_NAME;
     else
     if (strcmp(argv[2],"newbase-id") == 0)
-      paramKeyType = T::ParamKeyType::NEWBASE_ID;
+      paramKeyType = T::ParamKeyTypeValue::NEWBASE_ID;
     else
     if (strcmp(argv[2],"newbase-name") == 0)
-      paramKeyType = T::ParamKeyType::NEWBASE_NAME;
+      paramKeyType = T::ParamKeyTypeValue::NEWBASE_NAME;
 
     T::ParamId parameterKey = argv[3];
-    T::ParamLevelIdType parameterLevelIdType = T::ParamLevelIdType::ANY;
+    T::ParamLevelIdType parameterLevelIdType = T::ParamLevelIdTypeValue::ANY;
 
     if (strcmp(argv[4],"any") == 0)
-      parameterLevelIdType = T::ParamLevelIdType::ANY;
+      parameterLevelIdType = T::ParamLevelIdTypeValue::ANY;
     else
     if (strcmp(argv[4],"fmi") == 0)
-      parameterLevelIdType = T::ParamLevelIdType::FMI;
+      parameterLevelIdType = T::ParamLevelIdTypeValue::FMI;
     else
     if (strcmp(argv[4],"grib1") == 0)
-      parameterLevelIdType = T::ParamLevelIdType::GRIB1;
+      parameterLevelIdType = T::ParamLevelIdTypeValue::GRIB1;
     else
     if (strcmp(argv[4],"grib2") == 0)
-      parameterLevelIdType = T::ParamLevelIdType::GRIB2;
+      parameterLevelIdType = T::ParamLevelIdTypeValue::GRIB2;
     else
     if (strcmp(argv[4],"ignore") == 0)
-      parameterLevelIdType = T::ParamLevelIdType::IGNORE;
+      parameterLevelIdType = T::ParamLevelIdTypeValue::IGNORE;
 
-    T::ParamLevelId parameterLevelId = (T::ParamLevelId)atoll(argv[5]);
-    T::ParamLevel minLevel = (T::ParamLevel)atoll(argv[6]);
-    T::ParamLevel maxLevel = (T::ParamLevel)atoll(argv[7]);
-    T::ForecastType forecastType = (T::ForecastType)atoll(argv[8]);
-    T::ForecastNumber forecastNumber = (T::ForecastNumber)atoll(argv[9]);
-    T::GeometryId geometryId = (T::GeometryId)atoll(argv[10]);
+    T::ParamLevelId parameterLevelId = toInt64(argv[5]);
+    T::ParamLevel minLevel = (T::ParamLevel)toInt64(argv[6]);
+    T::ParamLevel maxLevel = (T::ParamLevel)toInt64(argv[7]);
+    T::ForecastType forecastType = (T::ForecastType)toInt64(argv[8]);
+    T::ForecastNumber forecastNumber = (T::ForecastNumber)toInt64(argv[9]);
+    T::GeometryId geometryId = (T::GeometryId)toInt64(argv[10]);
     std::string start = argv[11];
     std::string end = argv[12];
 
-    T::CoordinateType coordinateType = T::CoordinateType::LATLON_COORDINATES;
+    T::CoordinateType coordinateType = T::CoordinateTypeValue::LATLON_COORDINATES;
 
     if (strcmp(argv[13],"latlon") == 0)
-      coordinateType = T::CoordinateType::LATLON_COORDINATES;
+      coordinateType = T::CoordinateTypeValue::LATLON_COORDINATES;
     else
     if (strcmp(argv[13],"grid") == 0)
-      coordinateType = T::CoordinateType::GRID_COORDINATES;
+      coordinateType = T::CoordinateTypeValue::GRID_COORDINATES;
     else
     if (strcmp(argv[13],"original") == 0)
-      coordinateType = T::CoordinateType::ORIGINAL_COORDINATES;
+      coordinateType = T::CoordinateTypeValue::ORIGINAL_COORDINATES;
 
-    double x = atof(argv[14]);
-    double y = atof(argv[15]);
+    double x = toDouble(argv[14]);
+    double y = toDouble(argv[15]);
 
     short interpolationMethod = T::AreaInterpolationMethod::Linear;
 
@@ -175,9 +175,9 @@ int main(int argc, char *argv[])
     }
 
     uint len = contentInfoList.getLength();
-    if (len != (uint)valueList.getLength())
+    if (len != valueList.getLength())
     {
-      printf("ERROR: The length of the value list (%u) should be the same as the length of content list (%u)!\n",(uint)valueList.getLength(),len);
+      printf("ERROR: The length of the value list (%u) should be the same as the length of content list (%u)!\n",valueList.getLength(),len);
     }
 
     for (uint t=0; t<len; t++)

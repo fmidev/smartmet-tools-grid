@@ -155,8 +155,8 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
         else
           printf(" - Dimensions                    :\n");
 
-        printf(" - Grid rows                     : %u\n",(uint)msg->getGridOriginalRowCount());
-        printf(" - Grid columns                  : %u\n",(uint)msg->getGridOriginalColumnCount());
+        printf(" - Grid rows                     : %u\n",msg->getGridOriginalRowCount());
+        printf(" - Grid columns                  : %u\n",msg->getGridOriginalColumnCount());
         printf(" - Units                         : %s\n",paramDef->mParameterUnits.c_str());
         printf(" - Time range                    : %s - %s\n",startTime.c_str(),endTime.c_str());
         printf(" - Number of messages            : %llu\n",(unsigned long long)messages);
@@ -240,12 +240,12 @@ int run(int argc, char **argv)
 
       unsigned long long commandEndTime = getTime();
 
-      printf("\nFile read time  : %f sec\n",(double)(readEndTime-readStartTime)/1000000);
-      printf("Processing time : %f sec\n",(double)(commandEndTime-readEndTime)/1000000);
+      printf("\nFile read time  : %f sec\n",C_DOUBLE(readEndTime-readStartTime)/1000000);
+      printf("Processing time : %f sec\n",C_DOUBLE(commandEndTime-readEndTime)/1000000);
     }
 
     unsigned long long endTime = getTime();
-    printf("Total time      : %f sec\n",(double)(endTime-startTime)/1000000);
+    printf("Total time      : %f sec\n",C_DOUBLE(endTime-startTime)/1000000);
 
     return 0;
   }

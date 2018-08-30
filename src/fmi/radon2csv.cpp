@@ -41,7 +41,7 @@ void readProducerList(const char *filename)
 {
   try
   {
-    FILE *file = fopen(filename,"r");
+    FILE *file = fopen(filename,"re");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP, "Cannot open the producer list file!");
@@ -265,7 +265,7 @@ uint readGenerations(PGconn *conn,char *producerId,char *producerName)
               sourceId
              );
 
-      if (/*atoi(producerId) == 1  &&*/  strcmp(PQgetvalue(res, i, 1),prev) != 0)
+      if (/*toInt64(producerId) == 1  &&*/  strcmp(PQgetvalue(res, i, 1),prev) != 0)
       {
         uint fCount = readFiles(conn,producerId,globalGenerationId,PQgetvalue(res, i, 3), PQgetvalue(res, i, 4),PQgetvalue(res, i, 1));
         if (fCount > 0)
@@ -365,7 +365,7 @@ int main(int argc, char *argv[])
     Identification::gridDef.init(configFile);
 
     char *dir = argv[1];
-    sourceId = (uint)atoi(argv[2]);
+    sourceId = toInt64(argv[2]);
     char *producerListFile = argv[3];
     char *connectionString = argv[4];
 
@@ -376,7 +376,7 @@ int main(int argc, char *argv[])
     char filename[200];
 
     sprintf(filename,"%s/producers.csv",dir);
-    producerFile = fopen(filename,"w");
+    producerFile = fopen(filename,"we");
     if (producerFile == nullptr)
     {
       fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename);
@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
     }
 
     sprintf(filename,"%s/generations.csv",dir);
-    generationFile = fopen(filename,"w");
+    generationFile = fopen(filename,"we");
     if (generationFile == nullptr)
     {
       fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename);
@@ -392,7 +392,7 @@ int main(int argc, char *argv[])
     }
 
     sprintf(filename,"%s/files.csv",dir);
-    fileFile = fopen(filename,"w");
+    fileFile = fopen(filename,"we");
     if (fileFile == nullptr)
     {
       fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename);
@@ -400,7 +400,7 @@ int main(int argc, char *argv[])
     }
 
     sprintf(filename,"%s/content.csv",dir);
-    contentFile = fopen(filename,"w");
+    contentFile = fopen(filename,"we");
     if (contentFile == nullptr)
     {
       fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename);

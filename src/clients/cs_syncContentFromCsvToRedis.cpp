@@ -16,13 +16,13 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
     char *sourceDir = argv[2];
     char *redisAddress = argv[3];
-    uint redisPort = (uint)atoll(argv[4]);
+    uint redisPort = toInt64(argv[4]);
     char *tablePrefix = argv[5];
-    uint sourceId = (uint)atoll(argv[6]);
-    uint targetId = (uint)atoll(argv[7]);
+    uint sourceId = toInt64(argv[6]);
+    uint targetId = toInt64(argv[7]);
 
     ContentServer::RedisImplementation redis;
     redis.init(redisAddress,redisPort,tablePrefix);

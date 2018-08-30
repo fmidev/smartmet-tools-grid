@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 
 
     // ### Session:
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
 
 
     // ### Creating a dataServer client:
@@ -35,11 +35,11 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint startFileId = (uint)atoll(argv[2]);
-    uint endFileId = (uint)atoll(argv[3]);
-    uint messageIndex = (uint)atoll(argv[4]);
-    double lon = (double)atof(argv[5]);
-    double lat = (double)atof(argv[6]);
+    uint startFileId = toInt64(argv[2]);
+    uint endFileId = toInt64(argv[3]);
+    uint messageIndex = toInt64(argv[4]);
+    double lon = toDouble(argv[5]);
+    double lat = toDouble(argv[6]);
     T::ValueRecordList valueRecordList;
 
     for (uint t=startFileId;t<=endFileId;t++)
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
       T::ValueRecord *rec = new T::ValueRecord();
       rec->mFileId = t;
       rec->mMessageIndex = messageIndex;
-      rec->mCoordinateType = T::CoordinateType::LATLON_COORDINATES;
+      rec->mCoordinateType = T::CoordinateTypeValue::LATLON_COORDINATES;
       rec->mAreaInterpolationMethod = T::AreaInterpolationMethod::Linear;
       rec->mX = lon;
       rec->mY = lat;

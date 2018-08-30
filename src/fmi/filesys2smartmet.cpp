@@ -244,7 +244,7 @@ void readPreloadList(const char *filename)
 {
   try
   {
-    FILE *file = fopen(filename,"r");
+    FILE *file = fopen(filename,"re");
     if (file == nullptr)
     {
       PRINT_DATA(mDebugLogPtr,"Preload file not available.");
@@ -439,7 +439,7 @@ void readSourceGenerations(std::vector<std::pair<std::string,std::string>>& file
                 sprintf(st,"Producer %s generation %s",producer->mName.c_str(),generationTime.c_str());
                 generation->mDescription = st;
                 generation->mAnalysisTime = generationTime;
-                generation->mStatus = T::GenerationStatus::STATUS_READY;
+                generation->mStatus = T::GenerationInfo::Status::Ready;
                 generation->mFlags = 0;
                 generation->mSourceId = mSourceId;
                 mSourceGenerationList.addGenerationInfo(generation);
@@ -516,7 +516,7 @@ void readSourceContent(uint producerId,uint generationId,const char *filename,T:
     SmartMet::GRID::PhysicalGridFile gridFile;
     gridFile.read(filename);
 
-    uint messageCount = (uint)gridFile.getNumberOfMessages();
+    uint messageCount = gridFile.getNumberOfMessages();
     for (uint t=0; t<messageCount; t++)
     {
       SmartMet::GRID::Message *message = gridFile.getMessageByIndex(t);
@@ -535,7 +535,7 @@ void readSourceContent(uint producerId,uint generationId,const char *filename,T:
         sprintf(st,"%s;%s;%d;%d;%05d;%d;%d;1;",
             producer->mName.c_str(),
             contentInfo->mFmiParameterName.c_str(),
-            (int)T::ParamLevelIdType::FMI,
+            (int)T::ParamLevelIdTypeValue::FMI,
             (int)contentInfo->mFmiParameterLevelId,
             (int)contentInfo->mParameterLevel,
             (int)contentInfo->mForecastType,
@@ -566,7 +566,7 @@ void readSourceProducers()
   {
     mSourceProducerList.clear();
 
-    FILE *file = fopen(mProducerDefFile.c_str(),"r");
+    FILE *file = fopen(mProducerDefFile.c_str(),"re");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot open file!");
@@ -900,7 +900,7 @@ int main(int argc, char *argv[])
 
     ContentServer::ServiceInterface *targetInterface = nullptr;
 
-    uint waitTime = atoi(argv[2]);
+    uint waitTime = toInt64(argv[2]);
 
     if (mStorageType =="redis")
     {

@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
     }
 
 
-    double xAddition = atof(argv[1]);
-    double yAddition = atof(argv[2]);
+    double xAddition = toDouble(argv[1]);
+    double yAddition = toDouble(argv[2]);
     std::vector<T::Coordinate> polygonPoints;
 
     char buf[100];
@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
       {
         *p = '\0';
         p++;
-        double x = atof(buf);
-        double y = atof(p);
+        double x = toDouble(buf);
+        double y = toDouble(p);
         polygonPoints.push_back(T::Coordinate(x,y));
         printf("Coordinate %f,%f\n",x,y);
       }

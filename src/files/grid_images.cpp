@@ -122,8 +122,8 @@ void saveMessageImage(const char *imageFile,const GRID::Message *message,T::Para
       {
         for (int x=0; x<width; x++)
         {
-          T::ParamValue val = message->getGridValueByGridPoint((double)x/scaleFactor,(double)y/scaleFactor,interpolationMethod);
-          uint v = 255 - (uint)((val - minValue) / step / levelSize);
+          T::ParamValue val = message->getGridValueByGridPoint(C_DOUBLE(x)/scaleFactor,C_DOUBLE(y)/scaleFactor,interpolationMethod);
+          uint v = 255 - ((val - minValue) / step / levelSize);
           v = v * levelSize;
           if ((flags & IMGF_REVERSE) != 0)
             v = 255-v;
@@ -142,8 +142,8 @@ void saveMessageImage(const char *imageFile,const GRID::Message *message,T::Para
       {
         for (int x=0; x<width; x++)
         {
-          T::ParamValue val = message->getGridValueByGridPoint((double)x/scaleFactor,(double)y/scaleFactor,interpolationMethod);
-          uint v = 255 - (uint)((val - minValue) / step / levelSize);
+          T::ParamValue val = message->getGridValueByGridPoint(C_DOUBLE(x)/scaleFactor,C_DOUBLE(y)/scaleFactor,interpolationMethod);
+          uint v = 255 - ((val - minValue) / step / levelSize);
           v = v * levelSize;
           if ((flags & IMGF_REVERSE) != 0)
             v = 255-v;
@@ -226,7 +226,7 @@ void saveAllImages(uint fileIndex,SmartMet::GRID::GridFile& gridFile,const char 
       message->getGridMinAndMaxValues(minValue,maxValue);
 
       char imageFile[300];
-      sprintf(imageFile,"%s/image-%04u-%04u-%09u-%s.jpg",imageDir,fileIndex,(uint)m,level,toString(message->getForecastTime()).c_str());
+      sprintf(imageFile,"%s/image-%04u-%04lu-%09u-%s.jpg",imageDir,fileIndex,m,level,toString(message->getForecastTime()).c_str());
       saveMessageImage(imageFile,message,minValue,maxValue,interpolationMethod,scaleFactor,valueLevels,flags);
     }
   }
@@ -294,13 +294,13 @@ int run(int argc, char **argv)
       else
       if (strcmp(argv[t],"-s") == 0  &&  (t+1) < argc)
       {
-        scaleFactor = (double)atof(argv[t+1]);
+        scaleFactor = toDouble(argv[t+1]);
         t++;
       }
       else
       if (strcmp(argv[t],"-l") == 0  &&  (t+1) < argc)
       {
-        valueLevels = (uint)atol(argv[t+1]);
+        valueLevels = atol(argv[t+1]);
         t++;
       }
       else
@@ -333,19 +333,19 @@ int run(int argc, char **argv)
       gridFile.read(file);
       unsigned long long readEndTime = getTime();
 
-      if (atoi(parameterId.c_str()) != 0)
+      if (toInt64(parameterId.c_str()) != 0)
         saveImagesByParameterId(fileIndex,gridFile,parameterId,imageDir.c_str(),scaleFactor,valueLevels,flags);
       else
         saveAllImages(fileIndex,gridFile,imageDir.c_str(),scaleFactor,valueLevels,flags);
 
       unsigned long long commandEndTime = getTime();
 
-      printf("\nFile read time  : %f sec\n",(double)(readEndTime-readStartTime)/1000000);
-      printf("Processing time : %f sec\n",(double)(commandEndTime-readEndTime)/1000000);
+      printf("\nFile read time  : %f sec\n",C_DOUBLE(readEndTime-readStartTime)/1000000);
+      printf("Processing time : %f sec\n",C_DOUBLE(commandEndTime-readEndTime)/1000000);
     }
 
     unsigned long long endTime = getTime();
-    printf("Total time      : %f sec\n",(double)(endTime-startTime)/1000000);
+    printf("Total time      : %f sec\n",C_DOUBLE(endTime-startTime)/1000000);
 
     return 0;
   }

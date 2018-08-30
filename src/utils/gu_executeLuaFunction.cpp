@@ -19,13 +19,13 @@ int main(int argc, char *argv[])
     }
 
     char *filename = argv[1];
-    int functionType = atoi(argv[2]);
+    int functionType = toInt64(argv[2]);
     std::string function = argv[3];
 
     std::vector<double> inParams;
 
     for (int t=4;t<argc;t++)
-      inParams.push_back(atof(argv[t]));
+      inParams.push_back(toDouble(argv[t]));
 
     //for (int t=0; t<100000; t++)
 //      inParams.push_back((double)t);

@@ -33,7 +33,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     char filename[300];
     sprintf(filename,"%s/fmi_geometries.csv",dir);
 
-    FILE *file = fopen(filename,"w");
+    FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
@@ -54,7 +54,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     char *p = sql;
 
     p += sprintf(p,"SELECT\n");
-    p += sprintf(p,"  %u,\n",(uint)T::GridProjection::LatLon);
+    p += sprintf(p,"  %u,\n",T::GridProjectionValue::LatLon);
     p += sprintf(p,"  id,\n");
     p += sprintf(p,"  name,\n");
     p += sprintf(p,"  ni,\n");
@@ -94,7 +94,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     p = sql;
 
     p += sprintf(p,"SELECT\n");
-    p += sprintf(p,"  %u,\n",(uint)T::GridProjection::RotatedLatLon);
+    p += sprintf(p,"  %u,\n",T::GridProjectionValue::RotatedLatLon);
     p += sprintf(p,"  id,\n");
     p += sprintf(p,"  name,\n");
     p += sprintf(p,"  ni,\n");
@@ -138,7 +138,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     p = sql;
 
     p += sprintf(p,"SELECT\n");
-    p += sprintf(p,"  %u,\n",(uint)T::GridProjection::LambertConformal);
+    p += sprintf(p,"  %u,\n",T::GridProjectionValue::LambertConformal);
     p += sprintf(p,"  id,\n");
     p += sprintf(p,"  name,\n");
     p += sprintf(p,"  ni,\n");
@@ -184,7 +184,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     p = sql;
 
     p += sprintf(p,"SELECT\n");
-    p += sprintf(p,"  %u,\n",(uint)T::GridProjection::Gaussian);
+    p += sprintf(p,"  %u,\n",T::GridProjectionValue::Gaussian);
     p += sprintf(p,"  id,\n");
     p += sprintf(p,"  name,\n");
     p += sprintf(p,"  nj,\n");
@@ -224,7 +224,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     p = sql;
 
     p += sprintf(p,"SELECT\n");
-    p += sprintf(p,"  %u,\n",(uint)T::GridProjection::PolarStereographic);
+    p += sprintf(p,"  %u,\n",T::GridProjectionValue::PolarStereographic);
     p += sprintf(p,"  id,\n");
     p += sprintf(p,"  name,\n");
     p += sprintf(p,"  ni,\n");
@@ -280,7 +280,7 @@ void create_fmi_levelId_grib2(PGconn *conn,const char *dir)
     char filename[300];
     sprintf(filename,"%s/fmi_levelId_grib2.csv",dir);
 
-    FILE *file = fopen(filename,"w");
+    FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
@@ -354,7 +354,7 @@ void create_fmi_levels(PGconn *conn,const char *dir)
     char filename[300];
     sprintf(filename,"%s/fmi_levels.csv",dir);
 
-    FILE *file = fopen(filename,"w");
+    FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
@@ -423,7 +423,7 @@ void create_fmi_levelId_grib1(PGconn *conn,const char *dir)
     char filename[300];
     sprintf(filename,"%s/fmi_levelId_grib1.csv",dir);
 
-    FILE *file = fopen(filename,"w");
+    FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
@@ -497,7 +497,7 @@ void create_fmi_parameterId_grib2(PGconn *conn,const char *dir)
     char filename[300];
     sprintf(filename,"%s/fmi_parameterId_grib2.csv",dir);
 
-    FILE *file = fopen(filename,"w");
+    FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
@@ -580,7 +580,7 @@ void create_fmi_parameterId_grib1(PGconn *conn,const char *dir)
     char filename[300];
     sprintf(filename,"%s/fmi_parameterId_grib1.csv",dir);
 
-    FILE *file = fopen(filename,"w");
+    FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
@@ -664,7 +664,7 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
     char filename[300];
     sprintf(filename,"%s/fmi_parameterId_newbase.csv",dir);
 
-    FILE *file = fopen(filename,"w");
+    FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
@@ -713,8 +713,8 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
     for (int i = 0; i < rowCount; i++)
     {
       std::string newbaseId = PQgetvalue(res,i,3);
-      double base = atof(PQgetvalue(res,i,4));
-      double scale = atof(PQgetvalue(res,i,5));
+      double base = toDouble(PQgetvalue(res,i,4));
+      double scale = toDouble(PQgetvalue(res,i,5));
       std::string unit = PQgetvalue(res,i,6);
 
 
@@ -777,7 +777,7 @@ void create_fmi_parameters(PGconn *conn,const char *dir)
     char filename[300];
     sprintf(filename,"%s/fmi_parameters.csv",dir);
 
-    FILE *file = fopen(filename,"w");
+    FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
@@ -856,7 +856,7 @@ void create_fmi_producerId_grib(PGconn *conn,const char *dir)
     char filename[300];
     sprintf(filename,"%s/fmi_producerId_grib.csv",dir);
 
-    FILE *file = fopen(filename,"w");
+    FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");

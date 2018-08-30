@@ -20,9 +20,9 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
-    T::ParamKeyType sourceParameterKeyType = (T::ParamKeyType)atoll(argv[2]);
-    T::ParamKeyType targetParameterKeyType = (T::ParamKeyType)atoll(argv[3]);
+    T::SessionId sessionId = toInt64(argv[1]);
+    T::ParamKeyType sourceParameterKeyType = toInt64(argv[2]);
+    T::ParamKeyType targetParameterKeyType = toInt64(argv[3]);
 
     std::set<std::string> infoList;
     int result = 0;
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
     {
       ContentServer::RedisImplementation service;
-      service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+      service.init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
       result = service.getProducerParameterList(sessionId,sourceParameterKeyType,targetParameterKeyType,infoList);
@@ -99,13 +99,13 @@ int main(int argc, char *argv[])
         Identification::FmiParameterDef paramDef;
 
         bool found = false;
-        if (targetParameterKeyType == T::ParamKeyType::FMI_NAME)
+        if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_NAME)
           found = Identification::gridDef.getFmiParameterDefByName(partList[3],paramDef);
         else
-        if (targetParameterKeyType == T::ParamKeyType::FMI_ID)
+        if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_ID)
           found = Identification::gridDef.getFmiParameterDefById(partList[3],paramDef);
         else
-        if (targetParameterKeyType == T::ParamKeyType::NEWBASE_ID)
+        if (targetParameterKeyType == T::ParamKeyTypeValue::NEWBASE_ID)
           found = Identification::gridDef.getFmiParameterDefByNewbaseId(partList[3],paramDef);
 
         if (found)
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 
           std::cout << "D;";
 
-          if (sourceParameterKeyType == T::ParamKeyType::NEWBASE_ID || sourceParameterKeyType == T::ParamKeyType::NEWBASE_NAME)
+          if (sourceParameterKeyType == T::ParamKeyTypeValue::NEWBASE_ID || sourceParameterKeyType == T::ParamKeyTypeValue::NEWBASE_NAME)
           {
             Identification::FmiParameterId_newbase paramMapping;
             if (Identification::gridDef.getNewbaseParameterMappingByFmiId(paramDef.mFmiParameterId,paramMapping))

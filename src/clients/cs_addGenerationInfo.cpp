@@ -18,15 +18,15 @@ int main(int argc, char *argv[])
     }
 
     T::GenerationInfo info;
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
-    info.mProducerId = (uint)atoll(argv[2]);
-    info.mGenerationType = (uint)atoll(argv[3]);
-    info.mSourceId = (uint)atoll(argv[4]);
-    info.mFlags = (uint)atoll(argv[5]);
+    T::SessionId sessionId = toInt64(argv[1]);
+    info.mProducerId = toInt64(argv[2]);
+    info.mGenerationType = toInt64(argv[3]);
+    info.mSourceId = toInt64(argv[4]);
+    info.mFlags = toInt64(argv[5]);
     info.mName = argv[6];
     info.mDescription = argv[7];
     info.mAnalysisTime = argv[8];
-    info.mStatus = (T::GenerationStatus)atoll(argv[9]);
+    info.mStatus = (uchar)toInt64(argv[9]);
 
     int result = 0;
     unsigned long long startTime = 0;
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     if (strcmp(argv[argc-4],"-redis") == 0)
     {
       ContentServer::RedisImplementation service;
-      service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+      service.init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
       result = service.addGenerationInfo(sessionId,info);

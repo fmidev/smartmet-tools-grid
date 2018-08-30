@@ -94,7 +94,7 @@ pthread_t           mThread;
 std::string         mParameterMappingUpdateFile_fmi;
 std::string         mParameterMappingUpdateFile_newbase;
 time_t              mParameterMappingUpdateTime = 0;
-T::ParamKeyType     mMappingTargetKeyType = T::ParamKeyType::FMI_NAME;
+T::ParamKeyType     mMappingTargetKeyType = T::ParamKeyTypeValue::FMI_NAME;
 
 QueryServer::AliasFile mProducerAliases;
 
@@ -132,7 +132,7 @@ FILE* openMappingFile(std::string mappingFile)
 {
   try
   {
-    FILE *file = fopen(mappingFile.c_str(),"w");
+    FILE *file = fopen(mappingFile.c_str(),"we");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP, "Cannot open a mapping file for writing!");
@@ -257,11 +257,11 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
         QueryServer::ParameterMapping m;
         m.mProducerName = pl[0];
         m.mParameterName = pl[1];
-        m.mParameterKeyType = (T::ParamKeyType)atoi(pl[2].c_str());
+        m.mParameterKeyType = toInt64(pl[2].c_str());
         m.mParameterKey = pl[3];
-        m.mParameterLevelIdType = (T::ParamLevelIdType)atoi(pl[4].c_str());
-        m.mParameterLevelId = atoi(pl[5].c_str());
-        m.mParameterLevel = atoi(pl[6].c_str());
+        m.mParameterLevelIdType = toInt64(pl[4].c_str());
+        m.mParameterLevelId = toInt64(pl[5].c_str());
+        m.mParameterLevel = toInt64(pl[6].c_str());
 
         char key[200];
         sprintf(key,"%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str());
@@ -322,13 +322,13 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
             Identification::FmiParameterDef paramDef;
 
             bool found = false;
-            if (targetParameterKeyType == T::ParamKeyType::FMI_NAME)
+            if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_NAME)
               found = Identification::gridDef.getFmiParameterDefByName(pl[3],paramDef);
             else
-            if (targetParameterKeyType == T::ParamKeyType::FMI_ID)
+            if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_ID)
               found = Identification::gridDef.getFmiParameterDefById(pl[3],paramDef);
             else
-            if (targetParameterKeyType == T::ParamKeyType::NEWBASE_ID)
+            if (targetParameterKeyType == T::ParamKeyTypeValue::NEWBASE_ID)
               found = Identification::gridDef.getFmiParameterDefByNewbaseId(pl[3],paramDef);
 
             if (found)
@@ -350,7 +350,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
 
               fprintf(file,"0;%c;",s);
 
-              if (sourceParameterKeyType == T::ParamKeyType::NEWBASE_ID || sourceParameterKeyType == T::ParamKeyType::NEWBASE_NAME)
+              if (sourceParameterKeyType == T::ParamKeyTypeValue::NEWBASE_ID || sourceParameterKeyType == T::ParamKeyTypeValue::NEWBASE_NAME)
               {
                 Identification::FmiParameterId_newbase paramMapping;
                 if (Identification::gridDef.getNewbaseParameterMappingByFmiId(paramDef.mFmiParameterId,paramMapping))
@@ -407,7 +407,7 @@ void updateMappings()
 
       if (!mParameterMappingUpdateFile_fmi.empty())
       {
-        updateMappings(T::ParamKeyType::FMI_NAME,mMappingTargetKeyType,mParameterMappingUpdateFile_fmi,parameterMappings);
+        updateMappings(T::ParamKeyTypeValue::FMI_NAME,mMappingTargetKeyType,mParameterMappingUpdateFile_fmi,parameterMappings);
       }
 
       if (mShutdownRequested)
@@ -415,7 +415,7 @@ void updateMappings()
 
       if (!mParameterMappingUpdateFile_newbase.empty())
       {
-        updateMappings(T::ParamKeyType::NEWBASE_NAME,mMappingTargetKeyType,mParameterMappingUpdateFile_newbase,parameterMappings);
+        updateMappings(T::ParamKeyTypeValue::NEWBASE_NAME,mMappingTargetKeyType,mParameterMappingUpdateFile_newbase,parameterMappings);
       }
     }
   }
@@ -594,7 +594,7 @@ void readConfigFile(const char* configFile)
 
     int tmp = 0;
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingTargetKeyType",tmp);
-    mMappingTargetKeyType = (T::ParamKeyType)tmp;
+    mMappingTargetKeyType = tmp;
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.fmi",mParameterMappingUpdateFile_fmi);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.newbase",mParameterMappingUpdateFile_newbase);
@@ -706,7 +706,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-      FILE *file = fopen(mServerIorFile.c_str(),"w");
+      FILE *file = fopen(mServerIorFile.c_str(),"we");
       if (file == nullptr)
       {
         SmartMet::Spine::Exception exception(BCP,"Cannot create file for IOR!");

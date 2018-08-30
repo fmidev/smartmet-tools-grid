@@ -17,11 +17,11 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
     char *sourceIor = argv[2];
     char *targetIor = argv[3];
-    uint sourceId = (uint)atoll(argv[4]);
-    uint targetId = (uint)atoll(argv[5]);
+    uint sourceId = toInt64(argv[4]);
+    uint targetId = toInt64(argv[5]);
 
     ContentServer::Corba::ClientImplementation source;
     source.init(sourceIor);

@@ -17,9 +17,9 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
     std::string generationName = argv[2];
-    T::GenerationStatus status = (T::GenerationStatus)atoll(argv[3]);
+    uchar status = (uchar)toInt64(argv[3]);
 
     int result = 0;
     unsigned long long startTime = 0;
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
     {
       ContentServer::RedisImplementation service;
-      service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+      service.init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
       result = service.setGenerationInfoStatusByName(sessionId,generationName,status);

@@ -20,10 +20,10 @@ int main(int argc, char *argv[])
     }
 
 
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
     char *sourceDir = argv[2];
-    uint sourceId = (uint)atoll(argv[3]);
-    uint targetId = (uint)atoll(argv[4]);
+    uint sourceId = toInt64(argv[3]);
+    uint targetId = toInt64(argv[4]);
 
     ContentServer::ServiceInterface *service = nullptr;
     ContentServer::HTTP::ClientImplementation httpClient;
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     else
     if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
     {
-      redisClient.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+      redisClient.init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
       service = &redisClient;
     }
     else

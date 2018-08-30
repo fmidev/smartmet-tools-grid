@@ -17,11 +17,11 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
     T::ProducerInfo info;
-    info.mProducerId = atoi(argv[2]);
-    info.mSourceId = atoi(argv[3]);
-    info.mFlags = atoi(argv[4]);
+    info.mProducerId = toInt64(argv[2]);
+    info.mSourceId = toInt64(argv[3]);
+    info.mFlags = toInt64(argv[4]);
     info.mName = argv[5];
     info.mTitle = argv[6];
     info.mDescription = argv[7];
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     if (strcmp(argv[argc-4],"-redis") == 0)
     {
       ContentServer::RedisImplementation service;
-      service.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+      service.init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
 
       startTime = getTime();
       result = service.addProducerInfo(sessionId,info);

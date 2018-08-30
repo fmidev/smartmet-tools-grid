@@ -1,5 +1,6 @@
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/CoordinateConversions.h"
+#include "grid-files/common/GeneralFunctions.h"
 
 
 using namespace SmartMet;
@@ -16,10 +17,10 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    double lat1 = atof(argv[1]);
-    double lon1 = atof(argv[2]);
-    double lat2 = atof(argv[3]);
-    double lon2 = atof(argv[4]);
+    double lat1 = toDouble(argv[1]);
+    double lon1 = toDouble(argv[2]);
+    double lat2 = toDouble(argv[3]);
+    double lon2 = toDouble(argv[4]);
 
     double dist = latlon_distance(lat1,lon1,lat2,lon2);
     printf("\nDistance : %f\n",dist);

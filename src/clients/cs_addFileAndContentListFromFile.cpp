@@ -17,11 +17,11 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
     char* filename = argv[2];
 
 
-    FILE *file = fopen(filename,"r");
+    FILE *file = fopen(filename,"re");
     if (file == nullptr)
     {
       fprintf(stdout,"Cannot open file (%s) for reading!\n",filename);
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
     {
       ContentServer::RedisImplementation *redis = new ContentServer::RedisImplementation();
-      redis->init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+      redis->init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
       service = redis;
     }
     else
@@ -99,12 +99,12 @@ int main(int argc, char *argv[])
         {
           T::FileInfo fileInfo;
           fileInfo.mFileId = 0;
-          fileInfo.mFileType = (T::FileType)atoll(field[0]);
-          fileInfo.mGroupFlags = (uint)atoll(field[1]);
-          fileInfo.mProducerId = (uint)atoll(field[2]);
-          fileInfo.mGenerationId = (uint)atoll(field[3]);
+          fileInfo.mFileType = toInt64(field[0]);
+          fileInfo.mGroupFlags = toInt64(field[1]);
+          fileInfo.mProducerId = toInt64(field[2]);
+          fileInfo.mGenerationId = toInt64(field[3]);
           fileInfo.mName = field[4];
-          fileInfo.mFlags = (uint)atoll(field[5]);
+          fileInfo.mFlags = toInt64(field[5]);
 
           T::ContentInfo *contentInfo = new T::ContentInfo();
           contentInfo->mFileId = 0;
@@ -112,18 +112,18 @@ int main(int argc, char *argv[])
           contentInfo->mGroupFlags = fileInfo.mGroupFlags;
           contentInfo->mProducerId = fileInfo.mProducerId;
           contentInfo->mGenerationId = fileInfo.mGenerationId;
-          contentInfo->mMessageIndex = (uint)atoll(field[6]);
+          contentInfo->mMessageIndex = toInt64(field[6]);
           contentInfo->mForecastTime = field[7];
           contentInfo->mFmiParameterId = field[8];
           contentInfo->mFmiParameterName = field[9];
           contentInfo->mGribParameterId = field[10];
-          contentInfo->mFmiParameterLevelId = (T::ParamLevelId)atoll(field[11]);
-          contentInfo->mGrib1ParameterLevelId = (T::ParamLevelId)atoll(field[12]);
-          contentInfo->mGrib2ParameterLevelId = (T::ParamLevelId)atoll(field[13]);
-          contentInfo->mParameterLevel = (T::ParamLevel)atoll(field[14]);
+          contentInfo->mFmiParameterLevelId = toInt64(field[11]);
+          contentInfo->mGrib1ParameterLevelId = toInt64(field[12]);
+          contentInfo->mGrib2ParameterLevelId = toInt64(field[13]);
+          contentInfo->mParameterLevel = (T::ParamLevel)toInt64(field[14]);
           contentInfo->mFmiParameterUnits = field[15];
           contentInfo->mGribParameterUnits = field[16];
-          contentInfo->mFlags = (uint)atoll(field[17]);
+          contentInfo->mFlags = toInt64(field[17]);
 
 
           if (prevFileInfo.mName != fileInfo.mName)

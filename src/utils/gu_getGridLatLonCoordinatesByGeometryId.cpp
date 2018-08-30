@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 
     Identification::gridDef.init(configFile);
 
-    uint geometryId = atoll(argv[1]);
+    uint geometryId = toInt64(argv[1]);
     T::Coordinate_vec coordinates;
 
     unsigned long long startTime = getTime();

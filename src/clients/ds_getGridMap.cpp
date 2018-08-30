@@ -16,7 +16,7 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
     double maxValue = -1000000000;
     double minValue = 1000000000;
 
-    uint sz = (uint)values.size();
+    uint sz = values.size();
 
     if (sz != (columns * rows))
     {
@@ -58,7 +58,7 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
       {
         T::ParamValue val = values[c];
         //printf("Val(%u,%u) : %f\n",x,y,val);
-        uint v = 255 - (uint)((val - minValue) / step);
+        uint v = 255 - ((val - minValue) / step);
         uint col = hsv_to_rgb(hue,saturation,(unsigned char)v);
         if (val == ParamValueMissing)
           col = 0xE8E8E8;
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     }
 
     // ### Session:
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
 
 
     // ### Creating a dataServer client:
@@ -111,15 +111,15 @@ int main(int argc, char *argv[])
 
     // ### Calling the data server:
 
-    uint fileId = (uint)atoll(argv[2]);
-    uint messageIndex = (uint)atoll(argv[3]);
-    uint flags = (uint)atoll(argv[4]);
+    uint fileId = toInt64(argv[2]);
+    uint messageIndex = toInt64(argv[3]);
+    uint flags = toInt64(argv[4]);
     uint columns = 1800;
     uint rows = 900;
     T::ParamValue_vec values;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,flags,T::CoordinateType::LATLON_COORDINATES,columns,rows,-180,90,360/(double)columns,-180/(double)rows,T::AreaInterpolationMethod::Nearest,values);
+    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,flags,T::CoordinateTypeValue::LATLON_COORDINATES,columns,rows,-180,90,360/C_DOUBLE(columns),-180/C_DOUBLE(rows),T::AreaInterpolationMethod::Nearest,values);
     unsigned long long endTime = getTime();
 
     if (result != 0)

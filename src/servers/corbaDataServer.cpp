@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-      FILE *file = fopen(mServerIorFile.c_str(),"w");
+      FILE *file = fopen(mServerIorFile.c_str(),"we");
       if (file == nullptr)
       {
         SmartMet::Spine::Exception exception(BCP,"Cannot create file for IOR!");

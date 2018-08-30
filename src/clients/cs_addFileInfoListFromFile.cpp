@@ -20,17 +20,17 @@ int main(int argc, char *argv[])
 
 
     T::FileInfo info;
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
-    info.mGroupFlags  = (uint)atoll(argv[2]);
-    info.mProducerId = (uint)atoll(argv[3]);
-    info.mGenerationId = (uint)atoll(argv[4]);
-    info.mFileType = (T::FileType)atoll(argv[5]);
-    info.mSourceId = (uint)atoll(argv[6]);
-    info.mFlags = (uint)atoll(argv[7]);
+    T::SessionId sessionId = toInt64(argv[1]);
+    info.mGroupFlags  = toInt64(argv[2]);
+    info.mProducerId = toInt64(argv[3]);
+    info.mGenerationId = toInt64(argv[4]);
+    info.mFileType = toInt64(argv[5]);
+    info.mSourceId = toInt64(argv[6]);
+    info.mFlags = toInt64(argv[7]);
 
     char* filename = argv[8];
 
-    FILE *file = fopen(filename,"r");
+    FILE *file = fopen(filename,"re");
     if (file == nullptr)
     {
       fprintf(stdout,"Cannot open file (%s) for reading!\n",filename);
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
     {
       ContentServer::RedisImplementation *redis = new ContentServer::RedisImplementation();
-      redis->init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+      redis->init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
       service = redis;
     }
     else

@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     }
 
     // ### Session:
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
     std::string dir = argv[2];
 
     ContentServer::ServiceInterface *service = nullptr;
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     else
     if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
     {
-      redisClient.init(argv[argc-3],atoi(argv[argc-2]),argv[argc-1]);
+      redisClient.init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
       service = &redisClient;
     }
     else
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
       }
 
       if (startFileId == 0)
-        fileInfoList.writeToFile(dir + "/files.csv","w");
+        fileInfoList.writeToFile(dir + "/files.csv","we");
       else
         fileInfoList.writeToFile(dir + "/files.csv","a");
 
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
       }
 
       if (startFileId == 0)
-        contentInfoList.writeToFile(dir + "/content.csv","w");
+        contentInfoList.writeToFile(dir + "/content.csv","we");
       else
         contentInfoList.writeToFile(dir + "/content.csv","a");
 

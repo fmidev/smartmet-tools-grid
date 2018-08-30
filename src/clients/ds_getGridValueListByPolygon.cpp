@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 
 
     // ### Session:
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
 
 
     // ### Creating a dataServer client:
@@ -36,10 +36,10 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint fileId = (uint)atoll(argv[2]);
-    uint messageIndex = (uint)atoll(argv[3]);
-    uint flags = (uint)atoll(argv[4]);
-    T::CoordinateType coordinateType = (T::CoordinateType)atoll(argv[5]);
+    uint fileId = toInt64(argv[2]);
+    uint messageIndex = toInt64(argv[3]);
+    uint flags = toInt64(argv[4]);
+    T::CoordinateType coordinateType = toInt64(argv[5]);
     std::vector<T::Coordinate> polygonPoints;
     T::GridValueList valueList;
 
@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
       {
         *p = '\0';
         p++;
-        double x = atof(buf);
-        double y = atof(p);
+        double x = toDouble(buf);
+        double y = toDouble(p);
         polygonPoints.push_back(T::Coordinate(x,y));
         printf("Coordinate %f,%f\n",x,y);
       }

@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 
 
     // ### Session:
-    T::SessionId sessionId = (SmartMet::T::SessionId)atoll(argv[1]);
+    T::SessionId sessionId = toInt64(argv[1]);
 
 
     // ### Creating a dataServer client:
@@ -38,9 +38,9 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint fileId = (uint)atoll(argv[2]);
-    uint messageIndex = (uint)atoll(argv[3]);
-    uint flags = (uint)atoll(argv[4]);
+    uint fileId = toInt64(argv[2]);
+    uint messageIndex = toInt64(argv[3]);
+    uint flags = toInt64(argv[4]);
     char *outputFile = argv[5];
     T::GridData gridData;
 
@@ -61,18 +61,18 @@ int main(int argc, char *argv[])
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 
-    FILE *file = fopen(outputFile,"w");
+    FILE *file = fopen(outputFile,"we");
     if (file == nullptr)
     {
       fprintf(stdout,"ERROR: Cannot create the ouput file (%s)!\n",outputFile);
       return -6;
     }
 
-    uint sz = (uint)gridData.mValues.size();
+    uint sz = gridData.mValues.size();
 
     if ((gridData.mColumns*gridData.mRows) != sz)
     {
-      fprintf(stdout,"ERROR: The size of the grid (%u x %u) and the number of the values (%u) no not match!\n",(uint)gridData.mColumns,(uint)gridData.mRows,(uint)sz);
+      fprintf(stdout,"ERROR: The size of the grid (%u x %u) and the number of the values (%u) no not match!\n",gridData.mColumns,gridData.mRows,sz);
       return -7;
     }
 
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
       }
       fprintf(file,"\n");
     }
-    printf("VALUES %u\n",(uint)values.size());
+    printf("VALUES %lu\n",values.size());
 
     return 0;
   }

@@ -212,7 +212,7 @@ void readProducerList(const char *filename)
 {
   try
   {
-    FILE *file = fopen(filename,"r");
+    FILE *file = fopen(filename,"re");
     if (file == nullptr)
     {
       PRINT_DATA(mDebugLogPtr,"Producer file not available. Accepting all produces");
@@ -257,7 +257,7 @@ void readPreloadList(const char *filename)
 {
   try
   {
-    FILE *file = fopen(filename,"r");
+    FILE *file = fopen(filename,"re");
     if (file == nullptr)
     {
       PRINT_DATA(mDebugLogPtr,"Preload file not available.");
@@ -348,8 +348,8 @@ uint readFiles(PGconn *conn,const char *tableName,uint producerId,uint geometryI
 
         rec.fileName = PQgetvalue(res, i, 0);
         rec.paramId = PQgetvalue(res, i, 1);
-        rec.levelId = atoi(PQgetvalue(res, i, 2));
-        rec.levelValue = atoi(PQgetvalue(res, i, 3));
+        rec.levelId = toInt64(PQgetvalue(res, i, 2));
+        rec.levelValue = toInt64(PQgetvalue(res, i, 3));
 
         if (rec.levelId == 2)
           rec.levelValue = rec.levelValue * 100;
@@ -425,21 +425,21 @@ void readSourceForecastTimes(PGconn *conn)
 
     for (int i = 0; i < rowCount; i++)
     {
-      uint producerId = atoi(PQgetvalue(res, i, 0));
+      uint producerId = toInt64(PQgetvalue(res, i, 0));
       T::ProducerInfo *producer = mSourceProducerList.getProducerInfoById(producerId);
       if (producer != nullptr)
       {
         ForecastRec forecastRec;
-        forecastRec.producerId = atoi(PQgetvalue(res, i, 0));
+        forecastRec.producerId = toInt64(PQgetvalue(res, i, 0));
         forecastRec.producerName = PQgetvalue(res, i, 1);
         forecastRec.analysisTime = PQgetvalue(res, i, 2);
         forecastRec.generationName = forecastRec.producerName + ":" + forecastRec.analysisTime;
         forecastRec.forecastTime = PQgetvalue(res, i, 3);
         forecastRec.forecastPeriod = PQgetvalue(res, i, 4);
         forecastRec.tableName = PQgetvalue(res, i, 5);
-        forecastRec.geometryId  = atoi(PQgetvalue(res, i, 6));
-        forecastRec.forecastTypeId = atoi(PQgetvalue(res, i, 7));
-        forecastRec.forecastTypeValue = atoi(PQgetvalue(res, i, 8));
+        forecastRec.geometryId  = toInt64(PQgetvalue(res, i, 6));
+        forecastRec.forecastTypeId = toInt64(PQgetvalue(res, i, 7));
+        forecastRec.forecastTypeValue = toInt64(PQgetvalue(res, i, 8));
         forecastRec.lastUpdated = PQgetvalue(res, i, 9);
 
         T::GenerationInfo *generation = mTargetGenerationList.getGenerationInfoByName(forecastRec.generationName.c_str());
@@ -521,7 +521,7 @@ void readSourceGenerations(PGconn *conn)
     {
       char st[1000];
 
-      uint producerId = atoi(PQgetvalue(res, i, 0));
+      uint producerId = toInt64(PQgetvalue(res, i, 0));
       T::ProducerInfo *producer = mSourceProducerList.getProducerInfoById(producerId);
       if (producer != nullptr)
       {
@@ -534,7 +534,7 @@ void readSourceGenerations(PGconn *conn)
         sprintf(st,"Producer %s generation %s",producer->mName.c_str(),PQgetvalue(res, i, 2));
         generation->mDescription = st;
         generation->mAnalysisTime = PQgetvalue(res, i, 2);
-        generation->mStatus = T::GenerationStatus::STATUS_READY;
+        generation->mStatus = T::GenerationInfo::Status::Ready;
         generation->mFlags = 0;
         generation->mSourceId = mSourceId;
         mSourceGenerationList.addGenerationInfo(generation);
@@ -587,7 +587,7 @@ void readSourceProducers(PGconn *conn)
       if (mProducerList.size() == 0 || mProducerList.find(searchStr) != mProducerList.end())
       {
         T::ProducerInfo *producer = new T::ProducerInfo();
-        producer->mProducerId = atoi(PQgetvalue(res, i, 0));
+        producer->mProducerId = toInt64(PQgetvalue(res, i, 0));
         producer->mName = PQgetvalue(res, i, 1);
         producer->mTitle = PQgetvalue(res, i, 1);
         producer->mDescription = PQgetvalue(res, i, 2);
@@ -830,11 +830,11 @@ void deleteForecast(ContentServer::ServiceInterface *targetInterface,std::string
 
     if (c >= 6)
     {
-      uint sourceId = (uint)atoll(field[0]);
-      uint generationId = (uint)atoll(field[1]);
-      uint geometryId = (uint)atoll(field[2]);
-      short forecastType = (short)atoll(field[3]);
-      short forecastNumber = (short)atoll(field[4]);
+      uint sourceId = toInt64(field[0]);
+      uint generationId = toInt64(field[1]);
+      uint geometryId = toInt64(field[2]);
+      short forecastType = toInt64(field[3]);
+      short forecastNumber = toInt64(field[4]);
       std::string forecastTime = field[5];
       std::string modificationTime = field[6];
 
@@ -877,7 +877,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
       fc.mFileInfo.mProducerId = generation->mProducerId;
       fc.mFileInfo.mGenerationId = generation->mGenerationId;
       fc.mFileInfo.mFileId = 0;
-      fc.mFileInfo.mFileType = T::FileType::Unknown;
+      fc.mFileInfo.mFileType = T::FileTypeValue::Unknown;
       fc.mFileInfo.mName = it->fileName;
       fc.mFileInfo.mFlags = T::FileInfo::Flags::PredefinedContent;
       fc.mFileInfo.mSourceId = mSourceId;
@@ -886,7 +886,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
       T::ContentInfo *contentInfo = new T::ContentInfo();
 
       contentInfo->mFileId = 0;
-      contentInfo->mFileType = T::FileType::Unknown;
+      contentInfo->mFileType = T::FileTypeValue::Unknown;
       contentInfo->mMessageIndex = 0;
       contentInfo->mProducerId = generation->mProducerId;
       contentInfo->mGenerationId = generation->mGenerationId;
@@ -918,11 +918,11 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
 /*
         Identification::FmiParameterId_grib1 g1Def;
         if (Identification::gridDef.mMessageIdentifier_fmi.getGrib1ParameterDef(it->paramId,g1Def))
-          contentInfo->mGrib1ParameterLevelId = (T::ParamLevelId)(*g1Def.mGribParameterLevelId);
+          contentInfo->mGrib1ParameterLevelId = (*g1Def.mGribParameterLevelId);
 
         Identification::FmiParameterId_grib2 g2Def;
         if (Identification::gridDef.mMessageIdentifier_fmi.getGrib2ParameterDef(it->paramId,g2Def))
-          contentInfo->mGrib2ParameterLevelId = (T::ParamLevelId)(*g2Def.mGribParameterLevelId);
+          contentInfo->mGrib2ParameterLevelId = (*g2Def.mGribParameterLevelId);
 */
       }
 
@@ -930,7 +930,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
       sprintf(st,"%s;%s;%d;%d;%05d;%d;%d;1;",
           forecast.producerName.c_str(),
           contentInfo->mFmiParameterName.c_str(),
-          (int)T::ParamLevelIdType::FMI,
+          (int)T::ParamLevelIdTypeValue::FMI,
           (int)contentInfo->mFmiParameterLevelId,
           (int)contentInfo->mParameterLevel,
           (int)contentInfo->mForecastType,
@@ -1127,7 +1127,7 @@ int main(int argc, char *argv[])
 
     ContentServer::ServiceInterface *targetInterface = nullptr;
 
-    mWaitTime = atoi(argv[2]);
+    mWaitTime = toInt64(argv[2]);
 
     if (mStorageType =="redis")
     {

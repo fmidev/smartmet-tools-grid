@@ -15,7 +15,7 @@ void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_ve
     sprintf(filename,"%s/newbase_parameters.csv",configDir);
 
 
-    FILE *file = fopen(filename,"r");
+    FILE *file = fopen(filename,"re");
     if (file == nullptr)
     {
       SmartMet::Spine::Exception exception(BCP,"Cannot open file!");

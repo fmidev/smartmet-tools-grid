@@ -29,8 +29,8 @@ int main(int argc, char *argv[])
 
     Identification::gridDef.init(configFile);
 
-    double lat = atof(argv[1]);
-    double lon = atof(argv[2]);
+    double lat = toDouble(argv[1]);
+    double lon = toDouble(argv[2]);
     std::set<T::GeometryId> geometryIdList;
 
     unsigned long long startTime = getTime();
