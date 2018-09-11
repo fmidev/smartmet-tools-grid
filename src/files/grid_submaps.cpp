@@ -169,7 +169,7 @@ void saveMessageSubmap(const char *imageFile,const GRID::Message *message,double
     }
 
     jpeg_save(imageFile,image,(int)height,(int)width,100);
-    delete image;
+    delete[] image;
   }
   catch (...)
   {

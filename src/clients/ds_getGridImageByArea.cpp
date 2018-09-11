@@ -86,7 +86,7 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
     }
 
     jpeg_save(imageFile,image,height,width,100);
-    delete image;
+    delete[] image;
   }
   catch (...)
   {

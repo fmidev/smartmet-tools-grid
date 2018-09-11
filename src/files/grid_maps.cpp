@@ -165,7 +165,7 @@ void saveMessageMap(const char *imageFile,const GRID::Message *message,T::ParamV
     }
 
     jpeg_save(imageFile,image,(int)height,(int)width,100);
-    delete image;
+    delete[] image;
   }
   catch (...)
   {

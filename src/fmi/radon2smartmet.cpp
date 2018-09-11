@@ -1037,7 +1037,7 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
     }
 
 
-    time_t startTime = time(0);
+    time_t startTime = time(nullptr);
     mTimeOut = false;
 
     std::vector<T::FileAndContent> fileAndContentList;
@@ -1073,7 +1073,7 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
           lastUpdated = it->lastUpdated;
       }
 
-      if (mWaitTime > 0  &&  (time(0) - startTime) >= mTimeOutTime)
+      if (mWaitTime > 0  &&  (time(nullptr) - startTime) >= mTimeOutTime)
       {
         // Additions have take so much time that we should interrupt the loop
         // and restart the update process from the begin. The point is that

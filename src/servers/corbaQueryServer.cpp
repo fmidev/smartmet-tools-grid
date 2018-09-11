@@ -395,9 +395,9 @@ void updateMappings()
 {
   try
   {
-    if ((time(0) - mParameterMappingUpdateTime) > 300)
+    if ((time(nullptr) - mParameterMappingUpdateTime) > 300)
     {
-      mParameterMappingUpdateTime = time(0);
+      mParameterMappingUpdateTime = time(nullptr);
 
       QueryServer::ParamMappingFile_vec parameterMappings;
       loadMappings(parameterMappings);

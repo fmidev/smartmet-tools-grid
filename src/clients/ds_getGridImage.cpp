@@ -89,7 +89,7 @@ void saveImage(const char *imageFile,T::GridData&  gridData)
     }
 
     jpeg_save(imageFile,image,height,width,100);
-    delete image;
+    delete[] image;
   }
   catch (...)
   {
