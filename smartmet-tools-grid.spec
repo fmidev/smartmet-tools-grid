@@ -196,6 +196,8 @@ Provides: gu_getLuaFunctions = %{Version}
 Provides: gu_getGridPointsInsidePolygonPath = %{Version}
 Provides: gu_replaceConfigurationAttributes = %{Version}
 Provides: gu_getGridLatLonCoordinatesByGeometryId = %{Version}
+Provides: ds_getGridValueVector = %{Version}
+Provides: ds_getGridValueVectorByTime = %{Version}
 
 %description
 SmartMet tools for grid support
@@ -356,6 +358,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_getProducerInfoListBySourceId
 %{_bindir}/clients/cs_getContentParamListByGenerationId
 %{_bindir}/clients/cs_updateVirtualContent
+%{_bindir}/clients/ds_getGridValueVector
+%{_bindir}/clients/ds_getGridValueVectorByTime
 %{_bindir}/servers/corbaDataServer
 %{_bindir}/servers/corbaQueryServer
 %{_bindir}/servers/corbaContentServer
