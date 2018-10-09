@@ -3,13 +3,13 @@ Grid Tools
 
 This module contains several programs used by the SmartMet Server grid support. 
 
-##Server programs
+## Server programs
 The main services of the grid support can be used as independent services, which means that they must be executed and configured as independent servers. For this purpose, this module contains few server programs that can be configured multiple ways. 
 
 These implementations are more like demonstrations that show how easily we can implement our own servers, because all necessary components are available in the grid content library. The point is that we can easily construct a server that is complete for own purposes. I.e. we can merge, duplicate and arrange service components in such way that we get an optional solution to our own environment.
 
 
-##Client programs
+## Client programs
 
 Client programs can be used for accessing remote Content Server APIs, Data Server APIs or Query Server APIs. Technically these programs uses CORBA- or HTTP-client implementations of these service APIs.
 
@@ -21,7 +21,7 @@ These programs can be used for opening single grid files and finding out their s
 ## Utils
 These programs are simple assisting programs.
 
-#FMI programs
+## FMI programs
 These programs are mainly used by FMI (Finnish Meteorological Institute). They are not necessary useful for other organizations, but they can be used as models when implementing own programs.
 
 
