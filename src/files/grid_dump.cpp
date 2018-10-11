@@ -54,8 +54,8 @@ void dump(SmartMet::GRID::GridFile& gridFile,uint optionFlags)
 
     gridFile.print(std::cout,0,optionFlags);
 
-    std::string fname = "koe1.grib";
-    gridFile.write(fname);
+    //std::string fname = "koe1.grib";
+    //gridFile.write(fname);
 
     printf("\n");
 /*

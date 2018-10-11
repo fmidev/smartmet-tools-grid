@@ -378,7 +378,9 @@ uint readFiles(PGconn *conn,const char *tableName,uint producerId,uint geometryI
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    SmartMet::Spine::Exception exception(BCP, exception_operation_failed, nullptr);
+    exception.printError();
+    // throw exception;
   }
 }
 
