@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 18.10.1
+Version: 18.10.15
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 18.9.29
-BuildRequires: smartmet-library-grid-files-devel >= 18.10.1
-BuildRequires: smartmet-library-grid-content-devel >= 18.10.1
+BuildRequires: smartmet-library-spine-devel >= 18.11.1
+BuildRequires: smartmet-library-grid-files-devel >= 18.10.15
+BuildRequires: smartmet-library-grid-content-devel >= 18.10.15
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -33,8 +33,8 @@ Requires: libconfig
 #Requires: smartmet-server >= 17.11.10
 #Requires: smartmet-engine-grid >= 18.2.8
 Requires: boost-date-time
-Requires: smartmet-library-grid-files >= 18.10.1
-Requires: smartmet-library-grid-content >= 18.10.1
+Requires: smartmet-library-grid-files >= 18.10.15
+Requires: smartmet-library-grid-content >= 18.10.15
 #Requires: smartmet-engine-grid
 Requires: openldap
 Requires: openssl-libs
@@ -378,6 +378,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/utils/gu_getGridLatLonCoordinatesByGeometryId
 
 %changelog
+* Mon Oct 15 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.10.15-1.fmi
+- Small improvements
 * Mon Oct  1 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.10.1-1.fmi
 - Version update
 * Wed Sep 26 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.9.26-1.fmi
