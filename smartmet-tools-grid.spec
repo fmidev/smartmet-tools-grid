@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 18.10.25
+Version: 18.11.12
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -376,8 +376,21 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/utils/gu_getGridPointsInsidePolygonPath
 %{_bindir}/utils/gu_replaceConfigurationAttributes
 %{_bindir}/utils/gu_getGridLatLonCoordinatesByGeometryId
+%defattr(0644,root,root,0755)
+%{_unitdir}/radon2smartmet.service
+
+# We do not enable the service by default, it must be done manually
+
+%preun
+if [ $1 -eq 0 ]; then
+   systemctl stop radon2smartmet
+   systemctl disable radon2smartmet
+fi
+
 
 %changelog
+* Mon Nov 12 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.11.12-1.fmi
+- Added a systemd script
 * Thu Oct 25 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.10.25-1.fmi
 - Repackaged due to library API changes
 * Mon Oct 15 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.10.15-1.fmi
