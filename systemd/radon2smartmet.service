@@ -1,0 +1,32 @@
+[Unit]
+
+Description=Smartmet RADON to REDIS daemon
+
+# Requires redis, and should be started after it
+After=redis.service
+Requires=redis.service
+ 
+[Service]
+
+# Not a real daemon
+Type=simple
+
+ExecStart=/usr/bin/fmi/radon2smartmet /smartmet/cnf/smartmetd/gui/radon-to-smartmet.cfg 300
+
+LimitCORE=infinity
+
+# Do not retry too fast if there are some I/O or similar issues
+Restart=always
+RestartSec=5s
+
+# We do not signal completion to systemd
+TimeoutStartSec=0
+
+# Wait for 30s for the server to stop before sending SIGTERM and another 30s before SIGKILL
+TimeoutStopSec=30s
+
+LimitNOFILE=999999999
+ 
+[Install]
+
+WantedBy=multi-user.target

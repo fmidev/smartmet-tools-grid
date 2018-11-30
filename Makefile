@@ -213,6 +213,8 @@ install:
 	  echo $(INSTALL_PROG) bin/$$prog $(bindir)/$$prog; \
 	  $(INSTALL_PROG) bin/$$prog $(bindir)/$$prog; \
 	done
+	@mkdir -p $(libdir)/../lib/systemd/system
+	$(INSTALL_DATA) systemd/radon2smartmet.service  $(libdir)/../lib/systemd/system
 test:
 	+cd test && make test
 
