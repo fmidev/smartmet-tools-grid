@@ -25,6 +25,7 @@ struct ForecastRec
   uint        producerId = 0;
   std::string producerName;
   std::string analysisTime;
+  std::string deletionTime;
   std::string generationName;
   std::string forecastTime;
   std::string forecastPeriod;
@@ -381,9 +382,89 @@ uint readFiles(PGconn *conn,const char *tableName,uint producerId,uint geometryI
     SmartMet::Spine::Exception exception(BCP, exception_operation_failed, nullptr);
     exception.printError();
     // throw exception;
+    return 0;
   }
 }
 
+
+
+
+void updateForecastDeletionTimes(PGconn *conn)
+{
+  FUNCTION_TRACE
+  try
+  {
+    char sql[1000];
+    char *p = sql;
+    p += sprintf(p,"SELECT\n");
+    p += sprintf(p,"  producer_id,\n");
+    p += sprintf(p,"  geometry_id,\n");
+    p += sprintf(p,"  schema_name,\n");
+    p += sprintf(p,"  partition_name,\n");
+    p += sprintf(p,"  to_char(analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),\n");
+    p += sprintf(p,"  to_char(min_analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),\n");
+    p += sprintf(p,"  to_char(max_analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),\n");
+    p += sprintf(p,"  to_char(delete_time at time zone 'utc', 'yyyymmddThh24MISS')\n");
+    p += sprintf(p,"FROM\n");
+    p += sprintf(p,"  as_grid\n");
+
+    PGresult *res = PQexec(conn, sql);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    {
+      SmartMet::Spine::Exception exception(BCP,"Postgresql error!");
+      exception.addParameter("ErrorMessage",PQerrorMessage(conn));
+      throw exception;
+    }
+
+    int rowCount = PQntuples(res);
+    int foundCount = 0;
+
+    printf("ROWS %d\n",rowCount);
+    for (int i = 0; i < rowCount; i++)
+    {
+      uint producerId = toInt64(PQgetvalue(res, i, 0));
+      uint geometryId = toInt64(PQgetvalue(res, i, 1));
+      std::string schemaName = PQgetvalue(res, i, 2);
+      std::string partitionName = PQgetvalue(res, i, 3);
+      std::string tableName = schemaName + "." + partitionName;
+      std::string analysisTime = PQgetvalue(res, i, 4);
+      std::string minAnalysisTime = PQgetvalue(res, i, 5);
+      std::string maxAnalysisTime = PQgetvalue(res, i, 6);
+      std::string deletionTime = PQgetvalue(res, i, 7);
+
+      printf("SEARCH %u;%u;%s;%s;%s;%s\n",producerId,geometryId,minAnalysisTime.c_str(),maxAnalysisTime.c_str(),deletionTime.c_str(),tableName.c_str());
+
+      bool found = false;
+      for (auto it=mSourceForacastList.begin(); it!=mSourceForacastList.end()  &&  !found; ++it)
+      {
+        //printf("  ** compare %u;%u   %u;%u  %s;%s\n",it->producerId,producerId,it->geometryId,geometryId,it->analysisTime.c_str(),analysisTime.c_str());
+        if (it->producerId == producerId  &&  it->geometryId == geometryId  &&  it->tableName == tableName  &&  it->analysisTime == analysisTime /*it->analysisTime >= minAnalysisTime   &&  it->analysisTime >= maxAnalysisTime*/)
+        {
+          it->deletionTime = deletionTime;
+          //found = true;
+          printf(" ** FOUND\n");
+          foundCount++;
+        }
+      }
+    }
+    PQclear(res);
+
+    printf("END TIMES %d / %d\n",foundCount,(int)mSourceForacastList.size());
+
+    for (auto it=mSourceForacastList.begin(); it!=mSourceForacastList.end(); ++it)
+    {
+      if (it->deletionTime.empty())
+      {
+        printf("NF %u;%u;%s;%s\n",it->producerId,it->geometryId,it->tableName.c_str(),it->analysisTime.c_str());
+      }
+    }
+
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+  }
+}
 
 
 
@@ -883,6 +964,7 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
       fc.mFileInfo.mName = it->fileName;
       fc.mFileInfo.mFlags = T::FileInfo::Flags::PredefinedContent;
       fc.mFileInfo.mSourceId = mSourceId;
+      fc.mFileInfo.mDeletionTime = forecast.deletionTime;
 
 
       T::ContentInfo *contentInfo = new T::ContentInfo();
@@ -1048,7 +1130,7 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
     {
       if (!it->checked  &&  it->lastUpdated > mLastUpdateTime)
       {
-        PRINT_DATA(mDebugLogPtr,"  -- Add forecast : %u;%s;%s;%s;%s;%u;%d;%d;%s;\n",
+        PRINT_DATA(mDebugLogPtr,"  -- Add forecast : %u;%s;%s;%s;%s;%u;%d;%d;%s;%s;\n",
             it->producerId,
             it->producerName.c_str(),
             it->analysisTime.c_str(),
@@ -1057,7 +1139,8 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
             it->geometryId,
             it->forecastTypeId,
             it->forecastTypeValue,
-            it->lastUpdated.c_str());
+            it->lastUpdated.c_str(),
+            it->deletionTime.c_str());
 
         addForecast(targetInterface,conn,*it,fileAndContentList);
 
@@ -1211,6 +1294,13 @@ int main(int argc, char *argv[])
 
       PRINT_DATA(mDebugLogPtr,"* Reading forecast time information from the source data storage\n");
       readSourceForecastTimes(conn);
+
+      //PRINT_DATA(mDebugLogPtr,"* Updating forecast deletion time information from the source data storage\n");
+      //updateForecastDeletionTimes(conn);
+
+      //PQfinish(conn);
+      //return 0;
+
 
       PRINT_DATA(mDebugLogPtr,"* Updating forecast time information into the target data storage\n");
       updateForecastTimes(targetInterface,conn);

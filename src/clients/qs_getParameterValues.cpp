@@ -2,10 +2,35 @@
 #include "grid-content/queryServer/corba/client/ClientImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
+#include "grid-files/identification/GridDef.h"
 
 #include <stdlib.h>
 
 using namespace SmartMet;
+
+
+void init()
+{
+  try
+  {
+    char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
+    if (configFile == nullptr)
+    {
+      printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
+      exit(-1);
+    }
+
+    // Initializing the global structures. These are needed when
+    // extracting information from GRIB files.
+
+    Identification::gridDef.init(configFile);
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+  }
+}
+
 
 
 
@@ -13,159 +38,83 @@ int main(int argc, char *argv[])
 {
   try
   {
-    char *contentServerIor = getenv("SMARTMET_CS_IOR");
-    if (contentServerIor == nullptr)
-    {
-      fprintf(stdout,"SMARTMET_CS_IOR not defined!\n");
-      return -2;
-    }
-
-    char *queryServerIor = getenv("SMARTMET_QS_IOR");
-    if (queryServerIor == nullptr)
+    char *serviceIor = getenv("SMARTMET_QS_IOR");
+    if (serviceIor == NULL)
     {
       fprintf(stdout,"SMARTMET_QS_IOR not defined!\n");
-      return -2;
+      return -1;
     }
 
-    if (argc < 17)
+
+    if (argc < 7)
     {
-      fprintf(stdout,"USAGE:\n");
-      fprintf(stdout,"  qs_getParameterValues <sessionId>  <parameterIdType> <parameterKey> \n");
-      fprintf(stdout,"     <parameterLevelIdType> <parameterLevelId> <minLevel> <maxLevel> <forecastType> <forecastNumber> \n");
-      fprintf(stdout,"     <startTime> <endTime> <coordinatesType> <x-coordinate> <y-coordinate> \n");
-      fprintf(stdout,"     <interpolationMethod>\n");
-      fprintf(stdout,"WHERE:\n");
-      fprintf(stdout,"  sessionId             = Session identifier\n");
-      fprintf(stdout,"  parameterKeyType      = Parameter search key type:\n");
-      fprintf(stdout,"                            fmi-id       => Radon identifier\n");
-      fprintf(stdout,"                            fmi-name     => Radon name\n");
-      fprintf(stdout,"                            grib-id      => GRIB identifier\n");
-      fprintf(stdout,"                            cdm-id       => CDM identifier\n");
-      fprintf(stdout,"                            cdm-name     => CDM name\n");
-      fprintf(stdout,"                            newbase-id   => Newbase identifier\n");
-      fprintf(stdout,"                            newbase-name => Newbase name\n");
-      fprintf(stdout,"  parameterKey          = Parameter search key\n");
-      fprintf(stdout,"  parameterLevelIdType  = Parameter level id type:\n");
-      fprintf(stdout,"                             any         => All level types are accepted\n");
-      fprintf(stdout,"                             fmi         => Radon level identifier\n");
-      fprintf(stdout,"                             grib1       => GRIB 1 level identifier\n");
-      fprintf(stdout,"                             grib2       => GRIB 2 level identifier\n");
-      fprintf(stdout,"                             ignore      => All level types and values are accepted\n");
-      fprintf(stdout,"  minLevel               = Minimum parameter level\n");
-      fprintf(stdout,"  maxLevel               = Maximum parameter level\n");
-      fprintf(stdout,"  forcastType            = Forecast type\n");
-      fprintf(stdout,"  forecastNumber         = Forecast number\n");
-      fprintf(stdout,"  geometryId             = GeometryId\n");
-      fprintf(stdout,"  startTime              = First accepted grid time\n");
-      fprintf(stdout,"  endTime                = Last accepted grid time\n");
-      fprintf(stdout,"  coordinatesType        = Coordinates type: \n");
-      fprintf(stdout,"                            latlon       => Latitude-longitude\n");
-      fprintf(stdout,"                            grid         => Grid table coordinates\n");
-      fprintf(stdout,"                            original     => Grid original coordinates\n");
-      fprintf(stdout,"  x-coordinate           = X-coordinate (=> longitude)\n");
-      fprintf(stdout,"  y-coordinate           = Y-coordinate (=> latitude)\n");
-      fprintf(stdout,"  interpolationMethod    = Interpolation method:\n");
-      fprintf(stdout,"                             nearest      => Nearest value\n");
-      fprintf(stdout,"                             linear       => Linear interpolation\n");
-      return -2;
+      fprintf(stdout,"USAGE: qs_getParameterValues <sessionId> <parameter> <startTime> <endTime> <lat> <lon>\n");
+      return -1;
     }
 
-
-    // ### Session:
     T::SessionId sessionId = toInt64(argv[1]);
+    QueryServer::Query query;
+    QueryServer::QueryParameter param;
+
+    query.mLocationType = QueryServer::Query::LocationType::Point;
+
+    uint geometryId = 0;
+    if (argc >= 7)
+      geometryId = atoi(argv[7]);
+
+    T::Coordinate_vec coordinates;
 
 
-    // ### Service parameters:
-    T::ParamKeyType paramKeyType = T::ParamKeyTypeValue::FMI_ID;
-    if (strcmp(argv[2],"fmi-id") == 0)
-      paramKeyType = T::ParamKeyTypeValue::FMI_ID;
+    if (geometryId > 0)
+    {
+      query.mAttributeList.setAttribute("grid.geometryId",std::to_string(geometryId));
+      /*
+
+      init();
+      uint cols = 0;
+      uint rows = 0;
+      if (Identification::gridDef.getGridDimensionsByGeometryId(geometryId,cols,rows))
+      {
+        query.mGridWidth = cols;
+        query.mGridHeight = rows;
+      }
+      else
+      {
+        fprintf(stdout,"ERROR: Unknow geometry!\n");
+        return -2;
+      }
+
+      if (!Identification::gridDef.getGridLatLonCoordinatesByGeometryId(geometryId,coordinates))
+      {
+        fprintf(stdout,"ERROR: Unknow geometry!\n");
+        return -2;
+      }
+      */
+      query.mType = QueryServer::Query::Type::Isoband;
+      param.mContourLowValues.push_back(270);
+      param.mContourLowValues.push_back(275);
+      param.mContourLowValues.push_back(280);
+      param.mContourLowValues.push_back(285);
+    }
     else
-    if (strcmp(argv[2],"fmi-name") == 0)
-      paramKeyType = T::ParamKeyTypeValue::FMI_NAME;
-    else
-    if (strcmp(argv[2],"grib-id") == 0)
-      paramKeyType = T::ParamKeyTypeValue::GRIB_ID;
-    else
-    if (strcmp(argv[2],"cdm-id") == 0)
-      paramKeyType = T::ParamKeyTypeValue::CDM_ID;
-    else
-    if (strcmp(argv[2],"cdm-name") == 0)
-      paramKeyType = T::ParamKeyTypeValue::CDM_NAME;
-    else
-    if (strcmp(argv[2],"newbase-id") == 0)
-      paramKeyType = T::ParamKeyTypeValue::NEWBASE_ID;
-    else
-    if (strcmp(argv[2],"newbase-name") == 0)
-      paramKeyType = T::ParamKeyTypeValue::NEWBASE_NAME;
+    {
+      coordinates.push_back(T::Coordinate(atof(argv[6]),atof(argv[5])));
+    }
 
-    T::ParamId parameterKey = argv[3];
-    T::ParamLevelIdType parameterLevelIdType = T::ParamLevelIdTypeValue::ANY;
+    query.mAreaCoordinates.push_back(coordinates);
+    query.mStartTime = argv[3];
+    query.mEndTime = argv[4];
+    query.mSearchType = QueryServer::Query::SearchType::TimeRange;
 
-    if (strcmp(argv[4],"any") == 0)
-      parameterLevelIdType = T::ParamLevelIdTypeValue::ANY;
-    else
-    if (strcmp(argv[4],"fmi") == 0)
-      parameterLevelIdType = T::ParamLevelIdTypeValue::FMI;
-    else
-    if (strcmp(argv[4],"grib1") == 0)
-      parameterLevelIdType = T::ParamLevelIdTypeValue::GRIB1;
-    else
-    if (strcmp(argv[4],"grib2") == 0)
-      parameterLevelIdType = T::ParamLevelIdTypeValue::GRIB2;
-    else
-    if (strcmp(argv[4],"ignore") == 0)
-      parameterLevelIdType = T::ParamLevelIdTypeValue::IGNORE;
-
-    T::ParamLevelId parameterLevelId = toInt64(argv[5]);
-    T::ParamLevel minLevel = (T::ParamLevel)toInt64(argv[6]);
-    T::ParamLevel maxLevel = (T::ParamLevel)toInt64(argv[7]);
-    T::ForecastType forecastType = (T::ForecastType)toInt64(argv[8]);
-    T::ForecastNumber forecastNumber = (T::ForecastNumber)toInt64(argv[9]);
-    T::GeometryId geometryId = (T::GeometryId)toInt64(argv[10]);
-    std::string start = argv[11];
-    std::string end = argv[12];
-
-    T::CoordinateType coordinateType = T::CoordinateTypeValue::LATLON_COORDINATES;
-
-    if (strcmp(argv[13],"latlon") == 0)
-      coordinateType = T::CoordinateTypeValue::LATLON_COORDINATES;
-    else
-    if (strcmp(argv[13],"grid") == 0)
-      coordinateType = T::CoordinateTypeValue::GRID_COORDINATES;
-    else
-    if (strcmp(argv[13],"original") == 0)
-      coordinateType = T::CoordinateTypeValue::ORIGINAL_COORDINATES;
-
-    double x = toDouble(argv[14]);
-    double y = toDouble(argv[15]);
-
-    short interpolationMethod = T::AreaInterpolationMethod::Linear;
-
-    if (strcmp(argv[16],"linear") == 0)
-      interpolationMethod = T::AreaInterpolationMethod::Linear;
-    else
-    if (strcmp(argv[16],"nearest") == 0)
-      interpolationMethod = T::AreaInterpolationMethod::Nearest;
+    param.mParam = argv[2];
+    query.mQueryParameterList.push_back(param);
 
 
-    // ### Service:
-
-    QueryServer::Corba::ClientImplementation queryService;
-    queryService.init(queryServerIor);
-
-
-    ContentServer::Corba::ClientImplementation contentService;
-    contentService.init(contentServerIor);
+    QueryServer::Corba::ClientImplementation service;
+    service.init(serviceIor);
 
     unsigned long long startTime = getTime();
-    T::ContentInfoList contentInfoList;
-
-    int result = contentService.getContentListByParameter(sessionId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,minLevel,maxLevel,forecastType,forecastNumber,geometryId,start,end,0,contentInfoList);
-
-    T::GridPointValueList valueList;
-
-    queryService.getValuesByGridPoint(sessionId,contentInfoList,coordinateType,x,y,interpolationMethod,valueList);
-
+    int result = service.executeQuery(sessionId,query);
     unsigned long long endTime = getTime();
 
     if (result != 0)
@@ -174,27 +123,29 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    uint len = contentInfoList.getLength();
-    if (len != valueList.getLength())
-    {
-      printf("ERROR: The length of the value list (%u) should be the same as the length of content list (%u)!\n",valueList.getLength(),len);
-    }
-
-    for (uint t=0; t<len; t++)
-    {
-      T::ContentInfo *contentInfo = contentInfoList.getContentInfoByIndex(t);
-      T::GridPointValue *point = valueList.getGridPointValueByIndex(t);
-      if (point != nullptr  &&  point->mValue != ParamValueMissing)
-        printf("%u;%u;%s;%u;%f\n",contentInfo->mGenerationId,contentInfo->mGrib1ParameterLevelId,contentInfo->mForecastTime.c_str(),contentInfo->mParameterLevel,point->mValue);
-      else
-        printf("%u;%u;%s;%u;None\n",contentInfo->mGenerationId,contentInfo->mGrib1ParameterLevelId,contentInfo->mForecastTime.c_str(),contentInfo->mParameterLevel);
-    }
-
     // ### Result:
-    //infoList.print(std::cout,0,0);
+
+    query.print(std::cout,0,0);
+
+    for (auto it = query.mQueryParameterList.begin(); it != query.mQueryParameterList.end(); ++it)
+    {
+      for (auto v = it->mValueList.begin(); v != it->mValueList.end(); ++v)
+      {
+        printf("%s (%lu):",v->mForecastTime.c_str(),v->mWkbList.size());
+        uint len = v->mValueList.getLength();
+        for (uint t=0; t<len; t++)
+        {
+          T::GridValue *rec = v->mValueList.getGridValueByIndex(t);
+          if (rec != NULL)
+            printf(" %f",rec->mValue);
+
+        }
+        printf("\n");
+      }
+    }
+
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
-
 
     return 0;
   }

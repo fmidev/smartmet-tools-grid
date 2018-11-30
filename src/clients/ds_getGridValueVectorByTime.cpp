@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 
     if (argc != 8)
     {
-      fprintf(stdout,"USAGE: ds_getGridValueVector <sessionId> <fileId1> <messageIndex1> <fileId2> <messageIndex2> <newTime> <flags>\n");
+      fprintf(stdout,"USAGE: ds_getGridValueVector <sessionId> <fileId1> <messageIndex1> <fileId2> <messageIndex2> <newTime> <timeInterpolationMethod>\n");
       return -1;
     }
 
@@ -40,11 +40,11 @@ int main(int argc, char *argv[])
     uint fileId2 = toInt64(argv[4]);
     uint messageIndex2 = toInt64(argv[5]);
     std::string newTime = argv[6];
-    uint flags = toInt64(argv[7]);
+    uint timeInterpolationMethod = toInt64(argv[7]);
     T::ParamValue_vec values;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueVectorByTime(sessionId,fileId1,messageIndex1,fileId2,messageIndex2,newTime,flags,values);
+    int result = dataServer.getGridValueVectorByTime(sessionId,fileId1,messageIndex1,fileId2,messageIndex2,newTime,timeInterpolationMethod,values);
     unsigned long long endTime = getTime();
 
 
