@@ -3,6 +3,7 @@
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ImageFunctions.h"
+#include "grid-files/common/ImagePaint.h"
 #include "grid-files/common/GraphFunctions.h"
 #include "grid-files/identification/GridDef.h"
 
@@ -21,44 +22,61 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    // ### Parsing command-line parameters:
 
-    if (argc < 15)
+    if (argc < 13)
     {
       fprintf(stdout,"USAGE:\n");
-      fprintf(stdout,"  ds_getGridIsobandImageByTimeAndBox <sessionId> <fileId1> <msgIdx1> <fileId2> <msgIdx2> <gridTime>\n");
-      fprintf(stdout,"      <x1> <y1> <x2> <y2> <multiplier> <rotateImage> <imageFile> <contourVal1> [<contourVal2>..<contourValN>] \n");
+      fprintf(stdout,"  ds_getGridIsobandImageByTimeAndGeometry <sessionId> <fileId1> <msgIdx1> <fileId2> <msgIdx2> <gridTime>\n");
+      fprintf(stdout,"      <attributeList> <areaInterpolation> <multiplier> <rotateImage> <pngFile> <contourVal1> [<contourVal2>..<contourValN>] \n");
       return -1;
     }
 
+
+    T::SessionId sessionId = toInt64(argv[1]);
     T::WkbData_vec contours;
     T::AttributeList attributeList;
     T::ParamValue_vec lowValues;
     T::ParamValue_vec highValues;
-    T::SessionId sessionId = toInt64(argv[1]);
     uint fileId1 = toInt64(argv[2]);
     uint messageIndex1 = toInt64(argv[3]);
     uint fileId2 = toInt64(argv[4]);
     uint messageIndex2 = toInt64(argv[5]);
-    std::string gridTime = argv[6];
-    double x1 = toDouble(argv[7]);
-    double y1 = toDouble(argv[8]);
-    double x2 = toDouble(argv[9]);
-    double y2 = toDouble(argv[10]);
-    double mp = toDouble(argv[11]);
-    bool rotate = (bool)toInt64(argv[12]);
-    char *jpgFile = argv[13];
-    std::string urn = "urn:ogc:def:crs:EPSG::4326";
+    std::string timestamp = argv[6];
+    char *attributes = argv[7];
+    uint areaInterpolation = toInt64(argv[8]);
+    double mp = toDouble(argv[9]);
+    bool rotate = (bool)toInt64(argv[10]);
+    char *pngFile = argv[11];
 
-    for (int t=14; t<(argc-1); t++)
+    std::vector<uint> colorList;
+
+    for (int t=12; t<(argc-1); t++)
     {
-      lowValues.push_back(atof(argv[t]));
-      highValues.push_back(atof(argv[t+1]));
+      std::vector<std::string> partList1;
+      splitString(argv[t],':',partList1);
+      lowValues.push_back(atof(partList1[0].c_str()));
+      if (partList1.size() == 2)
+        colorList.push_back(strtoll(partList1[1].c_str(),nullptr,16));
+      else
+        colorList.push_back(0xFFFFFFFF);
+
+      std::vector<std::string> partList2;
+      splitString(argv[t+1],':',partList2);
+      highValues.push_back(atof(partList2[0].c_str()));
     }
 
-    attributeList.addAttribute("grid.areaInterpolationMethod","1");
+    attributeList.addAttribute("grid.areaInterpolationMethod",std::to_string(areaInterpolation));
     attributeList.addAttribute("contour.coordinateType",std::to_string(T::CoordinateTypeValue::GRID_COORDINATES));
 
+    std::vector<std::string> attrList;
+    splitString(attributes,',',attrList);
+    for (auto it=attrList.begin(); it != attrList.end(); ++it)
+    {
+      std::vector<std::string> partList;
+      splitString(*it,'=',partList);
+      if (partList.size() == 2)
+        attributeList.setAttribute(partList[0],partList[1]);
+    }
 
     // ### Creating a dataServer client:
 
@@ -69,8 +87,9 @@ int main(int argc, char *argv[])
     // ### Calling the dataServer:
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridIsobandsByTimeAndBox(sessionId,fileId1,messageIndex1,fileId2,messageIndex2,gridTime,lowValues,highValues,urn,x1,y1,x2,y2,attributeList,contours);
+    int result = dataServer.getGridIsobandsByTimeAndGeometry(sessionId,fileId1,messageIndex1,fileId2,messageIndex2,timestamp,lowValues,highValues,attributeList,contours);
     unsigned long long endTime = getTime();
+
 
     if (result != 0)
     {
@@ -103,10 +122,7 @@ int main(int argc, char *argv[])
     int imageWidth = width*mp;
     int imageHeight = height*mp;
 
-    int sz = imageWidth * imageHeight;
-    unsigned long *image = new unsigned long[sz];
-    for (int t=0; t<sz; t++)
-      image[t] = 0xFFFFFF;
+    ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,false,rotate);
 
     // ### Painting contours into the image:
 
@@ -115,19 +131,22 @@ int main(int argc, char *argv[])
       uint c = 250;
       uint step = 250 / contours.size();
 
+      uint t = 0;
       for (auto it = contours.begin(); it != contours.end(); ++it)
       {
-        uint col = (c << 16) + (c << 8) + c;
-        paintWkb(image,imageWidth,imageHeight,false,rotate,mp,0,0,*it,col);
+        uint col = colorList[t];
+        if (col == 0xFFFFFFFF)
+          col = (c << 16) + (c << 8) + c;
+
+        imagePaint.paintWkb(mp,mp,0,0,*it,col);
         c = c - step;
+        t++;
       }
     }
 
+    // ### Saving the image:
 
-    // ### Saving the image and releasing the image data:
-
-    jpeg_save(jpgFile,image,imageHeight,imageWidth,100);
-    delete[] image;
+    imagePaint.savePngImage(pngFile);
 
     return 0;
   }

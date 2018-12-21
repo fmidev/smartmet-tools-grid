@@ -44,7 +44,7 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
     int width = columns;
     int height = rows;
 
-    unsigned long *image = new unsigned long[width*height];
+    uint *image = new uint[width*height];
 
     unsigned char hue = 30;
     unsigned char saturation = 128;
@@ -108,9 +108,9 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc < 14)
+    if (argc < 13)
     {
-      fprintf(stdout,"USAGE: cs_getGridImageByArea <sessionId> <fileId> <messageIndex> <flags> <coordinateType> <columns> <rows> <x> <y> <xStep> <yStep> <interpolationMethod> <image.jpg> [-rotate]\n");
+      fprintf(stdout,"USAGE: cs_getGridImageByArea <sessionId> <fileId> <messageIndex> <coordinateType> <columns> <rows> <x> <y> <xStep> <yStep> <interpolationMethod> <image.jpg> [-rotate]\n");
       return -1;
     }
 
@@ -127,20 +127,19 @@ int main(int argc, char *argv[])
 
     uint fileId = toInt64(argv[2]);
     uint messageIndex = toInt64(argv[3]);
-    uint flags = toInt64(argv[4]);
-    T::CoordinateType coordinateType = toInt64(argv[5]);
-    uint columns = toInt64(argv[6]);
-    uint rows = toInt64(argv[7]);
-    double x = toDouble(argv[8]);
-    double y = toDouble(argv[9]);
-    double xStep = toDouble(argv[10]);
-    double yStep = toDouble(argv[11]);
-    short interpolationMethod = (short)toInt64(argv[12]);
-    char *imageFile = argv[13];
+    T::CoordinateType coordinateType = toInt64(argv[4]);
+    uint columns = toInt64(argv[5]);
+    uint rows = toInt64(argv[6]);
+    double x = toDouble(argv[7]);
+    double y = toDouble(argv[8]);
+    double xStep = toDouble(argv[9]);
+    double yStep = toDouble(argv[10]);
+    short interpolationMethod = (short)toInt64(argv[11]);
+    char *imageFile = argv[12];
     T::ParamValue_vec values;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,flags,coordinateType,columns,rows,x,y,xStep,yStep,interpolationMethod,values);
+    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,coordinateType,columns,rows,x,y,xStep,yStep,interpolationMethod,values);
     unsigned long long endTime = getTime();
 
     if (result != 0)

@@ -17,10 +17,9 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-
-    if (argc != 5)
+    if (argc != 12)
     {
-      fprintf(stdout,"USAGE: cs_getGridCoordinates <sessionId> <fileId> <messageIndex> <coordinateType>\n");
+      fprintf(stdout,"USAGE: ds_getGridValueByLevelAndPoint <sessionId> <fileId1> <msgIndex1> <fileId2> <msgIndex2> <level> <coordinateType> <x> <y> <areaInterpolationMethod> <levelInterpolationMethod>\n");
       return -1;
     }
 
@@ -36,13 +35,20 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint fileId = toInt64(argv[2]);
-    uint messageIndex = toInt64(argv[3]);
-    T::CoordinateType coordinateType = toInt64(argv[4]);
-    T::GridCoordinates gridCoordinates;
+    uint fileId1 = toInt64(argv[2]);
+    uint messageIndex1 = toInt64(argv[3]);
+    uint fileId2 = toInt64(argv[4]);
+    uint messageIndex2 = toInt64(argv[5]);
+    int level = toInt64(argv[6]);
+    T::CoordinateType coordinateType = toInt64(argv[7]);
+    double x = toDouble(argv[8]);
+    double y = toDouble(argv[9]);
+    short areaInterpolationMethod = toInt16(argv[10]);
+    short levelInterpolationMethod = toInt16(argv[11]);
+    T::ParamValue value = 0;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridCoordinates(sessionId,fileId,messageIndex,coordinateType,gridCoordinates);
+    int result = dataServer.getGridValueByLevelAndPoint(sessionId,fileId1,messageIndex1,fileId2,messageIndex2,level,coordinateType,x,y,areaInterpolationMethod,levelInterpolationMethod,value);
     unsigned long long endTime = getTime();
 
 
@@ -54,7 +60,7 @@ int main(int argc, char *argv[])
 
     // ### Printing the result:
 
-    gridCoordinates.print(std::cout,0,0);
+    printf("VALUE %f\n",value);
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

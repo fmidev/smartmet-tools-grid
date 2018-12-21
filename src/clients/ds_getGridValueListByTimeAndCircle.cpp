@@ -18,9 +18,9 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc != 5)
+    if (argc != 12)
     {
-      fprintf(stdout,"USAGE: cs_getGridCoordinates <sessionId> <fileId> <messageIndex> <coordinateType>\n");
+      fprintf(stdout,"USAGE: ds_getGridValueListByTimeAndCircle <sessionId> <fileId1> <msgIdx1> <fileId2> <msgIdx2> <timestamp> <coordinateType> <origo-x> <origo-y> <radius> <timeInterpolationMethdod>\n");
       return -1;
     }
 
@@ -36,13 +36,20 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint fileId = toInt64(argv[2]);
-    uint messageIndex = toInt64(argv[3]);
-    T::CoordinateType coordinateType = toInt64(argv[4]);
-    T::GridCoordinates gridCoordinates;
+    uint fileId1 = toInt64(argv[2]);
+    uint messageIndex1 = toInt64(argv[3]);
+    uint fileId2 = toInt64(argv[4]);
+    uint messageIndex2 = toInt64(argv[5]);
+    std::string timestamp = argv[6];
+    T::CoordinateType coordinateType = toInt64(argv[7]);
+    double origoX = toDouble(argv[8]);
+    double origoY = toDouble(argv[9]);
+    double radius = toDouble(argv[10]);
+    short timeInterpolationMethod = toInt16(argv[11]);
+    T::GridValueList valueList;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridCoordinates(sessionId,fileId,messageIndex,coordinateType,gridCoordinates);
+    int result = dataServer.getGridValueListByTimeAndCircle(sessionId,fileId1,messageIndex1,fileId2,messageIndex2,timestamp,coordinateType,origoX,origoY,radius,timeInterpolationMethod,valueList);
     unsigned long long endTime = getTime();
 
 
@@ -54,7 +61,13 @@ int main(int argc, char *argv[])
 
     // ### Printing the result:
 
-    gridCoordinates.print(std::cout,0,0);
+    valueList.print(std::cout,0,0);
+
+    printf("\n");
+    printf("- Values = %u\n",valueList.getLength());
+    printf("- Min    = %f\n",valueList.getMinValue());
+    printf("- Max    = %f\n",valueList.getMaxValue());
+    printf("- Avg    = %f\n",valueList.getAverageValue());
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

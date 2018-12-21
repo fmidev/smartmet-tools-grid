@@ -17,9 +17,9 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc != 9)
+    if (argc != 8)
     {
-      fprintf(stdout,"USAGE: ds_getGridValueVectorByPoint <sessionId> <fileId> <messageIndex> <flags> <coordinateType> <x> <y> <vectorType>\n");
+      fprintf(stdout,"USAGE: ds_getGridValueVectorByPoint <sessionId> <fileId> <messageIndex> <coordinateType> <x> <y> <vectorType>\n");
       return -1;
     }
 
@@ -37,15 +37,14 @@ int main(int argc, char *argv[])
 
     uint fileId = toInt64(argv[2]);
     uint messageIndex = toInt64(argv[3]);
-    uint flags = toInt64(argv[4]);
-    T::CoordinateType coordinateType = toInt64(argv[5]);
-    double x = toDouble(argv[6]);
-    double y = toDouble(argv[7]);
-    uint vectorType = toInt64(argv[8]);
+    T::CoordinateType coordinateType = toInt64(argv[4]);
+    double x = toDouble(argv[5]);
+    double y = toDouble(argv[6]);
+    uint vectorType = toInt64(argv[7]);
     double_vec valueVector;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueVectorByPoint(sessionId,fileId,messageIndex,flags,coordinateType,x,y,vectorType,valueVector);
+    int result = dataServer.getGridValueVectorByPoint(sessionId,fileId,messageIndex,coordinateType,x,y,vectorType,valueVector);
     unsigned long long endTime = getTime();
 
 

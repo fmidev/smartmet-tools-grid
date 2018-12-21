@@ -3,6 +3,7 @@
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ImageFunctions.h"
+#include "grid-files/common/ImagePaint.h"
 #include "grid-files/common/GraphFunctions.h"
 #include "grid-files/identification/GridDef.h"
 
@@ -46,11 +47,11 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    if (argc < 11)
+    if (argc < 12)
     {
       fprintf(stdout,"USAGE:\n");
       fprintf(stdout,"  ds_getGridIsolineImageByTime <sessionId> <fileId1> <msgIdx1> <fileId2> <msgIdx2>\n");
-      fprintf(stdout,"    <gridTime> <multiplier> <rotateImage> <imageFile> <contourVal1> [<contourVal2>..<contourValN>] \n");
+      fprintf(stdout,"    <gridTime> <areaInterpolation> <multiplier> <rotateImage> <pngFile> <contourVal1> [<contourVal2>..<contourValN>] \n");
       return -1;
     }
 
@@ -63,15 +64,27 @@ int main(int argc, char *argv[])
     uint fileId2 = toInt64(argv[4]);
     uint messageIndex2 = toInt64(argv[5]);
     std::string timestamp = argv[6];
-    double mp = toDouble(argv[7]);
-    bool rotate = (bool)toInt64(argv[8]);
-    char *jpgFile = argv[9];
+    uint areaInterpolation = toInt64(argv[7]);
+    double mp = toDouble(argv[8]);
+    bool rotate = (bool)toInt64(argv[9]);
+    char *pngFile = argv[10];
 
-    for (int t=10; t<argc; t++)
-      values.push_back(atof(argv[t]));
+    std::vector<uint> colorList;
+
+    for (int t=11; t<argc; t++)
+    {
+      std::vector<std::string> partList1;
+      splitString(argv[t],':',partList1);
+      values.push_back(atof(partList1[0].c_str()));
+      if (partList1.size() == 2)
+        colorList.push_back(strtoll(partList1[1].c_str(),nullptr,16));
+      else
+        colorList.push_back(0xFFFFFFFF);
+    }
 
 
-    attributeList.addAttribute("grid.timeInterpolationMethod",std::to_string(1));
+    attributeList.addAttribute("grid.areaInterpolationMethod",std::to_string(areaInterpolation));
+    attributeList.addAttribute("grid.timeInterpolationMethod",std::to_string(areaInterpolation));
     attributeList.addAttribute("contour.coordinateType",std::to_string(T::CoordinateTypeValue::GRID_COORDINATES));
 
     // ### Creating a dataServer client:
@@ -118,20 +131,27 @@ int main(int argc, char *argv[])
     int imageWidth = width*mp;
     int imageHeight = height*mp;
 
-    int sz = imageWidth * imageHeight;
-    unsigned long *image = new unsigned long[sz];
-    for (int t=0; t<sz; t++)
-      image[t] = 0xFFFFFF;
+    ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,false,rotate);
 
     // ### Painting contours into the image:
 
     if (contours.size() > 0)
-      paintWkb(image,imageWidth,imageHeight,false,rotate,mp,0,0,contours,0x00);
+    {
+      uint t = 0;
+      for (auto it = contours.begin(); it != contours.end(); ++it)
+      {
+        uint col = colorList[t];
+        if (col == 0xFFFFFFFF)
+          col = 0;
+
+        imagePaint.paintWkb(mp,mp,0,0,*it,col);
+        t++;
+      }
+    }
 
     // ### Saving the image and releasing the image data:
 
-    jpeg_save(jpgFile,image,imageHeight,imageWidth,100);
-    delete[] image;
+    imagePaint.savePngImage(pngFile);
 
     return 0;
   }

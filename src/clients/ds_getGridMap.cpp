@@ -46,7 +46,7 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
     int width = columns;
     int height = rows;
 
-    unsigned long *image = new unsigned long[width*height];
+    uint *image = new uint[width*height];
 
     unsigned char hue = 0;
     unsigned char saturation = 0;
@@ -94,9 +94,9 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc != 6)
+    if (argc != 5)
     {
-      fprintf(stdout,"USAGE: cs_getGridMap <sessionId> <fileId> <messageIndex> <flags> <jpgFile>\n");
+      fprintf(stdout,"USAGE: cs_getGridMap <sessionId> <fileId> <messageIndex> <jpgFile>\n");
       return -1;
     }
 
@@ -113,13 +113,12 @@ int main(int argc, char *argv[])
 
     uint fileId = toInt64(argv[2]);
     uint messageIndex = toInt64(argv[3]);
-    uint flags = toInt64(argv[4]);
     uint columns = 1800;
     uint rows = 900;
     T::ParamValue_vec values;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,flags,T::CoordinateTypeValue::LATLON_COORDINATES,columns,rows,-180,90,360/C_DOUBLE(columns),-180/C_DOUBLE(rows),T::AreaInterpolationMethod::Nearest,values);
+    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,T::CoordinateTypeValue::LATLON_COORDINATES,columns,rows,-180,90,360/C_DOUBLE(columns),-180/C_DOUBLE(rows),T::AreaInterpolationMethod::Nearest,values);
     unsigned long long endTime = getTime();
 
     if (result != 0)
@@ -130,7 +129,7 @@ int main(int argc, char *argv[])
 
     // ### Saving the grid data as an image:
 
-    saveImage(argv[5],columns,rows,values);
+    saveImage(argv[4],columns,rows,values);
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

@@ -18,9 +18,9 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc != 10)
+    if (argc != 9)
     {
-      fprintf(stdout,"USAGE: ds_getGridValueListByArea <sessionId> <fileId> <messageIndex> <flags> <coordinateType> <x1> <y1> <x2> <y2>\n");
+      fprintf(stdout,"USAGE: ds_getGridValueListByArea <sessionId> <fileId> <messageIndex> <coordinateType> <x1> <y1> <x2> <y2>\n");
       return -1;
     }
 
@@ -38,16 +38,15 @@ int main(int argc, char *argv[])
 
     uint fileId = toInt64(argv[2]);
     uint messageIndex = toInt64(argv[3]);
-    uint flags = toInt64(argv[4]);
-    T::CoordinateType coordinateType = toInt64(argv[5]);
-    double x1 = toDouble(argv[6]);
-    double y1 = toDouble(argv[7]);
-    double x2 = toDouble(argv[8]);
-    double y2 = toDouble(argv[9]);
+    T::CoordinateType coordinateType = toInt64(argv[4]);
+    double x1 = toDouble(argv[5]);
+    double y1 = toDouble(argv[6]);
+    double x2 = toDouble(argv[7]);
+    double y2 = toDouble(argv[8]);
     T::GridValueList valueList;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueListByRectangle(sessionId,fileId,messageIndex,flags,coordinateType,x1,y1,x2,y2,valueList);
+    int result = dataServer.getGridValueListByRectangle(sessionId,fileId,messageIndex,coordinateType,x1,y1,x2,y2,valueList);
     unsigned long long endTime = getTime();
 
 

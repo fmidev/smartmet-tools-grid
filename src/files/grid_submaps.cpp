@@ -129,8 +129,8 @@ void saveMessageSubmap(const char *imageFile,const GRID::Message *message,double
     uint levelSize = 256/valueLevels;
 
     uint size = (width*height);
-    unsigned long *image = new unsigned long[size];
-    memset(image,0xFF,size*sizeof(unsigned long));
+    uint *image = new uint[size];
+    memset(image,0xFF,size*sizeof(uint));
 
     unsigned char hue = 30;
     unsigned char saturation = 128;

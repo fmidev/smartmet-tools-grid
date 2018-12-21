@@ -20,9 +20,9 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc != 6)
+    if (argc != 5)
     {
-      fprintf(stdout,"USAGE: ds_getGridData <sessionId> <fileId> <messageIndex> <flags> <outputCsvFile> \n");
+      fprintf(stdout,"USAGE: ds_getGridData <sessionId> <fileId> <messageIndex> <outputCsvFile> \n");
       return -1;
     }
 
@@ -40,12 +40,11 @@ int main(int argc, char *argv[])
 
     uint fileId = toInt64(argv[2]);
     uint messageIndex = toInt64(argv[3]);
-    uint flags = toInt64(argv[4]);
-    char *outputFile = argv[5];
+    char *outputFile = argv[4];
     T::GridData gridData;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridData(sessionId,fileId,messageIndex,flags,gridData);
+    int result = dataServer.getGridData(sessionId,fileId,messageIndex,gridData);
     unsigned long long endTime = getTime();
 
 

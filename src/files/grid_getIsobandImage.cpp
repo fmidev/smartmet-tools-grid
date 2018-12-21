@@ -7,6 +7,7 @@
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/GeneralDefinitions.h"
 #include "grid-files/common/ImageFunctions.h"
+#include "grid-files/common/ImagePaint.h"
 #include "grid-files/common/GraphFunctions.h"
 #include "grid-files/grid/Typedefs.h"
 #include "grid-files/grid/ValueCache.h"
@@ -55,8 +56,8 @@ void print_usage()
   printf("  The program saves isoband image of a grid.\n");
   printf("\n");
   printf("USAGE :\n");
-  printf("  grid_getIsobandImageByBox <gridFile> <msgIndex> <multiplier>\n");
-  printf("         <rotateImage> <imageFile> <contourVal1> [<contourVal2>..<contourValN>] \n");
+  printf("  grid_getIsobandImage <gridFile> <msgIndex> <areaInterpolation> <multiplier>\n");
+  printf("         <rotateImage> <pngFile> <contourVal1> [<contourVal2>..<contourValN>] \n");
   printf("\n");
   printf("-------------------------------------------------------------------------------- \n");
   printf("\n");
@@ -85,19 +86,31 @@ int main(int argc, char **argv)
     std::string gridFilename = argv[1];
     uint messageIndex = atoi(argv[2]);
     double mp = atof(argv[3]);
-    bool rotate = (bool)atoi(argv[4]);
-    char *jpgFile = argv[5];
+    uint areaInterpolation = toInt64(argv[4]);
+    bool rotate = (bool)atoi(argv[5]);
+    char *pngFile = argv[6];
 
     SmartMet::GRID::PhysicalGridFile gridFile;
     gridFile.read(gridFilename);
 
-    for (int t=6; t<(argc-1); t++)
+    std::vector<uint> colorList;
+
+    for (int t=7; t<(argc-1); t++)
     {
-      lowValues.push_back(atof(argv[t]));
-      highValues.push_back(atof(argv[t+1]));
+      std::vector<std::string> partList1;
+      splitString(argv[t],':',partList1);
+      lowValues.push_back(atof(partList1[0].c_str()));
+      if (partList1.size() == 2)
+        colorList.push_back(strtoll(partList1[1].c_str(),nullptr,16));
+      else
+        colorList.push_back(0xFFFFFFFF);
+
+      std::vector<std::string> partList2;
+      splitString(argv[t+1],':',partList2);
+      highValues.push_back(atof(partList2[0].c_str()));
     }
 
-    attributeList.addAttribute("grid.areaInterpolationMethod","1");
+    attributeList.addAttribute("grid.areaInterpolationMethod",std::to_string(areaInterpolation));
     attributeList.addAttribute("contour.coordinateType",std::to_string(T::CoordinateTypeValue::GRID_COORDINATES));
 
 
@@ -132,10 +145,7 @@ int main(int argc, char **argv)
     int imageWidth = width*mp;
     int imageHeight = height*mp;
 
-    int sz = imageWidth * imageHeight;
-    unsigned long *image = new unsigned long[sz];
-    for (int t=0; t<sz; t++)
-      image[t] = 0xFFFFFF;
+    ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,false,rotate);
 
     // ### Painting contours into the image:
 
@@ -144,19 +154,23 @@ int main(int argc, char **argv)
       uint c = 250;
       uint step = 250 / contours.size();
 
+      uint t = 0;
       for (auto it = contours.begin(); it != contours.end(); ++it)
       {
-        uint col = (c << 16) + (c << 8) + c;
-        paintWkb(image,imageWidth,imageHeight,false,rotate,mp,0,0,*it,col);
+        uint col = colorList[t];
+        if (col == 0xFFFFFFFF)
+          col = (c << 16) + (c << 8) + c;
+
+        imagePaint.paintWkb(mp,mp,0,0,*it,col);
         c = c - step;
+        t++;
       }
     }
 
 
     // ### Saving the image and releasing the image data:
 
-    jpeg_save(jpgFile,image,imageHeight,imageWidth,100);
-    delete[] image;
+    imagePaint.savePngImage(pngFile);
 
     return 0;
   }

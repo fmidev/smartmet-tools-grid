@@ -389,85 +389,6 @@ uint readFiles(PGconn *conn,const char *tableName,uint producerId,uint geometryI
 
 
 
-void updateForecastDeletionTimes(PGconn *conn)
-{
-  FUNCTION_TRACE
-  try
-  {
-    char sql[1000];
-    char *p = sql;
-    p += sprintf(p,"SELECT\n");
-    p += sprintf(p,"  producer_id,\n");
-    p += sprintf(p,"  geometry_id,\n");
-    p += sprintf(p,"  schema_name,\n");
-    p += sprintf(p,"  partition_name,\n");
-    p += sprintf(p,"  to_char(analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),\n");
-    p += sprintf(p,"  to_char(min_analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),\n");
-    p += sprintf(p,"  to_char(max_analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),\n");
-    p += sprintf(p,"  to_char(delete_time at time zone 'utc', 'yyyymmddThh24MISS')\n");
-    p += sprintf(p,"FROM\n");
-    p += sprintf(p,"  as_grid\n");
-
-    PGresult *res = PQexec(conn, sql);
-    if (PQresultStatus(res) != PGRES_TUPLES_OK)
-    {
-      SmartMet::Spine::Exception exception(BCP,"Postgresql error!");
-      exception.addParameter("ErrorMessage",PQerrorMessage(conn));
-      throw exception;
-    }
-
-    int rowCount = PQntuples(res);
-    int foundCount = 0;
-
-    printf("ROWS %d\n",rowCount);
-    for (int i = 0; i < rowCount; i++)
-    {
-      uint producerId = toInt64(PQgetvalue(res, i, 0));
-      uint geometryId = toInt64(PQgetvalue(res, i, 1));
-      std::string schemaName = PQgetvalue(res, i, 2);
-      std::string partitionName = PQgetvalue(res, i, 3);
-      std::string tableName = schemaName + "." + partitionName;
-      std::string analysisTime = PQgetvalue(res, i, 4);
-      std::string minAnalysisTime = PQgetvalue(res, i, 5);
-      std::string maxAnalysisTime = PQgetvalue(res, i, 6);
-      std::string deletionTime = PQgetvalue(res, i, 7);
-
-      printf("SEARCH %u;%u;%s;%s;%s;%s\n",producerId,geometryId,minAnalysisTime.c_str(),maxAnalysisTime.c_str(),deletionTime.c_str(),tableName.c_str());
-
-      bool found = false;
-      for (auto it=mSourceForacastList.begin(); it!=mSourceForacastList.end()  &&  !found; ++it)
-      {
-        //printf("  ** compare %u;%u   %u;%u  %s;%s\n",it->producerId,producerId,it->geometryId,geometryId,it->analysisTime.c_str(),analysisTime.c_str());
-        if (it->producerId == producerId  &&  it->geometryId == geometryId  &&  it->tableName == tableName  &&  it->analysisTime == analysisTime /*it->analysisTime >= minAnalysisTime   &&  it->analysisTime >= maxAnalysisTime*/)
-        {
-          it->deletionTime = deletionTime;
-          //found = true;
-          printf(" ** FOUND\n");
-          foundCount++;
-        }
-      }
-    }
-    PQclear(res);
-
-    printf("END TIMES %d / %d\n",foundCount,(int)mSourceForacastList.size());
-
-    for (auto it=mSourceForacastList.begin(); it!=mSourceForacastList.end(); ++it)
-    {
-      if (it->deletionTime.empty())
-      {
-        printf("NF %u;%u;%s;%s\n",it->producerId,it->geometryId,it->tableName.c_str(),it->analysisTime.c_str());
-      }
-    }
-
-  }
-  catch (...)
-  {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
-  }
-}
-
-
-
 
 void readSourceForecastTimes(PGconn *conn)
 {
@@ -481,19 +402,20 @@ void readSourceForecastTimes(PGconn *conn)
     p+= sprintf(p,"SELECT DISTINCT\n");
     p+= sprintf(p,"  fmi_producer.id,\n");
     p+= sprintf(p,"  fmi_producer.name,\n");
-    p+= sprintf(p,"  to_char(ss_state.analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),\n");
-    p+= sprintf(p,"  to_char((ss_state.analysis_time+ss_state.forecast_period) at time zone 'utc', 'yyyymmddThh24MISS'),\n");
-    p+= sprintf(p,"  ss_state.forecast_period,\n");
-    p+= sprintf(p,"  ss_state.table_name,\n");
-    p+= sprintf(p,"  ss_state.geometry_id,\n");
-    p+= sprintf(p,"  ss_state.forecast_type_id,\n");
-    p+= sprintf(p,"  ss_state.forecast_type_value,\n");
-    p+= sprintf(p,"  to_char(ss_state.last_updated at time zone 'utc', 'yyyymmddThh24MISS')\n");
+    p+= sprintf(p,"  to_char(ss_state_v.analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),\n");
+    p+= sprintf(p,"  to_char((ss_state_v.analysis_time+ss_state_v.forecast_period) at time zone 'utc', 'yyyymmddThh24MISS'),\n");
+    p+= sprintf(p,"  ss_state_v.forecast_period,\n");
+    p+= sprintf(p,"  ss_state_v.table_name,\n");
+    p+= sprintf(p,"  ss_state_v.geometry_id,\n");
+    p+= sprintf(p,"  ss_state_v.forecast_type_id,\n");
+    p+= sprintf(p,"  ss_state_v.forecast_type_value,\n");
+    p+= sprintf(p,"  to_char(ss_state_v.delete_time at time zone 'utc', 'yyyymmddThh24MISS'),\n");
+    p+= sprintf(p,"  to_char(ss_state_v.last_updated at time zone 'utc', 'yyyymmddThh24MISS')\n");
     p+= sprintf(p,"FROM\n");
-    p+= sprintf(p,"  ss_state LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_state.producer_id\n");
+    p+= sprintf(p,"  ss_state_v LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_state_v.producer_id\n");
     p+= sprintf(p,"ORDER BY\n");
-    p+= sprintf(p,"  to_char(ss_state.analysis_time at time zone 'utc', 'yyyymmddThh24MISS') desc,\n");
-    p+= sprintf(p,"  to_char((ss_state.analysis_time+ss_state.forecast_period) at time zone 'utc', 'yyyymmddThh24MISS');\n");
+    p+= sprintf(p,"  to_char(ss_state_v.analysis_time at time zone 'utc', 'yyyymmddThh24MISS') desc,\n");
+    p+= sprintf(p,"  to_char((ss_state_v.analysis_time+ss_state_v.forecast_period) at time zone 'utc', 'yyyymmddThh24MISS');\n");
 
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
@@ -523,7 +445,8 @@ void readSourceForecastTimes(PGconn *conn)
         forecastRec.geometryId  = toInt64(PQgetvalue(res, i, 6));
         forecastRec.forecastTypeId = toInt64(PQgetvalue(res, i, 7));
         forecastRec.forecastTypeValue = toInt64(PQgetvalue(res, i, 8));
-        forecastRec.lastUpdated = PQgetvalue(res, i, 9);
+        forecastRec.deletionTime = PQgetvalue(res, i, 9);
+        forecastRec.lastUpdated = PQgetvalue(res, i, 10);
 
         T::GenerationInfo *generation = mTargetGenerationList.getGenerationInfoByName(forecastRec.generationName.c_str());
         if (generation != nullptr)
@@ -583,11 +506,11 @@ void readSourceGenerations(PGconn *conn)
     p += sprintf(p,"SELECT DISTINCT\n");
     p += sprintf(p,"  fmi_producer.id,\n");
     p += sprintf(p,"  fmi_producer.name,\n");
-    p += sprintf(p,"  to_char(ss_state.analysis_time at time zone 'utc', 'yyyymmddThh24MISS')\n");
+    p += sprintf(p,"  to_char(ss_state_v.analysis_time at time zone 'utc', 'yyyymmddThh24MISS')\n");
     p += sprintf(p,"FROM\n");
-    p += sprintf(p,"  ss_state LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_state.producer_id\n");
+    p += sprintf(p,"  ss_state_v LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_state_v.producer_id\n");
     p += sprintf(p,"ORDER BY");
-    p += sprintf(p,"  fmi_producer.id,to_char(ss_state.analysis_time at time zone 'utc', 'yyyymmddThh24MISS') desc;");
+    p += sprintf(p,"  fmi_producer.id,to_char(ss_state_v.analysis_time at time zone 'utc', 'yyyymmddThh24MISS') desc;");
 
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
@@ -651,7 +574,7 @@ void readSourceProducers(PGconn *conn)
     p += sprintf(p,"  fmi_producer.name,\n");
     p += sprintf(p,"  fmi_producer.description\n");
     p += sprintf(p,"FROM\n");
-    p += sprintf(p,"  ss_state LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_state.producer_id");
+    p += sprintf(p,"  ss_state_v LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_state_v.producer_id");
 
     PGresult *res = PQexec(conn,sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
@@ -1294,13 +1217,6 @@ int main(int argc, char *argv[])
 
       PRINT_DATA(mDebugLogPtr,"* Reading forecast time information from the source data storage\n");
       readSourceForecastTimes(conn);
-
-      //PRINT_DATA(mDebugLogPtr,"* Updating forecast deletion time information from the source data storage\n");
-      //updateForecastDeletionTimes(conn);
-
-      //PQfinish(conn);
-      //return 0;
-
 
       PRINT_DATA(mDebugLogPtr,"* Updating forecast time information into the target data storage\n");
       updateForecastTimes(targetInterface,conn);

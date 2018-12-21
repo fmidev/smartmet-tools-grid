@@ -3,6 +3,7 @@
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ImageFunctions.h"
+#include "grid-files/common/ImagePaint.h"
 #include "grid-files/common/GraphFunctions.h"
 #include "grid-files/identification/GridDef.h"
 
@@ -16,72 +17,6 @@
 #include <stdlib.h>
 
 using namespace SmartMet;
-
-
-std::vector<QueryServer::Query> queryList;
-QueryServer::Corba::ClientImplementation service;
-uint threadEndCount = 0;
-ThreadLock threadLock;
-T::SessionId sessionId = 0;
-
-
-
-static void* processThread(void *arg)
-{
-  try
-  {
-    uint sz = queryList.size();
-    uint readyCount = 0;
-    while (readyCount < sz)
-    {
-      readyCount = 0;
-      uint idx = sz;
-      {
-        AutoThreadLock lock(&threadLock);
-        for (uint t=0; t<sz; t++)
-        {
-          if (queryList[t].mFlags & 0x80000000)
-          {
-            readyCount++;
-          }
-          else
-          {
-            idx = t;
-            queryList[t].mFlags |= 0x80000000;
-            t = sz;
-          }
-        }
-      }
-
-      if (idx < sz)
-      {
-        int result = service.executeQuery(sessionId,queryList[idx]);
-
-        if (result != 0)
-        {
-          fprintf(stdout,"ERROR (%d) : %s\n",result,QueryServer::getResultString(result).c_str());
-          {
-            AutoThreadLock lock(&threadLock);
-            threadEndCount++;
-          }
-          return nullptr;
-        }
-      }
-    }
-
-    {
-      AutoThreadLock lock(&threadLock);
-      threadEndCount++;
-    }
-    return nullptr;
-  }
-  catch (...)
-  {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
-    exception.printError();
-    exit(-1);
-  }
-}
 
 
 
@@ -125,60 +60,72 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc < 11)
+    if (argc < 12)
     {
-      fprintf(stdout,"USAGE: qs_getParameterIsobands <sessionId> <parameter> <gridGeometryId> <multiplyer> <rotate> <startTime> <timeStepSizeInMinutes> <timesteps> <filePrefix> <contourVal1> [..<contourValN>]\n");
+      fprintf(stdout,"USAGE: qs_getParameterIsobands <sessionId> <parameter> <attributeList> <areaInterpolation> <multiplyer> <rotate> <startTime> <timeStepSizeInMinutes> <timesteps> <filePrefix> <contourVal1> [..<contourValN>]\n");
       return -1;
     }
 
     init();
 
-    sessionId = toInt64(argv[1]);
+    QueryServer::Corba::ClientImplementation service;
+    T::SessionId sessionId = toInt64(argv[1]);
     QueryServer::Query query;
     QueryServer::QueryParameter param;
 
-    query.mLocationType = QueryServer::Query::LocationType::Point;
+    query.mLocationType = QueryServer::Query::LocationType::Geometry;
 
-    uint geometryId = atoi(argv[3]);
-    double mp = atof(argv[4]);
-    bool rotate = (bool)atoi(argv[5]);
-
-    uint width = 0;
-    uint height = 0;
-
-    uint cols = 0;
-    uint rows = 0;
-    if (Identification::gridDef.getGridDimensionsByGeometryId(geometryId,cols,rows))
-    {
-      width = cols;
-      height = rows;
-    }
-    else
-    {
-      fprintf(stdout,"ERROR: Unknow geometry!\n");
-      return -2;
-    }
+    char *attributes = argv[3];
+    uint areaInterpolation = toInt64(argv[4]);
+    double mp = atof(argv[5]);
+    bool rotate = (bool)atoi(argv[6]);
 
     service.init(serviceIor);
 
-    query.mAttributeList.setAttribute("grid.geometryId",std::to_string(geometryId));
-    query.mStartTime = argv[6];
+    query.mAttributeList.addAttribute("contour.coordinateType",std::to_string(T::CoordinateTypeValue::GRID_COORDINATES));
+    query.mAttributeList.addAttribute("grid.areaInterpolationMethod",std::to_string(areaInterpolation));
+    query.mAttributeList.addAttribute("grid.timeInterpolationMethod",std::to_string(areaInterpolation));
 
-    uint timestep = atoi(argv[7]);
-    uint timesteps = atoi(argv[8]);
-    char *filePrefix = argv[9];
+    std::vector<std::string> attrList;
+    splitString(attributes,',',attrList);
+    for (auto it=attrList.begin(); it != attrList.end(); ++it)
+    {
+      std::vector<std::string> partList;
+      splitString(*it,'=',partList);
+      if (partList.size() == 2)
+        query.mAttributeList.setAttribute(partList[0],partList[1]);
+    }
+
+
+    query.mStartTime = argv[7];
+
+    uint timestep = atoi(argv[8]);
+    uint timesteps = atoi(argv[9]);
+    char *filePrefix = argv[10];
 
     param.mParam = argv[2];
 
+    std::vector<uint> colorList;
+
     query.mType = QueryServer::Query::Type::Isoband;
-    for (int t=10; t<argc-1; t++)
+    for (int t=11; t<argc-1; t++)
     {
-      param.mContourLowValues.push_back(atof(argv[t]));
-      param.mContourHighValues.push_back(atof(argv[t+1]));
+      std::vector<std::string> partList1;
+      splitString(argv[t],':',partList1);
+      param.mContourLowValues.push_back(atof(partList1[0].c_str()));
+      if (partList1.size() == 2)
+        colorList.push_back(strtoll(partList1[1].c_str(),nullptr,16));
+      else
+        colorList.push_back(0xFFFFFFFF);
+
+      std::vector<std::string> partList2;
+      splitString(argv[t+1],':',partList2);
+      param.mContourHighValues.push_back(atof(partList2[0].c_str()));
     }
 
     query.mQueryParameterList.push_back(param);
 
+    unsigned long long startTime = getTime();
 
     auto s = boost::posix_time::from_iso_string(query.mStartTime);
     for (uint t=0; t<timesteps; t++)
@@ -189,62 +136,50 @@ int main(int argc, char *argv[])
       newQuery.mForecastTimeList.insert(str);
 
       s = s + boost::posix_time::seconds(timestep*60);
-      queryList.push_back(newQuery);
-    }
 
-    unsigned long long startTime = getTime();
+      int result = service.executeQuery(sessionId,newQuery);
 
-    pthread_t mThread[10];
-
-    for (uint t=0; t<5; t++)
-    {
-      pthread_create(&mThread[t],nullptr,processThread,nullptr);
-      time_usleep(0,100);
-    }
-
-    while (threadEndCount < 5)
-    {
-      //printf("ThreadEndCount %u\n",threadEndCount);
-      time_usleep(0,100);
-    }
-
-    unsigned long long endTime = getTime();
-
-
-    for (uint t=0; t<timesteps; t++)
-    {
-      for (auto it = queryList[t].mQueryParameterList.begin(); it != queryList[t].mQueryParameterList.end(); ++it)
+      if (newQuery.mAttributeList.getAttributeValue("grid.width") != nullptr && newQuery.mAttributeList.getAttributeValue("grid.height") != nullptr)
       {
-        for (auto v = it->mValueList.begin(); v != it->mValueList.end(); ++v)
+        int width = atoi(newQuery.mAttributeList.getAttributeValue("grid.width"));
+        int height = atoi(newQuery.mAttributeList.getAttributeValue("grid.height"));
+
+        for (auto it = newQuery.mQueryParameterList.begin(); it != newQuery.mQueryParameterList.end(); ++it)
         {
-          //printf("%s (%lu):",v->mForecastTime.c_str(),v->mWkbList.size());
-
-          int imageWidth = width*mp;
-          int imageHeight = height*mp;
-
-          int sz = imageWidth * imageHeight;
-          unsigned long *image = new unsigned long[sz];
-          for (int t=0; t<sz; t++)
-            image[t] = 0xFFFFFF;
-
-          uint c = 250;
-          uint step = 250 / v->mWkbList.size();
-
-          for (auto it = v->mWkbList.begin(); it != v->mWkbList.end(); ++it)
+          for (auto v = it->mValueList.begin(); v != it->mValueList.end(); ++v)
           {
-            uint col = (c << 16) + (c << 8) + c;
-            paintWkb(image,imageWidth,imageHeight,false,rotate,mp,0,0,*it,col);
-            c = c - step;
-          }
+            //printf("%s (%lu):",v->mForecastTime.c_str(),v->mWkbList.size());
 
-          char filename[200];
-          sprintf(filename,"%s_%04u.jpg",filePrefix,t);
-          printf("Saving image : %s\n",filename);
-          jpeg_save(filename,image,imageHeight,imageWidth,100);
-          delete[] image;
+            int imageWidth = width*mp;
+            int imageHeight = height*mp;
+
+            ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,false,rotate);
+
+            uint c = 250;
+            uint step = 250 / v->mWkbList.size();
+
+            uint a = 0;
+            for (auto it = v->mWkbList.begin(); it != v->mWkbList.end(); ++it)
+            {
+              uint col = colorList[a];
+              if (col == 0xFFFFFFFF)
+                col = (c << 16) + (c << 8) + c;
+
+              imagePaint.paintWkb(mp,mp,0,0,*it,col);
+              c = c - step;
+              a++;
+            }
+
+            char filename[200];
+            sprintf(filename,"%s_%04u.png",filePrefix,t);
+            printf("Saving image : %s\n",filename);
+            imagePaint.savePngImage(filename);
+          }
         }
       }
     }
+
+    unsigned long long endTime = getTime();
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 
     return 0;

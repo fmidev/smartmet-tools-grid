@@ -111,7 +111,7 @@ void saveMessageImage(const char *imageFile,const GRID::Message *message,T::Para
     if (width == 0)
       width = (int)((int)message->getGridOriginalColumnCount() * scaleFactor);
 
-    unsigned long *image = new unsigned long[width*height];
+    uint *image = new uint[width*height];
 
     unsigned char hue = 30;
     unsigned char saturation = 128;

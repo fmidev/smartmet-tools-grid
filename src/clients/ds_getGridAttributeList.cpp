@@ -17,9 +17,9 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc != 5)
+    if (argc != 4)
     {
-      fprintf(stdout,"USAGE: ds_getGridAttributeList <sessionId> <fileId> <messageIndex> <flags>\n");
+      fprintf(stdout,"USAGE: ds_getGridAttributeList <sessionId> <fileId> <messageIndex>\n");
       return -1;
     }
 
@@ -37,11 +37,10 @@ int main(int argc, char *argv[])
 
     uint fileId = toInt64(argv[2]);
     uint messageIndex = toInt64(argv[3]);
-    uint flags = toInt64(argv[4]);
     T::AttributeList attributeList;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridAttributeList(sessionId,fileId,messageIndex,flags,attributeList);
+    int result = dataServer.getGridAttributeList(sessionId,fileId,messageIndex,attributeList);
     unsigned long long endTime = getTime();
 
 
