@@ -681,6 +681,7 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
     fprintf(file,"# 1) FmiParameterId\n");
     fprintf(file,"# 2) NewbaseParameterId\n");
     fprintf(file,"# 3) ConversionFunction\n");
+    fprintf(file,"# 4) ReverseConversionFunction\n");
     fprintf(file,"#\n");
 
     char sql[3000];
@@ -738,23 +739,27 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
       if (newbaseId > "0")
       {
         if (unit == "K")
-          fprintf(file,"SUM{$,-273.15}\n"); // Converting all kelvin values to celcius (assuming that the newbase has no Kelvin parameters)
+        {
+          fprintf(file,"SUM{$,-273.15};SUM{$,273.15};"); // Converting all kelvin values to celcius (assuming that the newbase has no Kelvin parameters)
+        }
         else
         if (unit == "C")
-          fprintf(file,";\n"); // Assuming that celcius parameters do not need any conversion)
+          fprintf(file,";;\n"); // Assuming that celcius parameters do not need any conversion)
         else
         if (base != 0  &&  scale == 1)
-          fprintf(file,"SUM{$,%f}\n",base);
+        {
+          fprintf(file,"SUM{$,%f};SUM{$,%f};",base,-base);
+        }
         else
         if (base == 0  &&  scale != 1  &&  scale != 0)
-          fprintf(file,"MUL{$,%f}\n",scale);
+        {
+          fprintf(file,"MUL{$,%f};DIV{$,%f};",scale,scale);
+        }
         else
-          fprintf(file,";\n");
+          fprintf(file,";;");
       }
       else
-      {
-        fprintf(file,";\n");
-      }
+        fprintf(file,";;\n");
     }
 
     fclose(file);
@@ -798,6 +803,7 @@ void create_fmi_parameters(PGconn *conn,const char *dir)
     fprintf(file,"# 5) AreaInterpolationMethod\n");
     fprintf(file,"# 6) TimeInterpolationMethod\n");
     fprintf(file,"# 7) LevelInterpolationMethod\n");
+    fprintf(file,"# 8) DefaultPrecision\n");
     fprintf(file,"#\n");
 
     char sql[3000];
@@ -833,7 +839,15 @@ void create_fmi_parameters(PGconn *conn,const char *dir)
       {
         fprintf(file,"%s;",PQgetvalue(res,i,f));
       }
-      fprintf(file,"\n");
+      std::string unit = PQgetvalue(res,i,3);
+
+      if (unit == "C" || unit == "K" || unit == "m s-1" || unit == "cm" || unit == "mm")
+        fprintf(file,"1;\n");
+      else
+      if (unit == "m" || unit == "kg")
+        fprintf(file,"2;\n");
+      else
+        fprintf(file,";\n");
     }
 
     fclose(file);

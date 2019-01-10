@@ -17,9 +17,11 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc != 12)
+    if (argc != 18)
     {
-      fprintf(stdout,"USAGE: ds_getGridValueByLevelAndPoint <sessionId> <fileId1> <msgIndex1> <fileId2> <msgIndex2> <level> <coordinateType> <x> <y> <areaInterpolationMethod> <levelInterpolationMethod>\n");
+      fprintf(stdout,"USAGE:\n");
+      fprintf(stdout,"  ds_getGridValueByTimeLevelAndPoint <sessionId> <fileId1> <msgIdx1> <fileId2> <msgIdx2> <fileId3> <msgIdx3> <fileId4> <msgIdx4>\n");
+      fprintf(stdout,"      <timestamp> <level> <coordinateType> <x> <y> <areaInterpolationMethod> <timeInterpolationMethod> <levelInterpolationMethod>\n");
       return -1;
     }
 
@@ -39,16 +41,23 @@ int main(int argc, char *argv[])
     uint messageIndex1 = toInt64(argv[3]);
     uint fileId2 = toInt64(argv[4]);
     uint messageIndex2 = toInt64(argv[5]);
-    int level = toInt64(argv[6]);
-    T::CoordinateType coordinateType = toInt64(argv[7]);
-    double x = toDouble(argv[8]);
-    double y = toDouble(argv[9]);
-    short areaInterpolationMethod = toInt16(argv[10]);
-    short levelInterpolationMethod = toInt16(argv[11]);
+    uint fileId3 = toInt64(argv[6]);
+    uint messageIndex3 = toInt64(argv[7]);
+    uint fileId4 = toInt64(argv[8]);
+    uint messageIndex4 = toInt64(argv[9]);
+    std::string timestamp = argv[10];
+    int level = toInt64(argv[11]);
+    T::CoordinateType coordinateType = toInt64(argv[12]);
+    double x = toDouble(argv[13]);
+    double y = toDouble(argv[14]);
+    short areaInterpolationMethod = toInt16(argv[15]);
+    short timeInterpolationMethod = toInt16(argv[16]);
+    short levelInterpolationMethod = toInt16(argv[17]);
     T::ParamValue value = 0;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueByLevelAndPoint(sessionId,fileId1,messageIndex1,-1,fileId2,messageIndex2,-1,level,coordinateType,x,y,areaInterpolationMethod,levelInterpolationMethod,value);
+    int result = dataServer.getGridValueByTimeLevelAndPoint(sessionId,fileId1,messageIndex1,-1,fileId2,messageIndex2,-1,fileId3,messageIndex3,-1,fileId4,messageIndex4,-1,
+        timestamp,level,coordinateType,x,y,areaInterpolationMethod,timeInterpolationMethod,levelInterpolationMethod,value);
     unsigned long long endTime = getTime();
 
 

@@ -56,7 +56,6 @@ int main(int argc, char *argv[])
     QueryServer::Query query;
     QueryServer::QueryParameter param;
 
-    query.mLocationType = QueryServer::Query::LocationType::Point;
 
     uint geometryId = 0;
     if (argc >= 7)
@@ -90,7 +89,9 @@ int main(int argc, char *argv[])
         return -2;
       }
       */
-      query.mType = QueryServer::Query::Type::Isoband;
+      param.mType = QueryServer::Query::Type::Isoband;
+      param.mLocationType = QueryServer::Query::LocationType::Point;
+
       param.mContourLowValues.push_back(270);
       param.mContourLowValues.push_back(275);
       param.mContourLowValues.push_back(280);

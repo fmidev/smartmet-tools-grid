@@ -69,8 +69,6 @@ int main(int argc, char *argv[])
     QueryServer::Query query;
     QueryServer::QueryParameter param;
 
-    query.mLocationType = QueryServer::Query::LocationType::Geometry;
-
     char *attributes = argv[3];
     uint areaInterpolation = toInt64(argv[4]);
     double mp = atof(argv[5]);
@@ -83,7 +81,7 @@ int main(int argc, char *argv[])
     query.mAttributeList.addAttribute("grid.timeInterpolationMethod",std::to_string(areaInterpolation));
 
     std::vector<std::string> attrList;
-    splitString(attributes,',',attrList);
+    splitString(attributes,'|',attrList);
     for (auto it=attrList.begin(); it != attrList.end(); ++it)
     {
       std::vector<std::string> partList;
@@ -103,7 +101,10 @@ int main(int argc, char *argv[])
 
     std::vector<uint> colorList;
 
-    query.mType = QueryServer::Query::Type::Isoline;
+    param.mType = QueryServer::Query::Type::Isoline;
+    param.mLocationType = QueryServer::Query::LocationType::Geometry;
+
+
     for (int t=11; t<argc-1; t++)
     {
       std::vector<std::string> partList1;
@@ -134,42 +135,44 @@ int main(int argc, char *argv[])
       s = s + boost::posix_time::seconds(timestep*60);
 
       int result = service.executeQuery(sessionId,newQuery);
-
-      if (newQuery.mAttributeList.getAttributeValue("grid.width") != nullptr && newQuery.mAttributeList.getAttributeValue("grid.height") != nullptr)
+      if (result == 0)
       {
-        int width = atoi(newQuery.mAttributeList.getAttributeValue("grid.width"));
-        int height = atoi(newQuery.mAttributeList.getAttributeValue("grid.height"));
-
-        for (auto it = newQuery.mQueryParameterList.begin(); it != newQuery.mQueryParameterList.end(); ++it)
+        if (newQuery.mAttributeList.getAttributeValue("grid.width") != nullptr && newQuery.mAttributeList.getAttributeValue("grid.height") != nullptr)
         {
-          for (auto v = it->mValueList.begin(); v != it->mValueList.end(); ++v)
+          int width = atoi(newQuery.mAttributeList.getAttributeValue("grid.width"));
+          int height = atoi(newQuery.mAttributeList.getAttributeValue("grid.height"));
+
+          for (auto it = newQuery.mQueryParameterList.begin(); it != newQuery.mQueryParameterList.end(); ++it)
           {
-            //printf("%s (%lu):",v->mForecastTime.c_str(),v->mWkbList.size());
-
-            int imageWidth = width*mp;
-            int imageHeight = height*mp;
-
-            ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,false,rotate);
-
-
-            if (v->mWkbList.size() > 0)
+            for (auto v = it->mValueList.begin(); v != it->mValueList.end(); ++v)
             {
-              uint t = 0;
-              for (auto it = v->mWkbList.begin(); it != v->mWkbList.end(); ++it)
+              //printf("%s (%lu):",v->mForecastTime.c_str(),v->mWkbList.size());
+
+              int imageWidth = width*mp;
+              int imageHeight = height*mp;
+
+              ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,false,rotate);
+
+
+              if (v->mWkbList.size() > 0)
               {
-                uint col = colorList[t];
-                if (col == 0xFFFFFFFF)
-                  col = 0;
+                uint t = 0;
+                for (auto it = v->mWkbList.begin(); it != v->mWkbList.end(); ++it)
+                {
+                  uint col = colorList[t];
+                  if (col == 0xFFFFFFFF)
+                    col = 0;
 
-                imagePaint.paintWkb(1,1,0,0,*it,col);
-                t++;
+                  imagePaint.paintWkb(1,1,0,0,*it,col);
+                  t++;
+                }
               }
-            }
 
-            char filename[200];
-            sprintf(filename,"%s_%04u.png",filePrefix,t);
-            printf("Saving image : %s\n",filename);
-            imagePaint.savePngImage(filename);
+              char filename[200];
+              sprintf(filename,"%s_%04u.png",filePrefix,t);
+              printf("Saving image : %s\n",filename);
+              imagePaint.savePngImage(filename);
+            }
           }
         }
       }

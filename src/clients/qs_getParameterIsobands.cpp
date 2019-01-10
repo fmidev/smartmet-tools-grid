@@ -73,7 +73,6 @@ int main(int argc, char *argv[])
     QueryServer::Query query;
     QueryServer::QueryParameter param;
 
-    query.mLocationType = QueryServer::Query::LocationType::Geometry;
 
     char *attributes = argv[3];
     uint areaInterpolation = toInt64(argv[4]);
@@ -87,7 +86,7 @@ int main(int argc, char *argv[])
     query.mAttributeList.addAttribute("grid.timeInterpolationMethod",std::to_string(areaInterpolation));
 
     std::vector<std::string> attrList;
-    splitString(attributes,',',attrList);
+    splitString(attributes,'|',attrList);
     for (auto it=attrList.begin(); it != attrList.end(); ++it)
     {
       std::vector<std::string> partList;
@@ -107,7 +106,9 @@ int main(int argc, char *argv[])
 
     std::vector<uint> colorList;
 
-    query.mType = QueryServer::Query::Type::Isoband;
+    param.mType = QueryServer::Query::Type::Isoband;
+    param.mLocationType = QueryServer::Query::LocationType::Geometry;
+
     for (int t=11; t<argc-1; t++)
     {
       std::vector<std::string> partList1;
@@ -139,41 +140,47 @@ int main(int argc, char *argv[])
 
       int result = service.executeQuery(sessionId,newQuery);
 
-      if (newQuery.mAttributeList.getAttributeValue("grid.width") != nullptr && newQuery.mAttributeList.getAttributeValue("grid.height") != nullptr)
+      if (result == 0)
       {
-        int width = atoi(newQuery.mAttributeList.getAttributeValue("grid.width"));
-        int height = atoi(newQuery.mAttributeList.getAttributeValue("grid.height"));
-
-        for (auto it = newQuery.mQueryParameterList.begin(); it != newQuery.mQueryParameterList.end(); ++it)
+        if (newQuery.mAttributeList.getAttributeValue("grid.width") != nullptr && newQuery.mAttributeList.getAttributeValue("grid.height") != nullptr)
         {
-          for (auto v = it->mValueList.begin(); v != it->mValueList.end(); ++v)
+          int width = atoi(newQuery.mAttributeList.getAttributeValue("grid.width"));
+          int height = atoi(newQuery.mAttributeList.getAttributeValue("grid.height"));
+
+          for (auto it = newQuery.mQueryParameterList.begin(); it != newQuery.mQueryParameterList.end(); ++it)
           {
-            //printf("%s (%lu):",v->mForecastTime.c_str(),v->mWkbList.size());
-
-            int imageWidth = width*mp;
-            int imageHeight = height*mp;
-
-            ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,false,rotate);
-
-            uint c = 250;
-            uint step = 250 / v->mWkbList.size();
-
-            uint a = 0;
-            for (auto it = v->mWkbList.begin(); it != v->mWkbList.end(); ++it)
+            for (auto v = it->mValueList.begin(); v != it->mValueList.end(); ++v)
             {
-              uint col = colorList[a];
-              if (col == 0xFFFFFFFF)
-                col = (c << 16) + (c << 8) + c;
+              //printf("%s (%lu):",v->mForecastTime.c_str(),v->mWkbList.size());
 
-              imagePaint.paintWkb(mp,mp,0,0,*it,col);
-              c = c - step;
-              a++;
+              int imageWidth = width*mp;
+              int imageHeight = height*mp;
+
+              ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,false,rotate);
+
+              if (v->mWkbList.size() > 0)
+              {
+                uint c = 250;
+                uint step = 250 / v->mWkbList.size();
+
+                uint a = 0;
+                for (auto it = v->mWkbList.begin(); it != v->mWkbList.end(); ++it)
+                {
+                  uint col = colorList[a];
+                  if (col == 0xFFFFFFFF)
+                    col = (c << 16) + (c << 8) + c;
+
+                  imagePaint.paintWkb(mp,mp,0,0,*it,col);
+                  c = c - step;
+                  a++;
+                }
+              }
+
+              char filename[200];
+              sprintf(filename,"%s_%04u.png",filePrefix,t);
+              printf("Saving image : %s\n",filename);
+              imagePaint.savePngImage(filename);
             }
-
-            char filename[200];
-            sprintf(filename,"%s_%04u.png",filePrefix,t);
-            printf("Saving image : %s\n",filename);
-            imagePaint.savePngImage(filename);
           }
         }
       }

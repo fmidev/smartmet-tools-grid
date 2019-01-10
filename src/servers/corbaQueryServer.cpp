@@ -212,7 +212,8 @@ FILE* openMappingFile(std::string mappingFile)
     fprintf(file,"#         E = Enabled\n");
     fprintf(file,"#         D = Disabled\n");
     fprintf(file,"# 12) Mapping function (enables data conversions during the mapping)\n");
-    fprintf(file,"# 12) Reverse mapping function\n");
+    fprintf(file,"# 13) Reverse mapping function\n");
+    fprintf(file,"# 14) Default precision\n");
     fprintf(file,"# \n");
 
     return file;
@@ -335,17 +336,17 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
             if (found)
             {
               if (paramDef.mAreaInterpolationMethod >= 0)
-                fprintf(file,"%d;",(int)paramDef.mAreaInterpolationMethod);
+                fprintf(file,"%d;",paramDef.mAreaInterpolationMethod);
               else
                 fprintf(file,";");
 
               if (paramDef.mTimeInterpolationMethod >= 0)
-                fprintf(file,"%d;",(int)paramDef.mTimeInterpolationMethod);
+                fprintf(file,"%d;",paramDef.mTimeInterpolationMethod);
               else
                 fprintf(file,";");
 
               if (paramDef.mLevelInterpolationMethod >= 0)
-                fprintf(file,"%d;",(int)paramDef.mLevelInterpolationMethod);
+                fprintf(file,"%d;",paramDef.mLevelInterpolationMethod);
               else
                 fprintf(file,";");
 
@@ -357,14 +358,28 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
                 if (Identification::gridDef.getNewbaseParameterMappingByFmiId(paramDef.mFmiParameterId,paramMapping))
                 {
                   fprintf(file,"%s;",paramMapping.mConversionFunction.c_str());
-                  fprintf(file,"%s",paramMapping.mReverseConversionFunction.c_str());
+                  fprintf(file,"%s;",paramMapping.mReverseConversionFunction.c_str());
+                }
+                else
+                {
+                  fprintf(file,";;");
                 }
               }
-              fprintf(file,";\n");
+              else
+              {
+                fprintf(file,";;");
+              }
+
+              if (paramDef.mDefaultPrecision >= 0)
+                fprintf(file,"%d;",(int)paramDef.mDefaultPrecision);
+              else
+                fprintf(file,";");
+
+              fprintf(file,"\n");
             }
             else
             {
-              fprintf(file,"1;1;1;0;D;;;\n");
+              fprintf(file,"1;1;1;0;D;;;;\n");
             }
           }
         }
