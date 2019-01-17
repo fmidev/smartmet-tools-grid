@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 18.11.12
+Version: 19.1.17
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 18.11.1
-BuildRequires: smartmet-library-grid-files-devel >= 18.10.23
-BuildRequires: smartmet-library-grid-content-devel >= 18.10.23
+BuildRequires: smartmet-library-spine-devel >= 18.12.13
+BuildRequires: smartmet-library-grid-files-devel >= 19.1.17
+BuildRequires: smartmet-library-grid-content-devel >= 19.1.17
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -33,8 +33,8 @@ Requires: libconfig
 #Requires: smartmet-server >= 17.11.10
 #Requires: smartmet-engine-grid >= 18.2.8
 Requires: boost-date-time
-Requires: smartmet-library-grid-files >= 18.10.23
-Requires: smartmet-library-grid-content >= 18.10.23
+Requires: smartmet-library-grid-files >= 19.1.17
+Requires: smartmet-library-grid-content >= 19.1.17
 #Requires: smartmet-engine-grid
 Requires: openldap
 Requires: openssl-libs
@@ -198,6 +198,28 @@ Provides: gu_replaceConfigurationAttributes = %{Version}
 Provides: gu_getGridLatLonCoordinatesByGeometryId = %{Version}
 Provides: ds_getGridValueVector = %{Version}
 Provides: ds_getGridValueVectorByTime = %{Version}
+Provides: ds_getGridIsobandImage = %{Version}
+Provides: ds_getGridIsobandImageByGeometry = %{Version}
+Provides: ds_getGridIsobandImageByTime = %{Version}
+Provides: ds_getGridIsobandImageByTimeAndGeometry = %{Version}
+Provides: ds_getGridIsobandMap = %{Version}
+Provides: ds_getGridIsolineImage = %{Version}
+Provides: ds_getGridIsolineImageByGeometry = %{Version}
+Provides: ds_getGridIsolineImageByTime = %{Version}
+Provides: ds_getGridIsolineImageByTimeAndGeometry = %{Version}
+Provides: ds_getGridIsolineMap = %{Version}
+Provides: ds_getGridValueByLevelAndPoint = %{Version}
+Provides: ds_getGridValueByTimeAndPoint = %{Version}
+Provides: ds_getGridValueByTimeLevelAndPoint = %{Version}
+Provides: ds_getGridValueListByTimeAndCircle = %{Version}
+Provides: ds_getGridValueListByTimeAndPolygon = %{Version}
+Provides: qs_getParameterIsobands = %{Version}
+Provides: qs_getParameterIsolines = %{Version}
+Provides: grid_create = %{Version}
+Provides: grid_getIsobandImage = %{Version}
+Provides: grid_getIsolineImage = %{Version}
+Provides: gu_mergePngFiles = %{Version}
+Provides: gu_mergePngFilesSeq = %{Version}
 
 %description
 SmartMet tools for grid support
@@ -376,6 +398,30 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/utils/gu_getGridPointsInsidePolygonPath
 %{_bindir}/utils/gu_replaceConfigurationAttributes
 %{_bindir}/utils/gu_getGridLatLonCoordinatesByGeometryId
+%{_bindir}/clients/ds_getGridIsobandImage
+%{_bindir}/clients/ds_getGridIsobandImageByGeometry
+%{_bindir}/clients/ds_getGridIsobandImageByTime
+%{_bindir}/clients/ds_getGridIsobandImageByTimeAndGeometry
+%{_bindir}/clients/ds_getGridIsobandMap
+%{_bindir}/clients/ds_getGridIsolineImage
+%{_bindir}/clients/ds_getGridIsolineImageByGeometry
+%{_bindir}/clients/ds_getGridIsolineImageByTime
+%{_bindir}/clients/ds_getGridIsolineImageByTimeAndGeometry
+%{_bindir}/clients/ds_getGridIsolineMap
+%{_bindir}/clients/ds_getGridValueByLevelAndPoint
+%{_bindir}/clients/ds_getGridValueByTimeAndPoint
+%{_bindir}/clients/ds_getGridValueByTimeLevelAndPoint
+%{_bindir}/clients/ds_getGridValueListByTimeAndCircle
+%{_bindir}/clients/ds_getGridValueListByTimeAndPolygon
+%{_bindir}/clients/qs_getParameterIsobands
+%{_bindir}/clients/qs_getParameterIsolines
+%{_bindir}/files/grid_create
+%{_bindir}/files/grid_getIsobandImage
+%{_bindir}/files/grid_getIsolineImage
+%{_bindir}/utils/gu_mergePngFiles
+%{_bindir}/utils/gu_mergePngFilesSeq
+
+
 %defattr(0644,root,root,0755)
 %{_unitdir}/radon2smartmet.service
 
@@ -389,6 +435,8 @@ fi
 
 
 %changelog
+* Thu Jan 17 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.1.17-1.fmi
+- Various improvements
 * Mon Nov 12 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.11.12-1.fmi
 - Added a systemd script
 * Thu Oct 25 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.10.25-1.fmi
