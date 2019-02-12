@@ -88,13 +88,13 @@ int main(int argc, char *argv[])
     // ### Result:
     for (auto it=infoList.begin(); it != infoList.end(); ++it)
     {
-      std::cout << *it << "\n";
+      //std::cout << *it << "\n";
       std::vector<std::string> partList;
 
       splitString(it->c_str(),';',partList);
-      if (partList.size() >= 7)
+      if (partList.size() >= 10)
       {
-        std::cout << partList[0] << ";" << partList[1] << ";" << partList[2] << ";" << partList[3] << ";" << partList[4] << ";" << partList[5] << ";" << partList[6] << ";";
+        std::cout << partList[0] << ";" << partList[1] << ";" << partList[2] << ";" << partList[3] << ";" << partList[4] << ";" << partList[5] << ";" << partList[6] << ";" << partList[7] << ";";
 
         Identification::FmiParameterDef paramDef;
 
@@ -132,14 +132,15 @@ int main(int argc, char *argv[])
             Identification::FmiParameterId_newbase paramMapping;
             if (Identification::gridDef.getNewbaseParameterMappingByFmiId(paramDef.mFmiParameterId,paramMapping))
             {
-              std::cout << paramMapping.mConversionFunction;
+              std::cout << paramMapping.mConversionFunction << ";";
+              std::cout << paramMapping.mReverseConversionFunction;
             }
           }
-          std::cout << ";\n";
+          std::cout << ";;\n";
         }
         else
         {
-          std::cout << "1;1;1;D;;\n";
+          std::cout << "1;1;1;D;;;;\n";
         }
       }
 

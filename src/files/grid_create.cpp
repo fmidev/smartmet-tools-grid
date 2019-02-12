@@ -74,8 +74,8 @@ void setMessage_LatLon(GRID::Message *message)
 {
   try
   {
-    int width = 2880;
-    int height = 1441;
+    int width = 300*4;
+    int height = 380*4;
     int sz = width * height;
     int levelType = 103;
     int level = 10;
@@ -117,11 +117,11 @@ void setMessage_LatLon(GRID::Message *message)
     message->setProperty(Property::ProductSection::ProductDefinitionTemplateNumber,ProductSection::Template::NormalProduct);
     message->setProperty(Property::ProductSection::NV,0LL);
 
-    message->setProperty(Property::ProductSection::ParameterSettings::ParameterCategory,2);
-    message->setProperty(Property::ProductSection::ParameterSettings::ParameterNumber,22);
+    message->setProperty(Property::ProductSection::ParameterSettings::ParameterCategory,1);
+    message->setProperty(Property::ProductSection::ParameterSettings::ParameterNumber,1);
     message->setProperty(Property::ProductSection::ParameterSettings::TypeOfGeneratingProcess,2);
     message->setProperty(Property::ProductSection::ParameterSettings::BackgroundProcess,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::GeneratingProcessIdentifier,2);
+    message->setProperty(Property::ProductSection::ParameterSettings::GeneratingProcessIdentifier,181);
     message->setProperty(Property::ProductSection::ParameterSettings::HoursAfterDataCutoff,0LL);
     message->setProperty(Property::ProductSection::ParameterSettings::MinutesAfterDataCutoff,0LL);
     message->setProperty(Property::ProductSection::ParameterSettings::IndicatorOfUnitOfTimeRange,0LL);
@@ -163,18 +163,18 @@ void setMessage_LatLon(GRID::Message *message)
 
     message->setProperty(Property::GridSection::EarthShape::ShapeOfTheEarth,6);
 
-    message->setProperty(Property::GridSection::LatLon::IDirectionIncrement,67500);
-    message->setProperty(Property::GridSection::LatLon::JDirectionIncrement,67500);
+    message->setProperty(Property::GridSection::LatLon::IDirectionIncrement,30000000/width);
+    message->setProperty(Property::GridSection::LatLon::JDirectionIncrement,38000000/height);
     message->setProperty(Property::GridSection::LatLon::ScanningMode,64);
 
     message->setProperty(Property::GridSection::Grid::Ni,width);
     message->setProperty(Property::GridSection::Grid::Nj,height);
     message->setProperty(Property::GridSection::Grid::BasicAngleOfTheInitialProductionDomain,0LL);
     //message->setProperty(Property::GridSection::Grid::SubdivisionsOfBasicAngle,0LL);
-    message->setProperty(Property::GridSection::Grid::LatitudeOfFirstGridPoint,-45000000);
-    message->setProperty(Property::GridSection::Grid::LongitudeOfFirstGridPoint,-90000000);
-    message->setProperty(Property::GridSection::Grid::LatitudeOfLastGridPoint,45000000);
-    message->setProperty(Property::GridSection::Grid::LongitudeOfLastGridPoint,90000000);
+    message->setProperty(Property::GridSection::Grid::LatitudeOfFirstGridPoint,40000000);
+    message->setProperty(Property::GridSection::Grid::LongitudeOfFirstGridPoint,5000000);
+    message->setProperty(Property::GridSection::Grid::LatitudeOfLastGridPoint,78000000);
+    message->setProperty(Property::GridSection::Grid::LongitudeOfLastGridPoint,35000000);
     message->setProperty(Property::GridSection::Grid::ResolutionAndComponentFlags,48);
 
 
@@ -252,11 +252,11 @@ void setMessage_RotatedLatLon(GRID::Message *message)
     message->setProperty(Property::ProductSection::ProductDefinitionTemplateNumber,ProductSection::Template::EnsembleDerivedForecast);
     message->setProperty(Property::ProductSection::NV,0LL);
 
-    message->setProperty(Property::ProductSection::ParameterSettings::ParameterCategory,2);
-    message->setProperty(Property::ProductSection::ParameterSettings::ParameterNumber,22);
+    message->setProperty(Property::ProductSection::ParameterSettings::ParameterCategory,0);
+    message->setProperty(Property::ProductSection::ParameterSettings::ParameterNumber,0);
     message->setProperty(Property::ProductSection::ParameterSettings::TypeOfGeneratingProcess,2);
     message->setProperty(Property::ProductSection::ParameterSettings::BackgroundProcess,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::GeneratingProcessIdentifier,2);
+    message->setProperty(Property::ProductSection::ParameterSettings::GeneratingProcessIdentifier,181);
     message->setProperty(Property::ProductSection::ParameterSettings::HoursAfterDataCutoff,0LL);
     message->setProperty(Property::ProductSection::ParameterSettings::MinutesAfterDataCutoff,0LL);
     message->setProperty(Property::ProductSection::ParameterSettings::IndicatorOfUnitOfTimeRange,0LL);
@@ -396,10 +396,10 @@ void setMessage_PolarStereographic(GRID::Message *message)
     message->setProperty(Property::ProductSection::NV,0LL);
 
     message->setProperty(Property::ProductSection::ParameterSettings::ParameterCategory,2);
-    message->setProperty(Property::ProductSection::ParameterSettings::ParameterNumber,22);
+    message->setProperty(Property::ProductSection::ParameterSettings::ParameterNumber,0);
     message->setProperty(Property::ProductSection::ParameterSettings::TypeOfGeneratingProcess,2);
     message->setProperty(Property::ProductSection::ParameterSettings::BackgroundProcess,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::GeneratingProcessIdentifier,2);
+    message->setProperty(Property::ProductSection::ParameterSettings::GeneratingProcessIdentifier,181);
     message->setProperty(Property::ProductSection::ParameterSettings::HoursAfterDataCutoff,0LL);
     message->setProperty(Property::ProductSection::ParameterSettings::MinutesAfterDataCutoff,0LL);
     message->setProperty(Property::ProductSection::ParameterSettings::IndicatorOfUnitOfTimeRange,0LL);

@@ -162,11 +162,12 @@ FILE* openMappingFile(std::string mappingFile)
     fprintf(file,"#         6 = CDM_ID\n");
     fprintf(file,"#         7 = CDM_NAME\n");
     fprintf(file,"#  4) Parameter id / name\n");
-    fprintf(file,"#  5) Parameter level id type:\n");
+    fprintf(file,"#  5) Geometry id\n");
+    fprintf(file,"#  6) Parameter level id type:\n");
     fprintf(file,"#         1 = FMI\n");
     fprintf(file,"#         2 = GRIB1\n");
     fprintf(file,"#         3 = GRIB2\n");
-    fprintf(file,"#  6) Level id\n");
+    fprintf(file,"#  7) Level id\n");
     fprintf(file,"#         FMI level identifiers:\n");
     fprintf(file,"#            1 Gound or water surface\n");
     fprintf(file,"#            2 Pressure level\n");
@@ -183,7 +184,7 @@ FILE* openMappingFile(std::string mappingFile)
     fprintf(file,"#            13 Layer between two metric heights above ground\n");
     fprintf(file,"#            14 Layer between two depths below land surface\n");
     fprintf(file,"#            15 Isothermal level, temperature in 1/100 K\n");
-    fprintf(file,"#  7) Area interpolation method\n");
+    fprintf(file,"#  8) Area interpolation method\n");
     fprintf(file,"#         0 = None\n");
     fprintf(file,"#         1 = Linear\n");
     fprintf(file,"#         2 = Nearest\n");
@@ -191,14 +192,14 @@ FILE* openMappingFile(std::string mappingFile)
     fprintf(file,"#         4 = Max\n");
     fprintf(file,"#         500..999 = List\n");
     fprintf(file,"#         1000..65535 = External (interpolated by an external function)\n");
-    fprintf(file,"#  8) Time interpolation method\n");
+    fprintf(file,"#  9) Time interpolation method\n");
     fprintf(file,"#         0 = None\n");
     fprintf(file,"#         1 = Linear\n");
     fprintf(file,"#         2 = Nearest\n");
     fprintf(file,"#         3 = Min\n");
     fprintf(file,"#         4 = Max\n");
     fprintf(file,"#         1000..65535 = External (interpolated by an external function)\n");
-    fprintf(file,"#  9) Level interpolation method\n");
+    fprintf(file,"# 10) Level interpolation method\n");
     fprintf(file,"#         0 = None\n");
     fprintf(file,"#         1 = Linear\n");
     fprintf(file,"#         2 = Nearest\n");
@@ -206,14 +207,14 @@ FILE* openMappingFile(std::string mappingFile)
     fprintf(file,"#         4 = Max\n");
     fprintf(file,"#         5 = Logarithmic\n");
     fprintf(file,"#         1000..65535 = External (interpolated by an external function)\n");
-    fprintf(file,"# 10) Group flags\n");
+    fprintf(file,"# 11) Group flags\n");
     fprintf(file,"#         bit 0 = Climatological parameter (=> ignore year when searching) \n");
-    fprintf(file,"# 11) Search match (Can this mapping used when searching mappings for incomplete parameters)\n");
+    fprintf(file,"# 12) Search match (Can this mapping used when searching mappings for incomplete parameters)\n");
     fprintf(file,"#         E = Enabled\n");
     fprintf(file,"#         D = Disabled\n");
-    fprintf(file,"# 12) Mapping function (enables data conversions during the mapping)\n");
-    fprintf(file,"# 13) Reverse mapping function\n");
-    fprintf(file,"# 14) Default precision\n");
+    fprintf(file,"# 13) Mapping function (enables data conversions during the mapping)\n");
+    fprintf(file,"# 14) Reverse mapping function\n");
+    fprintf(file,"# 15) Default precision\n");
     fprintf(file,"# \n");
 
     return file;
@@ -254,20 +255,21 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
     {
       std::vector<std::string> pl;
       splitString(it->c_str(),';',pl);
-      if (pl.size() >= 7)
+      if (pl.size() >= 8)
       {
         QueryServer::ParameterMapping m;
         m.mProducerName = pl[0];
         m.mParameterName = pl[1];
-        m.mParameterKeyType = toInt64(pl[2].c_str());
+        m.mParameterKeyType = toInt16(pl[2].c_str());
         m.mParameterKey = pl[3];
-        m.mParameterLevelIdType = toInt64(pl[4].c_str());
-        m.mParameterLevelId = toInt64(pl[5].c_str());
-        m.mParameterLevel = toInt64(pl[6].c_str());
+        m.mGeometryId = toInt32(pl[4].c_str());
+        m.mParameterLevelIdType = toInt16(pl[5].c_str());
+        m.mParameterLevelId = toInt16(pl[6].c_str());
+        m.mParameterLevel = toInt32(pl[7].c_str());
 
         char key[200];
-        sprintf(key,"%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str());
-        std::string searchKey = m.mProducerName + ":" + m.mParameterName;
+        sprintf(key,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),pl[7].c_str());
+        std::string searchKey = m.mProducerName + ":" + m.mParameterName + std::to_string(m.mGeometryId);
 
         if (mapList.find(std::string(key)) == mapList.end())
         {
@@ -292,7 +294,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
                 else
                 {
                   QueryServer::ParameterMapping_vec vec;
-                  it->getMappings(m.mProducerName,m.mParameterName,true,vec);
+                  it->getMappings(m.mProducerName,m.mParameterName,m.mGeometryId,true,vec);
                   if (vec.size() > 0)
                   {
                     searchEnabled = true;
@@ -319,7 +321,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
             if (file == nullptr)
               file = openMappingFile(mappingFile);
 
-            fprintf(file,"%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str());
+            fprintf(file,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),pl[7].c_str());
 
             Identification::FmiParameterDef paramDef;
 
