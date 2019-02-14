@@ -136,9 +136,9 @@ int main(int argc, char *argv[])
         uint len = v->mValueList.getLength();
         for (uint t=0; t<len; t++)
         {
-          T::GridValue *rec = v->mValueList.getGridValueByIndex(t);
-          if (rec != NULL)
-            printf(" %f",rec->mValue);
+          T::GridValue rec;
+          if (v->mValueList.getGridValueByIndex(t,rec))
+            printf(" %f",rec.mValue);
 
         }
         printf("\n");

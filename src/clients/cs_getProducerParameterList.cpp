@@ -88,7 +88,8 @@ int main(int argc, char *argv[])
     // ### Result:
     for (auto it=infoList.begin(); it != infoList.end(); ++it)
     {
-      //std::cout << *it << "\n";
+      std::cout << *it << "\n";
+      /*
       std::vector<std::string> partList;
 
       splitString(it->c_str(),';',partList);
@@ -143,9 +144,9 @@ int main(int argc, char *argv[])
           std::cout << "1;1;1;D;;;;\n";
         }
       }
-
-      //printf("%s\n",it->c_str());
+  */
     }
+
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 
