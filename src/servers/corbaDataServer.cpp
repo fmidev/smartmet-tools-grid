@@ -46,8 +46,7 @@ string_vec          mLuaFiles;
 std::string         mGridDirectory;
 std::string         mGridConfigFile;
 uint                mNumOfCachedGrids = 8000;
-uint                mMaxCompressedMegaBytesOfCachedGrids = 10000;
-uint                mMaxUncompressedMegaBytesOfCachedGrids = 10000;
+uint                mMaxSizeOfCachedGridsInMegaBytes = 10000;
 
 
 bool mShutdownRequested = false;
@@ -94,8 +93,7 @@ void readConfigFile(const char* configFile)
     {
         "smartmet.library.grid-files.configFile",
         "smartmet.library.grid-files.cache.numOfGrids",
-        "smartmet.library.grid-files.cache.maxUncompressedSizeInMegaBytes",
-        "smartmet.library.grid-files.cache.maxCompressedSizeInMegaBytes",
+        "smartmet.library.grid-files.cache.maxSizeInMegaBytes",
         "smartmet.tools.grid.data-server.name",
         "smartmet.tools.grid.data-server.id",
         "smartmet.tools.grid.data-server.address",
@@ -137,8 +135,7 @@ void readConfigFile(const char* configFile)
 
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.configFile", mGridConfigFile);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.numOfGrids", mNumOfCachedGrids);
-    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.maxUncompressedSizeInMegaBytes", mMaxUncompressedMegaBytesOfCachedGrids);
-    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.maxCompressedSizeInMegaBytes", mMaxCompressedMegaBytesOfCachedGrids);
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.maxSizeInMegaBytes", mMaxSizeOfCachedGridsInMegaBytes);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.name", mServerName);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.id", mServerId);
@@ -214,7 +211,7 @@ int main(int argc, char *argv[])
     readConfigFile(argv[1]);
 
     Identification::gridDef.init(mGridConfigFile.c_str());
-    GRID::valueCache.init(mNumOfCachedGrids,mMaxCompressedMegaBytesOfCachedGrids,mMaxUncompressedMegaBytesOfCachedGrids);
+    GRID::valueCache.init(mNumOfCachedGrids,mMaxSizeOfCachedGridsInMegaBytes);
 
 
     signal(SIGINT, sig_handler);

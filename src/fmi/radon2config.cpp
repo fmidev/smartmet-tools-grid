@@ -133,7 +133,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     PQclear(res);
 
 
-    fprintf(file,"\n# LAMBERT CONFORMAL : projection,id,name,ni,nj,first_point.x,first_point.y,di,dj,scanning_mode,orientation,latin1,latin2,south_pole.x,south_pole.y,description\n");
+    fprintf(file,"\n# LAMBERT CONFORMAL : projection,id,name,ni,nj,first_point.x,first_point.y,di,dj,scanning_mode,orientation,latin1,latin2,south_pole.x,south_pole.y,LaD,description\n");
 
     p = sql;
 
@@ -153,6 +153,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     p += sprintf(p,"  latin2,\n");
     p += sprintf(p,"  ST_X(south_pole),\n");
     p += sprintf(p,"  ST_Y(south_pole),\n");
+    p += sprintf(p,"  60.0,\n");                  // LaD
     p += sprintf(p,"  description\n");
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  geom_lambert_conformal\n");
