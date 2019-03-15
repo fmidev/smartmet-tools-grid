@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 19.2.15
+Version: 19.3.15
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 18.12.13
-BuildRequires: smartmet-library-grid-files-devel >= 19.2.15
-BuildRequires: smartmet-library-grid-content-devel >= 19.2.15
+BuildRequires: smartmet-library-spine-devel >= 19.3.14
+BuildRequires: smartmet-library-grid-files-devel >= 19.3.15
+BuildRequires: smartmet-library-grid-content-devel >= 19.3.15
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -33,8 +33,8 @@ Requires: libconfig
 #Requires: smartmet-server >= 17.11.10
 #Requires: smartmet-engine-grid >= 18.2.8
 Requires: boost-date-time
-Requires: smartmet-library-grid-files >= 19.2.15
-Requires: smartmet-library-grid-content >= 19.2.15
+Requires: smartmet-library-grid-files >= 19.3.15
+Requires: smartmet-library-grid-content >= 19.3.15
 #Requires: smartmet-engine-grid
 Requires: openldap
 Requires: openssl-libs
@@ -97,6 +97,7 @@ Provides: cs_getContentListByParameterAndProducerId = %{Version}
 Provides: cs_getContentListByParameterGenerationIdAndForecastTime = %{Version}
 Provides: cs_getContentListByProducerId = %{Version}
 Provides: cs_getContentListByProducerName = %{Version}
+Provides: cs_getContentListByRequestCounterKey = %{Version}
 Provides: cs_getContentListByServerId = %{Version}
 Provides: cs_getContentListBySourceId = %{Version}
 Provides: cs_getContentListOfInvalidIntegrity = %{Version}
@@ -295,6 +296,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_getContentListByParameterGenerationIdAndForecastTime
 %{_bindir}/clients/cs_getContentListByProducerId
 %{_bindir}/clients/cs_getContentListByProducerName
+%{_bindir}/clients/cs_getContentListByRequestCounterKey
 %{_bindir}/clients/cs_getContentListByServerId
 %{_bindir}/clients/cs_getContentListBySourceId
 %{_bindir}/clients/cs_getContentListOfInvalidIntegrity
@@ -437,6 +439,8 @@ fi
 
 
 %changelog
+* Fri Mar 15 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.3.15-1.fmi
+- Various improvements
 * Fri Feb 15 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.2.15-1.fmi
 - Various improvements
 * Thu Jan 17 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.1.17-1.fmi
