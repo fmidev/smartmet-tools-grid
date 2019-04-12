@@ -16,7 +16,6 @@
 
 
 using namespace SmartMet;
-using namespace SmartMet::GRIB2;
 
 
 
@@ -67,6 +66,196 @@ void print_usage()
 
 
 
+void setMessage_LatLon1(GRID::Message *message)
+{
+  try
+  {
+    using namespace SmartMet::GRIB1;
+
+    int width = 300;
+    int height = 380;
+    int sz = width * height;
+    int levelType = 1;
+    int level = 0;
+
+    T::ParamValue_vec values;
+
+    float c = 0;
+    for (int y=0; y<height; y++)
+    {
+      for (int x=0; x<width; x++)
+      {
+        //long val = random();
+        //values.push_back(((val % 5000))/100);
+        values.push_back(c);
+        c = c + 1;
+      }
+    }
+
+
+    message->setProperty(Property::IndicatorSection::EditionNumber,1);
+
+    message->setProperty(Property::ProductSection::TableVersion,128);
+    message->setProperty(Property::ProductSection::Centre,98);
+    message->setProperty(Property::ProductSection::GeneratingProcessIdentifier,149);
+    message->setProperty(Property::ProductSection::GridDefinitionNumber,255);
+    message->setProperty(Property::ProductSection::SectionFlags,128);
+    message->setProperty(Property::ProductSection::IndicatorOfParameter,49);
+    message->setProperty(Property::ProductSection::IndicatorOfTypeOfLevel,1);
+    message->setProperty(Property::ProductSection::Level,0);
+    message->setProperty(Property::ProductSection::YearOfCentury,18);
+    message->setProperty(Property::ProductSection::Month,10);
+    message->setProperty(Property::ProductSection::Day,17);
+    message->setProperty(Property::ProductSection::Hour,0);
+    message->setProperty(Property::ProductSection::Minute,0);
+    message->setProperty(Property::ProductSection::UnitOfTimeRange,1);
+    message->setProperty(Property::ProductSection::P1,0);
+    message->setProperty(Property::ProductSection::P2,1);
+    message->setProperty(Property::ProductSection::TimeRangeIndicator,2);
+    message->setProperty(Property::ProductSection::NumberIncludedInAverage,0);
+    message->setProperty(Property::ProductSection::NumberMissingFromAveragesOrAccumulations,0);
+    message->setProperty(Property::ProductSection::CenturyOfReferenceTimeOfData,21);
+    message->setProperty(Property::ProductSection::SubCentre,0);
+    message->setProperty(Property::ProductSection::DecimalScaleFactor,0);
+    message->setProperty(Property::ProductSection::ForecastType,1);
+    message->setProperty(Property::ProductSection::ForecastNumber,-1);
+
+
+    message->setProperty(Property::GridSection::NumberOfVerticalCoordinateValues,0);
+    message->setProperty(Property::GridSection::PvlLocation,255);
+    message->setProperty(Property::GridSection::DataRepresentationType,0);
+
+    message->setProperty(Property::GridSection::LatLon::Ni,width);
+    message->setProperty(Property::GridSection::LatLon::Nj,height);
+    message->setProperty(Property::GridSection::LatLon::IDirectionIncrement,30000/width);
+    message->setProperty(Property::GridSection::LatLon::JDirectionIncrement,38000/height);
+
+    message->setProperty(Property::GridSection::GridArea::LatitudeOfFirstGridPoint,40000);
+    message->setProperty(Property::GridSection::GridArea::LongitudeOfFirstGridPoint,5000);
+    message->setProperty(Property::GridSection::GridArea::LatitudeOfLastGridPoint,78000);
+    message->setProperty(Property::GridSection::GridArea::LongitudeOfLastGridPoint,35000);
+
+    message->setProperty(Property::GridSection::ResolutionFlags::ResolutionAndComponentFlags,48);
+
+    message->setProperty(Property::GridSection::ScanningMode::ScanMode,64);
+
+    message->setProperty(Property::DataSection::Flags,8);
+    message->setProperty(Property::DataSection::BinaryScaleFactor,0);
+    message->setProperty(Property::DataSection::ReferenceValue,0.0);
+    message->setProperty(Property::DataSection::BitsPerValue,32);
+    message->setProperty(Property::DataSection::PackingMethod,0);
+
+
+
+    // ### DATA SECTION ###
+
+    message->setGridValues(values);
+  }
+  catch (...)
+  {
+    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    exception.printError();
+  }
+}
+
+
+
+
+
+
+
+
+void setMessage_PolarStereographic1(GRID::Message *message)
+{
+  try
+  {
+    using namespace SmartMet::GRIB1;
+
+    int width = 824;
+    int height = 935;
+    int sz = width * height;
+    int levelType = 1;
+    int level = 0;
+
+    T::ParamValue_vec values;
+
+    float c = 0;
+    for (int y=0; y<height; y++)
+    {
+      for (int x=0; x<width; x++)
+      {
+        //long val = random();
+        //values.push_back(((val % 5000))/100);
+        values.push_back(c);
+        c = c + 1;
+      }
+    }
+
+
+    message->setProperty(Property::IndicatorSection::EditionNumber,1);
+
+    message->setProperty(Property::ProductSection::TableVersion,128);
+    message->setProperty(Property::ProductSection::Centre,98);
+    message->setProperty(Property::ProductSection::GeneratingProcessIdentifier,149);
+    message->setProperty(Property::ProductSection::GridDefinitionNumber,255);
+    message->setProperty(Property::ProductSection::SectionFlags,128);
+    message->setProperty(Property::ProductSection::IndicatorOfParameter,49);
+    message->setProperty(Property::ProductSection::IndicatorOfTypeOfLevel,1);
+    message->setProperty(Property::ProductSection::Level,0);
+    message->setProperty(Property::ProductSection::YearOfCentury,18);
+    message->setProperty(Property::ProductSection::Month,10);
+    message->setProperty(Property::ProductSection::Day,17);
+    message->setProperty(Property::ProductSection::Hour,0);
+    message->setProperty(Property::ProductSection::Minute,0);
+    message->setProperty(Property::ProductSection::UnitOfTimeRange,1);
+    message->setProperty(Property::ProductSection::P1,0);
+    message->setProperty(Property::ProductSection::P2,1);
+    message->setProperty(Property::ProductSection::TimeRangeIndicator,2);
+    message->setProperty(Property::ProductSection::NumberIncludedInAverage,0);
+    message->setProperty(Property::ProductSection::NumberMissingFromAveragesOrAccumulations,0);
+    message->setProperty(Property::ProductSection::CenturyOfReferenceTimeOfData,21);
+    message->setProperty(Property::ProductSection::SubCentre,0);
+    message->setProperty(Property::ProductSection::DecimalScaleFactor,0);
+    message->setProperty(Property::ProductSection::ForecastType,1);
+    message->setProperty(Property::ProductSection::ForecastNumber,-1);
+
+
+    message->setProperty(Property::GridSection::NumberOfVerticalCoordinateValues,0);
+    message->setProperty(Property::GridSection::PvlLocation,255);
+    message->setProperty(Property::GridSection::DataRepresentationType,5);
+
+
+    message->setProperty(Property::GridSection::PolarStereographic::Nx,width);
+    message->setProperty(Property::GridSection::PolarStereographic::Ny,height);
+    message->setProperty(Property::GridSection::PolarStereographic::LatitudeOfFirstGridPoint,18145);
+    message->setProperty(Property::GridSection::PolarStereographic::LongitudeOfFirstGridPoint,217107);
+    message->setProperty(Property::GridSection::PolarStereographic::OrientationOfTheGrid,249000);
+    message->setProperty(Property::GridSection::PolarStereographic::DxInMetres,10000);
+    message->setProperty(Property::GridSection::PolarStereographic::DyInMetres,10000);
+    message->setProperty(Property::GridSection::PolarStereographic::ProjectionCentreFlag,0);
+
+    message->setProperty(Property::GridSection::ResolutionFlags::ResolutionAndComponentFlags,8);
+
+    message->setProperty(Property::GridSection::ScanningMode::ScanMode,64);
+
+    message->setProperty(Property::DataSection::Flags,8);
+    message->setProperty(Property::DataSection::BinaryScaleFactor,0);
+    message->setProperty(Property::DataSection::ReferenceValue,0.0);
+    message->setProperty(Property::DataSection::BitsPerValue,32);
+    message->setProperty(Property::DataSection::PackingMethod,0);
+
+
+    // ### DATA SECTION ###
+
+    message->setGridValues(values);
+  }
+  catch (...)
+  {
+    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    exception.printError();
+  }
+}
+
 
 
 
@@ -74,8 +263,10 @@ void setMessage_LatLon(GRID::Message *message)
 {
   try
   {
-    int width = 300*4;
-    int height = 380*4;
+    using namespace SmartMet::GRIB2;
+
+    int width = 300;
+    int height = 380;
     int sz = width * height;
     int levelType = 103;
     int level = 10;
@@ -207,8 +398,10 @@ void setMessage_RotatedLatLon(GRID::Message *message)
 {
   try
   {
-    int width = 331;
-    int height = 289;
+    using namespace SmartMet::GRIB2;
+
+    int width = 1030;
+    int height = 816;
     int sz = width * height;
     int levelType = 103;
     int level = 10;
@@ -232,7 +425,7 @@ void setMessage_RotatedLatLon(GRID::Message *message)
 
     // ### IDENTIFICATION SECTION ###
 
-    message->setProperty(Property::IdentificationSection::Centre,78);
+    message->setProperty(Property::IdentificationSection::Centre,86);
     message->setProperty(Property::IdentificationSection::SubCentre,255);
     message->setProperty(Property::IdentificationSection::TablesVersion,15);
     message->setProperty(Property::IdentificationSection::LocalTablesVersion,1);
@@ -306,19 +499,19 @@ void setMessage_RotatedLatLon(GRID::Message *message)
 
     message->setProperty(Property::GridSection::EarthShape::ShapeOfTheEarth,6);
 
-    message->setProperty(Property::GridSection::LatLon::IDirectionIncrement,200000);
-    message->setProperty(Property::GridSection::LatLon::JDirectionIncrement,200000);
-    message->setProperty(Property::GridSection::LatLon::ScanningMode,0LL);
+    message->setProperty(Property::GridSection::LatLon::IDirectionIncrement,68000);
+    message->setProperty(Property::GridSection::LatLon::JDirectionIncrement,68000);
+    message->setProperty(Property::GridSection::LatLon::ScanningMode,64L);
 
     message->setProperty(Property::GridSection::Grid::Ni,width);
     message->setProperty(Property::GridSection::Grid::Nj,height);
     message->setProperty(Property::GridSection::Grid::BasicAngleOfTheInitialProductionDomain,0LL);
     //message->setProperty(Property::GridSection::Grid::SubdivisionsOfBasicAngle,0LL);
-    message->setProperty(Property::GridSection::Grid::LatitudeOfFirstGridPoint,-22500000);
-    message->setProperty(Property::GridSection::Grid::LongitudeOfFirstGridPoint,-26000000);
-    message->setProperty(Property::GridSection::Grid::LatitudeOfLastGridPoint,35000000);
-    message->setProperty(Property::GridSection::Grid::LongitudeOfLastGridPoint,40000000);
-    message->setProperty(Property::GridSection::Grid::ResolutionAndComponentFlags,48);
+    message->setProperty(Property::GridSection::Grid::LatitudeOfFirstGridPoint,-24000000);
+    message->setProperty(Property::GridSection::Grid::LongitudeOfFirstGridPoint,335000000);
+    message->setProperty(Property::GridSection::Grid::LatitudeOfLastGridPoint,31420000);
+    message->setProperty(Property::GridSection::Grid::LongitudeOfLastGridPoint,36472000);
+    message->setProperty(Property::GridSection::Grid::ResolutionAndComponentFlags,136);
 
     message->setProperty(Property::GridSection::Rotation::LatitudeOfSouthernPole,-30000000);
     message->setProperty(Property::GridSection::Rotation::LongitudeOfSouthernPole,0LL);
@@ -350,6 +543,8 @@ void setMessage_PolarStereographic(GRID::Message *message)
 {
   try
   {
+    using namespace SmartMet::GRIB2;
+
     int width = 824;
     int height = 935;
     int sz = width * height;
@@ -483,6 +678,8 @@ void setMessage_LambertConformal(GRID::Message *message)
 {
   try
   {
+    using namespace SmartMet::GRIB2;
+
     int width = 349;
     int height = 277;
     int sz = width * height;
@@ -637,7 +834,7 @@ void setMessage_LambertConformal(GRID::Message *message)
 
     message->setProperty(Property::RepresentationSection::OriginalValues::TypeOfOriginalFieldValues,0LL);
 
-    message->setGridValues(values);
+    //message->setGridValues(values);
 
   }
   catch (...)
@@ -668,19 +865,26 @@ int main(int argc, char *argv[])
     uint optionFlags = SmartMet::GRID::PrintFlag::data;
     std::string fname = argv[1];
 
-    gridFile.setGridFile(T::FileTypeValue::Grib2);
+    gridFile.setGridFile(T::FileTypeValue::Grib1);
 
     GRID::Message *message = gridFile.newMessage();
+    /*
     setMessage_LambertConformal(message);
 
     message = gridFile.newMessage();
     setMessage_PolarStereographic(message);
 
     message = gridFile.newMessage();
-    setMessage_RotatedLatLon(message);
+    setMessage_LatLon(message);
 
     message = gridFile.newMessage();
-    setMessage_LatLon(message);
+    setMessage_RotatedLatLon(message);
+    */
+
+    //setMessage_LatLon1(message);
+
+    setMessage_PolarStereographic1(message);
+    message->print(std::cout,0,optionFlags);
 
     gridFile.write(fname);
 

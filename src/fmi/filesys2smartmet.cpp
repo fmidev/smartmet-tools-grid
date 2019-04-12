@@ -13,6 +13,7 @@
 #include <libpq-fe.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 #define FUNCTION_TRACE FUNCTION_TRACE_OFF
 
@@ -62,6 +63,25 @@ Lua::LuaFile              mLuaFile;
 std::string               mLuaFilename;
 std::string               mLuaFunction;
 
+
+
+
+
+void sig_handler(int signum)
+{
+  {
+    try
+    {
+      sprintf(nullptr,"Crashing the system for the core dump");
+    }
+    catch (...)
+    {
+      SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+      exception.printError();
+      exit(-1);
+    }
+  }
+}
 
 
 
@@ -892,6 +912,8 @@ int main(int argc, char *argv[])
     }
 
     readConfigFile(argv[1]);
+
+    signal(SIGUSR1, sig_handler);
 
     // Initializing the global structures. These are needed when
     // extracting information from GRIB files.
