@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
         colorList.push_back(0xFFFFFFFF);
     }
 
-    T::WkbData_vec contours;
+    T::ByteData_vec contours;
 
 
     std::vector<T::Coordinate> coordinates;

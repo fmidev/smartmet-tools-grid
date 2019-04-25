@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
       highValues.push_back(atof(partList2[0].c_str()));
     }
 
-    T::WkbData_vec contours;
+    T::ByteData_vec contours;
 
 
     std::vector<T::Coordinate> coordinates;

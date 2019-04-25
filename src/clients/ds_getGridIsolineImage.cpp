@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
 
 
-    T::WkbData_vec contours;
+    T::ByteData_vec contours;
     T::AttributeList attributeList;
     T::ParamValue_vec values;
     uint fileId = toInt64(argv[2]);

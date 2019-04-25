@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    T::WkbData_vec contours;
+    T::ByteData_vec contours;
     T::AttributeList attributeList;
     T::ParamValue_vec lowValues;
     T::ParamValue_vec highValues;

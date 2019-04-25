@@ -89,8 +89,8 @@ int main(int argc, char *argv[])
         return -2;
       }
       */
-      param.mType = QueryServer::Query::Type::Isoband;
-      param.mLocationType = QueryServer::Query::LocationType::Point;
+      param.mType = QueryServer::QueryParameter::Type::Isoband;
+      param.mLocationType = QueryServer::QueryParameter::LocationType::Point;
 
       param.mContourLowValues.push_back(270);
       param.mContourLowValues.push_back(275);
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
     {
       for (auto v = it->mValueList.begin(); v != it->mValueList.end(); ++v)
       {
-        printf("%s (%lu):",v->mForecastTime.c_str(),v->mWkbList.size());
+        printf("%s (%lu):",v->mForecastTime.c_str(),v->mValueData.size());
         uint len = v->mValueList.getLength();
         for (uint t=0; t<len; t++)
         {

@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    T::WkbData_vec contours;
+    T::ByteData_vec contours;
     T::AttributeList attributeList;
     T::ParamValue_vec values;
     T::SessionId sessionId = toInt64(argv[1]);

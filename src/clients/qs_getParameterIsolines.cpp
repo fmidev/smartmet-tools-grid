@@ -101,8 +101,8 @@ int main(int argc, char *argv[])
 
     std::vector<uint> colorList;
 
-    param.mType = QueryServer::Query::Type::Isoline;
-    param.mLocationType = QueryServer::Query::LocationType::Geometry;
+    param.mType = QueryServer::QueryParameter::Type::Isoline;
+    param.mLocationType = QueryServer::QueryParameter::LocationType::Geometry;
 
 
     for (int t=11; t<argc-1; t++)
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
           {
             for (auto v = it->mValueList.begin(); v != it->mValueList.end(); ++v)
             {
-              //printf("%s (%lu):",v->mForecastTime.c_str(),v->mWkbList.size());
+              //printf("%s (%lu):",v->mForecastTime.c_str(),v->mValueData.size());
 
               int imageWidth = width*mp;
               int imageHeight = height*mp;
@@ -154,10 +154,10 @@ int main(int argc, char *argv[])
               ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,false,rotate);
 
 
-              if (v->mWkbList.size() > 0)
+              if (v->mValueData.size() > 0)
               {
                 uint t = 0;
-                for (auto it = v->mWkbList.begin(); it != v->mWkbList.end(); ++it)
+                for (auto it = v->mValueData.begin(); it != v->mValueData.end(); ++it)
                 {
                   uint col = colorList[t];
                   if (col == 0xFFFFFFFF)
