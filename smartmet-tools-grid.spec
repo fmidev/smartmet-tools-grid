@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 19.4.2
+Version: 19.5.6
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 19.3.14
-BuildRequires: smartmet-library-grid-files-devel >= 19.4.2
-BuildRequires: smartmet-library-grid-content-devel >= 19.4.2
+BuildRequires: smartmet-library-spine-devel >= 19.4.29
+BuildRequires: smartmet-library-grid-files-devel >= 19.5.6
+BuildRequires: smartmet-library-grid-content-devel >= 19.5.6
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -33,8 +33,8 @@ Requires: libconfig
 #Requires: smartmet-server >= 17.11.10
 #Requires: smartmet-engine-grid >= 18.2.8
 Requires: boost-date-time
-Requires: smartmet-library-grid-files >= 19.4.2
-Requires: smartmet-library-grid-content >= 19.4.2
+Requires: smartmet-library-grid-files >= 19.5.6
+Requires: smartmet-library-grid-content >= 19.5.6
 #Requires: smartmet-engine-grid
 Requires: openldap
 Requires: openssl-libs
@@ -218,6 +218,8 @@ Provides: httpContentServer = %{Version}
 Provides: qs_getParameterIsobands = %{Version}
 Provides: qs_getParameterIsolines = %{Version}
 Provides: qs_getParameterValues = %{Version}
+Provides: qs_getParameterValueByPointAndTimeList = %{Version}
+Provides: qs_getParameterValuesByPointAndTimeList = %{Version}
 Provides: qs_getProducerList = %{Version}
 Provides: radon2config = %{Version}
 Provides: radon2csv = %{Version}
@@ -391,6 +393,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/qs_getParameterIsobands
 %{_bindir}/clients/qs_getParameterIsolines
 %{_bindir}/clients/qs_getParameterValues
+%{_bindir}/clients/qs_getParameterValueByPointAndTime
+%{_bindir}/clients/qs_getParameterValuesByPointAndTimeList
 %{_bindir}/clients/qs_getProducerList
 %{_bindir}/files/grid_add
 %{_bindir}/files/grid_create
@@ -439,6 +443,8 @@ fi
 
 
 %changelog
+* Mon May  6 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.5.6-1.fmi
+- Support for GRIB downloads
 * Tue Apr  2 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.4.2-1.fmi
 - New release version
 * Tue Mar 19 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.3.19-1.fmi
