@@ -184,7 +184,8 @@ FILE* openMappingFile(std::string mappingFile)
     fprintf(file,"#            13 Layer between two metric heights above ground\n");
     fprintf(file,"#            14 Layer between two depths below land surface\n");
     fprintf(file,"#            15 Isothermal level, temperature in 1/100 K\n");
-    fprintf(file,"#  8) Area interpolation method\n");
+    fprintf(file,"#  8) Level\n");
+    fprintf(file,"#  9) Area interpolation method\n");
     fprintf(file,"#         0 = None\n");
     fprintf(file,"#         1 = Linear\n");
     fprintf(file,"#         2 = Nearest\n");
@@ -192,14 +193,14 @@ FILE* openMappingFile(std::string mappingFile)
     fprintf(file,"#         4 = Max\n");
     fprintf(file,"#         500..999 = List\n");
     fprintf(file,"#         1000..65535 = External (interpolated by an external function)\n");
-    fprintf(file,"#  9) Time interpolation method\n");
+    fprintf(file,"# 10) Time interpolation method\n");
     fprintf(file,"#         0 = None\n");
     fprintf(file,"#         1 = Linear\n");
     fprintf(file,"#         2 = Nearest\n");
     fprintf(file,"#         3 = Min\n");
     fprintf(file,"#         4 = Max\n");
     fprintf(file,"#         1000..65535 = External (interpolated by an external function)\n");
-    fprintf(file,"# 10) Level interpolation method\n");
+    fprintf(file,"# 11) Level interpolation method\n");
     fprintf(file,"#         0 = None\n");
     fprintf(file,"#         1 = Linear\n");
     fprintf(file,"#         2 = Nearest\n");
@@ -207,14 +208,15 @@ FILE* openMappingFile(std::string mappingFile)
     fprintf(file,"#         4 = Max\n");
     fprintf(file,"#         5 = Logarithmic\n");
     fprintf(file,"#         1000..65535 = External (interpolated by an external function)\n");
-    fprintf(file,"# 11) Group flags\n");
+    fprintf(file,"# 12) Group flags\n");
     fprintf(file,"#         bit 0 = Climatological parameter (=> ignore year when searching) \n");
-    fprintf(file,"# 12) Search match (Can this mapping used when searching mappings for incomplete parameters)\n");
+    fprintf(file,"# 13) Search match (Can this mapping used when searching mappings for incomplete parameters)\n");
     fprintf(file,"#         E = Enabled\n");
     fprintf(file,"#         D = Disabled\n");
-    fprintf(file,"# 13) Mapping function (enables data conversions during the mapping)\n");
-    fprintf(file,"# 14) Reverse mapping function\n");
-    fprintf(file,"# 15) Default precision\n");
+    fprintf(file,"#         I = Ignore\n");
+    fprintf(file,"# 14) Mapping function (enables data conversions during the mapping)\n");
+    fprintf(file,"# 15) Reverse mapping function\n");
+    fprintf(file,"# 16) Default precision\n");
     fprintf(file,"# \n");
 
     return file;
