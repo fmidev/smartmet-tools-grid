@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 19.5.6
+Version: 19.8.9
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 19.4.29
-BuildRequires: smartmet-library-grid-files-devel >= 19.5.6
-BuildRequires: smartmet-library-grid-content-devel >= 19.5.6
+BuildRequires: smartmet-library-spine-devel >= 19.8.7
+BuildRequires: smartmet-library-grid-files-devel >= 19.8.9
+BuildRequires: smartmet-library-grid-content-devel >= 19.8.9
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -33,8 +33,8 @@ Requires: libconfig
 #Requires: smartmet-server >= 17.11.10
 #Requires: smartmet-engine-grid >= 18.2.8
 Requires: boost-date-time
-Requires: smartmet-library-grid-files >= 19.5.6
-Requires: smartmet-library-grid-content >= 19.5.6
+Requires: smartmet-library-grid-files >= 19.8.9
+Requires: smartmet-library-grid-content >= 19.8.9
 #Requires: smartmet-engine-grid
 Requires: openldap
 Requires: openssl-libs
@@ -86,6 +86,7 @@ Provides: cs_getContentGeometryIdListByGenerationId = %{Version}
 Provides: cs_getContentInfo = %{Version}
 Provides: cs_getContentList = %{Version}
 Provides: cs_getContentListByFileId = %{Version}
+Provides: cs_getContentListByFileIdList = %{Version}
 Provides: cs_getContentListByFileName = %{Version}
 Provides: cs_getContentListByGenerationId = %{Version}
 Provides: cs_getContentListByGenerationIdAndTimeRange = %{Version}
@@ -121,6 +122,7 @@ Provides: cs_getFileInfoCountBySourceId = %{Version}
 Provides: cs_getFileInfoCountsByGenerations = %{Version}
 Provides: cs_getFileInfoCountsByProducers = %{Version}
 Provides: cs_getFileInfoList = %{Version}
+Provides: cs_getFileInfoListByFileIdList = %{Version}
 Provides: cs_getFileInfoListByGenerationId = %{Version}
 Provides: cs_getFileInfoListByGenerationName = %{Version}
 Provides: cs_getFileInfoListByProducerId = %{Version}
@@ -287,6 +289,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_getContentInfo
 %{_bindir}/clients/cs_getContentList
 %{_bindir}/clients/cs_getContentListByFileId
+%{_bindir}/clients/cs_getContentListByFileIdList
 %{_bindir}/clients/cs_getContentListByFileName
 %{_bindir}/clients/cs_getContentListByGenerationId
 %{_bindir}/clients/cs_getContentListByGenerationIdAndTimeRange
@@ -322,6 +325,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_getFileInfoCountsByGenerations
 %{_bindir}/clients/cs_getFileInfoCountsByProducers
 %{_bindir}/clients/cs_getFileInfoList
+%{_bindir}/clients/cs_getFileInfoListByFileIdList
 %{_bindir}/clients/cs_getFileInfoListByGenerationId
 %{_bindir}/clients/cs_getFileInfoListByGenerationName
 %{_bindir}/clients/cs_getFileInfoListByProducerId
@@ -443,6 +447,8 @@ fi
 
 
 %changelog
+* Fri Aug  9 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.8.9-1.fmi
+- Numerous improvements
 * Mon May  6 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.5.6-1.fmi
 - Support for GRIB downloads
 * Tue Apr  2 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.4.2-1.fmi
