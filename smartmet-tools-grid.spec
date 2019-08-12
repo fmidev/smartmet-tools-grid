@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 19.8.9
+Version: 19.8.12
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -447,6 +447,8 @@ fi
 
 
 %changelog
+* Mon Aug 12 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.8.12-1.fmi
+- Added modification time to data content
 * Fri Aug  9 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.8.9-1.fmi
 - Numerous improvements
 * Mon May  6 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.5.6-1.fmi
