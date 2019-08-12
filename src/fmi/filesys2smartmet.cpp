@@ -523,7 +523,7 @@ void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Messag
 
 
 
-void readSourceContent(uint producerId,uint generationId,const char *filename,T::ContentInfoList& contentList)
+void readSourceContent(uint producerId,uint generationId,std::string& modificationTime,const char *filename,T::ContentInfoList& contentList)
 {
   try
   {
@@ -546,6 +546,7 @@ void readSourceContent(uint producerId,uint generationId,const char *filename,T:
       contentInfo->mMessageIndex = t;
       contentInfo->mProducerId = producerId;
       contentInfo->mGenerationId = generationId;
+      contentInfo->mModificationTime = modificationTime;
 
       setMessageContent(gridFile,*message,*contentInfo);
 
@@ -874,7 +875,7 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
           PRINT_DATA(mDebugLogPtr,"  -- Add file: %s\n",fileInfo.mName.c_str());
 
           T::ContentInfoList contentList;
-          readSourceContent(fileInfo.mProducerId,fileInfo.mGenerationId,fileInfo.mName.c_str(),contentList);
+          readSourceContent(fileInfo.mProducerId,fileInfo.mGenerationId,fileInfo.mModificationTime,fileInfo.mName.c_str(),contentList);
           if (contentList.getLength() > 0)
           {
             int result = targetInterface->addFileInfoWithContentList(mSessionId,fileInfo,contentList);
