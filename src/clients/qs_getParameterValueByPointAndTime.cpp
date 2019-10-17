@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     service.init(serviceIor);
 
     ulonglong startTime = getTime();
-    result = service.getParameterValueByPointAndTime(sessionId,parameter,x,y,timeStr,value);
+    result = service.getParameterValueByPointAndTime(sessionId,parameter,T::CoordinateTypeValue::LATLON_COORDINATES,x,y,timeStr,1,1,1,value);
     ulonglong endTime = getTime();
 
     if (result != 0)
