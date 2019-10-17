@@ -12,17 +12,18 @@ int main(int argc, char *argv[])
   {
     if (argc < 6)
     {
-      fprintf(stdout,"USAGE: getParameterValueByPointAndTime <sessionId> <parameter> <x> <y> <time>\n");
+      fprintf(stdout,"USAGE: getParameterValueByPointAndTime <sessionId> <producer> <parameter> <x> <y> <time>\n");
       return -1;
     }
 
     T::SessionId sessionId = toInt64(argv[1]);
     string_vec producerList;
     int result = 0;
-    std::string parameter = argv[2];
-    double x = atof(argv[3]);
-    double y = atof(argv[4]);
-    std::string timeStr = argv[5];
+    std::string producer = argv[2];
+    std::string parameter = argv[3];
+    double x = atof(argv[4]);
+    double y = atof(argv[5]);
+    std::string timeStr = argv[6];
     T::ParamValue value;
 
     char *serviceIor = getenv("SMARTMET_QS_IOR");
@@ -40,7 +41,7 @@ int main(int argc, char *argv[])
     service.init(serviceIor);
 
     ulonglong startTime = getTime();
-    result = service.getParameterValueByPointAndTime(sessionId,parameter,T::CoordinateTypeValue::LATLON_COORDINATES,x,y,timeStr,1,1,1,value);
+    result = service.getParameterValueByPointAndTime(sessionId,producer,parameter,T::CoordinateTypeValue::LATLON_COORDINATES,x,y,timeStr,1,1,1,value);
     ulonglong endTime = getTime();
 
     if (result != 0)

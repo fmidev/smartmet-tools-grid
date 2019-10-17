@@ -12,17 +12,18 @@ int main(int argc, char *argv[])
   {
     if (argc < 6)
     {
-      fprintf(stdout,"USAGE: getParameterValuesByPointAndTimeList <sessionId> <parameter> <x> <y> <time,time,time,...,time>\n");
+      fprintf(stdout,"USAGE: getParameterValuesByPointAndTimeList <sessionId> <producer> <parameter> <x> <y> <time,time,time,...,time>\n");
       return -1;
     }
 
     T::SessionId sessionId = toInt64(argv[1]);
     string_vec producerList;
     int result = 0;
-    std::string parameter = argv[2];
-    double x = atof(argv[3]);
-    double y = atof(argv[4]);
-    std::string timeStr = argv[5];
+    std::string producer = argv[2];
+    std::string parameter = argv[3];
+    double x = atof(argv[4]);
+    double y = atof(argv[5]);
+    std::string timeStr = argv[6];
 
     std::vector<std::string> tList;
     splitString(timeStr,',',tList);
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
     service.init(serviceIor);
 
     ulonglong startTime = getTime();
-    result = service.getParameterValuesByPointAndTimeList(sessionId,parameter,T::CoordinateTypeValue::LATLON_COORDINATES,x,y,tList,1,1,1,values);
+    result = service.getParameterValuesByPointAndTimeList(sessionId,producer,parameter,T::CoordinateTypeValue::LATLON_COORDINATES,x,y,tList,1,1,1,values);
     ulonglong endTime = getTime();
 
     if (result != 0)
