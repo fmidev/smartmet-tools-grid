@@ -491,6 +491,8 @@ void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Messag
   try
   {
     contentInfo.mFileType = gridFile.getFileType();
+    contentInfo.mFilePosition = message.getFilePosition();
+    contentInfo.mMessageSize = message.getMessageSize();
     contentInfo.mGroupFlags = 0;
     contentInfo.mForecastTime = message.getForecastTime();
     contentInfo.mFmiParameterId = message.getFmiParameterId();
@@ -540,33 +542,35 @@ void readSourceContent(uint producerId,uint generationId,std::string& modificati
     for (uint t=0; t<messageCount; t++)
     {
       SmartMet::GRID::Message *message = gridFile.getMessageByIndex(t);
-
-      T::ContentInfo *contentInfo = new T::ContentInfo();
-      contentInfo->mFileId = 0;
-      contentInfo->mMessageIndex = t;
-      contentInfo->mProducerId = producerId;
-      contentInfo->mGenerationId = generationId;
-      contentInfo->mModificationTime = modificationTime;
-
-      setMessageContent(gridFile,*message,*contentInfo);
-
-      if (producer != nullptr)
+      if (message != nullptr)
       {
-        char st[200];
-        sprintf(st,"%s;%s;%d;%d;%05d;%d;%d;1;",
-            producer->mName.c_str(),
-            contentInfo->mFmiParameterName.c_str(),
-            (int)T::ParamLevelIdTypeValue::FMI,
-            (int)contentInfo->mFmiParameterLevelId,
-            (int)contentInfo->mParameterLevel,
-            (int)contentInfo->mForecastType,
-            (int)contentInfo->mForecastNumber);
+        T::ContentInfo *contentInfo = new T::ContentInfo();
+        contentInfo->mFileId = 0;
+        contentInfo->mMessageIndex = t;
+        contentInfo->mProducerId = producerId;
+        contentInfo->mGenerationId = generationId;
+        contentInfo->mModificationTime = modificationTime;
 
-          if (mPreloadList.find(toLowerString(std::string(st))) != mPreloadList.end())
-            contentInfo->mFlags = T::ContentInfo::Flags::PreloadRequired;
+        setMessageContent(gridFile,*message,*contentInfo);
+
+        if (producer != nullptr)
+        {
+          char st[200];
+          sprintf(st,"%s;%s;%d;%d;%05d;%d;%d;1;",
+              producer->mName.c_str(),
+              contentInfo->mFmiParameterName.c_str(),
+              (int)T::ParamLevelIdTypeValue::FMI,
+              (int)contentInfo->mFmiParameterLevelId,
+              (int)contentInfo->mParameterLevel,
+              (int)contentInfo->mForecastType,
+              (int)contentInfo->mForecastNumber);
+
+            if (mPreloadList.find(toLowerString(std::string(st))) != mPreloadList.end())
+              contentInfo->mFlags = T::ContentInfo::Flags::PreloadRequired;
+        }
+
+        contentList.addContentInfo(contentInfo);
       }
-
-      contentList.addContentInfo(contentInfo);
     }
     //contentList.print(std::cout,0,0);
   }

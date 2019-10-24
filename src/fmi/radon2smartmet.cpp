@@ -42,6 +42,9 @@ struct ForecastRec
 struct FileRec
 {
   std::string fileName;
+  uint        messageIndex;
+  ulonglong   filePosition;
+  uint        messageSize;
   std::string paramId;
   int         levelId;
   int         levelValue;
@@ -84,9 +87,11 @@ T::GenerationInfoList     mTargetGenerationList;
 T::FileInfoList           mTargetFileList;
 T::ContentInfoList        mTargetContentList;
 
+uint                      mContentCount = 0;
 uint                      mWaitTime = 300;
 uint                      mTimeOutTime = 900;
 bool                      mTimeOut = false;
+bool                      mOldFormat = false;
 
 
 
@@ -315,6 +320,20 @@ uint readFiles(PGconn *conn,const char *tableName,uint producerId,uint geometryI
 
      p+= sprintf(p,"SELECT\n");
      p+= sprintf(p,"  file_location,\n");
+
+     if (mOldFormat)
+     {
+       p+= sprintf(p,"  0,\n");
+       p+= sprintf(p,"  0,\n");
+       p+= sprintf(p,"  0,\n");
+     }
+     else
+     {
+       p+= sprintf(p,"  message_no,\n");
+       p+= sprintf(p,"  byte_offset,\n");
+       p+= sprintf(p,"  byte_length,\n");
+     }
+
      p+= sprintf(p,"  param_id,\n");
      p+= sprintf(p,"  level_id,\n");
      p+= sprintf(p,"  level_value::int,\n");
@@ -325,7 +344,9 @@ uint readFiles(PGconn *conn,const char *tableName,uint producerId,uint geometryI
      p+= sprintf(p,"FROM\n");
      p+= sprintf(p,"  %s\n",tableName);
      p+= sprintf(p,"WHERE\n");
-     p+= sprintf(p,"  to_char(analysis_time, 'yyyymmddThh24MISS') = '%s' AND forecast_period = '%s' AND geometry_id = %u AND forecast_type_id = %d AND forecast_type_value = %d AND producer_id = %u",analysisTime,forecastPeriod,geometryId,forecastTypeId,forecastTypeValue,producerId);
+     p+= sprintf(p,"  to_char(analysis_time, 'yyyymmddThh24MISS') = '%s' AND forecast_period = '%s' AND geometry_id = %u AND forecast_type_id = %d AND forecast_type_value = %d AND producer_id = %u\n",analysisTime,forecastPeriod,geometryId,forecastTypeId,forecastTypeValue,producerId);
+     p+= sprintf(p,"ORDER BY\n");
+     p+= sprintf(p,"  file_location");
 
 
     //printf("%s\n",sql);
@@ -348,9 +369,12 @@ uint readFiles(PGconn *conn,const char *tableName,uint producerId,uint geometryI
         FileRec rec;
 
         rec.fileName = PQgetvalue(res, i, 0);
-        rec.paramId = PQgetvalue(res, i, 1);
-        rec.levelId = toInt64(PQgetvalue(res, i, 2));
-        rec.levelValue = toInt64(PQgetvalue(res, i, 3));
+        rec.messageIndex = toInt64(PQgetvalue(res, i, 1));
+        rec.filePosition = toInt64(PQgetvalue(res, i, 2));
+        rec.messageSize = toInt64(PQgetvalue(res, i, 3));
+        rec.paramId = PQgetvalue(res, i, 4);
+        rec.levelId = toInt64(PQgetvalue(res, i, 5));
+        rec.levelValue = toInt64(PQgetvalue(res, i, 6));
 
         if (rec.levelId == 2)
           rec.levelValue = rec.levelValue * 100;
@@ -875,6 +899,154 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
     if (cnt == 0)
       return 0;
 
+    auto it=fileRecList.begin();
+    while (it != fileRecList.end())
+    {
+      T::FileAndContent fc;
+
+      fc.mFileInfo.mGroupFlags = 0;
+      fc.mFileInfo.mProducerId = generation->mProducerId;
+      fc.mFileInfo.mGenerationId = generation->mGenerationId;
+      fc.mFileInfo.mFileId = 0;
+      fc.mFileInfo.mFileType = T::FileTypeValue::Unknown;
+      fc.mFileInfo.mName = it->fileName;
+      fc.mFileInfo.mFlags = T::FileInfo::Flags::PredefinedContent;
+      fc.mFileInfo.mSourceId = mSourceId;
+      fc.mFileInfo.mDeletionTime = forecast.deletionTime;
+
+      while (it != fileRecList.end()  &&  it->fileName == fc.mFileInfo.mName)
+      {
+        T::ContentInfo *contentInfo = new T::ContentInfo();
+
+        contentInfo->mFileId = 0;
+        contentInfo->mFileType = T::FileTypeValue::Unknown;
+        contentInfo->mMessageIndex = it->messageIndex;
+        contentInfo->mFilePosition = it->filePosition;
+        contentInfo->mMessageSize = it->messageSize;
+        contentInfo->mProducerId = generation->mProducerId;
+        contentInfo->mGenerationId = generation->mGenerationId;
+        contentInfo->mGroupFlags = 0;
+        contentInfo->mForecastTime = forecast.forecastTime;
+        contentInfo->mFmiParameterId = it->paramId;
+        contentInfo->mFmiParameterLevelId = it->levelId;
+        contentInfo->mParameterLevel = it->levelValue;
+        contentInfo->mForecastType = forecast.forecastTypeId;
+        contentInfo->mForecastNumber = forecast.forecastTypeValue;
+        contentInfo->mServerFlags = 0;
+        contentInfo->mFlags = 0;
+        contentInfo->mSourceId = mSourceId;
+        contentInfo->mGeometryId = forecast.geometryId;
+        contentInfo->mModificationTime = forecast.lastUpdated;
+
+        Identification::FmiParameterDef fmiDef;
+        if (Identification::gridDef.getFmiParameterDefById(it->paramId,fmiDef))
+        {
+          contentInfo->mFmiParameterName = fmiDef.mParameterName;
+          contentInfo->mFmiParameterUnits = fmiDef.mParameterUnits;
+
+          Identification::NewbaseParameterDef newbaseDef;
+          if (Identification::gridDef.getNewbaseParameterDefByFmiId(it->paramId,newbaseDef))
+          {
+            contentInfo->mNewbaseParameterId = newbaseDef.mNewbaseParameterId;
+            contentInfo->mNewbaseParameterName = newbaseDef.mParameterName;
+          }
+        }
+
+        char st[200];
+        sprintf(st,"%s;%s;%d;%d;%05d;%d;%d;1;",
+            forecast.producerName.c_str(),
+            contentInfo->mFmiParameterName.c_str(),
+            (int)T::ParamLevelIdTypeValue::FMI,
+            (int)contentInfo->mFmiParameterLevelId,
+            (int)contentInfo->mParameterLevel,
+            (int)contentInfo->mForecastType,
+            (int)contentInfo->mForecastNumber);
+
+        if (mPreloadList.find(toLowerString(std::string(st))) != mPreloadList.end())
+          contentInfo->mFlags = T::ContentInfo::Flags::PreloadRequired;
+
+
+  #if 0
+        fprintf(contentFile,"%u;%u;%u;%s;%u;%u;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%u;%u;%u;%s;\n",
+               fileId,
+               0, // messageIndex
+               fileType,
+               producerId,
+               generationId,
+               0, // groupFlags
+               startTime,
+               endTime,
+               fmiParameterId,
+               fmiParameterName.c_str(),
+               gribParameterId.c_str(),
+               "", // cdmParameterId
+               "", // cdmParameterName
+               newbaseParameterId.c_str(),
+               newbaseParameterName.c_str(),
+               fmiLevelId,
+               grib1ParameterLevelId.c_str(),
+               grib2ParameterLevelId.c_str(),
+               parameterLevel,
+               fmiParameterUnits.c_str(),
+               gribParameterId.c_str(),
+               forecastType,
+               pertubationNumber,
+               0, // serverFlags,
+               0, // flags,
+               mSourceId,
+               geometryId
+            );
+  #endif
+
+        fc.mContentInfoList.addContentInfo(contentInfo);
+        mContentCount++;
+        it++;
+      }
+      fileAndContentList.push_back(fc);
+
+      PRINT_DATA(mDebugLogPtr,"      * Add file :  %s\n",fc.mFileInfo.mName.c_str());
+
+      if (fileAndContentList.size() > 0  &&  mContentCount>= mMaxMessageSize)
+      {
+        int result = targetInterface->addFileInfoListWithContent(mSessionId,0,fileAndContentList);
+        if (result != 0)
+        {
+          fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
+        }
+        fileAndContentList.clear();
+        mContentCount = 0;
+      }
+    }
+
+    return cnt;
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+  }
+}
+
+
+
+
+
+uint addForecast_old(ContentServer::ServiceInterface *targetInterface,PGconn *conn,ForecastRec& forecast,std::vector<T::FileAndContent>& fileAndContentList)
+{
+  FUNCTION_TRACE
+  try
+  {
+    T::GenerationInfo *generation = mTargetGenerationList.getGenerationInfoByName(forecast.generationName);
+    if (generation == nullptr)
+    {
+      PRINT_DATA(mDebugLogPtr,"**** Unknown generation : %s\n",forecast.generationName.c_str());
+      return 0;
+    }
+
+    std::vector<FileRec> fileRecList;
+    uint cnt = readFiles(conn,forecast.tableName.c_str(),forecast.producerId,forecast.geometryId,forecast.forecastTypeId,forecast.forecastTypeValue,forecast.analysisTime.c_str(),forecast.forecastPeriod.c_str(),fileRecList);
+    if (cnt == 0)
+      return 0;
+
     for (auto it=fileRecList.begin(); it != fileRecList.end(); ++it)
     {
       T::FileAndContent fc;
@@ -986,9 +1158,9 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
 
       PRINT_DATA(mDebugLogPtr,"      * Add file :  %s\n",it->fileName.c_str());
 
-      if (fileAndContentList.size() >= mMaxMessageSize)
+      if (fileAndContentList.size() > mMaxMessageSize)
       {
-        int result = targetInterface->addFileInfoListWithContent(mSessionId,fileAndContentList);
+        int result = targetInterface->addFileInfoListWithContent(mSessionId,0,fileAndContentList);
         if (result != 0)
         {
           fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
@@ -1004,7 +1176,6 @@ uint addForecast(ContentServer::ServiceInterface *targetInterface,PGconn *conn,F
     throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
   }
 }
-
 
 
 
@@ -1069,7 +1240,7 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
 
         if (fileAndContentList.size() >= mMaxMessageSize)
         {
-          int result = targetInterface->addFileInfoListWithContent(mSessionId,fileAndContentList);
+          int result = targetInterface->addFileInfoListWithContent(mSessionId,0,fileAndContentList);
           if (result != 0)
           {
             fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
@@ -1094,7 +1265,7 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
 
     if (fileAndContentList.size() > 0)
     {
-      int result = targetInterface->addFileInfoListWithContent(mSessionId,fileAndContentList);
+      int result = targetInterface->addFileInfoListWithContent(mSessionId,0,fileAndContentList);
       if (result != 0)
       {
         fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
@@ -1120,11 +1291,14 @@ int main(int argc, char *argv[])
   FUNCTION_TRACE
   try
   {
-    if (argc != 3)
+    if (argc < 3)
     {
       fprintf(stderr,"USAGE: radon2smartmet <configFile> <loopWaitTime>\n");
       return -1;
     }
+
+    if (argc == 4)
+     mOldFormat = (bool)atoi(argv[3]);
 
     readConfigFile(argv[1]);
 
