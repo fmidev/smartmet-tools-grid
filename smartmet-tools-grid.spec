@@ -435,7 +435,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %defattr(0644,root,root,0755)
-%{_unitdir}/radon2smartmet.service
+%config(noreplace) %{_unitdir}/radon2smartmet.service
 
 # We do not enable the service by default, it must be done manually
 
