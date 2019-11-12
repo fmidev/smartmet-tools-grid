@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
     int result = 0;
     std::string producer = argv[2];
     std::string parameter = argv[3];
-    double x = atof(argv[4]);
-    double y = atof(argv[5]);
+    double x = toDouble(argv[4]);
+    double y = toDouble(argv[5]);
     std::string timeStr = argv[6];
     T::ParamValue value;
 

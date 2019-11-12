@@ -85,7 +85,7 @@ int main(int argc, char **argv)
     std::string gridFilename = argv[1];
     uint messageIndex = atoi(argv[2]);
     uint areaInterpolation = toInt64(argv[3]);
-    double mp = atof(argv[4]);
+    double mp = toDouble(argv[4]);
     bool rotate = (bool)atoi(argv[5]);
     char *pngFile = argv[6];
 
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
     {
       std::vector<std::string> partList1;
       splitString(argv[t],':',partList1);
-      values.push_back(atof(partList1[0].c_str()));
+      values.push_back(toDouble(partList1[0].c_str()));
       if (partList1.size() == 2)
         colorList.push_back(strtoll(partList1[1].c_str(),nullptr,16));
       else

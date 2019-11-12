@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
     char *attributes = argv[3];
     uint areaInterpolation = toInt64(argv[4]);
-    double mp = atof(argv[5]);
+    double mp = toDouble(argv[5]);
     bool rotate = (bool)atoi(argv[6]);
 
     service.init(serviceIor);
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
     {
       std::vector<std::string> partList1;
       splitString(argv[t],':',partList1);
-      param.mContourLowValues.push_back(atof(partList1[0].c_str()));
+      param.mContourLowValues.push_back(toDouble(partList1[0].c_str()));
       if (partList1.size() == 2)
         colorList.push_back(strtoll(partList1[1].c_str(),nullptr,16));
       else
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 
       std::vector<std::string> partList2;
       splitString(argv[t+1],':',partList2);
-      param.mContourHighValues.push_back(atof(partList2[0].c_str()));
+      param.mContourHighValues.push_back(toDouble(partList2[0].c_str()));
     }
 
     query.mQueryParameterList.push_back(param);

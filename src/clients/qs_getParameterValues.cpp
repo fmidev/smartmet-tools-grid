@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-      coordinates.push_back(T::Coordinate(atof(argv[6]),atof(argv[5])));
+      coordinates.push_back(T::Coordinate(toDouble(argv[6]),toDouble(argv[5])));
     }
 
     query.mAreaCoordinates.push_back(coordinates);

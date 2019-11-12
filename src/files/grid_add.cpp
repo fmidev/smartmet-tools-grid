@@ -26,7 +26,7 @@ ContentServer::ServiceInterface *service = nullptr;
 char *producerNamePtr = nullptr;
 char *generationNamePtr = nullptr;
 char *analysisTimePtr = nullptr;
-
+char *delPathPtr = nullptr;
 
 
 void init()
@@ -182,6 +182,13 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
         fileInfo.mFileId = 0;
         fileInfo.mFileType = gridFile.getFileType();
         fileInfo.mName = filename;
+
+        if (delPathPtr != nullptr)
+        {
+          int len = strlen(delPathPtr);
+          if (strncmp(delPathPtr,filename.c_str(),len) == 0)
+            fileInfo.mName = filename.c_str() + len;
+        }
         fileInfo.mGroupFlags = 0;
         fileInfo.mFlags = T::FileInfo::Flags::PredefinedContent;
         fileInfo.mSourceId = 0;
@@ -206,6 +213,8 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
       contentInfo.mFileId = fileId;
       contentInfo.mFileType = gridFile.getFileType();
       contentInfo.mMessageIndex = messageIndex;
+      contentInfo.mFilePosition = message.getFilePosition();
+      contentInfo.mMessageSize = message.getMessageSize();
       contentInfo.mProducerId = producerId;
       contentInfo.mGenerationId = generationId;
       contentInfo.mGroupFlags = 0;
@@ -370,6 +379,9 @@ int run(int argc, char **argv)
 
       if (strcmp(argv[t],"-analysisTime") == 0  &&  (t+1) < argc)
         analysisTimePtr = argv[t+1];
+
+      if (strcmp(argv[t],"-delPath") == 0  &&  (t+1) < argc)
+        delPathPtr = argv[t+1];
     }
 
     if (service == nullptr)

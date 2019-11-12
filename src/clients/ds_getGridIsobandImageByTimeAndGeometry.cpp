@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     {
       std::vector<std::string> partList1;
       splitString(argv[t],':',partList1);
-      lowValues.push_back(atof(partList1[0].c_str()));
+      lowValues.push_back(toDouble(partList1[0].c_str()));
       if (partList1.size() == 2)
         colorList.push_back(strtoll(partList1[1].c_str(),nullptr,16));
       else
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
       std::vector<std::string> partList2;
       splitString(argv[t+1],':',partList2);
-      highValues.push_back(atof(partList2[0].c_str()));
+      highValues.push_back(toDouble(partList2[0].c_str()));
     }
 
     attributeList.addAttribute("grid.areaInterpolationMethod",std::to_string(areaInterpolation));
