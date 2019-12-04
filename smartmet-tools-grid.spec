@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 19.11.22
+Version: 19.12.4
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -15,8 +15,8 @@ BuildRequires: make
 BuildRequires: boost-devel
 BuildRequires: libconfig-devel
 BuildRequires: smartmet-library-spine-devel >= 19.11.20
-BuildRequires: smartmet-library-grid-files-devel >= 19.11.20
-BuildRequires: smartmet-library-grid-content-devel >= 19.11.22
+BuildRequires: smartmet-library-grid-files-devel >= 19.12.4
+BuildRequires: smartmet-library-grid-content-devel >= 19.12.4
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -33,8 +33,8 @@ Requires: libconfig
 #Requires: smartmet-server >= 17.11.10
 #Requires: smartmet-engine-grid >= 18.2.8
 Requires: boost-date-time
-Requires: smartmet-library-grid-files >= 19.11.20
-Requires: smartmet-library-grid-content >= 19.11.22
+Requires: smartmet-library-grid-files >= 19.12.4
+Requires: smartmet-library-grid-content >= 19.12.4
 #Requires: smartmet-engine-grid
 Requires: openldap
 Requires: openssl-libs
@@ -447,6 +447,8 @@ fi
 
 
 %changelog
+* Wed Dec  4 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.12.4-1.fmi
+- Repackaged due to base library changes
 * Fri Nov 22 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.11.22-1.fmi
 - Repackaged due to API changes in grid-content library
 * Wed Nov 20 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.11.20-1.fmi
