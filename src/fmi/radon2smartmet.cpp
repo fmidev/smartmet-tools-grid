@@ -48,8 +48,17 @@ struct FileRec
   std::string paramId;
   int         levelId;
   int         levelValue;
+  std::string analysisTime;
+  std::string forecastTime;
+  int         forecastType;
+  int         forecastNumber;
+  int         geometryId;
+  int         producerId;
 };
 
+
+typedef std::vector<FileRec> FileRec_vec;
+typedef std::map<std::string,FileRec_vec> FileRec_map;
 
 
 // Global variables:
@@ -86,10 +95,12 @@ T::ProducerInfoList       mTargetProducerList;
 T::GenerationInfoList     mTargetGenerationList;
 T::FileInfoList           mTargetFileList;
 T::ContentInfoList        mTargetContentList;
+FileRec_map               mFileRecMap;
+std::set<std::string>     mFileTables;
 
 uint                      mContentCount = 0;
 uint                      mWaitTime = 300;
-uint                      mTimeOutTime = 900;
+uint                      mTimeOutTime = 1800;
 bool                      mTimeOut = false;
 bool                      mOldFormat = false;
 
@@ -310,7 +321,149 @@ void readPreloadList(const char *filename)
 
 
 
+void readFiles(PGconn *conn,const char *tableName)
+{
+  FUNCTION_TRACE
+  try
+  {
+    if (mFileTables.find(tableName) != mFileTables.end())
+      return;
+
+    mFileTables.insert(tableName);
+
+    char sql[2000];
+    char *p = sql;
+
+     p+= sprintf(p,"SELECT\n");
+     p+= sprintf(p,"  file_location,\n");
+     p+= sprintf(p,"  message_no,\n");
+     p+= sprintf(p,"  byte_offset,\n");
+     p+= sprintf(p,"  byte_length,\n");
+     p+= sprintf(p,"  param_id,\n");
+     p+= sprintf(p,"  level_id,\n");
+     p+= sprintf(p,"  level_value::int,\n");
+     p+= sprintf(p,"  to_char(analysis_time, 'yyyymmddThh24MISS'),\n");
+     p+= sprintf(p,"  to_char((analysis_time+forecast_period) at time zone 'utc','yyyymmddThh24MISS'),\n");
+     p+= sprintf(p,"  forecast_period,\n");
+     p+= sprintf(p,"  forecast_type_id,\n");
+     p+= sprintf(p,"  forecast_type_value::int,\n");
+     p+= sprintf(p,"  geometry_id,\n");
+     p+= sprintf(p,"  producer_id\n");
+     p+= sprintf(p,"FROM\n");
+     p+= sprintf(p,"  %s\n",tableName);
+
+
+    //printf("%s\n",sql);
+    PGresult *res = PQexec(conn,sql);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    {
+      SmartMet::Spine::Exception exception(BCP,"Postgresql error!");
+      exception.addParameter("ErrorMessage",PQerrorMessage(conn));
+      throw exception;
+    }
+
+    //int fieldCount = PQnfields(res);
+    int rowCount = PQntuples(res);
+
+    for (int i = 0; i < rowCount; i++)
+    {
+      if (strstr(PQgetvalue(res, i, 0),"masala") != nullptr)
+      {
+        FileRec rec;
+
+        rec.fileName = PQgetvalue(res, i, 0);
+        rec.messageIndex = toInt64(PQgetvalue(res, i, 1));
+        rec.filePosition = toInt64(PQgetvalue(res, i, 2));
+        rec.messageSize = toInt64(PQgetvalue(res, i, 3));
+        rec.paramId = PQgetvalue(res, i, 4);
+        rec.levelId = toInt64(PQgetvalue(res, i, 5));
+        rec.levelValue = toInt64(PQgetvalue(res, i, 6));
+        rec.analysisTime = PQgetvalue(res, i, 7);
+        rec.forecastTime = PQgetvalue(res, i, 8);
+        std::string forecastPeriod = PQgetvalue(res, i, 9);
+        rec.forecastType = toInt64(PQgetvalue(res, i, 10));
+        rec.forecastNumber = toInt64(PQgetvalue(res, i, 11));
+        rec.geometryId = toInt64(PQgetvalue(res, i, 12));
+        rec.producerId = toInt64(PQgetvalue(res, i, 13));
+
+        if (rec.levelId == 2)
+          rec.levelValue = rec.levelValue * 100;
+
+        char key[200];
+        sprintf(key,"%s;%u;%u;%d;%d;%s;%s",
+            tableName,
+            rec.producerId,
+            rec.geometryId,
+            rec.forecastType,
+            rec.forecastNumber,
+            rec.analysisTime.c_str(),
+            forecastPeriod.c_str());
+
+
+        auto pos = mFileRecMap.find(key);
+        if (pos == mFileRecMap.end())
+        {
+          FileRec_vec vec;
+          vec.push_back(rec);
+          mFileRecMap.insert(std::pair<std::string,FileRec_vec>(key,vec));
+        }
+        else
+        {
+          pos->second.push_back(rec);
+        }
+      }
+    }
+    PQclear(res);
+  }
+  catch (...)
+  {
+    SmartMet::Spine::Exception exception(BCP, exception_operation_failed, nullptr);
+    exception.printError();
+    // throw exception;
+  }
+}
+
+
+
+
+
 uint readFiles(PGconn *conn,const char *tableName,uint producerId,uint geometryId,int forecastTypeId,int forecastTypeValue,const char *analysisTime,const char *forecastPeriod,std::vector<FileRec>& fileRecList)
+{
+  FUNCTION_TRACE
+  try
+  {
+    readFiles(conn,tableName);
+
+    char key[200];
+    sprintf(key,"%s;%u;%u;%d;%d;%s;%s",
+        tableName,
+        producerId,
+        geometryId,
+        forecastTypeId,
+        forecastTypeValue,
+        analysisTime,
+        forecastPeriod);
+
+    auto pos = mFileRecMap.find(key);
+    if (pos == mFileRecMap.end())
+      return 0;
+
+    fileRecList = pos->second;
+    return fileRecList.size();
+  }
+  catch (...)
+  {
+    SmartMet::Spine::Exception exception(BCP, exception_operation_failed, nullptr);
+    exception.printError();
+    // throw exception;
+    return 0;
+  }
+}
+
+
+
+
+uint readFiles2(PGconn *conn,const char *tableName,uint producerId,uint geometryId,int forecastTypeId,int forecastTypeValue,const char *analysisTime,const char *forecastPeriod,std::vector<FileRec>& fileRecList)
 {
   FUNCTION_TRACE
   try
@@ -1190,6 +1343,9 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
     sprintf(ss,"%u;",mSourceId);
     int ssLen = (int)strlen(ss);
 
+    mFileRecMap.clear();
+    mFileTables.clear();
+
     std::set<std::string> forecastList;
     int result = targetInterface->getGenerationIdGeometryIdAndForecastTimeList(mSessionId,forecastList);
     if (result != 0)
@@ -1273,8 +1429,11 @@ void updateForecastTimes(ContentServer::ServiceInterface *targetInterface,PGconn
       fileAndContentList.clear();
     }
 
-    if (lastUpdated > mLastUpdateTime)
-      mLastUpdateTime = lastUpdated;
+    if (!mTimeOut)
+    {
+      if (lastUpdated > mLastUpdateTime)
+        mLastUpdateTime = lastUpdated;
+    }
   }
   catch (...)
   {
