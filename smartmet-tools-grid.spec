@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 20.1.16
+Version: 20.1.21
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -16,7 +16,7 @@ BuildRequires: boost-devel
 BuildRequires: libconfig-devel
 BuildRequires: smartmet-library-spine-devel >= 19.11.20
 BuildRequires: smartmet-library-grid-files-devel >= 20.1.16
-BuildRequires: smartmet-library-grid-content-devel >= 20.1.16
+BuildRequires: smartmet-library-grid-content-devel >= 20.1.21
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -34,7 +34,7 @@ Requires: libconfig
 #Requires: smartmet-engine-grid >= 18.2.8
 Requires: boost-date-time
 Requires: smartmet-library-grid-files >= 20.1.16
-Requires: smartmet-library-grid-content >= 20.1.16
+Requires: smartmet-library-grid-content >= 20.1.21
 #Requires: smartmet-engine-grid
 Requires: openldap
 Requires: openssl-libs
@@ -445,8 +445,9 @@ if [ $1 -eq 0 ]; then
    systemctl disable radon2smartmet
 fi
 
-
 %changelog
+* Tue Jan 21 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.1.21-1.fmi
+- Reduced memory consumption
 * Thu Jan 16 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.1.16-1.fmi
 - Added event list size configuration parameter
 * Thu Jan  2 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.1.2-1.fmi
