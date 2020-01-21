@@ -8,6 +8,7 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include <grid-content/contentServer/cache/CacheImplementation.h>
+#include <boost/bimap.hpp>
 
 #include <libpq-fe.h>
 #include <stdlib.h>
@@ -61,6 +62,7 @@ struct FileRecVec
 
 typedef std::map<std::string, FileRecVec> FileRec_map;
 
+
 // Global variables:
 
 std::vector<FileRec> emptyRecList;
@@ -90,10 +92,13 @@ std::set<std::string> mPreloadList;
 T::ProducerInfoList mSourceProducerList;
 T::GenerationInfoList mSourceGenerationList;
 //std::vector<ForecastRec>  mSourceForacastList;
-std::set<std::string> mSourceFilenames;
-std::map<std::string,int> mSourceFilenameMap1;
-std::map<int,std::string> mSourceFilenameMap2;
+std::set<int> mSourceFilenames;
 int mFileIdCounter = 0;
+
+typedef boost::bimap< std::string, int > string_bimap;
+typedef string_bimap::value_type bimap_rec;
+
+string_bimap mFilenameMap;
 
 
 T::ProducerInfoList mTargetProducerList;
@@ -173,16 +178,16 @@ int getFileId(std::string filename,bool create)
 {
   try
   {
-    auto pos = mSourceFilenameMap1.find(filename);
-    if (pos != mSourceFilenameMap1.end())
+    auto pos = mFilenameMap.left.find(filename);
+    if (pos != mFilenameMap.left.end())
       return pos->second;
 
     if (!create)
       return -1;
 
     int id = mFileIdCounter++;
-    mSourceFilenameMap1.insert(std::pair<std::string,uint>(filename,id));
-    mSourceFilenameMap2.insert(std::pair<int,std::string>(id,filename));
+
+    mFilenameMap.insert(bimap_rec(filename,id));
     return id;
   }
   catch (...)
@@ -198,8 +203,8 @@ std::string getFilename(int fileId)
 {
   try
   {
-    auto pos = mSourceFilenameMap2.find(fileId);
-    if (pos != mSourceFilenameMap2.end())
+    auto pos = mFilenameMap.right.find(fileId);
+    if (pos != mFilenameMap.right.end())
       return pos->second;
 
     return "";
@@ -210,40 +215,6 @@ std::string getFilename(int fileId)
   }
 }
 
-
-
-
-
-void deleteFilenames()
-{
-  try
-  {
-    std::vector<std::string> deleteList;
-    for (auto it = mSourceFilenameMap1.begin(); it != mSourceFilenameMap1.end(); ++it)
-    {
-      auto pos = mSourceFilenames.find(it->first);
-      if (pos == mSourceFilenames.end())
-      {
-        deleteList.push_back(it->first);
-
-        auto p = mSourceFilenameMap2.find(it->second);
-        if (p != mSourceFilenameMap2.end())
-          mSourceFilenameMap2.erase(p);
-      }
-    }
-
-    for (auto it = deleteList.begin(); it != deleteList.end(); ++it)
-    {
-      auto p = mSourceFilenameMap1.find(*it);
-      if (p != mSourceFilenameMap1.end())
-        mSourceFilenameMap1.erase(p);
-    }
-  }
-  catch (...)
-  {
-    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", nullptr);
-  }
-}
 
 
 
@@ -1138,7 +1109,7 @@ void deleteTargetFiles()
       T::FileInfo *fileInfo = mTargetFileList.getFileInfoByIndex(t);
       if (fileInfo != nullptr)
       {
-        if (fileInfo->mSourceId == mSourceId && mSourceFilenames.find(fileInfo->mName) == mSourceFilenames.end())
+        if (fileInfo->mSourceId == mSourceId && mSourceFilenames.find(getFileId(fileInfo->mName,false)) == mSourceFilenames.end())
         {
           deleteList.insert(fileInfo->mFileId);
         }
@@ -1188,6 +1159,28 @@ void deleteOldFileRecords(uint loadCounter)
 
 
 
+uint countFileRecords()
+{
+  FUNCTION_TRACE
+  try
+  {
+    uint cnt = 0;
+    for (auto it = mFileRecMap.begin(); it != mFileRecMap.end(); ++it)
+    {
+      cnt = cnt + it->second.files.size();
+    }
+
+    return cnt;
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+  }
+}
+
+
+
+
 void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loadCounter, std::vector<T::FileAndContent>& fileAndContentList, std::vector<FileRec>& fileRecList)
 {
   FUNCTION_TRACE
@@ -1214,7 +1207,7 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
       fileRecList.push_back(*it);
       T::FileInfo fileInfo;
       std::string filename = getFilename(it->fileId);
-      if (mSourceFilenames.find(filename) == mSourceFilenames.end() && mTargetFileList.getFileInfoByName(filename) == nullptr)
+      if (mSourceFilenames.find(it->fileId) == mSourceFilenames.end() && mTargetFileList.getFileInfoByName(filename) == nullptr)
       {
         // File does not exists. It should be added.
 
@@ -1244,8 +1237,8 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
         }
       }
 
-      if (mSourceFilenames.find(filename) == mSourceFilenames.end())
-        mSourceFilenames.insert(filename);
+      if (mSourceFilenames.find(it->fileId) == mSourceFilenames.end())
+        mSourceFilenames.insert(it->fileId);
     }
   }
   catch (...)
@@ -1640,7 +1633,15 @@ int main(int argc, char *argv[])
 
       PRINT_DATA(mDebugLogPtr, "* Deleting old files from the target data storage\n");
       deleteTargetFiles();
-      deleteFilenames();
+
+      PRINT_DATA(mDebugLogPtr, " * Data structures\n");
+      PRINT_DATA(mDebugLogPtr, "   - mSourceProducerList   = %u\n",mSourceProducerList.getLength());
+      PRINT_DATA(mDebugLogPtr, "   - mSourceGenerationList = %u\n",mSourceGenerationList.getLength());
+      PRINT_DATA(mDebugLogPtr, "   - mSourceFilenames      = %lu\n",mSourceFilenames.size());
+      PRINT_DATA(mDebugLogPtr, "   - mTargetFileList       = %u\n",mTargetFileList.getLength());
+      PRINT_DATA(mDebugLogPtr, "   - mFilenameMap          = %lu\n",mFilenameMap.size());
+      PRINT_DATA(mDebugLogPtr, "   - mFileRecMap           = %lu\n",mFileRecMap.size());
+      PRINT_DATA(mDebugLogPtr, "   - fileRecords           = %u\n",countFileRecords());
 
       PRINT_DATA(mDebugLogPtr, "********************************************************************\n\n");
 
@@ -1657,8 +1658,7 @@ int main(int argc, char *argv[])
         // ### Force full database read every 4th hour
 
         mSourceFilenames.clear();
-        mSourceFilenameMap1.clear();
-        mSourceFilenameMap2.clear();
+        mFilenameMap.clear();
         mFileRecMap.clear();
         lastDatabaseRead = time(nullptr);
       }
