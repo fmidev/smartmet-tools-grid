@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 20.1.2
+Version: 20.1.16
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -15,8 +15,8 @@ BuildRequires: make
 BuildRequires: boost-devel
 BuildRequires: libconfig-devel
 BuildRequires: smartmet-library-spine-devel >= 19.11.20
-BuildRequires: smartmet-library-grid-files-devel >= 19.12.11
-BuildRequires: smartmet-library-grid-content-devel >= 19.12.11
+BuildRequires: smartmet-library-grid-files-devel >= 20.1.16
+BuildRequires: smartmet-library-grid-content-devel >= 20.1.16
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -33,8 +33,8 @@ Requires: libconfig
 #Requires: smartmet-server >= 17.11.10
 #Requires: smartmet-engine-grid >= 18.2.8
 Requires: boost-date-time
-Requires: smartmet-library-grid-files >= 19.12.11
-Requires: smartmet-library-grid-content >= 19.12.11
+Requires: smartmet-library-grid-files >= 20.1.16
+Requires: smartmet-library-grid-content >= 20.1.16
 #Requires: smartmet-engine-grid
 Requires: openldap
 Requires: openssl-libs
@@ -447,6 +447,8 @@ fi
 
 
 %changelog
+* Thu Jan 16 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.1.16-1.fmi
+- Added event list size configuration parameter
 * Thu Jan  2 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.1.2-1.fmi
 - radon2smartmet fixes
 * Wed Dec 11 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.12.11-1.fmi
