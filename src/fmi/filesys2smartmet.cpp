@@ -27,7 +27,6 @@ ConfigurationFile         mConfigurationFile;
 std::string               mGridConfigFile;
 uint                      mSourceId = 100;
 std::string               mProducerDefFile;
-std::string               mPreloadFile;
 uint                      mMaxMessageSize = 5000;
 std::string               mStorageType;
 std::string               mRedisAddress;
@@ -44,7 +43,6 @@ Log*                      mDebugLogPtr = nullptr;
 T::SessionId              mSessionId = 0;
 uint                      mGlobalFileId = 0;
 
-std::set<std::string>     mPreloadList;
 T::ProducerInfoList       mSourceProducerList;
 T::GenerationInfoList     mSourceGenerationList;
 T::FileInfoList           mSourceFileList;
@@ -96,7 +94,6 @@ void readConfigFile(const char* configFile)
       "smartmet.tools.grid.filesys2smartmet.maxMessageSize",
       "smartmet.tools.grid.filesys2smartmet.content-source.source-id",
       "smartmet.tools.grid.filesys2smartmet.content-source.producerDefFile",
-      "smartmet.tools.grid.filesys2smartmet.content-source.preloadFile",
       "smartmet.tools.grid.filesys2smartmet.content-source.directories",
       "smartmet.tools.grid.filesys2smartmet.content-source.patterns",
       "smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFilename",
@@ -135,7 +132,6 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.maxMessageSize",mMaxMessageSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.source-id",mSourceId);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.producerDefFile",mProducerDefFile);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.preloadFile",mPreloadFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.directories",mContentDirectories);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.patterns",mContentPatterns);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFilename",mLuaFilename);
@@ -253,57 +249,6 @@ void readTargetFiles(ContentServer::ServiceInterface *targetInterface)
   catch (...)
   {
     throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
-  }
-}
-
-
-
-
-
-void readPreloadList(const char *filename)
-{
-  try
-  {
-    FILE *file = fopen(filename,"re");
-    if (file == nullptr)
-    {
-      PRINT_DATA(mDebugLogPtr,"Preload file not available.");
-      return;
-    }
-
-    mPreloadList.clear();
-
-    char st[1000];
-    while (!feof(file))
-    {
-      if (fgets(st,1000,file) != nullptr)
-      {
-        if (st[0] != '#')
-        {
-          char *p = st;
-          while (*p != '\0')
-          {
-            if (*p <= ' ')
-              *p = '\0';
-            else
-              p++;
-          }
-
-          std::vector<std::string> partList;
-          splitString(st,';',partList);
-          if (partList.size() >= 8)
-          {
-            if (partList[7] == "1")
-              mPreloadList.insert(toLowerString(std::string(st)));
-          }
-        }
-      }
-    }
-    fclose(file);
-  }
-  catch (...)
-  {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
   }
 }
 
@@ -531,10 +476,6 @@ void readSourceContent(uint producerId,uint generationId,std::string& modificati
   {
     contentList.clear();
 
-    T::ProducerInfo *producer = nullptr;
-    if (mPreloadList.size() > 0)
-      producer = mTargetProducerList.getProducerInfoById(producerId);
-
     SmartMet::GRID::PhysicalGridFile gridFile;
     gridFile.read(filename);
 
@@ -552,23 +493,6 @@ void readSourceContent(uint producerId,uint generationId,std::string& modificati
         contentInfo->mModificationTime = modificationTime;
 
         setMessageContent(gridFile,*message,*contentInfo);
-
-        if (producer != nullptr)
-        {
-          char st[200];
-          sprintf(st,"%s;%s;%d;%d;%05d;%d;%d;1;",
-              producer->mName.c_str(),
-              contentInfo->mFmiParameterName.c_str(),
-              (int)T::ParamLevelIdTypeValue::FMI,
-              (int)contentInfo->mFmiParameterLevelId,
-              (int)contentInfo->mParameterLevel,
-              (int)contentInfo->mForecastType,
-              (int)contentInfo->mForecastNumber);
-
-            if (mPreloadList.find(toLowerString(std::string(st))) != mPreloadList.end())
-              contentInfo->mFlags = T::ContentInfo::Flags::PreloadRequired;
-        }
-
         contentList.addContentInfo(contentInfo);
       }
     }
@@ -980,9 +904,6 @@ int main(int argc, char *argv[])
         //std::cout << "GET : " << dir->c_str() << " : " << fileList.size() << "\n";
       }
 
-
-      PRINT_DATA(mDebugLogPtr,"* Reading preload parameters\n");
-      readPreloadList(mPreloadFile.c_str());
 
       PRINT_DATA(mDebugLogPtr,"* Reading producer information from the target data storage\n");
       readTargetProducers(targetInterface);

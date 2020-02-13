@@ -51,6 +51,8 @@ struct FileRec
     short forecastNumber;
     int geometryId;
     int producerId;
+    std::string producerName;
+    time_t lastUpdated;
 };
 
 struct FileRecVec
@@ -70,7 +72,6 @@ ConfigurationFile mConfigurationFile;
 std::string mGridConfigFile;
 uint mSourceId = 100;
 std::string mProducerFile;
-std::string mPreloadFile;
 uint mMaxMessageSize = 50000;
 std::string mRadonConnectionString;
 std::string mStorageType;
@@ -88,7 +89,6 @@ Log* mDebugLogPtr = nullptr;
 T::SessionId mSessionId = 0;
 
 std::set<std::string> mProducerList;
-std::set<std::string> mPreloadList;
 T::ProducerInfoList mSourceProducerList;
 T::GenerationInfoList mSourceGenerationList;
 //std::vector<ForecastRec>  mSourceForacastList;
@@ -121,13 +121,22 @@ void readConfigFile(const char* configFile)
   try
   {
     const char *configAttribute[] =
-    { "smartmet.library.grid-files.configFile", "smartmet.tools.grid.radon2smartmet.maxMessageSize", "smartmet.tools.grid.radon2smartmet.content-source.source-id",
-        "smartmet.tools.grid.radon2smartmet.content-source.producerFile", "smartmet.tools.grid.radon2smartmet.content-source.preloadFile",
-        "smartmet.tools.grid.radon2smartmet.content-source.radon.connection-string", "smartmet.tools.grid.radon2smartmet.content-storage.type",
-        "smartmet.tools.grid.radon2smartmet.content-storage.redis.address", "smartmet.tools.grid.radon2smartmet.content-storage.redis.port",
-        "smartmet.tools.grid.radon2smartmet.content-storage.redis.tablePrefix", "smartmet.tools.grid.radon2smartmet.content-storage.corba.ior",
-        "smartmet.tools.grid.radon2smartmet.content-storage.http.url", "smartmet.tools.grid.radon2smartmet.debug-log.enabled", "smartmet.tools.grid.radon2smartmet.debug-log.file",
-        "smartmet.tools.grid.radon2smartmet.debug-log.maxSize", "smartmet.tools.grid.radon2smartmet.debug-log.truncateSize", nullptr };
+    {
+        "smartmet.library.grid-files.configFile",
+        "smartmet.tools.grid.radon2smartmet.maxMessageSize",
+        "smartmet.tools.grid.radon2smartmet.content-source.source-id",
+        "smartmet.tools.grid.radon2smartmet.content-source.producerFile",
+        "smartmet.tools.grid.radon2smartmet.content-source.radon.connection-string",
+        "smartmet.tools.grid.radon2smartmet.content-storage.type",
+        "smartmet.tools.grid.radon2smartmet.content-storage.redis.address",
+        "smartmet.tools.grid.radon2smartmet.content-storage.redis.port",
+        "smartmet.tools.grid.radon2smartmet.content-storage.redis.tablePrefix",
+        "smartmet.tools.grid.radon2smartmet.content-storage.corba.ior",
+        "smartmet.tools.grid.radon2smartmet.content-storage.http.url",
+        "smartmet.tools.grid.radon2smartmet.debug-log.enabled",
+        "smartmet.tools.grid.radon2smartmet.debug-log.file",
+        "smartmet.tools.grid.radon2smartmet.debug-log.maxSize",
+        "smartmet.tools.grid.radon2smartmet.debug-log.truncateSize", nullptr };
 
     mConfigurationFile.readFile(configFile);
     //mConfigurationFile.print(std::cout,0,0);
@@ -149,7 +158,6 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.maxMessageSize", mMaxMessageSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-source.source-id", mSourceId);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-source.producerFile", mProducerFile);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-source.preloadFile", mPreloadFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-source.radon.connection-string", mRadonConnectionString);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.type", mStorageType);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.address", mRedisAddress);
@@ -248,57 +256,6 @@ void readProducerList(const char *filename)
           }
           //printf("Add producer [%s]\n",st);
           mProducerList.insert(toLowerString(std::string(st)));
-        }
-      }
-    }
-    fclose(file);
-  }
-  catch (...)
-  {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
-  }
-}
-
-
-
-
-void readPreloadList(const char *filename)
-{
-  FUNCTION_TRACE
-  try
-  {
-    FILE *file = fopen(filename, "re");
-    if (file == nullptr)
-    {
-      PRINT_DATA(mDebugLogPtr, "  -- Preload file not available.\n");
-      return;
-    }
-
-    mPreloadList.clear();
-
-    char st[1000];
-    while (!feof(file))
-    {
-      if (fgets(st, 1000, file) != nullptr)
-      {
-        if (st[0] != '#')
-        {
-          char *p = st;
-          while (*p != '\0')
-          {
-            if (*p <= ' ')
-              *p = '\0';
-            else
-              p++;
-          }
-
-          std::vector < std::string > partList;
-          splitString(st, ';', partList);
-          if (partList.size() >= 8)
-          {
-            if (partList[7] == "1")
-              mPreloadList.insert(toLowerString(std::string(st)));
-          }
         }
       }
     }
@@ -626,7 +583,7 @@ std::string getTableInfo(PGconn *conn, const char *tableName, uint producerId, c
 
 
 
-void readTableRecords(PGconn *conn, const char *tableName, uint producerId, const char *analysisTime, std::string& info)
+void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std::string& producerName,const char *analysisTime, std::string& updateTime, std::string& info)
 {
   FUNCTION_TRACE
   try
@@ -695,6 +652,8 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, cons
         rec.forecastNumber = toInt64(PQgetvalue(res, i, 11));
         rec.geometryId = toInt64(PQgetvalue(res, i, 12));
         rec.producerId = toInt64(PQgetvalue(res, i, 13));
+        rec.producerName = producerName;
+        rec.lastUpdated = utcTimeToTimeT(updateTime.c_str());
 
         if (rec.levelId == 2)
           rec.levelValue = rec.levelValue * 100;
@@ -737,6 +696,7 @@ std::vector<FileRec>& readSourceFilesAndContent(
     PGconn *conn,
     const char *tableName,
     uint producerId,
+    std::string& producerName,
     uint geometryId,
     int forecastTypeId,
     int forecastTypeValue,
@@ -772,7 +732,7 @@ std::vector<FileRec>& readSourceFilesAndContent(
       }
     }
 
-    readTableRecords(conn, tableName, producerId, analysisTime, info);
+    readTableRecords(conn, tableName, producerId, producerName, analysisTime, updateTime, info);
     pos = mFileRecMap.find(key);
     if (pos == mFileRecMap.end())
       return emptyRecList;
@@ -1237,7 +1197,7 @@ uint countFileRecords()
 
 
 
-void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loadCounter, T::FileInfoList& targetFileList, std::vector<T::FileAndContent>& fileAndContentList, std::vector<FileRec>& fileRecList)
+void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loadCounter, T::FileInfoList& targetFileList, std::string& producerName,std::vector<T::FileAndContent>& fileAndContentList, std::vector<FileRec>& fileRecList)
 {
   FUNCTION_TRACE
   try
@@ -1249,7 +1209,7 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
       return;
     }
 
-    std::vector<FileRec> recList = readSourceFilesAndContent(conn, forecast.tableName.c_str(), forecast.producerId, forecast.geometryId, forecast.forecastTypeId,
+    std::vector<FileRec> recList = readSourceFilesAndContent(conn, forecast.tableName.c_str(), forecast.producerId, producerName, forecast.geometryId, forecast.forecastTypeId,
         forecast.forecastTypeValue, forecast.analysisTime.c_str(), forecast.forecastPeriod.c_str(), forecast.lastUpdated, loadCounter);
 
     mContentReadCount += recList.size();
@@ -1354,7 +1314,7 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
           contentInfo->mFlags = 0;
           contentInfo->mSourceId = mSourceId;
           contentInfo->mGeometryId = it->geometryId;
-          //contentInfo->mModificationTime = it->lastUpdated;
+          contentInfo->mModificationTime = utcTimeFromTimeT(it->lastUpdated);
 
           Identification::FmiParameterDef fmiDef;
           if (Identification::gridDef.getFmiParameterDefById(it->paramId, fmiDef))
@@ -1369,20 +1329,7 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
               contentInfo->mNewbaseParameterName = newbaseDef.mParameterName;
             }
           }
-          /*
-           char st[200];
-           sprintf(st,"%s;%s;%d;%d;%05d;%d;%d;1;",
-           forecast.producerName.c_str(),
-           contentInfo->mFmiParameterName.c_str(),
-           (int)T::ParamLevelIdTypeValue::FMI,
-           (int)contentInfo->mFmiParameterLevelId,
-           (int)contentInfo->mParameterLevel,
-           (int)contentInfo->mForecastType,
-           (int)contentInfo->mForecastNumber);
 
-           if (mPreloadList.find(toLowerString(std::string(st))) != mPreloadList.end())
-           contentInfo->mFlags = T::ContentInfo::Flags::PreloadRequired;
-           */
           contentList.addContentInfo(contentInfo);
 
           if (contentList.getLength() >= mMaxMessageSize)
@@ -1458,7 +1405,7 @@ void updateTargetFiles(PGconn *conn)
 
           for (auto it = sourceForacastList.begin(); it != sourceForacastList.end(); ++it)
           {
-            readSourceFilesByForecastTime(conn, *it, mFileLoadCounter,targetFileList,fileAndContentList, fileRecList);
+            readSourceFilesByForecastTime(conn, *it, mFileLoadCounter,targetFileList,targetProducer->mName,fileAndContentList, fileRecList);
           }
 
           if (fileAndContentList.size() > 0)
@@ -1574,9 +1521,6 @@ int main(int argc, char *argv[])
       PRINT_DATA(mDebugLogPtr, "* Reading producer names that belongs to this update\n");
       readProducerList(mProducerFile.c_str());
 
-      PRINT_DATA(mDebugLogPtr, "* Reading preload parameters\n");
-      readPreloadList(mPreloadFile.c_str());
-
       PRINT_DATA(mDebugLogPtr, "* Reading producer information from the target data storage\n");
       readTargetProducers(mTargetProducerList);
 
@@ -1613,7 +1557,6 @@ int main(int argc, char *argv[])
       PRINT_DATA(mDebugLogPtr, "********************************************************************\n\n");
 
       mProducerList.clear();
-      mPreloadList.clear();
       mSourceProducerList.clear();
       mSourceGenerationList.clear();
 
