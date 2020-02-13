@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
       splitString(it->c_str(),';',partList);
       if (partList.size() >= 10)
       {
-        std::cout << partList[0] << ";" << partList[3] << ";" << partList[4] << ";" << partList[5] << ";" << partList[6] << ";" << partList[7] << ";" << partList[8]<< ";" << partList[9] << ";\n";
+        std::cout << partList[0] << ";" << partList[3] << ";" << partList[4] << ";" << partList[5] << ";" << partList[6] << ";" << partList[7] << ";" << partList[8] << ";" << partList[9] << ";" << partList[10] << "\n";
       }
 
       //printf("%s\n",it->c_str());
