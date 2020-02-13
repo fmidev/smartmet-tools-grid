@@ -42,6 +42,7 @@ std::string         mContentSourceIor;
 bool                mVirtualFilesEnabled = false;
 std::string         mVirtualFileDefinitions;
 bool                mGridPreloadEnabled = false;
+std::string         mGridPreloadFile;
 string_vec          mLuaFiles;
 std::string         mGridDirectory;
 std::string         mGridConfigFile;
@@ -112,6 +113,7 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.data-server.content-source.ior",
         "smartmet.tools.grid.data-server.grid-storage.directory",
         "smartmet.tools.grid.data-server.grid-storage.preloadEnabled",
+        "smartmet.tools.grid.data-server.grid-storage.preloadFile",
         "smartmet.tools.grid.data-server.virtualFiles.enabled",
         "smartmet.tools.grid.data-server.virtualFiles.definitionFile",
         "smartmet.tools.grid.data-server.luaFiles",
@@ -163,6 +165,7 @@ void readConfigFile(const char* configFile)
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.directory",mGridDirectory);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadEnabled",mGridPreloadEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadFile",mGridPreloadFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.enabled",mVirtualFilesEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.definitionFile",mVirtualFileDefinitions);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.luaFiles",mLuaFiles);
@@ -260,8 +263,7 @@ int main(int argc, char *argv[])
 
     dataServer->init(0,mServerId,mServerName.c_str(),corbaServer->getServiceIor().c_str(),mGridDirectory.c_str(),&contentServerClient,mLuaFiles);
     dataServer->setPointCacheEnabled(mPointCacheEnabled,mPointCacheHitsRequired,mPointCacheTimePeriod);
-    dataServer->setRequestCounterEnabled(mRequestCounterFilename,mRequestCounterEnabled);
-    dataServer->setContentPreloadEnabled(mGridPreloadEnabled);
+    dataServer->setPreload(mGridPreloadEnabled,mGridPreloadFile,mRequestCounterEnabled,mRequestCounterFilename);
     dataServer->setVirtualContentEnabled(mVirtualFilesEnabled);
 
     if (mVirtualFileDefinitions.length() > 0)
