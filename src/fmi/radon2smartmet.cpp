@@ -712,6 +712,8 @@ std::vector<FileRec>& readSourceFilesAndContent(
     sprintf(key, "%s;%u;%u;%d;%d;%lu;%s", tableName, producerId, geometryId, forecastTypeId, forecastTypeValue, utcTimeToTimeT(analysisTime), forecastPeriod);
 
     std::string info = getTableInfo(conn, tableName, producerId, analysisTime);
+    if (info.empty())
+      return emptyRecList;
 
     auto pos = mFileRecMap.find(key);
     if (pos != mFileRecMap.end())
@@ -1081,6 +1083,7 @@ void updateGenerations()
             T::GenerationInfo generationInfo(*sourceGeneration);
             generationInfo.mProducerId = targetProducer->mProducerId;
             generationInfo.mSourceId = mSourceId;
+            generationInfo.mStatus = T::GenerationInfo::Status::Running;
 
             PRINT_DATA(mDebugLogPtr, "  -- Add generation : %s\n", generationInfo.mName.c_str());
 
@@ -1093,6 +1096,39 @@ void updateGenerations()
               throw exception;
             }
           }
+        }
+      }
+    }
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+  }
+}
+
+
+
+
+void updateGenerationStatus()
+{
+  FUNCTION_TRACE
+  try
+  {
+    uint len = mTargetGenerationList.getLength();
+    for (uint t = 0; t < len; t++)
+    {
+      T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoByIndex(t);
+      if (targetGeneration->mSourceId == mSourceId  &&  targetGeneration->mStatus == T::GenerationInfo::Status::Running)
+      {
+        PRINT_DATA(mDebugLogPtr, "  -- Update generation status : %s\n", targetGeneration->mName.c_str());
+
+        int result = mTargetInterface->setGenerationInfoStatusById(mSessionId,targetGeneration->mGenerationId,T::GenerationInfo::Status::Ready);
+        if (result != 0)
+        {
+          SmartMet::Spine::Exception exception(BCP, "Cannot update the generation status into the target data storage!");
+          exception.addParameter("GenerationName", targetGeneration->mName);
+          exception.addParameter("Result", ContentServer::getResultString(result));
+          throw exception;
         }
       }
     }
@@ -1545,6 +1581,9 @@ int main(int argc, char *argv[])
 
       PRINT_DATA(mDebugLogPtr, "* Updating file and content information into the target data storage\n");
       updateTargetFiles(conn);
+
+      PRINT_DATA(mDebugLogPtr, "* Updating generation status information into the target data storage\n");
+      updateGenerationStatus();
 
       PRINT_DATA(mDebugLogPtr, " * Data structures\n");
       PRINT_DATA(mDebugLogPtr, "   - mSourceProducerList   = %u\n",mSourceProducerList.getLength());
