@@ -43,6 +43,7 @@ bool                mVirtualFilesEnabled = false;
 std::string         mVirtualFileDefinitions;
 bool                mGridPreloadEnabled = false;
 std::string         mGridPreloadFile;
+std::string         mGridCounterFile;
 string_vec          mLuaFiles;
 std::string         mGridDirectory;
 std::string         mGridConfigFile;
@@ -52,7 +53,9 @@ bool                mPointCacheEnabled = false;
 uint                mPointCacheHitsRequired = 20; // 20 hits required during the last 20 minutes
 uint                mPointCacheTimePeriod = 1200;
 bool                mRequestCounterEnabled = false;
-std::string         mRequestCounterFilename;
+std::string         mGeneratedCounterFile;
+std::string         mGeneratedPreloadFile;
+
 
 
 bool mShutdownRequested = false;
@@ -104,7 +107,8 @@ void readConfigFile(const char* configFile)
         "smartmet.library.grid-files.pointCache.hitsRequired",
         "smartmet.library.grid-files.pointCache.timePeriod",
         "smartmet.library.grid-files.requestCounter.enabled",
-        "smartmet.library.grid-files.requestCounter.filename",
+        "smartmet.library.grid-files.requestCounter.generatedPreloadFile",
+        "smartmet.library.grid-files.requestCounter.generatedCounterFile",
         "smartmet.tools.grid.data-server.name",
         "smartmet.tools.grid.data-server.id",
         "smartmet.tools.grid.data-server.address",
@@ -114,6 +118,7 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.data-server.grid-storage.directory",
         "smartmet.tools.grid.data-server.grid-storage.preloadEnabled",
         "smartmet.tools.grid.data-server.grid-storage.preloadFile",
+        "smartmet.tools.grid.data-server.grid-storage.counterFile",
         "smartmet.tools.grid.data-server.virtualFiles.enabled",
         "smartmet.tools.grid.data-server.virtualFiles.definitionFile",
         "smartmet.tools.grid.data-server.luaFiles",
@@ -153,7 +158,8 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.pointCache.hitsRequired", mPointCacheHitsRequired);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.pointCache.timePeriod", mPointCacheTimePeriod);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.requestCounter.enabled", mRequestCounterEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.requestCounter.filename", mRequestCounterFilename);
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.requestCounter.generatedCounterFile", mGeneratedCounterFile);
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.requestCounter.generatedPreloadFile", mGeneratedPreloadFile);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.name", mServerName);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.id", mServerId);
@@ -166,6 +172,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.directory",mGridDirectory);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadEnabled",mGridPreloadEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadFile",mGridPreloadFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.counterFile",mGridCounterFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.enabled",mVirtualFilesEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.definitionFile",mVirtualFileDefinitions);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.luaFiles",mLuaFiles);
@@ -263,7 +270,7 @@ int main(int argc, char *argv[])
 
     dataServer->init(0,mServerId,mServerName.c_str(),corbaServer->getServiceIor().c_str(),mGridDirectory.c_str(),&contentServerClient,mLuaFiles);
     dataServer->setPointCacheEnabled(mPointCacheEnabled,mPointCacheHitsRequired,mPointCacheTimePeriod);
-    dataServer->setPreload(mGridPreloadEnabled,mGridPreloadFile,mRequestCounterEnabled,mRequestCounterFilename);
+    dataServer->setPreload(mGridPreloadEnabled,mGridPreloadFile,mGridCounterFile,mRequestCounterEnabled,mGeneratedPreloadFile,mGeneratedCounterFile);
     dataServer->setVirtualContentEnabled(mVirtualFilesEnabled);
 
     if (mVirtualFileDefinitions.length() > 0)
