@@ -1390,8 +1390,7 @@ int main(int argc, char *argv[])
     {
       using namespace SmartMet::GRIB1;
 
-      newGridFile.setGridFile(T::FileTypeValue::Grib1);
-      newMessage = newGridFile.newMessage();
+      newMessage = newGridFile.newMessage(T::FileTypeValue::Grib1);
 
       printf("** VERSION %u\n",dataMessage->getGribVersion());
 
@@ -1493,8 +1492,7 @@ int main(int argc, char *argv[])
 
     if (version == 2)
     {
-      newGridFile.setGridFile(T::FileTypeValue::Grib2);
-      newMessage = newGridFile.newMessage();
+      newMessage = newGridFile.newMessage(T::FileTypeValue::Grib2);
     }
 
 

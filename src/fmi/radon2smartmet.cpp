@@ -1154,7 +1154,7 @@ void deleteTargetFiles(T::FileInfoList& targetFileList)
     for (uint t = 0; t < len; t++)
     {
       T::FileInfo *fileInfo = targetFileList.getFileInfoByIndex(t);
-      if (fileInfo != nullptr)
+      if (fileInfo != nullptr && (fileInfo->mFlags & T::FileInfo::Flags::VirtualContent) == 0)
       {
         if (fileInfo->mSourceId == mSourceId && mSourceFilenames.find(getFileId(fileInfo->mName,false)) == mSourceFilenames.end())
         {

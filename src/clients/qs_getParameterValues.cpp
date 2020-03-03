@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
     if (argc < 7)
     {
-      fprintf(stdout,"USAGE: qs_getParameterValues <sessionId> <parameter> <startTime> <endTime> <lat> <lon>\n");
+      fprintf(stdout,"USAGE: qs_getParameterValues <sessionId> <parameter> <startTime> <endTime> [<attrName=attrValue> ... <attrName=attrValue>]\n");
       return -1;
     }
 
@@ -56,53 +56,20 @@ int main(int argc, char *argv[])
     QueryServer::Query query;
     QueryServer::QueryParameter param;
 
-
-    uint geometryId = 0;
-    if (argc >= 7)
-      geometryId = atoi(argv[7]);
-
     T::Coordinate_vec coordinates;
+    //T::AttributeList attributeList;
 
-
-    if (geometryId > 0)
+    for (int t=5; t<argc; t++)
     {
-      query.mAttributeList.setAttribute("grid.geometryId",std::to_string(geometryId));
-      /*
-
-      init();
-      uint cols = 0;
-      uint rows = 0;
-      if (Identification::gridDef.getGridDimensionsByGeometryId(geometryId,cols,rows))
-      {
-        query.mGridWidth = cols;
-        query.mGridHeight = rows;
-      }
-      else
-      {
-        fprintf(stdout,"ERROR: Unknow geometry!\n");
-        return -2;
-      }
-
-      if (!Identification::gridDef.getGridLatLonCoordinatesByGeometryId(geometryId,coordinates))
-      {
-        fprintf(stdout,"ERROR: Unknow geometry!\n");
-        return -2;
-      }
-      */
-      param.mType = QueryServer::QueryParameter::Type::Isoband;
-      param.mLocationType = QueryServer::QueryParameter::LocationType::Point;
-
-      param.mContourLowValues.push_back(270);
-      param.mContourLowValues.push_back(275);
-      param.mContourLowValues.push_back(280);
-      param.mContourLowValues.push_back(285);
-    }
-    else
-    {
-      coordinates.push_back(T::Coordinate(toDouble(argv[6]),toDouble(argv[5])));
+      std::vector<std::string> partList;
+      splitString(argv[t],'=',partList);
+      if (partList.size() == 2)
+        query.mAttributeList.addAttribute(partList[0],partList[1]);
     }
 
-    query.mAreaCoordinates.push_back(coordinates);
+    param.mType = QueryServer::QueryParameter::Type::Vector;
+    param.mLocationType = QueryServer::QueryParameter::LocationType::Geometry;
+
     query.mStartTime = argv[3];
     query.mEndTime = argv[4];
     query.mSearchType = QueryServer::Query::SearchType::TimeRange;
@@ -127,24 +94,6 @@ int main(int argc, char *argv[])
     // ### Result:
 
     query.print(std::cout,0,0);
-
-    for (auto it = query.mQueryParameterList.begin(); it != query.mQueryParameterList.end(); ++it)
-    {
-      for (auto v = it->mValueList.begin(); v != it->mValueList.end(); ++v)
-      {
-        printf("%s (%lu):",v->mForecastTime.c_str(),v->mValueData.size());
-        uint len = v->mValueList.getLength();
-        for (uint t=0; t<len; t++)
-        {
-          T::GridValue rec;
-          if (v->mValueList.getGridValueByIndex(t,rec))
-            printf(" %f",rec.mValue);
-
-        }
-        printf("\n");
-      }
-    }
-
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

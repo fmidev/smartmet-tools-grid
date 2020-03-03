@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
     int imageWidth = width*mp;
     int imageHeight = height*mp;
 
-    ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,false,rotate);
+    ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFF,false,rotate);
 
     // ### Painting contours into the image:
 
