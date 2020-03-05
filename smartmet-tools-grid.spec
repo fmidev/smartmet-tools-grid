@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 20.2.25
+Version: 20.3.5
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 20.2.13
-BuildRequires: smartmet-library-grid-files-devel >= 20.2.25
-BuildRequires: smartmet-library-grid-content-devel >= 20.2.25
+BuildRequires: smartmet-library-spine-devel >= 20.3.5
+BuildRequires: smartmet-library-grid-files-devel >= 20.3.5
+BuildRequires: smartmet-library-grid-content-devel >= 20.3.5
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -32,8 +32,8 @@ Requires: libconfig
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
 Requires: boost-date-time
-Requires: smartmet-library-grid-files >= 20.2.25
-Requires: smartmet-library-grid-content >= 20.2.25
+Requires: smartmet-library-grid-files >= 20.3.5
+Requires: smartmet-library-grid-content >= 20.3.5
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -444,6 +444,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu Mar  5 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.3.5-1.fmi
+- Minor fixes
 * Tue Feb 25 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.2.25-1.fmi
 - Added new configuration attributes
 - Setting generation status to ready when its content addition is complete
