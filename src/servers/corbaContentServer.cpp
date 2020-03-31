@@ -28,6 +28,7 @@ std::string         mServerPort;
 std::string         mServerIorFile;
 bool                mCacheEnabled = false;
 uint                mCacheContentSortingFlags = 0;
+bool                mRequestForwardEnabled = false;
 std::string         mContentSourceType;
 bool                mDataLoadEnabled = false;
 bool                mDataSaveEnabled = false;
@@ -96,6 +97,7 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.content-server.iorFile",
         "smartmet.tools.grid.content-server.cache.enabled",
         "smartmet.tools.grid.content-server.cache.contentSortingFlags",
+        "smartmet.tools.grid.content-server.cache.requestForwardEnabled",
         "smartmet.tools.grid.content-server.cache.eventListMaxSize",
         "smartmet.tools.grid.content-server.content-source.type",
         "smartmet.tools.grid.content-server.content-source.redis.address",
@@ -142,6 +144,7 @@ void readConfigFile(const char* configFile)
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.enabled", mCacheEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.contentSortingFlags", mCacheContentSortingFlags);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.requestForwardEnabled", mRequestForwardEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.eventListMaxSize", mEventListMaxSize);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.type", mContentSourceType);
@@ -255,6 +258,8 @@ int main(int argc, char *argv[])
     if (mCacheEnabled)
     {
       cacheImplementation = new ContentServer::CacheImplementation();
+      cacheImplementation->setRequestForwardEnabled(mRequestForwardEnabled);
+
       if (mProcessingLogEnabled)
       {
         mProcessingLog.init(true,mProcessingLogFile.c_str(),mProcessingLogMaxSize,mProcessingLogTruncateSize);

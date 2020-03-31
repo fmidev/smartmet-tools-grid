@@ -82,7 +82,7 @@ uint                mMaxCompressedMegaBytesOfCachedGrids = 10000;
 uint                mMaxUncompressedMegaBytesOfCachedGrids = 10000;
 
 std::string         mProducerFile;
-std::string         mProducerAliasFile;
+string_vec          mProducerAliasFiles;
 bool                mVirtualFilesEnabled = false;
 std::string         mVirtualFileDefinitions;
 bool                mContentPreloadEnabled = false;
@@ -96,7 +96,7 @@ std::string         mParameterMappingUpdateFile_newbase;
 time_t              mParameterMappingUpdateTime = 0;
 T::ParamKeyType     mMappingTargetKeyType = T::ParamKeyTypeValue::FMI_NAME;
 
-QueryServer::AliasFile mProducerAliases;
+QueryServer::AliasFileCollection mProducerAliasFileCollection;
 
 
 
@@ -603,7 +603,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.iorFile", mServerIorFile);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerFile",mProducerFile);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerAliasFile",mProducerAliasFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerAliasFiles",mProducerAliasFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.processing-log.enabled", mQueryServerProcessingLogEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.processing-log.file", mQueryServerProcessingLogFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.processing-log.maxSize", mQueryServerProcessingLogMaxSize);
@@ -679,7 +679,7 @@ int main(int argc, char *argv[])
     dataServer->init(mDataServerIor);
 
 
-    queryServer->init(contentServer,dataServer,mGridConfigFile,mParameterMappingFiles,mParameterAliasFiles,mProducerFile,mProducerAliasFile,mQueryServerLuaFiles);
+    queryServer->init(contentServer,dataServer,mGridConfigFile,mParameterMappingFiles,mParameterAliasFiles,mProducerFile,mProducerAliasFiles,mQueryServerLuaFiles);
 
     if (mContentServerProcessingLogEnabled &&  mContentServerProcessingLogFile.length() > 0)
     {
@@ -738,7 +738,7 @@ int main(int argc, char *argv[])
       fclose(file);
     }
 
-    mProducerAliases.init(mProducerAliasFile,true);
+    mProducerAliasFileCollection.init(mProducerAliasFiles,true);
 
     startUpdateProcessing();
 
