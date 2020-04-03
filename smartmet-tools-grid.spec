@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 20.3.10
+Version: 20.4.3
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -15,8 +15,8 @@ BuildRequires: make
 BuildRequires: boost-devel
 BuildRequires: libconfig-devel
 BuildRequires: smartmet-library-spine-devel >= 20.3.9
-BuildRequires: smartmet-library-grid-files-devel >= 20.3.10
-BuildRequires: smartmet-library-grid-content-devel >= 20.3.10
+BuildRequires: smartmet-library-grid-files-devel >= 20.4.3
+BuildRequires: smartmet-library-grid-content-devel >= 20.4.3
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -32,8 +32,8 @@ Requires: libconfig
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
 Requires: boost-date-time
-Requires: smartmet-library-grid-files >= 20.3.10
-Requires: smartmet-library-grid-content >= 20.3.10
+Requires: smartmet-library-grid-files >= 20.4.3
+Requires: smartmet-library-grid-content >= 20.4.3
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -190,6 +190,7 @@ Provides: ds_getGridValueVectorByPoint = %{Version}
 Provides: ds_getGridValueVectorByRectangle = %{Version}
 Provides: ds_getGridValueVectorByTime = %{Version}
 Provides: filesys2smartmet = %{Version}
+Provides: generateFmigFiles = %{Version}
 Provides: grid_add = %{Version}
 Provides: grid_create = %{Version}
 Provides: grid_dump = %{Version}
@@ -398,6 +399,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/qs_getParameterValueByPointAndTime
 %{_bindir}/clients/qs_getParameterValuesByPointAndTimeList
 %{_bindir}/clients/qs_getProducerList
+%{_bindir}/fmi/generateFmigFiles
 %{_bindir}/files/grid_add
 %{_bindir}/files/grid_create
 %{_bindir}/files/grid_dump
@@ -444,6 +446,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Fri Apr  3 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.4.3-1.fmi
+- Created a program for generating fast grid files suitable for timeseries queries
+- New configuration parameters
 * Tue Mar 10 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.3.10-1.fmi
 - Preloading is now configurable
 * Thu Mar  5 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.3.5-1.fmi
