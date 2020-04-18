@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 20.4.3
+Version: 20.4.18
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -12,11 +12,11 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
-BuildRequires: boost-devel
+BuildRequires: boost169-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 20.3.9
-BuildRequires: smartmet-library-grid-files-devel >= 20.4.3
-BuildRequires: smartmet-library-grid-content-devel >= 20.4.3
+BuildRequires: smartmet-library-spine-devel >= 20.4.18
+BuildRequires: smartmet-library-grid-files-devel >= 20.4.18
+BuildRequires: smartmet-library-grid-content-devel >= 20.4.18
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -31,9 +31,9 @@ Requires: libconfig
 #Requires: smartmet-library-macgyver >= 18.2.6
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
-Requires: boost-date-time
-Requires: smartmet-library-grid-files >= 20.4.3
-Requires: smartmet-library-grid-content >= 20.4.3
+Requires: boost169-date-time
+Requires: smartmet-library-grid-files >= 20.4.18
+Requires: smartmet-library-grid-content >= 20.4.18
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -446,6 +446,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Sat Apr 18 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.4.18-1.fmi
+- Upgraded to Boost 1.69
 * Fri Apr  3 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.4.3-1.fmi
 - Created a program for generating fast grid files suitable for timeseries queries
 - New configuration parameters
