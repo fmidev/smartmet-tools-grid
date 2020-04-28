@@ -1,4 +1,5 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
+#include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-content/contentServer/cache/CacheImplementation.h"
 #include "grid-content/dataServer/corba/client/ClientImplementation.h"
@@ -39,6 +40,7 @@ std::vector<ParamRec> mParamList;
 std::set<std::string> mProducerList;
 
 ContentServer::Corba::ClientImplementation *contentServer = nullptr;
+ContentServer::ServiceInterface *contentStorage = nullptr;
 DataServer::Corba::ClientImplementation *dataServer = nullptr;
 
 bool mShutdownRequested = false;
@@ -75,6 +77,7 @@ std::string mTargetDir;
 std::string mParameterFile;
 std::string mProducerPrefix;
 bool mContentStorageEnabled = false;
+uint mSourceId = 400;
 std::string mContentStorageType;
 std::string mContentStorageRedisAddress = "127.0.0.1";
 uint mContentStorageRedisPort = 6379;
@@ -153,6 +156,7 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.generateFmigFiles.targetDir",
         "smartmet.tools.grid.generateFmigFiles.producerPrefix",
         "smartmet.tools.grid.generateFmigFiles.content-storage.enabled",
+        "smartmet.tools.grid.generateFmigFiles.content-storage.sourceId",
         "smartmet.tools.grid.generateFmigFiles.content-storage.type",
         "smartmet.tools.grid.generateFmigFiles.content-storage.redis.address",
         "smartmet.tools.grid.generateFmigFiles.content-storage.redis.port",
@@ -206,6 +210,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.generateFmigFiles.targetDir", mTargetDir);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.generateFmigFiles.producerPrefix", mProducerPrefix);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.generateFmigFiles.content-storage.enabled", mContentStorageEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.generateFmigFiles.content-storage.sourceId", mSourceId);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.generateFmigFiles.content-storage.type", mContentStorageType);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.generateFmigFiles.content-storage.redis.address", mContentStorageRedisAddress);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.generateFmigFiles.content-storage.redis.port", mContentStorageRedisPort);
@@ -329,6 +334,196 @@ void readParameterFile(const char *filename)
 
 
 
+uint getProducerId(std::string producerName)
+{
+  try
+  {
+    if (contentStorage == nullptr)
+      throw SmartMet::Spine::Exception(BCP, "Content storage not defined!");
+
+
+    T::ProducerInfo producerInfo;
+    int result = contentStorage->getProducerInfoByName(0,producerName,producerInfo);
+
+    if (result == ContentServer::Result::OK)
+      return producerInfo.mProducerId;
+
+    if (result == ContentServer::Result::DATA_NOT_FOUND)
+    {
+      producerInfo.mProducerId = 0;
+      producerInfo.mName = producerName;
+      producerInfo.mTitle = producerName;
+      producerInfo.mDescription = producerName;
+      producerInfo.mFlags = 0;
+      producerInfo.mSourceId = mSourceId;
+
+      int  res = contentStorage->addProducerInfo(0,producerInfo);
+      if (res == ContentServer::Result::OK)
+        return producerInfo.mProducerId;
+
+      throw SmartMet::Spine::Exception(BCP, ContentServer::getResultString(res));
+    }
+
+    throw SmartMet::Spine::Exception(BCP, ContentServer::getResultString(result));
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+  }
+}
+
+
+
+
+uint getGenerationId(uint producerId,std::string generationName,std::string analysisTime)
+{
+  try
+  {
+    if (contentStorage == nullptr)
+      throw SmartMet::Spine::Exception(BCP, "Content storage not defined!");
+
+
+    T::GenerationInfo generationInfo;
+    int result = contentStorage->getGenerationInfoByName(0,generationName,generationInfo);
+
+    if (result == ContentServer::Result::OK)
+      return generationInfo.mGenerationId;
+
+    if (result == ContentServer::Result::DATA_NOT_FOUND)
+    {
+      generationInfo.mGenerationId = 0;
+      generationInfo.mGenerationType = 0;
+      generationInfo.mProducerId = producerId;
+      generationInfo.mName = generationName;
+      generationInfo.mDescription = generationName;
+      generationInfo.mAnalysisTime = analysisTime;
+      generationInfo.mStatus = T::GenerationInfo::Status::Ready;
+      generationInfo.mFlags = 0;
+      generationInfo.mSourceId = mSourceId;
+
+      int  res = contentStorage->addGenerationInfo(0,generationInfo);
+      if (res == ContentServer::Result::OK)
+        return generationInfo.mGenerationId;
+
+      throw SmartMet::Spine::Exception(BCP, ContentServer::getResultString(res));
+    }
+
+    throw SmartMet::Spine::Exception(BCP, ContentServer::getResultString(result));
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+  }
+}
+
+
+
+
+void addFile(uint producerId,uint generationId,std::string fileName,T::ContentInfoList& contentInfoList)
+{
+  try
+  {
+    if (contentStorage == nullptr)
+      throw SmartMet::Spine::Exception(BCP, "Content storage not defined!");
+
+
+    int result = contentStorage->deleteFileInfoByName(0,fileName);
+
+    T::FileInfo fileInfo;
+    fileInfo.mGroupFlags = 0;
+    fileInfo.mProducerId = producerId;
+    fileInfo.mGenerationId = generationId;
+    fileInfo.mFileId = 0;
+    fileInfo.mFileType = T::FileTypeValue::Fmig1;
+    fileInfo.mName = fileName;
+    fileInfo.mFlags = T::FileInfo::Flags::PredefinedContent;
+    fileInfo.mSourceId = mSourceId;
+    //fileInfo.mModificationTime;
+    //fileInfo.mDeletionTime;
+
+    auto sz = getFileSize(fileName.c_str());
+
+    uint len = contentInfoList.getLength();
+    for (uint t=0; t<len; t++)
+    {
+      T::ContentInfo *cInfo = contentInfoList.getContentInfoByIndex(t);
+      cInfo->mProducerId = producerId;
+      cInfo->mGenerationId = generationId;
+      cInfo->mFileId = 0;
+      cInfo->mMessageIndex = t;
+      cInfo->mSourceId = mSourceId;
+      cInfo->mFilePosition = 0;
+      cInfo->mMessageSize = sz;
+    }
+
+    int  res = contentStorage->addFileInfoWithContentList(0,fileInfo,contentInfoList);
+
+    if (res != ContentServer::Result::OK)
+      throw SmartMet::Spine::Exception(BCP, ContentServer::getResultString(res));
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+  }
+}
+
+
+
+
+
+void cleanProducerInformation(std::set<std::string>& producerList)
+{
+  try
+  {
+    if (contentStorage == nullptr)
+      throw SmartMet::Spine::Exception(BCP, "Content storage not defined!");
+
+    for (auto prod = producerList.begin(); prod != producerList.end(); ++prod)
+    {
+      T::GenerationInfoList generationInfoList;
+
+      int result = contentStorage->getGenerationInfoListByProducerName(0,*prod,generationInfoList);
+      uint len = generationInfoList.getLength();
+      printf("--- generations (%s) %u\n",prod->c_str(),len);
+
+      uint gcount = 0;
+      for (uint t=0; t<len; t++)
+      {
+        auto gInfo = generationInfoList.getGenerationInfoByIndex(t);
+        T::FileInfoList fileInfoList;
+        contentStorage->getFileInfoListByGenerationId(0,gInfo->mGenerationId,0,10000,fileInfoList);
+        uint flen = fileInfoList.getLength();
+        printf("   --- files (%u:%s) %u\n",gInfo->mGenerationId,gInfo->mName.c_str(),flen);
+
+        uint count = 0;
+        for (uint f=0; f<flen; f++)
+        {
+          auto fInfo = fileInfoList.getFileInfoByIndex(f);
+          if (getFileSize(fInfo->mName.c_str()) <= 0)
+            contentStorage->deleteFileInfoById(0,fInfo->mFileId);
+          else
+            count++;
+        }
+
+        if (count == 0)
+          contentStorage->deleteGenerationInfoById(0,gInfo->mGenerationId);
+        else
+          gcount++;
+      }
+
+      if (gcount == 0)
+        contentStorage->deleteProducerInfoByName(0,*prod);
+
+    }
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+  }
+}
+
+
+
 
 
 void processParameters()
@@ -346,6 +541,7 @@ void processParameters()
     uint requestFlags = 0;
 
     std::set<std::string> filenameList;
+    std::set<std::string> producerList;
 
     for (auto producer = mProducerList.begin(); producer != mProducerList.end(); ++producer)
     {
@@ -356,6 +552,11 @@ void processParameters()
       int result = contentServer->getProducerInfoByName(sessionId, *producer, producerInfo);
       if (result == 0)
       {
+        std::string newProducerName = mProducerPrefix + producerInfo.mName;
+        uint newProducerId = 0;
+
+        producerList.insert(newProducerName);
+
         T::GenerationInfoList generationInfoList;
 
         result = contentServer->getGenerationInfoListByProducerId(sessionId, producerInfo.mProducerId, generationInfoList);
@@ -366,6 +567,9 @@ void processParameters()
           for (uint g = 0; g < gLen; g++)
           {
             T::GenerationInfo *gInfo = generationInfoList.getGenerationInfoByIndex(g);
+
+            std::string newGenerationName =  newProducerName + ":" + gInfo->mAnalysisTime;
+            uint newGenerationId = 0;
 
             PRINT_DATA(mDebugLogPtr, "  - Generation : %s\n",gInfo->mName.c_str());
 
@@ -380,6 +584,8 @@ void processParameters()
                     param->levelId, param->level, param->level, param->forecastType, param->forecastNumber, param->geometryId, start, end, requestFlags, contentInfoList);
 
                 PRINT_DATA(mDebugLogPtr,"        -- Timesteps : %u\n",contentInfoList.getLength());
+
+
                 if (result == 0)
                 {
                   uint len = contentInfoList.getLength();
@@ -397,6 +603,8 @@ void processParameters()
                     sprintf(filename, "%s/%s%s_%s_%s_%d_%d_%d_%d_%d.fmig", mTargetDir.c_str(), mProducerPrefix.c_str(),producerInfo.mName.c_str(), gInfo->mAnalysisTime.c_str(), cInfo->mFmiParameterName.c_str(),
                         cInfo->mGeometryId, cInfo->mFmiParameterLevelId, cInfo->mParameterLevel, cInfo->mForecastType, cInfo->mForecastNumber);
 
+                    std::string newFileName = filename;
+
                     //if (gInfo == gLastInfo)
                     {
                       if (getFileSize(filename) >= 0)
@@ -404,7 +612,32 @@ void processParameters()
                         uint timeSteps = getTimesteps(filename);
                         PRINT_DATA(mDebugLogPtr,"        -- Timesteps currently available %u / %u\n",timeSteps,len);
                         if (timeSteps < len)
+                        {
+                          if (mContentStorageEnabled)
+                          {
+                            contentStorage->deleteFileInfoByName(0,newFileName);
+                            sleep(5);
+                          }
                           remove(filename);
+                        }
+                        else
+                        {
+                          if (mContentStorageEnabled)
+                          {
+                            T::FileInfo fileInfo;
+                            if (contentStorage->getFileInfoByName(0,newFileName,fileInfo) == ContentServer::Result::DATA_NOT_FOUND)
+                            {
+                              if (newProducerId == 0)
+                                newProducerId = getProducerId(newProducerName);
+
+                              if (newGenerationId == 0)
+                                newGenerationId = getGenerationId(newProducerId,newGenerationName,gInfo->mAnalysisTime);
+
+                              addFile(newProducerId,newGenerationId,newFileName,contentInfoList);
+                            }
+                          }
+
+                        }
                       }
 
                       if (getFileSize(filename) <= 0)
@@ -515,6 +748,18 @@ void processParameters()
                             fileWriter << vv;
                           }
                         }
+
+                        if (mContentStorageEnabled)
+                        {
+                          if (newProducerId == 0)
+                            newProducerId = getProducerId(newProducerName);
+
+                          if (newGenerationId == 0)
+                            newGenerationId = getGenerationId(newProducerId,newGenerationName,gInfo->mAnalysisTime);
+
+                          addFile(newProducerId,newGenerationId,newFileName,contentInfoList);
+                        }
+
                       }
                     }
                   }
@@ -533,6 +778,22 @@ void processParameters()
 
     getFileList(mTargetDir.c_str(),filePatterns,false,dirList,fileList);
 
+
+    for (auto it = fileList.begin(); it != fileList.end(); ++it)
+    {
+      std::string fname = it->first + "/" + it->second;
+      if (filenameList.find(it->second) == filenameList.end())
+      {
+        if (mContentStorageEnabled)
+        {
+          contentStorage->deleteFileInfoByName(0,fname);
+        }
+      }
+    }
+
+    cleanProducerInformation(producerList);
+
+    sleep(20);
 
     for (auto it = fileList.begin(); it != fileList.end(); ++it)
     {
@@ -605,6 +866,31 @@ int main(int argc, char *argv[])
     {
       mDebugLog.init(true,mDebugLogFile.c_str(),mDebugLogMaxSize,mDebugLogTruncateSize);
       mDebugLogPtr = &mDebugLog;
+    }
+
+    ContentServer::RedisImplementation redis;
+    ContentServer::Corba::ClientImplementation corbaClient;
+    ContentServer::HTTP::ClientImplementation httpClient;
+
+    if (mContentStorageEnabled)
+    {
+      if (mContentStorageType == "redis")
+      {
+        redis.init(mContentStorageRedisAddress.c_str(),mContentStorageRedisPort,mContentStorageRedisTablePrefix.c_str());
+        contentStorage = &redis;
+      }
+      else
+      if (mContentStorageType == "corba")
+      {
+        corbaClient.init(mContentStorageCorbaIor);
+        contentStorage =  &corbaClient;
+      }
+      else
+      if (mContentStorageType == "http")
+      {
+        httpClient.init(mContentStorageHttpUrl);
+        contentStorage =  &httpClient;
+      }
     }
 
     bool ind = true;
