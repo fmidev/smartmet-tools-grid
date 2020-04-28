@@ -484,7 +484,7 @@ void cleanProducerInformation(std::set<std::string>& producerList)
 
       int result = contentStorage->getGenerationInfoListByProducerName(0,*prod,generationInfoList);
       uint len = generationInfoList.getLength();
-      printf("--- generations (%s) %u\n",prod->c_str(),len);
+      PRINT_DATA(mDebugLogPtr,"--- generations (%s) %u\n",prod->c_str(),len);
 
       uint gcount = 0;
       for (uint t=0; t<len; t++)
@@ -493,7 +493,7 @@ void cleanProducerInformation(std::set<std::string>& producerList)
         T::FileInfoList fileInfoList;
         contentStorage->getFileInfoListByGenerationId(0,gInfo->mGenerationId,0,10000,fileInfoList);
         uint flen = fileInfoList.getLength();
-        printf("   --- files (%u:%s) %u\n",gInfo->mGenerationId,gInfo->mName.c_str(),flen);
+        PRINT_DATA(mDebugLogPtr,"   --- files (%u:%s) %u\n",gInfo->mGenerationId,gInfo->mName.c_str(),flen);
 
         uint count = 0;
         for (uint f=0; f<flen; f++)
@@ -545,7 +545,7 @@ void processParameters()
 
     for (auto producer = mProducerList.begin(); producer != mProducerList.end(); ++producer)
     {
-      PRINT_DATA(mDebugLogPtr, "PRODUCER : %s\n",producer->c_str());
+      PRINT_DATA(mDebugLogPtr,"PRODUCER : %s\n",producer->c_str());
 
       T::ProducerInfo producerInfo;
 
@@ -800,7 +800,7 @@ void processParameters()
       std::string fname = it->first + "/" + it->second;
       if (filenameList.find(it->second) == filenameList.end())
       {
-        std::cout << "REMOVE : " << fname << "\n";
+        PRINT_DATA(mDebugLogPtr,"REMOVE : %s\n",fname.c_str());
         remove(fname.c_str());
       }
     }
