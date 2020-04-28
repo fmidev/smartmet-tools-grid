@@ -905,9 +905,10 @@ void create_fmi_producerId_grib(PGconn *conn,const char *dir)
     p += sprintf(p,"  fmi_producer.name,\n");
     p += sprintf(p,"  fmi_producer.description\n");
     p += sprintf(p,"FROM\n");
-    p += sprintf(p,"  fmi_producer,producer_grib\n");
-    p += sprintf(p,"WHERE\n");
-    p += sprintf(p,"  fmi_producer.id=producer_grib.producer_id\n");
+    p += sprintf(p,"  fmi_producer LEFT OUTER JOIN producer_grib ON (fmi_producer.id = producer_grib.producer_id)\n");
+    //p += sprintf(p,"  fmi_producer,producer_grib\n");
+    //p += sprintf(p,"WHERE\n");
+    //p += sprintf(p,"  fmi_producer.id=producer_grib.producer_id\n");
     p += sprintf(p,"ORDER BY\n");
     p += sprintf(p,"  fmi_producer.id,producer_grib.centre,producer_grib.ident;\n");
 

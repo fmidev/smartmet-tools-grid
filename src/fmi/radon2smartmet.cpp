@@ -110,6 +110,7 @@ uint mWaitTime = 300;
 uint mContentReadCount = 0;
 uint mContentAddCount = 0;
 uint mFileLoadCounter = 0;
+bool reconnectionRequired = true;
 
 ContentServer::ServiceInterface *mTargetInterface = nullptr;
 
@@ -572,6 +573,7 @@ std::string getTableInfo(PGconn *conn, const char *tableName, uint producerId, c
   }
   catch (...)
   {
+    reconnectionRequired = true;
     SmartMet::Spine::Exception exception(BCP, exception_operation_failed, nullptr);
     exception.printError();
     std::string tmp;
@@ -683,6 +685,7 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
   }
   catch (...)
   {
+    reconnectionRequired = true;
     SmartMet::Spine::Exception exception(BCP, exception_operation_failed, nullptr);
     exception.printError();
     // throw exception;
@@ -745,6 +748,7 @@ std::vector<FileRec>& readSourceFilesAndContent(
   }
   catch (...)
   {
+    reconnectionRequired = true;
     SmartMet::Spine::Exception exception(BCP, exception_operation_failed, nullptr);
     exception.printError();
     // throw exception;
@@ -1538,17 +1542,23 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    PGconn *conn = PQconnectdb(mRadonConnectionString.c_str());
-    if (PQstatus(conn) != CONNECTION_OK)
-    {
-      fprintf(stderr, "Postgresql error: %s\n", PQerrorMessage(conn));
-      return -4;
-    }
-
+    PGconn *conn = nullptr;
     time_t lastDatabaseRead = time(nullptr);
     bool ind = true;
     while (ind)
     {
+      if (reconnectionRequired || conn == nullptr)
+      {
+        conn = PQconnectdb(mRadonConnectionString.c_str());
+        if (PQstatus(conn) != CONNECTION_OK)
+        {
+          fprintf(stderr, "Postgresql error: %s\n", PQerrorMessage(conn));
+          return -4;
+        }
+
+        reconnectionRequired = false;
+      }
+
       PRINT_DATA(mDebugLogPtr, "\n");
       PRINT_DATA(mDebugLogPtr, "********************************************************************\n");
       PRINT_DATA(mDebugLogPtr, "****************************** UPDATE ******************************\n");
@@ -1603,7 +1613,7 @@ int main(int argc, char *argv[])
       mSourceFilenames.clear();
       mSourceFilenames.swap(sourceFilenames);
 
-      if ((lastDatabaseRead + 14400) < time(nullptr))
+      if ((lastDatabaseRead + 14400) < time(nullptr) || reconnectionRequired || conn == nullptr)
       {
         // ### Force full database read every 4th hour
 
@@ -1626,6 +1636,13 @@ int main(int argc, char *argv[])
       else
       {
         ind = false;
+      }
+
+      if (reconnectionRequired)
+      {
+        if (conn != nullptr)
+        PQfinish(conn);
+        conn = nullptr;
       }
     }
 
