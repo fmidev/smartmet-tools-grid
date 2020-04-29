@@ -45,77 +45,16 @@ QueryServer::ServiceImplementation *queryService = nullptr;
 bool mShutdownRequested = false;
 
 ConfigurationFile   mConfigurationFile;
-//std::string         mServerAddress;
-//std::string         mServerPort;
-//std::string         mServerIorFile;
-
-
-
-//std::string         MQueryServerAddress;
-//std::string         MQueryServerPort;
-//std::string         MQueryServerIorFile;
-
-//std::string         mContentServerIor;
-//bool                mContentServerProcessingLogEnabled;
-//std::string         mContentServerProcessingLogFile;
-//int                 mContentServerProcessingLogMaxSize = 100000000;
-//int                 mContentServerProcessingLogTruncateSize = 20000000;
 Log                 mContentServerProcessingLog;
-//bool                mContentServerDebugLogEnabled = false;
-//std::string         mContentServerDebugLogFile;
-//int                 mContentServerDebugLogMaxSize = 100000000;
-//int                 mContentServerDebugLogTruncateSize = 20000000;
 Log                 mContentServerDebugLog;
-
-//std::string         mDataServerIor;
-//bool                mDataServerProcessingLogEnabled = false;
-//std::string         mDataServerProcessingLogFile;
-//int                 mDataServerProcessingLogMaxSize = 100000000;
-//int                 mDataServerProcessingLogTruncateSize = 20000000;
 Log                 mDataServerProcessingLog;
-//bool                mDataServerDebugLogEnabled = false;
-//std::string         mDataServerDebugLogFile;
-//int                 mDataServerDebugLogMaxSize = 100000000;
-//int                 mDataServerDebugLogTruncateSize = 20000000;
 Log                 mDataServerDebugLog;
-
-//string_vec          mQueryServerLuaFiles;
-//bool                mQueryServerProcessingLogEnabled = false;
-//std::string         mQueryServerProcessingLogFile;
-//int                 mQueryServerProcessingLogMaxSize = 100000000;
-//int                 mQueryServerProcessingLogTruncateSize = 20000000;
 Log                 mQueryServerProcessingLog;
-//bool                mQueryServerDebugLogEnabled = false;
-//std::string         mQueryServerDebugLogFile;
-//int                 mQueryServerDebugLogMaxSize = 100000000;
-//int                 mQueryServerDebugLogTruncateSize = 20000000;
-
 Log                 mQueryServerDebugLog;
-
-//std::string         mGridConfigFile;
-//uint                mNumOfCachedGrids = 50000;
-//uint                mMaxCompressedMegaBytesOfCachedGrids = 10000;
-//uint                mMaxUncompressedMegaBytesOfCachedGrids = 10000;
-
-//std::string         mProducerFile;
-//string_vec          mProducerAliasFiles;
-//bool                mVirtualFilesEnabled = false;
-//std::string         mVirtualFileDefinitions;
-//bool                mContentPreloadEnabled = false;
-
-//string_vec          mParameterAliasFiles;
-//string_vec          mParameterMappingFiles;
-
 pthread_t           mThread;
-//std::string         mParameterMappingUpdateFile_fmi;
-//std::string         mParameterMappingUpdateFile_newbase;
 time_t              mParameterMappingUpdateTime = 0;
-//T::ParamKeyType     mMappingTargetKeyType = T::ParamKeyTypeValue::FMI_NAME;
 
 QueryServer::AliasFileCollection mProducerAliasFileCollection;
-
-
-
 
 std::string grid_files_configFile;
 uint grid_files_cache_numOfGrids = 0;

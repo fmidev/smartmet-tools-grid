@@ -499,6 +499,7 @@ void cleanProducerInformation(std::set<std::string>& producerList)
         for (uint f=0; f<flen; f++)
         {
           auto fInfo = fileInfoList.getFileInfoByIndex(f);
+          PRINT_DATA(mDebugLogPtr,"      -- file (%s) %ld\n",fInfo->mName.c_str(),getFileSize(fInfo->mName.c_str()));
           if (getFileSize(fInfo->mName.c_str()) <= 0)
             contentStorage->deleteFileInfoById(0,fInfo->mFileId);
           else
@@ -642,124 +643,128 @@ void processParameters()
 
                       if (getFileSize(filename) <= 0)
                       {
+                        unsigned long long totalSize = 0;
                         for (uint t = 0; t < len; t++)
                         {
                           cInfo = contentInfoList.getContentInfoByIndex(t);
                           PRINT_DATA(mDebugLogPtr,"           * %u : ForecastTime : %s\n",t,cInfo->mForecastTime.c_str());
                           dataServer->getGridData(sessionId, cInfo->mFileId, cInfo->mMessageIndex, data[t]);
                           data[t].mForecastTime = cInfo->mForecastTime;
+                          totalSize = data[t].mValues.size();
                         }
 
-                        char buf[10000];
-
-                        FileWriter fileWriter;
-                        fileWriter.setLittleEndian(false);
-
-                        fileWriter.createFile(filename);
-
-                        const char *ftype = "FMIG";
-                        uchar version = 1;
-                        uchar format = 1;
-
-                        fileWriter.write_data((void*) ftype, 4);
-                        fileWriter << version;
-                        fileWriter << format;
-                        fileWriter << len;
-                        fileWriter << data[0].mColumns;
-                        fileWriter << data[0].mRows;
-
-                        char *p = buf;
-                        p += sprintf(p, "producer.id\t%u\t", cInfo->mProducerId);
-                        p += sprintf(p, "producer.name\t%s\t", producerInfo.mName.c_str());
-                        p += sprintf(p, "geometry.id\t%d\t", cInfo->mGeometryId);
-                        p += sprintf(p, "generation.id\t%u\t", cInfo->mGenerationId);
-                        p += sprintf(p, "generation.name\t%s\t", gInfo->mName.c_str());
-                        p += sprintf(p, "param.fmi.id\t%s\t", cInfo->mFmiParameterId.c_str());
-                        p += sprintf(p, "param.fmi.name\t%s\t", cInfo->mFmiParameterName.c_str());
-                        p += sprintf(p, "param.grib.id\t%s\t", cInfo->mGribParameterId.c_str());
-                        p += sprintf(p, "param.cdm.id\t%s\t", cInfo->mCdmParameterId.c_str());
-                        p += sprintf(p, "param.cdm.name\t%s\t", cInfo->mCdmParameterName.c_str());
-                        p += sprintf(p, "param.newbase.id\t%s\t", cInfo->mNewbaseParameterId.c_str());
-                        p += sprintf(p, "param.newbase.name\t%s\t", cInfo->mNewbaseParameterName.c_str());
-                        p += sprintf(p, "param.level.fmi.id\t%u\t", cInfo->mFmiParameterLevelId);
-                        p += sprintf(p, "param.level.grib1.id\t%u\t", cInfo->mGrib1ParameterLevelId);
-                        p += sprintf(p, "param.level.grib2.id\t%u\t", cInfo->mGrib2ParameterLevelId);
-                        p += sprintf(p, "param.level.value\t%d\t", cInfo->mParameterLevel);
-                        p += sprintf(p, "param.units\t%s\t", cInfo->mFmiParameterUnits.c_str());
-                        p += sprintf(p, "param.forecast.type\t%d\t", cInfo->mForecastType);
-                        p += sprintf(p, "param.forecast.number\t%d\t", cInfo->mForecastNumber);
-
-                        uint headerLen = (uint)(p - buf);
-                        fileWriter << headerLen;
-                        fileWriter.write_data(buf, headerLen);
-
-                        for (uint t = 0; t < len; t++)
+                        if (totalSize > 0)
                         {
-                          short year = 0;
-                          uchar month = 0, day = 0, hour = 0, minute = 0, second = 0;
-                          splitTimeString(data[t].mForecastTime, year, month, day, hour, minute, second);
+                          char buf[10000];
 
-                          fileWriter << year;
-                          fileWriter << month;
-                          fileWriter << day;
-                          fileWriter << hour;
-                          fileWriter << minute;
-                          fileWriter << second;
-                        }
+                          FileWriter fileWriter;
+                          fileWriter.setLittleEndian(false);
 
-                        uint sz = data[0].mValues.size();
-                        for (uint s = 0; s < sz; s++)
-                        {
-                          float min = ParamValueMissing;
-                          float max = ParamValueMissing;
+                          fileWriter.createFile(filename);
+
+                          const char *ftype = "FMIG";
+                          uchar version = 1;
+                          uchar format = 1;
+
+                          fileWriter.write_data((void*) ftype, 4);
+                          fileWriter << version;
+                          fileWriter << format;
+                          fileWriter << len;
+                          fileWriter << data[0].mColumns;
+                          fileWriter << data[0].mRows;
+
+                          char *p = buf;
+                          p += sprintf(p, "producer.id\t%u\t", cInfo->mProducerId);
+                          p += sprintf(p, "producer.name\t%s\t", producerInfo.mName.c_str());
+                          p += sprintf(p, "geometry.id\t%d\t", cInfo->mGeometryId);
+                          p += sprintf(p, "generation.id\t%u\t", cInfo->mGenerationId);
+                          p += sprintf(p, "generation.name\t%s\t", gInfo->mName.c_str());
+                          p += sprintf(p, "param.fmi.id\t%s\t", cInfo->mFmiParameterId.c_str());
+                          p += sprintf(p, "param.fmi.name\t%s\t", cInfo->mFmiParameterName.c_str());
+                          p += sprintf(p, "param.grib.id\t%s\t", cInfo->mGribParameterId.c_str());
+                          p += sprintf(p, "param.cdm.id\t%s\t", cInfo->mCdmParameterId.c_str());
+                          p += sprintf(p, "param.cdm.name\t%s\t", cInfo->mCdmParameterName.c_str());
+                          p += sprintf(p, "param.newbase.id\t%s\t", cInfo->mNewbaseParameterId.c_str());
+                          p += sprintf(p, "param.newbase.name\t%s\t", cInfo->mNewbaseParameterName.c_str());
+                          p += sprintf(p, "param.level.fmi.id\t%u\t", cInfo->mFmiParameterLevelId);
+                          p += sprintf(p, "param.level.grib1.id\t%u\t", cInfo->mGrib1ParameterLevelId);
+                          p += sprintf(p, "param.level.grib2.id\t%u\t", cInfo->mGrib2ParameterLevelId);
+                          p += sprintf(p, "param.level.value\t%d\t", cInfo->mParameterLevel);
+                          p += sprintf(p, "param.units\t%s\t", cInfo->mFmiParameterUnits.c_str());
+                          p += sprintf(p, "param.forecast.type\t%d\t", cInfo->mForecastType);
+                          p += sprintf(p, "param.forecast.number\t%d\t", cInfo->mForecastNumber);
+
+                          uint headerLen = (uint)(p - buf);
+                          fileWriter << headerLen;
+                          fileWriter.write_data(buf, headerLen);
+
                           for (uint t = 0; t < len; t++)
                           {
-                            float v = ParamValueMissing;
+                            short year = 0;
+                            uchar month = 0, day = 0, hour = 0, minute = 0, second = 0;
+                            splitTimeString(data[t].mForecastTime, year, month, day, hour, minute, second);
 
-                            if (data[t].mValues.size() > s)
-                              v = data[t].mValues[s];
+                            fileWriter << year;
+                            fileWriter << month;
+                            fileWriter << day;
+                            fileWriter << hour;
+                            fileWriter << minute;
+                            fileWriter << second;
+                          }
 
-                            if (v != ParamValueMissing)
+                          uint sz = data[0].mValues.size();
+                          for (uint s = 0; s < sz; s++)
+                          {
+                            float min = ParamValueMissing;
+                            float max = ParamValueMissing;
+                            for (uint t = 0; t < len; t++)
                             {
-                              if (min == ParamValueMissing || v < min)
-                                min = v;
+                              float v = ParamValueMissing;
 
-                              if (max == ParamValueMissing || v > max)
-                                max = v;
+                              if (data[t].mValues.size() > s)
+                                v = data[t].mValues[s];
+
+                              if (v != ParamValueMissing)
+                              {
+                                if (min == ParamValueMissing || v < min)
+                                  min = v;
+
+                                if (max == ParamValueMissing || v > max)
+                                  max = v;
+                              }
+                            }
+
+                            fileWriter << min;
+                            fileWriter << max;
+
+                            for (uint t = 0; t < len; t++)
+                            {
+                              //printf("%u/%u/%lu/%u\n",s,data[t].mValues.size(),t);
+                              float d = (max - min) / 65530;
+                              float v = ParamValueMissing;
+
+                              if (data[t].mValues.size() > s)
+                                v = data[t].mValues[s];
+
+                              ushort vv = 0xFFFF;
+                              if (v != ParamValueMissing)
+                                vv = (ushort)((v - min) / d);
+
+                              fileWriter << vv;
                             }
                           }
 
-                          fileWriter << min;
-                          fileWriter << max;
-
-                          for (uint t = 0; t < len; t++)
+                          if (mContentStorageEnabled)
                           {
-                            //printf("%u/%u/%lu/%u\n",s,data[t].mValues.size(),t);
-                            float d = (max - min) / 65530;
-                            float v = ParamValueMissing;
+                            if (newProducerId == 0)
+                              newProducerId = getProducerId(newProducerName);
 
-                            if (data[t].mValues.size() > s)
-                              v = data[t].mValues[s];
+                            if (newGenerationId == 0)
+                              newGenerationId = getGenerationId(newProducerId,newGenerationName,gInfo->mAnalysisTime);
 
-                            ushort vv = 0xFFFF;
-                            if (v != ParamValueMissing)
-                              vv = (ushort)((v - min) / d);
-
-                            fileWriter << vv;
+                            addFile(newProducerId,newGenerationId,newFileName,contentInfoList);
                           }
                         }
-
-                        if (mContentStorageEnabled)
-                        {
-                          if (newProducerId == 0)
-                            newProducerId = getProducerId(newProducerName);
-
-                          if (newGenerationId == 0)
-                            newGenerationId = getGenerationId(newProducerId,newGenerationName,gInfo->mAnalysisTime);
-
-                          addFile(newProducerId,newGenerationId,newFileName,contentInfoList);
-                        }
-
                       }
                     }
                   }
@@ -786,10 +791,13 @@ void processParameters()
       {
         if (mContentStorageEnabled)
         {
+          PRINT_DATA(mDebugLogPtr,"DELETE REGISTRATION : %s\n",fname.c_str());
           contentStorage->deleteFileInfoByName(0,fname);
         }
       }
     }
+
+    sleep(20);
 
     cleanProducerInformation(producerList);
 
@@ -800,7 +808,7 @@ void processParameters()
       std::string fname = it->first + "/" + it->second;
       if (filenameList.find(it->second) == filenameList.end())
       {
-        PRINT_DATA(mDebugLogPtr,"REMOVE : %s\n",fname.c_str());
+        PRINT_DATA(mDebugLogPtr,"REMOVE FILE : %s\n",fname.c_str());
         remove(fname.c_str());
       }
     }
