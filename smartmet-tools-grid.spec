@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 20.4.18
+Version: 20.4.30
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -15,8 +15,8 @@ BuildRequires: make
 BuildRequires: boost169-devel
 BuildRequires: libconfig-devel
 BuildRequires: smartmet-library-spine-devel >= 20.4.18
-BuildRequires: smartmet-library-grid-files-devel >= 20.4.18
-BuildRequires: smartmet-library-grid-content-devel >= 20.4.18
+BuildRequires: smartmet-library-grid-files-devel >= 20.4.30
+BuildRequires: smartmet-library-grid-content-devel >= 20.4.30
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -32,14 +32,15 @@ Requires: libconfig
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 20.4.18
-Requires: smartmet-library-grid-content >= 20.4.18
+Requires: smartmet-library-grid-files >= 20.4.30
+Requires: smartmet-library-grid-content >= 20.4.30
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
 
 Provides: corbaContentServer = %{Version}
 Provides: corbaDataServer = %{Version}
+Provides: corbaGridServer = %{Version}
 Provides: corbaQueryServer = %{Version}
 Provides: cs_addContentInfo = %{Version}
 Provides: cs_addDataServerInfo = %{Version}
@@ -218,8 +219,8 @@ Provides: gu_showConfigurationAttributes = %{Version}
 Provides: httpContentServer = %{Version}
 Provides: qs_getParameterIsobands = %{Version}
 Provides: qs_getParameterIsolines = %{Version}
-Provides: qs_getParameterValues = %{Version}
 Provides: qs_getParameterValueByPointAndTimeList = %{Version}
+Provides: qs_getParameterValues = %{Version}
 Provides: qs_getParameterValuesByPointAndTimeList = %{Version}
 Provides: qs_getProducerList = %{Version}
 Provides: radon2config = %{Version}
@@ -395,11 +396,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/ds_getGridValueVectorByTime
 %{_bindir}/clients/qs_getParameterIsobands
 %{_bindir}/clients/qs_getParameterIsolines
-%{_bindir}/clients/qs_getParameterValues
 %{_bindir}/clients/qs_getParameterValueByPointAndTime
+%{_bindir}/clients/qs_getParameterValues
 %{_bindir}/clients/qs_getParameterValuesByPointAndTimeList
 %{_bindir}/clients/qs_getProducerList
-%{_bindir}/fmi/generateFmigFiles
 %{_bindir}/files/grid_add
 %{_bindir}/files/grid_create
 %{_bindir}/files/grid_dump
@@ -411,11 +411,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/files/grid_query
 %{_bindir}/files/grid_submaps
 %{_bindir}/fmi/filesys2smartmet
+%{_bindir}/fmi/generateFmigFiles
 %{_bindir}/fmi/radon2config
 %{_bindir}/fmi/radon2csv
 %{_bindir}/fmi/radon2smartmet
 %{_bindir}/servers/corbaContentServer
 %{_bindir}/servers/corbaDataServer
+%{_bindir}/servers/corbaGridServer
 %{_bindir}/servers/corbaQueryServer
 %{_bindir}/servers/httpContentServer
 %{_bindir}/utils/gu_executeLuaFunction
@@ -446,6 +448,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu Apr 30 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.4.30-1.fmi
+- Added integrated corba-server
 * Sat Apr 18 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.4.18-1.fmi
 - Upgraded to Boost 1.69
 * Fri Apr  3 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.4.3-1.fmi
