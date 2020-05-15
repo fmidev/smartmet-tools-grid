@@ -95,6 +95,7 @@ std::string data_server_grid_storage_preloadFile;
 bool data_server_grid_storage_preloadMemoryLock;
 std::string data_server_grid_storage_counterFile;
 bool data_server_virtualFiles_enabled = false;
+bool data_server_memoryMapCheck_enabled = false;
 std::string data_server_virtualFiles_definitionFile;
 std::vector<std::string> data_server_luaFiles;
 bool data_server_processing_log_enabled = false;
@@ -570,6 +571,7 @@ void readConfigFile(const char* configFile)
          "smartmet.tools.grid.content-server.debug-log.truncateSize",
          "smartmet.tools.grid.data-server.iorFile",
          "smartmet.tools.grid.data-server.grid-storage.directory",
+         "smartmet.tools.grid.data-server.grid-storage.memoryMapCheckEnabled",
          "smartmet.tools.grid.data-server.grid-storage.preloadEnabled",
          "smartmet.tools.grid.data-server.grid-storage.preloadFile",
          "smartmet.tools.grid.data-server.grid-storage.preloadMemoryLock",
@@ -655,6 +657,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.debug-log.truncateSize",content_server_debug_log_truncateSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.iorFile",data_server_iorFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.directory",data_server_grid_storage_directory);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.memoryMapCheckEnabled",data_server_memoryMapCheck_enabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadEnabled",data_server_grid_storage_preloadEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadFile",data_server_grid_storage_preloadFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadMemoryLock",data_server_grid_storage_preloadMemoryLock);
@@ -716,12 +719,12 @@ int main(int argc, char *argv[])
     {
       printf("\n");
       printf("##################################################################################\n");
-      printf("                             corbaQueryServer\n");
+      printf("                             corbaGridServer\n");
       printf("##################################################################################\n");
       printf(" DESCRIPTION:\n");
       printf("\n");
       printf(" USAGE:\n");
-      printf("   queryServer <configFile>\n");
+      printf("   corbaGridServer <configFile>\n");
       printf("\n");
       printf("##################################################################################\n");
       printf("\n");
@@ -830,6 +833,7 @@ int main(int argc, char *argv[])
     dataService->setPointCacheEnabled(grid_files_pointCache_enabled,grid_files_pointCache_hitsRequired,grid_files_pointCache_timePeriod);
     dataService->setPreload(data_server_grid_storage_preloadEnabled,data_server_grid_storage_preloadMemoryLock,data_server_grid_storage_preloadFile,data_server_grid_storage_counterFile,grid_files_requestCounter_enabled,grid_files_requestCounter_generatedPreloadFile,grid_files_requestCounter_generatedCounterFile);
     dataService->setVirtualContentEnabled(data_server_virtualFiles_enabled);
+    dataService->setMemoryMapCheckEnabled(data_server_memoryMapCheck_enabled);
 
     if (data_server_virtualFiles_definitionFile.length() > 0)
     {

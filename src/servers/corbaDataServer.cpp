@@ -56,6 +56,7 @@ bool                mRequestCounterEnabled = false;
 std::string         mGeneratedCounterFile;
 std::string         mGeneratedPreloadFile;
 bool                mPreloadMemoryLock = false;
+bool                mMemoryMapCheckEnabled = false;
 
 
 
@@ -117,6 +118,7 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.data-server.iorFile",
         "smartmet.tools.grid.data-server.content-source.ior",
         "smartmet.tools.grid.data-server.grid-storage.directory",
+        "smartmet.tools.grid.data-server.grid-storage.memoryMapCheckEnabled",
         "smartmet.tools.grid.data-server.grid-storage.preloadEnabled",
         "smartmet.tools.grid.data-server.grid-storage.preloadFile",
         "smartmet.tools.grid.data-server.grid-storage.counterFile",
@@ -171,6 +173,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.content-source.ior", mContentSourceIor);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.directory",mGridDirectory);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.memoryMapCheckEnabled",mMemoryMapCheckEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadEnabled",mGridPreloadEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadFile",mGridPreloadFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadMemoryLock",mPreloadMemoryLock);
@@ -274,6 +277,7 @@ int main(int argc, char *argv[])
     dataServer->setPointCacheEnabled(mPointCacheEnabled,mPointCacheHitsRequired,mPointCacheTimePeriod);
     dataServer->setPreload(mGridPreloadEnabled,mPreloadMemoryLock,mGridPreloadFile,mGridCounterFile,mRequestCounterEnabled,mGeneratedPreloadFile,mGeneratedCounterFile);
     dataServer->setVirtualContentEnabled(mVirtualFilesEnabled);
+    dataServer->setVirtualContentEnabled(mMemoryMapCheckEnabled);
 
     if (mVirtualFileDefinitions.length() > 0)
     {

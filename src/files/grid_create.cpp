@@ -972,7 +972,7 @@ void setMessage_PolarStereographic(GRID::Message *message,GRID::Message *dataMes
     message->setProperty(Property::GridSection::PolarStereographic::Ny,height);
     message->setProperty(Property::GridSection::PolarStereographic::LatitudeOfFirstGridPoint,18145030);
     message->setProperty(Property::GridSection::PolarStereographic::LongitudeOfFirstGridPoint,217107456);
-    message->setProperty(Property::GridSection::PolarStereographic::ResolutionAndComponentFlag,8);
+    message->setProperty(Property::GridSection::PolarStereographic::ResolutionAndComponentFlags,8);
     message->setProperty(Property::GridSection::PolarStereographic::LaD,60000000);
     message->setProperty(Property::GridSection::PolarStereographic::OrientationOfTheGrid,249000000);
     message->setProperty(Property::GridSection::PolarStereographic::Dx,10000000);

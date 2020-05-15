@@ -759,7 +759,7 @@ std::vector<FileRec>& readSourceFilesAndContent(
 
 
 
-void readSourceForecastTimes(PGconn *conn, uint fmiProducerId, std::vector<ForecastRec>& sourceForacastList)
+void readSourceForecastTimes(PGconn *conn, uint fmiProducerId, std::vector<ForecastRec>& sourceForecastList)
 {
   FUNCTION_TRACE
   try
@@ -817,7 +817,7 @@ void readSourceForecastTimes(PGconn *conn, uint fmiProducerId, std::vector<Forec
         forecastRec.deletionTime = PQgetvalue(res, i, 9);
         forecastRec.lastUpdated = PQgetvalue(res, i, 10);
 
-        sourceForacastList.push_back(forecastRec);
+        sourceForecastList.push_back(forecastRec);
       }
     }
     PQclear(res);
@@ -1437,13 +1437,13 @@ void updateTargetFiles(PGconn *conn)
         {
           PRINT_DATA(mDebugLogPtr, "  ** Add file information : %s\n", targetProducer->mName.c_str());
 
-          std::vector<ForecastRec> sourceForacastList;
-          readSourceForecastTimes(conn, sourceProducer->mProducerId, sourceForacastList);
+          std::vector<ForecastRec> sourceForecastList;
+          readSourceForecastTimes(conn, sourceProducer->mProducerId, sourceForecastList);
 
           std::vector < T::FileAndContent > fileAndContentList;
           //std::vector<FileRec> fileRecList;
 
-          for (auto it = sourceForacastList.begin(); it != sourceForacastList.end(); ++it)
+          for (auto it = sourceForecastList.begin(); it != sourceForecastList.end(); ++it)
           {
             readSourceFilesByForecastTime(conn, *it, mFileLoadCounter,targetFileList,targetProducer->mName,fileAndContentList, fileRecList);
           }
