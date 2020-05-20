@@ -173,9 +173,8 @@ vpath %.o obj
 
 
 SRCS     = $(patsubst src/%,%,$(wildcard src/*.cpp src/*/*.cpp))
-PROGS    = $(SRCS:%.cpp=%)
-OBJS     = $(SRCS:%.cpp=%.o)
-OBJFILES = $(OBJS:%.o=obj/%.o)
+PROGS    = $(SRCS:%.cpp=bin/%)
+OBJS     = $(SRCS:%.cpp=obj/bin/%.o)
 
 INCLUDES := -Isrc $(INCLUDES)
 
@@ -186,7 +185,7 @@ INCLUDES := -Isrc $(INCLUDES)
 
 all: objdir $(PROGS)
 
-debug: objdir $(OBJFILES) $(PROGS)
+debug: objdir $(OBJS) $(PROGS)
 
 #debug: all
 
@@ -197,8 +196,8 @@ profile: all
 src_debug: objdir $(LIBFILE)
 
 
-$(PROGS): % : %.o
-	$(CXX) $(CFLAGS) $(LDFLAGS) $(INCLUDES) -o bin/$@ obj/$@.o $(LIBS)
+$(PROGS): % : obj/%.o
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(INCLUDES) -o $@ obj/$@.o $(LIBS)
 
 
 clean:
@@ -210,7 +209,6 @@ format:
 	clang-format -i -style=file $(SUBNAME)/*.h $(SUBNAME)/*.cpp test/*.cpp
 
 install:
-	@mkdir -p $(bindir)
 	@mkdir -p $(bindir)/fmi
 	@mkdir -p $(bindir)/servers
 	@mkdir -p $(bindir)/utils
@@ -227,13 +225,11 @@ test:
 	+cd test && make test
 
 objdir:
-	@mkdir -p obj
-	@mkdir -p obj/clients
-	@mkdir -p obj/files
-	@mkdir -p obj/fmi
-	@mkdir -p obj/servers
-	@mkdir -p obj/utils
-	@mkdir -p bin
+	@mkdir -p obj/bin/clients
+	@mkdir -p obj/bin/files
+	@mkdir -p obj/bin/fmi
+	@mkdir -p obj/bin/servers
+	@mkdir -p obj/bin/utils
 	@mkdir -p bin/clients
 	@mkdir -p bin/files
 	@mkdir -p bin/fmi
@@ -249,9 +245,7 @@ rpm: $(SPEC).spec
 .SUFFIXES: $(SUFFIXES) .cpp
 
 
-obj/%.o: %.cpp
-	$(CXX) $(CFLAGS) $(INCLUDES) -c -o $@ $<
+obj/bin/%.o: %.cpp
+	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-ifneq ($(wildcard obj/*.d),)
--include $(wildcard obj/*.d)
-endif
+-include obj/*/*.d
