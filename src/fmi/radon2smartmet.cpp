@@ -681,7 +681,7 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
     p += sprintf(p, "FROM\n");
     p += sprintf(p, "  %s\n", tableName);
     p += sprintf(p, "WHERE\n");
-    p += sprintf(p, "  producer_id=%u AND to_char(analysis_time, 'yyyymmddThh24MISS')='%s'\n", producerId, analysisTime);
+    p += sprintf(p, "  producer_id=%u AND to_char(analysis_time, 'yyyymmddThh24MISS')='%s' AND file_format_id IN (1,2)\n", producerId, analysisTime);
 
     //printf("%s\n",sql);
     PGresult *res = PQexec(conn, sql);
@@ -702,50 +702,47 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
       if (shutdownRequested)
         return;
 
-      if (strstr(PQgetvalue(res, i, 0), "masala") != nullptr)
+      FileRec rec;
+      rec.fileId = getFileId(PQgetvalue(res, i, 0),true);
+      rec.messageIndex = toInt64(PQgetvalue(res, i, 1));
+      rec.filePosition = toInt64(PQgetvalue(res, i, 2));
+      rec.messageSize = toInt64(PQgetvalue(res, i, 3));
+      rec.paramId = PQgetvalue(res, i, 4);
+      rec.levelId = toInt64(PQgetvalue(res, i, 5));
+      rec.levelValue = toInt64(PQgetvalue(res, i, 6));
+      rec.analysisTime = utcTimeToTimeT(PQgetvalue(res, i, 7));
+      rec.forecastTime = utcTimeToTimeT(PQgetvalue(res, i, 8));
+      //rec.analysisTime = PQgetvalue(res, i, 7);
+      //rec.forecastTime = PQgetvalue(res, i, 8);
+      std::string forecastPeriod = PQgetvalue(res, i, 9);
+      rec.forecastType = toInt64(PQgetvalue(res, i, 10));
+      rec.forecastNumber = toInt64(PQgetvalue(res, i, 11));
+      rec.geometryId = toInt64(PQgetvalue(res, i, 12));
+      rec.producerId = toInt64(PQgetvalue(res, i, 13));
+      rec.producerName = producerName;
+      rec.lastUpdated = utcTimeToTimeT(updateTime.c_str());
+
+      if (rec.levelId == 2)
+        rec.levelValue = rec.levelValue * 100;
+
+      char key[200];
+      sprintf(key, "%s;%u;%u;%d;%d;%lu;%s", tableName, rec.producerId, rec.geometryId, rec.forecastType, rec.forecastNumber, rec.analysisTime, forecastPeriod.c_str());
+
+      auto pos = mFileRecMap.find(key);
+      if (pos == mFileRecMap.end())
       {
-        FileRec rec;
-        rec.fileId = getFileId(PQgetvalue(res, i, 0),true);
-        rec.messageIndex = toInt64(PQgetvalue(res, i, 1));
-        rec.filePosition = toInt64(PQgetvalue(res, i, 2));
-        rec.messageSize = toInt64(PQgetvalue(res, i, 3));
-        rec.paramId = PQgetvalue(res, i, 4);
-        rec.levelId = toInt64(PQgetvalue(res, i, 5));
-        rec.levelValue = toInt64(PQgetvalue(res, i, 6));
-        rec.analysisTime = utcTimeToTimeT(PQgetvalue(res, i, 7));
-        rec.forecastTime = utcTimeToTimeT(PQgetvalue(res, i, 8));
-        //rec.analysisTime = PQgetvalue(res, i, 7);
-        //rec.forecastTime = PQgetvalue(res, i, 8);
-        std::string forecastPeriod = PQgetvalue(res, i, 9);
-        rec.forecastType = toInt64(PQgetvalue(res, i, 10));
-        rec.forecastNumber = toInt64(PQgetvalue(res, i, 11));
-        rec.geometryId = toInt64(PQgetvalue(res, i, 12));
-        rec.producerId = toInt64(PQgetvalue(res, i, 13));
-        rec.producerName = producerName;
-        rec.lastUpdated = utcTimeToTimeT(updateTime.c_str());
+        FileRecVec vec;
+        vec.updateTime = info;
+        vec.files.push_back(rec);
+        mFileRecMap.insert(std::pair<std::string, FileRecVec>(key, vec));
+      }
+      else
+      {
+        if (pos->second.updateTime != info)
+          pos->second.files.clear();
 
-        if (rec.levelId == 2)
-          rec.levelValue = rec.levelValue * 100;
-
-        char key[200];
-        sprintf(key, "%s;%u;%u;%d;%d;%lu;%s", tableName, rec.producerId, rec.geometryId, rec.forecastType, rec.forecastNumber, rec.analysisTime, forecastPeriod.c_str());
-
-        auto pos = mFileRecMap.find(key);
-        if (pos == mFileRecMap.end())
-        {
-          FileRecVec vec;
-          vec.updateTime = info;
-          vec.files.push_back(rec);
-          mFileRecMap.insert(std::pair<std::string, FileRecVec>(key, vec));
-        }
-        else
-        {
-          if (pos->second.updateTime != info)
-            pos->second.files.clear();
-
-          pos->second.updateTime = info;
-          pos->second.files.push_back(rec);
-        }
+        pos->second.updateTime = info;
+        pos->second.files.push_back(rec);
       }
     }
     PQclear(res);
