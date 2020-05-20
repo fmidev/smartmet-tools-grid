@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 20.4.30
+Version: 20.5.15
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 20.4.18
-BuildRequires: smartmet-library-grid-files-devel >= 20.4.30
-BuildRequires: smartmet-library-grid-content-devel >= 20.4.30
+BuildRequires: smartmet-library-spine-devel >= 20.5.12
+BuildRequires: smartmet-library-grid-files-devel >= 20.5.15
+BuildRequires: smartmet-library-grid-content-devel >= 20.5.15
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -32,8 +32,8 @@ Requires: libconfig
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 20.4.30
-Requires: smartmet-library-grid-content >= 20.4.30
+Requires: smartmet-library-grid-files >= 20.5.15
+Requires: smartmet-library-grid-content >= 20.5.15
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -448,6 +448,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Fri May 15 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.5.15-1.fmi
+- Added memoryMapCheckEnabled settings
 * Thu Apr 30 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.4.30-1.fmi
 - Added integrated corba-server
 * Sat Apr 18 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.4.18-1.fmi
