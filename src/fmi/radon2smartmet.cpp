@@ -13,6 +13,8 @@
 #include <libpq-fe.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
+
 
 #define FUNCTION_TRACE FUNCTION_TRACE_OFF
 
@@ -111,9 +113,18 @@ uint mContentReadCount = 0;
 uint mContentAddCount = 0;
 uint mFileLoadCounter = 0;
 bool reconnectionRequired = true;
+bool shutdownRequested = false;
 
 ContentServer::ServiceInterface *mTargetInterface = nullptr;
 
+
+
+
+void sig_handler(int signum)
+{
+  printf("##### SHUTDOWN REQUESTED #####\n");
+  shutdownRequested = true;
+}
 
 
 
@@ -478,6 +489,8 @@ void readTargetContentList(T::ContentInfoList& targetContentList)
 
 
 
+
+
 void readTargetContentList(std::set<unsigned long long>& targetContentList)
 {
   FUNCTION_TRACE
@@ -523,11 +536,59 @@ void readTargetContentList(std::set<unsigned long long>& targetContentList)
 
 
 
+void readTargetContentList(uint producerId,std::set<unsigned long long>& targetContentList)
+{
+  FUNCTION_TRACE
+  try
+  {
+    targetContentList.clear();
+
+    uint startFileId = 0;
+    uint startMessageIndex = 0;
+    uint len = 50000;
+    while (len > 0)
+    {
+      T::ContentInfoList contentInfoList;
+      int result = mTargetInterface->getContentListByProducerId(mSessionId, producerId, startFileId, startMessageIndex, 50000, contentInfoList);
+
+      if (result == 0)
+      {
+        len = contentInfoList.getLength();
+        for (uint t = 0; t < len; t++)
+        {
+          T::ContentInfo *contentInfo = contentInfoList.getContentInfoByIndex(t);
+          if (contentInfo != nullptr  &&  contentInfo->mProducerId == producerId)
+          {
+            startFileId = contentInfo->mFileId;
+            startMessageIndex = contentInfo->mMessageIndex + 1;
+
+            unsigned long long id = contentInfo->mFileId;
+            id = (id << 32) + contentInfo->mMessageIndex;
+
+            targetContentList.insert(id);
+          }
+        }
+      }
+    }
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+  }
+}
+
+
+
+
+
 std::string getTableInfo(PGconn *conn, const char *tableName, uint producerId, const char *analysisTime)
 {
   FUNCTION_TRACE
   try
   {
+    if (shutdownRequested)
+      return "";
+
     std::string tbl = std::string(tableName) + ":" + std::to_string(producerId) + ":" + std::string(analysisTime);
     auto pos = mTableUpdates.find(tbl);
     if (pos != mTableUpdates.end())
@@ -590,6 +651,9 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
   FUNCTION_TRACE
   try
   {
+    if (shutdownRequested)
+      return;
+
     std::string tbl = std::string(tableName) + ":" + std::to_string(producerId) + ":" + std::string(analysisTime);
     if (mFileTables.find(tbl) != mFileTables.end())
       return;
@@ -617,7 +681,7 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
     p += sprintf(p, "FROM\n");
     p += sprintf(p, "  %s\n", tableName);
     p += sprintf(p, "WHERE\n");
-    p += sprintf(p, "  producer_id=%u AND to_char(analysis_time, 'yyyymmddThh24MISS')='%s'\n", producerId, analysisTime);
+    p += sprintf(p, "  producer_id=%u AND to_char(analysis_time, 'yyyymmddThh24MISS')='%s' AND file_format_id IN (1,2)\n", producerId, analysisTime);
 
     //printf("%s\n",sql);
     PGresult *res = PQexec(conn, sql);
@@ -635,50 +699,50 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
 
     for (int i = 0; i < rowCount; i++)
     {
-      if (strstr(PQgetvalue(res, i, 0), "masala") != nullptr)
+      if (shutdownRequested)
+        return;
+
+      FileRec rec;
+      rec.fileId = getFileId(PQgetvalue(res, i, 0),true);
+      rec.messageIndex = toInt64(PQgetvalue(res, i, 1));
+      rec.filePosition = toInt64(PQgetvalue(res, i, 2));
+      rec.messageSize = toInt64(PQgetvalue(res, i, 3));
+      rec.paramId = PQgetvalue(res, i, 4);
+      rec.levelId = toInt64(PQgetvalue(res, i, 5));
+      rec.levelValue = toInt64(PQgetvalue(res, i, 6));
+      rec.analysisTime = utcTimeToTimeT(PQgetvalue(res, i, 7));
+      rec.forecastTime = utcTimeToTimeT(PQgetvalue(res, i, 8));
+      //rec.analysisTime = PQgetvalue(res, i, 7);
+      //rec.forecastTime = PQgetvalue(res, i, 8);
+      std::string forecastPeriod = PQgetvalue(res, i, 9);
+      rec.forecastType = toInt64(PQgetvalue(res, i, 10));
+      rec.forecastNumber = toInt64(PQgetvalue(res, i, 11));
+      rec.geometryId = toInt64(PQgetvalue(res, i, 12));
+      rec.producerId = toInt64(PQgetvalue(res, i, 13));
+      rec.producerName = producerName;
+      rec.lastUpdated = utcTimeToTimeT(updateTime.c_str());
+
+      if (rec.levelId == 2)
+        rec.levelValue = rec.levelValue * 100;
+
+      char key[200];
+      sprintf(key, "%s;%u;%u;%d;%d;%lu;%s", tableName, rec.producerId, rec.geometryId, rec.forecastType, rec.forecastNumber, rec.analysisTime, forecastPeriod.c_str());
+
+      auto pos = mFileRecMap.find(key);
+      if (pos == mFileRecMap.end())
       {
-        FileRec rec;
-        rec.fileId = getFileId(PQgetvalue(res, i, 0),true);
-        rec.messageIndex = toInt64(PQgetvalue(res, i, 1));
-        rec.filePosition = toInt64(PQgetvalue(res, i, 2));
-        rec.messageSize = toInt64(PQgetvalue(res, i, 3));
-        rec.paramId = PQgetvalue(res, i, 4);
-        rec.levelId = toInt64(PQgetvalue(res, i, 5));
-        rec.levelValue = toInt64(PQgetvalue(res, i, 6));
-        rec.analysisTime = utcTimeToTimeT(PQgetvalue(res, i, 7));
-        rec.forecastTime = utcTimeToTimeT(PQgetvalue(res, i, 8));
-        //rec.analysisTime = PQgetvalue(res, i, 7);
-        //rec.forecastTime = PQgetvalue(res, i, 8);
-        std::string forecastPeriod = PQgetvalue(res, i, 9);
-        rec.forecastType = toInt64(PQgetvalue(res, i, 10));
-        rec.forecastNumber = toInt64(PQgetvalue(res, i, 11));
-        rec.geometryId = toInt64(PQgetvalue(res, i, 12));
-        rec.producerId = toInt64(PQgetvalue(res, i, 13));
-        rec.producerName = producerName;
-        rec.lastUpdated = utcTimeToTimeT(updateTime.c_str());
+        FileRecVec vec;
+        vec.updateTime = info;
+        vec.files.push_back(rec);
+        mFileRecMap.insert(std::pair<std::string, FileRecVec>(key, vec));
+      }
+      else
+      {
+        if (pos->second.updateTime != info)
+          pos->second.files.clear();
 
-        if (rec.levelId == 2)
-          rec.levelValue = rec.levelValue * 100;
-
-        char key[200];
-        sprintf(key, "%s;%u;%u;%d;%d;%lu;%s", tableName, rec.producerId, rec.geometryId, rec.forecastType, rec.forecastNumber, rec.analysisTime, forecastPeriod.c_str());
-
-        auto pos = mFileRecMap.find(key);
-        if (pos == mFileRecMap.end())
-        {
-          FileRecVec vec;
-          vec.updateTime = info;
-          vec.files.push_back(rec);
-          mFileRecMap.insert(std::pair<std::string, FileRecVec>(key, vec));
-        }
-        else
-        {
-          if (pos->second.updateTime != info)
-            pos->second.files.clear();
-
-          pos->second.updateTime = info;
-          pos->second.files.push_back(rec);
-        }
+        pos->second.updateTime = info;
+        pos->second.files.push_back(rec);
       }
     }
     PQclear(res);
@@ -711,6 +775,9 @@ std::vector<FileRec>& readSourceFilesAndContent(
   FUNCTION_TRACE
   try
   {
+    if (shutdownRequested)
+      return emptyRecList;
+
     char key[200];
     sprintf(key, "%s;%u;%u;%d;%d;%lu;%s", tableName, producerId, geometryId, forecastTypeId, forecastTypeValue, utcTimeToTimeT(analysisTime), forecastPeriod);
 
@@ -764,6 +831,9 @@ void readSourceForecastTimes(PGconn *conn, uint fmiProducerId, std::vector<Forec
   FUNCTION_TRACE
   try
   {
+    if (shutdownRequested)
+      return;
+
     char sql[2000];
     char *p = sql;
     p += sprintf(p, "SELECT DISTINCT\n");
@@ -799,6 +869,9 @@ void readSourceForecastTimes(PGconn *conn, uint fmiProducerId, std::vector<Forec
 
     for (int i = 0; i < rowCount; i++)
     {
+      if (shutdownRequested)
+        return;
+
       uint producerId = toInt64(PQgetvalue(res, i, 0));
       T::ProducerInfo *producer = mSourceProducerList.getProducerInfoById(producerId);
       if (producer != nullptr)
@@ -836,6 +909,9 @@ void readSourceGenerations(PGconn *conn)
   FUNCTION_TRACE
   try
   {
+    if (shutdownRequested)
+      return;
+
     mSourceGenerationList.clear();
 
     char sql[1000];
@@ -862,6 +938,9 @@ void readSourceGenerations(PGconn *conn)
 
     for (int i = 0; i < rowCount; i++)
     {
+      if (shutdownRequested)
+        return;
+
       char st[1000];
 
       uint producerId = toInt64(PQgetvalue(res, i, 0));
@@ -901,6 +980,9 @@ void readSourceProducers(PGconn *conn)
   FUNCTION_TRACE
   try
   {
+    if (shutdownRequested)
+      return;
+
     mSourceProducerList.clear();
 
     char sql[1000];
@@ -925,6 +1007,9 @@ void readSourceProducers(PGconn *conn)
 
     for (int i = 0; i < rowCount; i++)
     {
+      if (shutdownRequested)
+        return;
+
       std::string searchStr = toLowerString(std::string(PQgetvalue(res, i, 1)));
       if (mProducerList.size() == 0 || mProducerList.find(searchStr) != mProducerList.end())
       {
@@ -1113,6 +1198,40 @@ void updateGenerations()
 
 
 
+void updateGenerationStatus(uint producerId)
+{
+  FUNCTION_TRACE
+  try
+  {
+    uint len = mTargetGenerationList.getLength();
+    for (uint t = 0; t < len; t++)
+    {
+      T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoByIndex(t);
+      if (targetGeneration->mSourceId == mSourceId  &&  targetGeneration->mProducerId == producerId  &&  targetGeneration->mStatus == T::GenerationInfo::Status::Running)
+      {
+        PRINT_DATA(mDebugLogPtr, "  -- Update generation status : %s\n", targetGeneration->mName.c_str());
+
+        int result = mTargetInterface->setGenerationInfoStatusById(mSessionId,targetGeneration->mGenerationId,T::GenerationInfo::Status::Ready);
+        if (result != 0)
+        {
+          SmartMet::Spine::Exception exception(BCP, "Cannot update the generation status into the target data storage!");
+          exception.addParameter("GenerationName", targetGeneration->mName);
+          exception.addParameter("Result", ContentServer::getResultString(result));
+          throw exception;
+        }
+      }
+    }
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+  }
+}
+
+
+
+
+
 void updateGenerationStatus()
 {
   FUNCTION_TRACE
@@ -1159,6 +1278,39 @@ void deleteTargetFiles(T::FileInfoList& targetFileList)
     {
       T::FileInfo *fileInfo = targetFileList.getFileInfoByIndex(t);
       if (fileInfo != nullptr && (fileInfo->mFlags & T::FileInfo::Flags::VirtualContent) == 0)
+      {
+        if (fileInfo->mSourceId == mSourceId && mSourceFilenames.find(getFileId(fileInfo->mName,false)) == mSourceFilenames.end())
+        {
+          deleteList.insert(fileInfo->mFileId);
+        }
+      }
+    }
+    PRINT_DATA(mDebugLogPtr, "  -- Delete files : %lu\n", deleteList.size());
+    if (deleteList.size() > 0)
+      mTargetInterface->deleteFileInfoListByFileIdList(mSessionId, deleteList);
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+  }
+}
+
+
+
+
+void deleteTargetFiles(uint producerId,T::FileInfoList& targetFileList)
+{
+  FUNCTION_TRACE
+  try
+  {
+    PRINT_DATA(mDebugLogPtr, "* Deleting old files from the target data storage\n");
+
+    std::set < uint > deleteList;
+    uint len = targetFileList.getLength();
+    for (uint t = 0; t < len; t++)
+    {
+      T::FileInfo *fileInfo = targetFileList.getFileInfoByIndex(t);
+      if (fileInfo != nullptr && fileInfo->mProducerId == producerId  &&  (fileInfo->mFlags & T::FileInfo::Flags::VirtualContent) == 0)
       {
         if (fileInfo->mSourceId == mSourceId && mSourceFilenames.find(getFileId(fileInfo->mName,false)) == mSourceFilenames.end())
         {
@@ -1242,6 +1394,9 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
   FUNCTION_TRACE
   try
   {
+    if (shutdownRequested)
+      return;
+
     T::GenerationInfo generation;
     if (mTargetInterface->getGenerationInfoByName(mSessionId, forecast.generationName, generation) != 0)
     {
@@ -1260,6 +1415,9 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
 
     for (auto it = recList.begin(); it != recList.end(); ++it)
     {
+      if (shutdownRequested)
+        return;
+
       fileRecList.push_back(*it);
       T::FileInfo fileInfo;
       std::string filename = getFilename(it->fileId);
@@ -1280,22 +1438,112 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
         fc.mFileInfo.mDeletionTime = forecast.deletionTime;
 
         fileAndContentList.push_back(fc);
-
-        if (fileAndContentList.size() >= mMaxMessageSize)
-        {
-          PRINT_DATA(mDebugLogPtr, "  -- Add file information : %lu\n", fileAndContentList.size());
-          int result = mTargetInterface->addFileInfoListWithContent(mSessionId, 0, fileAndContentList);
-          if (result != 0)
-          {
-            fprintf(stdout, "ERROR (%d) : %s\n", result, ContentServer::getResultString(result).c_str());
-          }
-          fileAndContentList.clear();
-        }
       }
 
       if (mSourceFilenames.find(it->fileId) == mSourceFilenames.end())
         mSourceFilenames.insert(it->fileId);
     }
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+  }
+}
+
+
+
+
+void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
+{
+  try
+  {
+    T::FileInfoList targetFileList;
+    readTargetFileList(producerId,targetFileList);
+    targetFileList.sort(T::FileInfo::ComparisonMethod::fileName);
+
+    std::set<unsigned long long> targetContentList;
+//    T::ContentInfoList targetContentList;
+    readTargetContentList(producerId,targetContentList);
+    //targetContentList.sort(T::ContentInfo::ComparisonMethod::file_message);
+
+    T::ContentInfoList contentList;
+
+    for (auto it = fileRecList.begin(); it != fileRecList.end(); ++it)
+    {
+      std::string filename = getFilename(it->fileId);
+      T::FileInfo *fileInfo = targetFileList.getFileInfoByName(filename);
+      if (fileInfo != nullptr)
+      {
+        unsigned long long id = fileInfo->mFileId;
+        id = (id << 32) + it->messageIndex;
+        auto pos = targetContentList.find(id);
+        if (pos == targetContentList.end())
+        {
+          // The content does not exists. It should be added.
+
+          T::ContentInfo *contentInfo = new T::ContentInfo();
+
+          contentInfo->mFileId = fileInfo->mFileId;
+          contentInfo->mFileType = T::FileTypeValue::Unknown;
+          contentInfo->mMessageIndex = it->messageIndex;
+          contentInfo->mFilePosition = it->filePosition;
+          contentInfo->mMessageSize = it->messageSize;
+          contentInfo->mProducerId = fileInfo->mProducerId;
+          contentInfo->mGenerationId = fileInfo->mGenerationId;
+          contentInfo->mGroupFlags = 0;
+          contentInfo->mForecastTime = utcTimeFromTimeT(it->forecastTime);
+          contentInfo->mFmiParameterId = it->paramId;
+          contentInfo->mFmiParameterLevelId = it->levelId;
+          contentInfo->mParameterLevel = it->levelValue;
+          contentInfo->mForecastType = it->forecastType;
+          contentInfo->mForecastNumber = it->forecastNumber;
+          contentInfo->mServerFlags = 0;
+          contentInfo->mFlags = 0;
+          contentInfo->mSourceId = mSourceId;
+          contentInfo->mGeometryId = it->geometryId;
+          contentInfo->mModificationTime = utcTimeFromTimeT(it->lastUpdated);
+
+          Identification::FmiParameterDef fmiDef;
+          if (Identification::gridDef.getFmiParameterDefById(it->paramId, fmiDef))
+          {
+            contentInfo->mFmiParameterName = fmiDef.mParameterName;
+            contentInfo->mFmiParameterUnits = fmiDef.mParameterUnits;
+
+            Identification::NewbaseParameterDef newbaseDef;
+            if (Identification::gridDef.getNewbaseParameterDefByFmiId(it->paramId, newbaseDef))
+            {
+              contentInfo->mNewbaseParameterId = newbaseDef.mNewbaseParameterId;
+              contentInfo->mNewbaseParameterName = newbaseDef.mParameterName;
+            }
+          }
+
+          contentList.addContentInfo(contentInfo);
+
+          if (contentList.getLength() >= mMaxMessageSize)
+          {
+            PRINT_DATA(mDebugLogPtr, "  -- Add content information : %u (%u/%u)\n", contentList.getLength(), mContentAddCount, mContentReadCount);
+            mTargetInterface->addContentList(mSessionId, contentList);
+            contentList.clear();
+          }
+        }
+      }
+      else
+      {
+        PRINT_DATA(mDebugLogPtr,"#### File info not found : %s\n", filename.c_str());
+      }
+      mContentAddCount++;
+    }
+
+    PRINT_DATA(mDebugLogPtr, "  -- Add content information : %u (%u/%u)\n", contentList.getLength(), mContentAddCount, mContentReadCount);
+    if (contentList.getLength() > 0)
+      mTargetInterface->addContentList(mSessionId, contentList);
+
+    std::set<unsigned long long> tcList;
+    targetContentList.clear();
+    targetContentList.swap(tcList);
+
+    deleteTargetFiles(producerId,targetFileList);
+    targetFileList.clear();
   }
   catch (...)
   {
@@ -1382,7 +1630,7 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
       }
       else
       {
-        printf("#### File info not found : %s\n", filename.c_str());
+        PRINT_DATA(mDebugLogPtr,"#### File info not found : %s\n", filename.c_str());
       }
       mContentAddCount++;
     }
@@ -1414,17 +1662,8 @@ void updateTargetFiles(PGconn *conn)
   {
     mFileLoadCounter++;
 
-
-    PRINT_DATA(mDebugLogPtr, "* Reading file information from the target data storage\n");
-
-    T::FileInfoList targetFileList;
-    readTargetFileList(targetFileList);
-    targetFileList.sort(T::FileInfo::ComparisonMethod::fileName);
-
     mContentReadCount = 0;
     mContentAddCount = 0;
-
-    std::vector<FileRec> fileRecList;
 
     uint len = mSourceProducerList.getLength();
     for (uint t = 0; t < len; t++)
@@ -1435,20 +1674,29 @@ void updateTargetFiles(PGconn *conn)
         T::ProducerInfo *targetProducer = mTargetProducerList.getProducerInfoByName(sourceProducer->mName);
         if (targetProducer != nullptr)
         {
+          PRINT_DATA(mDebugLogPtr, "* Reading file information from the target data storage\n");
+
+          T::FileInfoList targetFileList;
+          readTargetFileList(targetProducer->mProducerId,targetFileList);
+          targetFileList.sort(T::FileInfo::ComparisonMethod::fileName);
+          std::vector<FileRec> fileRecList;
+
+
           PRINT_DATA(mDebugLogPtr, "  ** Add file information : %s\n", targetProducer->mName.c_str());
 
           std::vector<ForecastRec> sourceForecastList;
           readSourceForecastTimes(conn, sourceProducer->mProducerId, sourceForecastList);
-
           std::vector < T::FileAndContent > fileAndContentList;
-          //std::vector<FileRec> fileRecList;
 
-          for (auto it = sourceForecastList.begin(); it != sourceForecastList.end(); ++it)
+          for (auto it = sourceForecastList.begin(); it != sourceForecastList.end()  &&  !shutdownRequested; ++it)
           {
             readSourceFilesByForecastTime(conn, *it, mFileLoadCounter,targetFileList,targetProducer->mName,fileAndContentList, fileRecList);
           }
 
-          if (fileAndContentList.size() > 0)
+          if (shutdownRequested)
+            return;
+
+          if (fileAndContentList.size() <= mMaxMessageSize)
           {
             PRINT_DATA(mDebugLogPtr, "  -- Add file information : %lu\n", fileAndContentList.size());
             int result = mTargetInterface->addFileInfoListWithContent(mSessionId, 0, fileAndContentList);
@@ -1456,11 +1704,45 @@ void updateTargetFiles(PGconn *conn)
             {
               fprintf(stdout, "ERROR (%d) : %s\n", result, ContentServer::getResultString(result).c_str());
             }
-            fileAndContentList.clear();
+          }
+          else
+          {
+            std::vector < T::FileAndContent > fcList;
+            uint sz = fileAndContentList.size();
+            for (uint s=0; s<sz; s++)
+            {
+              fcList.push_back(fileAndContentList[s]);
+              if (fcList.size() >= mMaxMessageSize)
+              {
+                PRINT_DATA(mDebugLogPtr, "  -- Add file information : %lu\n", fcList.size());
+                int result = mTargetInterface->addFileInfoListWithContent(mSessionId, 0, fcList);
+                if (result != 0)
+                {
+                  fprintf(stdout, "ERROR (%d) : %s\n", result, ContentServer::getResultString(result).c_str());
+                }
+                fcList.clear();
+              }
+            }
+
+            if (fcList.size() >= mMaxMessageSize)
+            {
+              PRINT_DATA(mDebugLogPtr, "  -- Add file information : %lu\n", fcList.size());
+              int result = mTargetInterface->addFileInfoListWithContent(mSessionId, 0, fcList);
+              if (result != 0)
+              {
+                fprintf(stdout, "ERROR (%d) : %s\n", result, ContentServer::getResultString(result).c_str());
+              }
+              fcList.clear();
+            }
           }
 
-          //PRINT_DATA(mDebugLogPtr,"* Updating content information into the target data storage\n");
-          //saveTargetContent(targetProducer->mProducerId,fileRecList);
+          fileAndContentList.clear();
+
+          PRINT_DATA(mDebugLogPtr,"* Updating content information into the target data storage\n");
+          saveTargetContent(targetProducer->mProducerId,fileRecList);
+
+          PRINT_DATA(mDebugLogPtr, "* Updating generation status information into the target data storage\n");
+          updateGenerationStatus(targetProducer->mProducerId);
         }
       }
     }
@@ -1472,11 +1754,6 @@ void updateTargetFiles(PGconn *conn)
     std::set<std::string> fileTables;
     mFileTables.clear();
     mFileTables.swap(fileTables);
-
-    targetFileList.clear();
-
-    PRINT_DATA(mDebugLogPtr, "* Updating content information into the target data storage\n");
-    saveTargetContent(fileRecList);
 
     deleteOldFileRecords(mFileLoadCounter);
   }
@@ -1499,6 +1776,11 @@ int main(int argc, char *argv[])
       fprintf(stderr, "USAGE: radon2smartmet <configFile> <loopWaitTime>\n");
       return -1;
     }
+
+    signal(SIGINT, sig_handler);
+    signal(SIGTERM, sig_handler);
+    signal(SIGHUP, sig_handler);
+
 
     readConfigFile(argv[1]);
 
@@ -1564,72 +1846,96 @@ int main(int argc, char *argv[])
       PRINT_DATA(mDebugLogPtr, "****************************** UPDATE ******************************\n");
       PRINT_DATA(mDebugLogPtr, "********************************************************************\n");
 
-      PRINT_DATA(mDebugLogPtr, "* Reading producer names that belongs to this update\n");
-      readProducerList(mProducerFile.c_str());
-
-      PRINT_DATA(mDebugLogPtr, "* Reading producer information from the target data storage\n");
-      readTargetProducers(mTargetProducerList);
-
-      PRINT_DATA(mDebugLogPtr, "* Reading producer information from the source data storage\n");
-      readSourceProducers(conn);
-
-      PRINT_DATA(mDebugLogPtr, "* Updating producer information into the target data storage\n");
-      updateProducers();
-      readTargetProducers(mTargetProducerList);
-
-      PRINT_DATA(mDebugLogPtr, "* Reading generation information from the target data storage\n");
-      readTargetGenerations(mTargetGenerationList);
-      mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
-
-      PRINT_DATA(mDebugLogPtr, "* Reading generation information from the source data storage\n");
-      readSourceGenerations(conn);
-
-      PRINT_DATA(mDebugLogPtr, "* Updating generation information into the target data storage\n");
-      updateGenerations();
-      readTargetGenerations(mTargetGenerationList);
-      mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
-
-      PRINT_DATA(mDebugLogPtr, "* Updating file and content information into the target data storage\n");
-      updateTargetFiles(conn);
-
-      PRINT_DATA(mDebugLogPtr, "* Updating generation status information into the target data storage\n");
-      updateGenerationStatus();
-
-      PRINT_DATA(mDebugLogPtr, " * Data structures\n");
-      PRINT_DATA(mDebugLogPtr, "   - mSourceProducerList   = %u\n",mSourceProducerList.getLength());
-      PRINT_DATA(mDebugLogPtr, "   - mSourceGenerationList = %u\n",mSourceGenerationList.getLength());
-      PRINT_DATA(mDebugLogPtr, "   - mSourceFilenames      = %lu\n",mSourceFilenames.size());
-      PRINT_DATA(mDebugLogPtr, "   - mFilenameMap          = %lu\n",mFilenameMap.size());
-      PRINT_DATA(mDebugLogPtr, "   - mFileRecMap           = %lu\n",mFileRecMap.size());
-      PRINT_DATA(mDebugLogPtr, "   - fileRecords           = %u\n",countFileRecords());
-
-      PRINT_DATA(mDebugLogPtr, "********************************************************************\n\n");
-
-      mProducerList.clear();
-      mSourceProducerList.clear();
-      mSourceGenerationList.clear();
-
-      std::set<int> sourceFilenames;
-      mSourceFilenames.clear();
-      mSourceFilenames.swap(sourceFilenames);
-
-      if ((lastDatabaseRead + 14400) < time(nullptr) || reconnectionRequired || conn == nullptr)
+      if (!shutdownRequested)
       {
-        // ### Force full database read every 4th hour
-
-        FileRec_map fileRecMap;
-        string_bimap filenameMap;
-
-        mFilenameMap.clear();
-        mFilenameMap.swap(filenameMap);
-
-        mFileRecMap.clear();
-        mFileRecMap.swap(fileRecMap);
-
-        lastDatabaseRead = time(nullptr);
+        PRINT_DATA(mDebugLogPtr, "* Reading producer names that belongs to this update\n");
+        readProducerList(mProducerFile.c_str());
       }
 
-      if (mWaitTime > 0)
+      if (!shutdownRequested)
+      {
+        PRINT_DATA(mDebugLogPtr, "* Reading producer information from the target data storage\n");
+        readTargetProducers(mTargetProducerList);
+      }
+
+      if (!shutdownRequested)
+      {
+        PRINT_DATA(mDebugLogPtr, "* Reading producer information from the source data storage\n");
+        readSourceProducers(conn);
+      }
+
+      if (!shutdownRequested)
+      {
+        PRINT_DATA(mDebugLogPtr, "* Updating producer information into the target data storage\n");
+        updateProducers();
+        readTargetProducers(mTargetProducerList);
+      }
+
+      if (!shutdownRequested)
+      {
+        PRINT_DATA(mDebugLogPtr, "* Reading generation information from the target data storage\n");
+        readTargetGenerations(mTargetGenerationList);
+        mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
+      }
+
+      if (!shutdownRequested)
+      {
+        PRINT_DATA(mDebugLogPtr, "* Reading generation information from the source data storage\n");
+        readSourceGenerations(conn);
+      }
+
+      if (!shutdownRequested)
+      {
+        PRINT_DATA(mDebugLogPtr, "* Updating generation information into the target data storage\n");
+        updateGenerations();
+        readTargetGenerations(mTargetGenerationList);
+        mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
+      }
+
+      if (!shutdownRequested)
+      {
+        PRINT_DATA(mDebugLogPtr, "* Updating file and content information into the target data storage\n");
+        updateTargetFiles(conn);
+      }
+
+      if (!shutdownRequested)
+      {
+        PRINT_DATA(mDebugLogPtr, " * Data structures\n");
+        PRINT_DATA(mDebugLogPtr, "   - mSourceProducerList   = %u\n",mSourceProducerList.getLength());
+        PRINT_DATA(mDebugLogPtr, "   - mSourceGenerationList = %u\n",mSourceGenerationList.getLength());
+        PRINT_DATA(mDebugLogPtr, "   - mSourceFilenames      = %lu\n",mSourceFilenames.size());
+        PRINT_DATA(mDebugLogPtr, "   - mFilenameMap          = %lu\n",mFilenameMap.size());
+        PRINT_DATA(mDebugLogPtr, "   - mFileRecMap           = %lu\n",mFileRecMap.size());
+        PRINT_DATA(mDebugLogPtr, "   - fileRecords           = %u\n",countFileRecords());
+
+        PRINT_DATA(mDebugLogPtr, "********************************************************************\n\n");
+
+        mProducerList.clear();
+        mSourceProducerList.clear();
+        mSourceGenerationList.clear();
+
+        std::set<int> sourceFilenames;
+        mSourceFilenames.clear();
+        mSourceFilenames.swap(sourceFilenames);
+
+        if ((lastDatabaseRead + 14400) < time(nullptr) || reconnectionRequired || conn == nullptr)
+        {
+          // ### Force full database read every 4th hour
+
+          FileRec_map fileRecMap;
+          string_bimap filenameMap;
+
+          mFilenameMap.clear();
+          mFilenameMap.swap(filenameMap);
+
+          mFileRecMap.clear();
+          mFileRecMap.swap(fileRecMap);
+
+          lastDatabaseRead = time(nullptr);
+        }
+      }
+
+      if (mWaitTime > 0 && !shutdownRequested)
       {
         sleep(mWaitTime);
       }
@@ -1641,7 +1947,8 @@ int main(int argc, char *argv[])
       if (reconnectionRequired)
       {
         if (conn != nullptr)
-        PQfinish(conn);
+          PQfinish(conn);
+
         conn = nullptr;
       }
     }
