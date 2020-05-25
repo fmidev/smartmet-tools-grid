@@ -60,9 +60,6 @@ void sig_handler(int signum)
   {
     try
     {
-      if (mShutdownRequested)
-        sprintf(nullptr,"Crashing the system for the core dump");
-
       if (corbaServer != nullptr)
       {
         printf("\n**** SHUTTING DOWN ****\n");

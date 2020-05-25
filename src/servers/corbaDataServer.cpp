@@ -69,9 +69,6 @@ void sig_handler(int signum)
   {
     try
     {
-      if (mShutdownRequested)
-        sprintf(nullptr,"Crashing the system for the core dump");
-
       if (dataServer != nullptr)
       {
         printf("\n**** SHUTTING DOWN ****\n");
@@ -277,7 +274,7 @@ int main(int argc, char *argv[])
     dataServer->setPointCacheEnabled(mPointCacheEnabled,mPointCacheHitsRequired,mPointCacheTimePeriod);
     dataServer->setPreload(mGridPreloadEnabled,mPreloadMemoryLock,mGridPreloadFile,mGridCounterFile,mRequestCounterEnabled,mGeneratedPreloadFile,mGeneratedCounterFile);
     dataServer->setVirtualContentEnabled(mVirtualFilesEnabled);
-    dataServer->setVirtualContentEnabled(mMemoryMapCheckEnabled);
+    dataServer->setMemoryMapCheckEnabled(mMemoryMapCheckEnabled);
 
     if (mVirtualFileDefinitions.length() > 0)
     {
