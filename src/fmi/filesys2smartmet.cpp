@@ -850,12 +850,13 @@ int main(int argc, char *argv[])
     Identification::gridDef.init(mGridConfigFile.c_str());
 
     ContentServer::ServiceInterface *targetInterface = nullptr;
+    ContentServer::RedisImplementation *redisImplementation = nullptr;
 
     uint waitTime = toInt64(argv[2]);
 
     if (mStorageType =="redis")
     {
-      ContentServer::RedisImplementation *redisImplementation = new ContentServer::RedisImplementation();
+      redisImplementation = new ContentServer::RedisImplementation();
       redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str());
       targetInterface = redisImplementation;
     }
@@ -937,6 +938,13 @@ int main(int argc, char *argv[])
 
       PRINT_DATA(mDebugLogPtr,"* Updating file information into the target data storage\n");
       updateFiles(targetInterface);
+
+      if (redisImplementation)
+      {
+        PRINT_DATA(mDebugLogPtr, "* Checking filenames \n");
+        redisImplementation->syncFilenames();
+      }
+
 
       PRINT_DATA(mDebugLogPtr,"********************************************************************\n\n");
 

@@ -33,7 +33,8 @@ struct ParamRec
     T::ParamLevelId levelId;
     T::ParamLevel level;
     T::ForecastType forecastType;
-    T::ForecastNumber forecastNumber;
+    std::vector<int> forecastNumber;
+    uchar format;
 };
 
 std::vector<ParamRec> mParamList;
@@ -315,12 +316,38 @@ void readParameterFile(const char *filename)
           else
             rec.forecastType = -1;
 
-          if (field[6][0] != '\0')
-            rec.forecastNumber = toInt64(field[6]);
+          if (field[7][0] != '\0')
+            rec.format = toInt64(field[7]);
           else
-            rec.forecastNumber = -1;
+            rec.format = 1;
 
-          mParamList.push_back(rec);
+          if (field[6][0] != '\0')
+          {
+            std::vector<int> fn;
+            splitString(field[6],',',fn);
+
+            if (rec.format == 1)
+            {
+              for (auto f = fn.begin(); f != fn.end(); ++f)
+              {
+                rec.forecastNumber.clear();
+                rec.forecastNumber.push_back(*f);
+                mParamList.push_back(rec);
+              }
+            }
+            else
+            if (rec.format == 2)
+            {
+              rec.forecastNumber = fn;
+              mParamList.push_back(rec);
+            }
+          }
+          else
+          {
+            rec.forecastNumber.push_back(-1);
+            mParamList.push_back(rec);
+          }
+
         }
       }
     }
@@ -450,7 +477,7 @@ void addFile(uint producerId,uint generationId,std::string fileName,T::ContentIn
       cInfo->mProducerId = producerId;
       cInfo->mGenerationId = generationId;
       cInfo->mFileId = 0;
-      cInfo->mMessageIndex = t;
+      //cInfo->mMessageIndex = t;
       cInfo->mSourceId = mSourceId;
       cInfo->mFilePosition = 0;
       cInfo->mMessageSize = sz;
@@ -578,193 +605,257 @@ void processParameters()
             {
               if (param->producerName == *producer)
               {
-                PRINT_DATA(mDebugLogPtr, "     * Parameter : %s:%s:%d:%d:%d:%d:%d\n",param->parameter.c_str(),param->producerName.c_str(),param->geometryId,param->levelId, param->level, param->forecastType, param->forecastNumber);
+                std::set <std::string> forecastTimes;
 
-                T::ContentInfoList contentInfoList;
-                result = contentServer->getContentListByParameterAndGenerationId(sessionId, gInfo->mGenerationId, paramKeyType, param->parameter, parameterLevelIdType,
-                    param->levelId, param->level, param->level, param->forecastType, param->forecastNumber, param->geometryId, start, end, requestFlags, contentInfoList);
+                uint fNumbers = param->forecastNumber.size();
+                T::ContentInfoList contentInfoList[fNumbers];
 
-                PRINT_DATA(mDebugLogPtr,"        -- Timesteps : %u\n",contentInfoList.getLength());
-
-
-                if (result == 0)
+                T::ContentInfo *cInfo = nullptr;
+                for (uint f=0; f<fNumbers; f++)
                 {
-                  uint len = contentInfoList.getLength();
-                  if (len > 0)
+                  PRINT_DATA(mDebugLogPtr, "     * Parameter : %s:%s:%d:%d:%d:%d:%d\n",param->parameter.c_str(),param->producerName.c_str(),param->geometryId,param->levelId, param->level, param->forecastType, param->forecastNumber[f]);
+
+                  result = contentServer->getContentListByParameterAndGenerationId(sessionId, gInfo->mGenerationId, paramKeyType, param->parameter, parameterLevelIdType,
+                    param->levelId, param->level, param->level, param->forecastType, param->forecastNumber[f], param->geometryId, start, end, requestFlags, contentInfoList[f]);
+
+                  PRINT_DATA(mDebugLogPtr,"        -- Timesteps : %u\n",contentInfoList[f].getLength());
+
+                  uint clen = contentInfoList[f].getLength();
+                  for (uint c=0; c<clen; c++)
                   {
-                    T::GridData data[len];
+                    T::ContentInfo *info = contentInfoList[f].getContentInfoByIndex(c);
+                    if (cInfo == nullptr)
+                      cInfo = info;
 
-                    T::ContentInfo *cInfo = contentInfoList.getContentInfoByIndex(0);
-
-                    char filename[300];
-                    sprintf(filename, "%s%s_%s_%s_%d_%d_%d_%d_%d.fmig", mProducerPrefix.c_str(),producerInfo.mName.c_str(), gInfo->mAnalysisTime.c_str(), cInfo->mFmiParameterName.c_str(),
-                        cInfo->mGeometryId, cInfo->mFmiParameterLevelId, cInfo->mParameterLevel, cInfo->mForecastType, cInfo->mForecastNumber);
-                    filenameList.insert(std::string(filename));
-
-                    sprintf(filename, "%s/%s%s_%s_%s_%d_%d_%d_%d_%d.fmig", mTargetDir.c_str(), mProducerPrefix.c_str(),producerInfo.mName.c_str(), gInfo->mAnalysisTime.c_str(), cInfo->mFmiParameterName.c_str(),
-                        cInfo->mGeometryId, cInfo->mFmiParameterLevelId, cInfo->mParameterLevel, cInfo->mForecastType, cInfo->mForecastNumber);
-
-                    std::string newFileName = filename;
-
-                    //if (gInfo == gLastInfo)
+                    if (forecastTimes.find(info->mForecastTime) == forecastTimes.end())
                     {
-                      if (getFileSize(filename) >= 0)
+                      forecastTimes.insert(info->mForecastTime);
+                    }
+                  }
+                }
+
+                uint tlen = forecastTimes.size();
+                uint totalLen = fNumbers * tlen;
+
+                T::ContentInfoList totalContentInfoList;
+
+                uint idx = 0;
+                for (uint t=0; t<tlen; t++)
+                {
+                  for (uint f=0; f<fNumbers; f++)
+                  {
+                    T::ContentInfo *info = contentInfoList[f].getContentInfoByIndex(t);
+                    if (info != nullptr)
+                    {
+                      T::ContentInfo *ci = new T::ContentInfo(*info);
+                      ci->mMessageIndex = idx;
+                      totalContentInfoList.addContentInfo(ci);
+                    }
+                    idx++;
+                  }
+                }
+
+                if (tlen > 0)
+                {
+                  T::GridData data[totalLen];
+
+                  char filename[300];
+                  sprintf(filename, "%s%s_%s_%s_%d_%d_%d_%d_%d.fmig", mProducerPrefix.c_str(),producerInfo.mName.c_str(), gInfo->mAnalysisTime.c_str(), cInfo->mFmiParameterName.c_str(),
+                      cInfo->mGeometryId, cInfo->mFmiParameterLevelId, cInfo->mParameterLevel, cInfo->mForecastType, cInfo->mForecastNumber);
+                  filenameList.insert(std::string(filename));
+
+                  sprintf(filename, "%s/%s%s_%s_%s_%d_%d_%d_%d_%d.fmig", mTargetDir.c_str(), mProducerPrefix.c_str(),producerInfo.mName.c_str(), gInfo->mAnalysisTime.c_str(), cInfo->mFmiParameterName.c_str(),
+                      cInfo->mGeometryId, cInfo->mFmiParameterLevelId, cInfo->mParameterLevel, cInfo->mForecastType, cInfo->mForecastNumber);
+
+                  std::string newFileName = filename;
+
+                  if (getFileSize(filename) >= 0)
+                  {
+                    uint timeSteps = getTimesteps(filename);
+                    PRINT_DATA(mDebugLogPtr,"        -- Timesteps currently available %u / %u\n",timeSteps,tlen);
+                    if (timeSteps < tlen)
+                    {
+                      if (mContentStorageEnabled)
                       {
-                        uint timeSteps = getTimesteps(filename);
-                        PRINT_DATA(mDebugLogPtr,"        -- Timesteps currently available %u / %u\n",timeSteps,len);
-                        if (timeSteps < len)
+                        contentStorage->deleteFileInfoByName(0,newFileName);
+                        sleep(5);
+                      }
+                      remove(filename);
+                    }
+                  }
+
+                  if (getFileSize(filename) <= 0)
+                  {
+                    if (mContentStorageEnabled)
+                    {
+                      T::FileInfo fileInfo;
+                      if (contentStorage->getFileInfoByName(0,newFileName,fileInfo) == ContentServer::Result::DATA_NOT_FOUND)
+                      {
+                        if (newProducerId == 0)
+                          newProducerId = getProducerId(newProducerName);
+
+                        if (newGenerationId == 0)
+                          newGenerationId = getGenerationId(newProducerId,newGenerationName,gInfo->mAnalysisTime);
+
+                        addFile(newProducerId,newGenerationId,newFileName,totalContentInfoList);
+                      }
+                    }
+
+                    unsigned long gridSize = 0;
+                    unsigned long long totalSize = 0;
+                    uint idx = 0;
+                    for (uint t = 0; t < tlen; t++)
+                    {
+                      for (uint f=0; f<fNumbers; f++)
+                      {
+                        T::ContentInfo *cInfo = contentInfoList[f].getContentInfoByIndex(t);
+                        if (cInfo != NULL)
                         {
-                          if (mContentStorageEnabled)
-                          {
-                            contentStorage->deleteFileInfoByName(0,newFileName);
-                            sleep(5);
-                          }
-                          remove(filename);
+                          PRINT_DATA(mDebugLogPtr,"           * %u:%u:%u : ForecastTime : %s\n",idx,t,f,cInfo->mForecastTime.c_str());
+                          dataServer->getGridData(sessionId, cInfo->mFileId, cInfo->mMessageIndex, data[idx]);
+                          data[t].mForecastTime = cInfo->mForecastTime;
+                          totalSize = data[idx].mValues.size();
+                          if (data[idx].mValues.size() > 0)
+                            gridSize = data[idx].mValues.size();
                         }
-                        else
+                        idx++;
+                      }
+                    }
+
+                    if (totalSize > 0)
+                    {
+                      char buf[10000];
+
+                      FileWriter fileWriter;
+                      fileWriter.setLittleEndian(false);
+
+                      fileWriter.createFile(filename);
+
+                      const char *ftype = "FMIG";
+                      uchar version = 1;
+                      uchar format = param->format;
+                      ushort forecastNumbers = 1;
+
+                      if (format == 2)
+                        forecastNumbers = param->forecastNumber.size();
+
+                      fileWriter.write_data((void*) ftype, 4);
+                      fileWriter << version;
+                      fileWriter << format;
+                      fileWriter << tlen;
+                      fileWriter << data[0].mColumns;
+                      fileWriter << data[0].mRows;
+
+                      if (format == 2)
+                      {
+                        fileWriter << forecastNumbers;
+                        for (ushort n=0; n<forecastNumbers; n++)
                         {
-                          if (mContentStorageEnabled)
-                          {
-                            T::FileInfo fileInfo;
-                            if (contentStorage->getFileInfoByName(0,newFileName,fileInfo) == ContentServer::Result::DATA_NOT_FOUND)
-                            {
-                              if (newProducerId == 0)
-                                newProducerId = getProducerId(newProducerName);
-
-                              if (newGenerationId == 0)
-                                newGenerationId = getGenerationId(newProducerId,newGenerationName,gInfo->mAnalysisTime);
-
-                              addFile(newProducerId,newGenerationId,newFileName,contentInfoList);
-                            }
-                          }
-
+                          short num = param->forecastNumber[n];
+                          fileWriter << num;
                         }
                       }
 
-                      if (getFileSize(filename) <= 0)
+                      char *p = buf;
+                      p += sprintf(p, "producer.id\t%u\t", cInfo->mProducerId);
+                      p += sprintf(p, "producer.name\t%s\t", producerInfo.mName.c_str());
+                      p += sprintf(p, "geometry.id\t%d\t", cInfo->mGeometryId);
+                      p += sprintf(p, "generation.id\t%u\t", cInfo->mGenerationId);
+                      p += sprintf(p, "generation.name\t%s\t", gInfo->mName.c_str());
+                      p += sprintf(p, "param.fmi.id\t%s\t", cInfo->mFmiParameterId.c_str());
+                      p += sprintf(p, "param.fmi.name\t%s\t", cInfo->mFmiParameterName.c_str());
+                      p += sprintf(p, "param.grib.id\t%s\t", cInfo->mGribParameterId.c_str());
+                      p += sprintf(p, "param.cdm.id\t%s\t", cInfo->mCdmParameterId.c_str());
+                      p += sprintf(p, "param.cdm.name\t%s\t", cInfo->mCdmParameterName.c_str());
+                      p += sprintf(p, "param.newbase.id\t%s\t", cInfo->mNewbaseParameterId.c_str());
+                      p += sprintf(p, "param.newbase.name\t%s\t", cInfo->mNewbaseParameterName.c_str());
+                      p += sprintf(p, "param.level.fmi.id\t%u\t", cInfo->mFmiParameterLevelId);
+                      p += sprintf(p, "param.level.grib1.id\t%u\t", cInfo->mGrib1ParameterLevelId);
+                      p += sprintf(p, "param.level.grib2.id\t%u\t", cInfo->mGrib2ParameterLevelId);
+                      p += sprintf(p, "param.level.value\t%d\t", cInfo->mParameterLevel);
+                      p += sprintf(p, "param.units\t%s\t", cInfo->mFmiParameterUnits.c_str());
+                      p += sprintf(p, "param.forecast.type\t%d\t", cInfo->mForecastType);
+                      p += sprintf(p, "param.forecast.number\t%d\t", cInfo->mForecastNumber);
+
+                      uint headerLen = (uint)(p - buf);
+                      fileWriter << headerLen;
+                      fileWriter.write_data(buf, headerLen);
+
+                      for (auto ft = forecastTimes.begin(); ft != forecastTimes.end(); ++ft)
                       {
-                        unsigned long long totalSize = 0;
-                        for (uint t = 0; t < len; t++)
+                        short year = 0;
+                        uchar month = 0, day = 0, hour = 0, minute = 0, second = 0;
+                        splitTimeString(*ft, year, month, day, hour, minute, second);
+
+                        fileWriter << year;
+                        fileWriter << month;
+                        fileWriter << day;
+                        fileWriter << hour;
+                        fileWriter << minute;
+                        fileWriter << second;
+                      }
+
+                      for (uint s = 0; s < gridSize; s++)
+                      {
+                        uint idx = 0;
+
+                        float min = ParamValueMissing;
+                        float max = ParamValueMissing;
+                        for (uint t = 0; t < tlen; t++)
                         {
-                          cInfo = contentInfoList.getContentInfoByIndex(t);
-                          PRINT_DATA(mDebugLogPtr,"           * %u : ForecastTime : %s\n",t,cInfo->mForecastTime.c_str());
-                          dataServer->getGridData(sessionId, cInfo->mFileId, cInfo->mMessageIndex, data[t]);
-                          data[t].mForecastTime = cInfo->mForecastTime;
-                          totalSize = data[t].mValues.size();
+                          for (uint f = 0; f < fNumbers; f++)
+                          {
+                            float v = ParamValueMissing;
+
+                            if (data[idx].mValues.size() > s)
+                              v = data[idx].mValues[s];
+
+                            if (v != ParamValueMissing)
+                            {
+                              if (min == ParamValueMissing || v < min)
+                                min = v;
+
+                              if (max == ParamValueMissing || v > max)
+                                max = v;
+                            }
+                            idx++;
+                          }
                         }
 
-                        if (totalSize > 0)
+                        fileWriter << min;
+                        fileWriter << max;
+
+                        idx = 0;
+                        for (uint t = 0; t < tlen; t++)
                         {
-                          char buf[10000];
-
-                          FileWriter fileWriter;
-                          fileWriter.setLittleEndian(false);
-
-                          fileWriter.createFile(filename);
-
-                          const char *ftype = "FMIG";
-                          uchar version = 1;
-                          uchar format = 1;
-
-                          fileWriter.write_data((void*) ftype, 4);
-                          fileWriter << version;
-                          fileWriter << format;
-                          fileWriter << len;
-                          fileWriter << data[0].mColumns;
-                          fileWriter << data[0].mRows;
-
-                          char *p = buf;
-                          p += sprintf(p, "producer.id\t%u\t", cInfo->mProducerId);
-                          p += sprintf(p, "producer.name\t%s\t", producerInfo.mName.c_str());
-                          p += sprintf(p, "geometry.id\t%d\t", cInfo->mGeometryId);
-                          p += sprintf(p, "generation.id\t%u\t", cInfo->mGenerationId);
-                          p += sprintf(p, "generation.name\t%s\t", gInfo->mName.c_str());
-                          p += sprintf(p, "param.fmi.id\t%s\t", cInfo->mFmiParameterId.c_str());
-                          p += sprintf(p, "param.fmi.name\t%s\t", cInfo->mFmiParameterName.c_str());
-                          p += sprintf(p, "param.grib.id\t%s\t", cInfo->mGribParameterId.c_str());
-                          p += sprintf(p, "param.cdm.id\t%s\t", cInfo->mCdmParameterId.c_str());
-                          p += sprintf(p, "param.cdm.name\t%s\t", cInfo->mCdmParameterName.c_str());
-                          p += sprintf(p, "param.newbase.id\t%s\t", cInfo->mNewbaseParameterId.c_str());
-                          p += sprintf(p, "param.newbase.name\t%s\t", cInfo->mNewbaseParameterName.c_str());
-                          p += sprintf(p, "param.level.fmi.id\t%u\t", cInfo->mFmiParameterLevelId);
-                          p += sprintf(p, "param.level.grib1.id\t%u\t", cInfo->mGrib1ParameterLevelId);
-                          p += sprintf(p, "param.level.grib2.id\t%u\t", cInfo->mGrib2ParameterLevelId);
-                          p += sprintf(p, "param.level.value\t%d\t", cInfo->mParameterLevel);
-                          p += sprintf(p, "param.units\t%s\t", cInfo->mFmiParameterUnits.c_str());
-                          p += sprintf(p, "param.forecast.type\t%d\t", cInfo->mForecastType);
-                          p += sprintf(p, "param.forecast.number\t%d\t", cInfo->mForecastNumber);
-
-                          uint headerLen = (uint)(p - buf);
-                          fileWriter << headerLen;
-                          fileWriter.write_data(buf, headerLen);
-
-                          for (uint t = 0; t < len; t++)
+                          for (uint f = 0; f < fNumbers; f++)
                           {
-                            short year = 0;
-                            uchar month = 0, day = 0, hour = 0, minute = 0, second = 0;
-                            splitTimeString(data[t].mForecastTime, year, month, day, hour, minute, second);
-
-                            fileWriter << year;
-                            fileWriter << month;
-                            fileWriter << day;
-                            fileWriter << hour;
-                            fileWriter << minute;
-                            fileWriter << second;
-                          }
-
-                          uint sz = data[0].mValues.size();
-                          for (uint s = 0; s < sz; s++)
-                          {
-                            float min = ParamValueMissing;
-                            float max = ParamValueMissing;
-                            for (uint t = 0; t < len; t++)
-                            {
-                              float v = ParamValueMissing;
-
-                              if (data[t].mValues.size() > s)
-                                v = data[t].mValues[s];
-
-                              if (v != ParamValueMissing)
-                              {
-                                if (min == ParamValueMissing || v < min)
-                                  min = v;
-
-                                if (max == ParamValueMissing || v > max)
-                                  max = v;
-                              }
-                            }
-
-                            fileWriter << min;
-                            fileWriter << max;
-
-                            for (uint t = 0; t < len; t++)
-                            {
                               //printf("%u/%u/%lu/%u\n",s,data[t].mValues.size(),t);
-                              float d = (max - min) / 65530;
-                              float v = ParamValueMissing;
+                            float d = (max - min) / 65530;
+                            float v = ParamValueMissing;
 
-                              if (data[t].mValues.size() > s)
-                                v = data[t].mValues[s];
+                            if (data[idx].mValues.size() > s)
+                                v = data[idx].mValues[s];
 
-                              ushort vv = 0xFFFF;
-                              if (v != ParamValueMissing)
-                                vv = (ushort)((v - min) / d);
+                            ushort vv = 0xFFFF;
+                            if (v != ParamValueMissing)
+                              vv = (ushort)((v - min) / d);
 
-                              fileWriter << vv;
-                            }
-                          }
-
-                          if (mContentStorageEnabled)
-                          {
-                            if (newProducerId == 0)
-                              newProducerId = getProducerId(newProducerName);
-
-                            if (newGenerationId == 0)
-                              newGenerationId = getGenerationId(newProducerId,newGenerationName,gInfo->mAnalysisTime);
-
-                            addFile(newProducerId,newGenerationId,newFileName,contentInfoList);
+                            fileWriter << vv;
+                            idx++;
                           }
                         }
+                      }
+
+                      if (mContentStorageEnabled)
+                      {
+                        if (newProducerId == 0)
+                          newProducerId = getProducerId(newProducerName);
+
+                        if (newGenerationId == 0)
+                          newGenerationId = getGenerationId(newProducerId,newGenerationName,gInfo->mAnalysisTime);
+
+                        addFile(newProducerId,newGenerationId,newFileName,totalContentInfoList);
                       }
                     }
                   }

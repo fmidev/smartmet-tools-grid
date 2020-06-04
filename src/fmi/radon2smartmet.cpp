@@ -605,7 +605,7 @@ std::string getTableInfo(PGconn *conn, const char *tableName, uint producerId, c
     p += sprintf(p, "FROM\n");
     p += sprintf(p, "  %s\n", tableName);
     p += sprintf(p, "WHERE\n");
-    p += sprintf(p, "  producer_id=%u AND to_char(analysis_time, 'yyyymmddThh24MISS')='%s'\n", producerId, analysisTime);
+    p += sprintf(p, "  producer_id=%u AND analysis_time = to_timestamp('%s', 'yyyymmddThh24MISS')\n", producerId, analysisTime);
 
     //printf("%s\n",sql);
     PGresult *res = PQexec(conn, sql);
@@ -681,7 +681,7 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
     p += sprintf(p, "FROM\n");
     p += sprintf(p, "  %s\n", tableName);
     p += sprintf(p, "WHERE\n");
-    p += sprintf(p, "  producer_id=%u AND to_char(analysis_time, 'yyyymmddThh24MISS')='%s' AND file_format_id IN (1,2)\n", producerId, analysisTime);
+    p += sprintf(p, "  producer_id=%u AND analysis_time = to_timestamp('%s', 'yyyymmddThh24MISS') AND file_format_id IN (1,2)\n", producerId, analysisTime);
 
     //printf("%s\n",sql);
     PGresult *res = PQexec(conn, sql);
@@ -1790,10 +1790,11 @@ int main(int argc, char *argv[])
     Identification::gridDef.init(mGridConfigFile.c_str());
 
     mWaitTime = toInt64(argv[2]);
+    ContentServer::RedisImplementation *redisImplementation = nullptr;
 
     if (mStorageType == "redis")
     {
-      ContentServer::RedisImplementation *redisImplementation = new ContentServer::RedisImplementation();
+      redisImplementation = new ContentServer::RedisImplementation();
       redisImplementation->init(mRedisAddress.c_str(), mRedisPort, mRedisTablePrefix.c_str());
       mTargetInterface = redisImplementation;
     }
@@ -1898,9 +1899,16 @@ int main(int argc, char *argv[])
         updateTargetFiles(conn);
       }
 
+      if (!shutdownRequested && redisImplementation)
+      {
+        PRINT_DATA(mDebugLogPtr, "* Checking filenames \n");
+        redisImplementation->syncFilenames();
+      }
+
+
       if (!shutdownRequested)
       {
-        PRINT_DATA(mDebugLogPtr, " * Data structures\n");
+        PRINT_DATA(mDebugLogPtr, "* Data structures\n");
         PRINT_DATA(mDebugLogPtr, "   - mSourceProducerList   = %u\n",mSourceProducerList.getLength());
         PRINT_DATA(mDebugLogPtr, "   - mSourceGenerationList = %u\n",mSourceGenerationList.getLength());
         PRINT_DATA(mDebugLogPtr, "   - mSourceFilenames      = %lu\n",mSourceFilenames.size());
