@@ -42,19 +42,6 @@ int main(int argc, char *argv[])
       }
       break;
 
-      case 2:
-      {
-        std::vector<double> outParams;
-        luaFile.executeFunctionCall2(function,inParams.size(),1,inParams,outParams);
-        printf("RESULT : ");
-        for (auto it = outParams.begin(); it != outParams.end(); ++it)
-        {
-          printf("%f ",*it);
-        }
-        printf("\n");
-      }
-      break;
-
       default:
         printf("Invalid function type (must be 1 or 2)!\n");
         break;
