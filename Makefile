@@ -209,17 +209,17 @@ format:
 	clang-format -i -style=file $(SUBNAME)/*.h $(SUBNAME)/*.cpp test/*.cpp
 
 install:
-	@mkdir -p $(bindir)/fmi
-	@mkdir -p $(bindir)/servers
-	@mkdir -p $(bindir)/utils
-	@mkdir -p $(bindir)/files
-	@mkdir -p $(bindir)/clients
+	mkdir -p $(bindir)/fmi
+	mkdir -p $(bindir)/servers
+	mkdir -p $(bindir)/utils
+	mkdir -p $(bindir)/files
+	mkdir -p $(bindir)/clients
 	@list='$(PROGS)'; \
 	for prog in $$list; do \
-	  echo $(INSTALL_PROG) bin/$$prog $(bindir)/$$prog; \
-	  $(INSTALL_PROG) bin/$$prog $(bindir)/$$prog; \
+	  echo $(INSTALL_PROG) $$prog $(bindir)/../$$prog; \
+	  $(INSTALL_PROG) $$prog $(bindir)/../$$prog; \
 	done
-	@mkdir -p $(libdir)/../lib/systemd/system
+	mkdir -p $(libdir)/../lib/systemd/system
 	$(INSTALL_DATA) systemd/radon2smartmet.service  $(libdir)/../lib/systemd/system
 test:
 	+cd test && make test
