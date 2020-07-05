@@ -1771,9 +1771,9 @@ int main(int argc, char *argv[])
   FUNCTION_TRACE
   try
   {
-    if (argc < 3)
+    if (argc < 2 || argc > 3)
     {
-      fprintf(stderr, "USAGE: radon2smartmet <configFile> <loopWaitTime>\n");
+      fprintf(stderr, "USAGE: radon2smartmet <configFile> [loopWaitTime]\n");
       return -1;
     }
 
@@ -1789,7 +1789,15 @@ int main(int argc, char *argv[])
 
     Identification::gridDef.init(mGridConfigFile.c_str());
 
-    mWaitTime = toInt64(argv[2]);
+    if (argc == 3)
+    {
+        mWaitTime = toInt64(argv[2]);
+    }
+    else
+    {
+        mWaitTime = 0; // disable looping
+    }
+
     ContentServer::RedisImplementation *redisImplementation = nullptr;
 
     if (mStorageType == "redis")
