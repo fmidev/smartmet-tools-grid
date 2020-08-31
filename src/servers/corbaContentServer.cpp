@@ -31,7 +31,9 @@ uint                mCacheContentSortingFlags = 0;
 bool                mRequestForwardEnabled = false;
 std::string         mContentSourceType;
 bool                mDataLoadEnabled = false;
+bool                mDataSyncEnabled = false;
 bool                mDataSaveEnabled = false;
+uint                mDataEventListMaxSize = 3000000;
 std::string         mDataDir;
 uint                mDataSaveInterval;
 uint                mEventListMaxSize = 3000000;
@@ -103,7 +105,9 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.content-server.content-source.corba.ior",
         "smartmet.tools.grid.content-server.content-source.http.url",
         "smartmet.tools.grid.content-server.content-source.memory.contentLoadEnabled",
+        "smartmet.tools.grid.content-server.content-source.memory.contentSyncEnabled",
         "smartmet.tools.grid.content-server.content-source.memory.contentSaveEnabled",
+        "smartmet.tools.grid.content-server.content-source.memory.eventListMaxSize",
         "smartmet.tools.grid.content-server.content-source.memory.contentDir",
         "smartmet.tools.grid.content-server.content-source.memory.contentSaveInterval",
         "smartmet.tools.grid.content-server.content-source.memory.contentSortingFlags",
@@ -155,7 +159,9 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.http.url", mHttpUrl);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.contentLoadEnabled", mDataLoadEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.contentSyncEnabled", mDataSyncEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.contentSaveEnabled", mDataSaveEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.eventListMaxSize", mDataEventListMaxSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.contentDir", mDataDir);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.contentSaveInterval", mDataSaveInterval);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.contentSortingFlags", mMemoryContentSortingFlags);
@@ -242,7 +248,8 @@ int main(int argc, char *argv[])
     if (strcasecmp(mContentSourceType.c_str(),"memory") == 0)
     {
       memoryImplementation = new ContentServer::MemoryImplementation();
-      memoryImplementation->init(mDataLoadEnabled,mDataSaveEnabled,mDataDir,mDataSaveInterval,mMemoryContentSortingFlags);
+      memoryImplementation->init(mDataLoadEnabled,mDataSaveEnabled,mDataSyncEnabled,true,mDataDir,mDataSaveInterval,mMemoryContentSortingFlags);
+      memoryImplementation->setEventListMaxLength(mDataEventListMaxSize);
       contentSource = memoryImplementation;
     }
 
