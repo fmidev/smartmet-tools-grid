@@ -150,10 +150,10 @@ void setMessage_LatLon1(GRID::Message *message,GRID::Message *dataMessage)
     // ### DATA SECTION ###
 
     message->initSpatialReference();
-    T::Coordinate_vec coordinates = message->getGridLatLonCoordinates();
+    T::Coordinate_svec coordinates = message->getGridLatLonCoordinates();
 
     T::ParamValue_vec values;
-    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,coordinates,1,values);
+    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,*coordinates,1,values);
 
     message->setGridValues(values);
   }
@@ -257,10 +257,10 @@ void setMessage_RotatedLatLon1(GRID::Message *message,GRID::Message *dataMessage
     // ### DATA SECTION ###
 
     message->initSpatialReference();
-    T::Coordinate_vec coordinates = message->getGridLatLonCoordinates();
+    T::Coordinate_svec coordinates = message->getGridLatLonCoordinates();
 
     T::ParamValue_vec values;
-    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,coordinates,1,values);
+    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,*coordinates,1,values);
 
     message->setGridValues(values);
   }
@@ -357,10 +357,10 @@ void setMessage_PolarStereographic1(GRID::Message *message,GRID::Message *dataMe
     // ### DATA SECTION ###
 
     message->initSpatialReference();
-    T::Coordinate_vec coordinates = message->getGridLatLonCoordinates();
+    T::Coordinate_svec coordinates = message->getGridLatLonCoordinates();
 
     T::ParamValue_vec values;
-    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,coordinates,1,values);
+    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,*coordinates,1,values);
 
     message->setGridValues(values);
   }
@@ -462,10 +462,10 @@ void setMessage_LambertConformal1(GRID::Message *message,GRID::Message *dataMess
     // ### DATA SECTION ###
 
     message->initSpatialReference();
-    T::Coordinate_vec coordinates = message->getGridLatLonCoordinates();
+    T::Coordinate_svec coordinates = message->getGridLatLonCoordinates();
 
     T::ParamValue_vec values;
-    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,coordinates,1,values);
+    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,*coordinates,1,values);
 
     message->setGridValues(values);
   }
@@ -564,10 +564,10 @@ void setMessage_Mercator1(GRID::Message *message,GRID::Message *dataMessage)
     // ### DATA SECTION ###
 
     message->initSpatialReference();
-    T::Coordinate_vec coordinates = message->getGridLatLonCoordinates();
+    T::Coordinate_svec coordinates = message->getGridLatLonCoordinates();
 
     T::ParamValue_vec values;
-    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,coordinates,1,values);
+    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,*coordinates,1,values);
 
     message->setGridValues(values);
   }
@@ -704,10 +704,10 @@ void setMessage_LatLon(GRID::Message *message,GRID::Message *dataMessage)
     // ### DATA SECTION ###
 
     message->initSpatialReference();
-    T::Coordinate_vec coordinates = message->getGridLatLonCoordinates();
+    T::Coordinate_svec coordinates = message->getGridLatLonCoordinates();
 
     T::ParamValue_vec values;
-    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,coordinates,1,values);
+    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,*coordinates,1,values);
 
     message->setGridValues(values);
   }
@@ -854,10 +854,10 @@ void setMessage_RotatedLatLon(GRID::Message *message,GRID::Message *dataMessage)
     message->setProperty(Property::RepresentationSection::OriginalValues::TypeOfOriginalFieldValues,0LL);
 
     message->initSpatialReference();
-    T::Coordinate_vec coordinates = message->getGridLatLonCoordinates();
+    T::Coordinate_svec coordinates = message->getGridLatLonCoordinates();
 
     T::ParamValue_vec values;
-    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,coordinates,1,values);
+    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,*coordinates,1,values);
 
     message->setGridValues(values);
   }
@@ -995,10 +995,10 @@ void setMessage_PolarStereographic(GRID::Message *message,GRID::Message *dataMes
     // ### DATA SECTION ###
 
     message->initSpatialReference();
-    T::Coordinate_vec coordinates = message->getGridLatLonCoordinates();
+    T::Coordinate_svec coordinates = message->getGridLatLonCoordinates();
 
     T::ParamValue_vec values;
-    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,coordinates,1,values);
+    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,*coordinates,1,values);
 
     message->setGridValues(values);
   }
@@ -1174,10 +1174,10 @@ void setMessage_LambertConformal(GRID::Message *message,GRID::Message *dataMessa
     message->setProperty(Property::RepresentationSection::OriginalValues::TypeOfOriginalFieldValues,0LL);
 
     message->initSpatialReference();
-    T::Coordinate_vec coordinates = message->getGridLatLonCoordinates();
+    T::Coordinate_svec coordinates = message->getGridLatLonCoordinates();
 
     T::ParamValue_vec values;
-    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,coordinates,1,values);
+    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,*coordinates,1,values);
 
     message->setGridValues(values);
 
@@ -1318,10 +1318,10 @@ void setMessage_Mercator(GRID::Message *message,GRID::Message *dataMessage)
     message->setProperty(Property::RepresentationSection::OriginalValues::TypeOfOriginalFieldValues,0LL);
 
     message->initSpatialReference();
-    T::Coordinate_vec coordinates = message->getGridLatLonCoordinates();
+    T::Coordinate_svec coordinates = message->getGridLatLonCoordinates();
 
     T::ParamValue_vec values;
-    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,coordinates,1,values);
+    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,*coordinates,1,values);
 
     message->setGridValues(values);
   }
@@ -1506,10 +1506,10 @@ int main(int argc, char *argv[])
 
 
     newMessage->initSpatialReference();
-    T::Coordinate_vec coordinates = newMessage->getGridLatLonCoordinates();
+    T::Coordinate_svec coordinates = newMessage->getGridLatLonCoordinates();
 
     T::ParamValue_vec values;
-    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,coordinates,1,values);
+    dataMessage->getGridValueVectorByCoordinateList(T::CoordinateTypeValue::LATLON_COORDINATES,*coordinates,1,values);
 
     newMessage->setGridValues(values);
 

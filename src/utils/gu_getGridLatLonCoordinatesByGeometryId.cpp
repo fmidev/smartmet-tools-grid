@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     Identification::gridDef.init(configFile);
 
     uint geometryId = toInt64(argv[1]);
-    T::Coordinate_vec coordinates;
+    T::Coordinate_svec coordinates;
 
     unsigned long long startTime = getTime();
 
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 
     unsigned long long endTime = getTime();
 
-    for (auto it = coordinates.begin(); it != coordinates.end(); ++it)
+    for (auto it = coordinates->begin(); it != coordinates->end(); ++it)
     {
       printf("%f,%f\n",it->x(),it->y());
     }
