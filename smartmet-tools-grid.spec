@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 20.9.7
+Version: 20.9.14
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 20.9.4
-BuildRequires: smartmet-library-grid-files-devel >= 20.9.7
-BuildRequires: smartmet-library-grid-content-devel >= 20.9.7
+BuildRequires: smartmet-library-spine-devel >= 20.9.8
+BuildRequires: smartmet-library-grid-files-devel >= 20.9.14
+BuildRequires: smartmet-library-grid-content-devel >= 20.9.14
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -32,8 +32,8 @@ Requires: libconfig
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 20.9.7
-Requires: smartmet-library-grid-content >= 20.9.7
+Requires: smartmet-library-grid-files >= 20.9.14
+Requires: smartmet-library-grid-content >= 20.9.14
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -448,6 +448,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Mon Sep 14 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.9.14-1.fmi
+- Repackaged due to library ABI changes
 * Mon Sep  7 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.9.7-1.fmi
 - Updated grid coordinate processing
 * Mon Aug 31 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.8.31-1.fmi
