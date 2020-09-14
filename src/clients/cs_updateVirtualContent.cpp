@@ -1,5 +1,6 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
+// #include "grid-content/contentServer/postgres/PostgresImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
@@ -19,28 +20,20 @@ int main(int argc, char *argv[])
 
     T::SessionId sessionId = toInt64(argv[1]);
 
-    int result = 0;
-    unsigned long long startTime = 0;
-    unsigned long long endTime = 0;
+    ContentServer::ServiceInterface *service = nullptr;
 
     if (strcmp(argv[argc-2],"-http") == 0)
     {
-      ContentServer::HTTP::ClientImplementation service;
-      service.init(argv[argc-1]);
-
-      startTime = getTime();
-      result = service.updateVirtualContent(sessionId);
-      endTime = getTime();
+      ContentServer::HTTP::ClientImplementation *httpClient = new ContentServer::HTTP::ClientImplementation();
+      httpClient->init(argv[argc-1]);
+      service = httpClient;
     }
     else
     if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
     {
-      ContentServer::RedisImplementation service;
-      service.init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
-
-      startTime = getTime();
-      result = service.updateVirtualContent(sessionId);
-      endTime = getTime();
+      ContentServer::RedisImplementation *redis = new ContentServer::RedisImplementation();
+      redis->init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
+      service = redis;
     }
     else
     {
@@ -55,13 +48,21 @@ int main(int argc, char *argv[])
         return -2;
       }
 
-      ContentServer::Corba::ClientImplementation service;
-      service.init(serviceIor);
-
-      startTime = getTime();
-      result = service.updateVirtualContent(sessionId);
-      endTime = getTime();
+      ContentServer::Corba::ClientImplementation *corbaClient = new ContentServer::Corba::ClientImplementation();
+      corbaClient->init(serviceIor);
+      service = corbaClient;
     }
+
+
+    if (service == nullptr)
+    {
+      fprintf(stdout,"ERROR : Service not defined!\n");
+      return -3;
+    }
+
+    unsigned long long startTime = getTime();
+    int result = service->updateVirtualContent(sessionId);
+    unsigned long long endTime = getTime();
 
     if (result != 0)
     {
@@ -73,6 +74,8 @@ int main(int argc, char *argv[])
     printf("OK\n");
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
+
+    delete service;
 
     return 0;
   }

@@ -108,7 +108,9 @@ uint getTimesteps(const char *filename)
     fseek(file,6,SEEK_SET);
 
     uchar v[4];
-    fread(v,4,1,file);
+    if (fread(v,4,1,file) <= 0)
+      printf("READ ERROR\n");
+
     fclose(file);
 
     uint a = v[0];
@@ -454,7 +456,7 @@ void addFile(uint producerId,uint generationId,std::string fileName,T::ContentIn
       throw SmartMet::Spine::Exception(BCP, "Content storage not defined!");
 
 
-    int result = contentStorage->deleteFileInfoByName(0,fileName);
+    /*int result =*/ contentStorage->deleteFileInfoByName(0,fileName);
 
     T::FileInfo fileInfo;
     fileInfo.mGroupFlags = 0;
@@ -509,7 +511,7 @@ void cleanProducerInformation(std::set<std::string>& producerList)
     {
       T::GenerationInfoList generationInfoList;
 
-      int result = contentStorage->getGenerationInfoListByProducerName(0,*prod,generationInfoList);
+      /*int result =*/ contentStorage->getGenerationInfoListByProducerName(0,*prod,generationInfoList);
       uint len = generationInfoList.getLength();
       PRINT_DATA(mDebugLogPtr,"--- generations (%s) %u\n",prod->c_str(),len);
 
@@ -526,7 +528,7 @@ void cleanProducerInformation(std::set<std::string>& producerList)
         for (uint f=0; f<flen; f++)
         {
           auto fInfo = fileInfoList.getFileInfoByIndex(f);
-          PRINT_DATA(mDebugLogPtr,"      -- file (%s) %ld\n",fInfo->mName.c_str(),getFileSize(fInfo->mName.c_str()));
+          PRINT_DATA(mDebugLogPtr,"      -- file (%s) %lld\n",fInfo->mName.c_str(),getFileSize(fInfo->mName.c_str()));
           if (getFileSize(fInfo->mName.c_str()) <= 0)
             contentStorage->deleteFileInfoById(0,fInfo->mFileId);
           else
@@ -590,7 +592,7 @@ void processParameters()
         result = contentServer->getGenerationInfoListByProducerId(sessionId, producerInfo.mProducerId, generationInfoList);
         if (result == 0  &&  generationInfoList.getLength() > 0)
         {
-          T::GenerationInfo *gLastInfo = generationInfoList.getLastGenerationInfoByProducerIdAndStatus(producerInfo.mProducerId,T::GenerationInfo::Status::Ready);
+          // T::GenerationInfo *gLastInfo = generationInfoList.getLastGenerationInfoByProducerIdAndStatus(producerInfo.mProducerId,T::GenerationInfo::Status::Ready);
           uint gLen = generationInfoList.getLength();
           for (uint g = 0; g < gLen; g++)
           {

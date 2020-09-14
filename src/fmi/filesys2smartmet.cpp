@@ -63,27 +63,6 @@ std::string               mLuaFunction;
 
 
 
-
-
-void sig_handler(int signum)
-{
-  {
-    try
-    {
-      sprintf(nullptr,"Crashing the system for the core dump");
-    }
-    catch (...)
-    {
-      SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
-      exception.printError();
-      exit(-1);
-    }
-  }
-}
-
-
-
-
 void readConfigFile(const char* configFile)
 {
   try
@@ -299,7 +278,8 @@ void readSourceFiles(std::vector<std::pair<std::string,std::string>>& fileList)
           {
             char st[1000];
             sprintf(st,"%s:%s",producer->mName.c_str(),generationTime.c_str());
-            T::GenerationInfo *generation =  mTargetGenerationList.getGenerationInfoByName(std::string(st));
+            std::string str = st;
+            T::GenerationInfo *generation =  mTargetGenerationList.getGenerationInfoByName(str);
             if (generation != nullptr)
             {
               char filename[1000];
@@ -393,7 +373,8 @@ void readSourceGenerations(std::vector<std::pair<std::string,std::string>>& file
             {
               processedGenerations.insert(st);
 
-              T::GenerationInfo *generation =  mSourceGenerationList.getGenerationInfoByName(std::string(st));
+              std::string str = st;
+              T::GenerationInfo *generation =  mSourceGenerationList.getGenerationInfoByName(str);
               if (generation == nullptr)
               {
                 generation = new T::GenerationInfo();
@@ -841,8 +822,6 @@ int main(int argc, char *argv[])
     }
 
     readConfigFile(argv[1]);
-
-    signal(SIGUSR1, sig_handler);
 
     // Initializing the global structures. These are needed when
     // extracting information from GRIB files.

@@ -262,154 +262,162 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
   try
   {
     T::SessionId sessionId = 0;
+    uint numOfNewMappings = 0;
+    std::set<std::string> mapList;
+    std::set<std::string> searchList;
 
-    std::set<std::string> infoList;
-    int result = 0;
-
-    result = contentService->getProducerParameterList(sessionId,sourceParameterKeyType,query_server_mappingTargetKeyType,infoList);
+    T::ProducerInfoList producerInfoList;
+    int result = contentService->getProducerInfoList(sessionId,producerInfoList);
     if (result != 0)
     {
-      std::cerr << CODE_LOCATION << "The 'contentServer.getProducerParameterList()' service call returns an error!  Result : " << result << " : " << ContentServer::getResultString(result).c_str() << "\n";
+      std::cerr << CODE_LOCATION << "The 'contentServer.getProducerInfoList()' service call returns an error!  Result : " << result << " : " << ContentServer::getResultString(result).c_str() << "\n";
       return;
     }
 
     FILE *file = nullptr;
 
-    uint numOfNewMappings = 0;
-    std::set<std::string> mapList;
-    std::set<std::string> searchList;
-
-    for (auto it=infoList.begin(); it != infoList.end(); ++it)
+    uint plen = producerInfoList.getLength();
+    for (uint t=0; t<plen; t++)
     {
-      std::vector<std::string> pl;
-      splitString(it->c_str(),';',pl);
-      if (pl.size() >= 8)
+      T::ProducerInfo *producerInfo = producerInfoList.getProducerInfoByIndex(t);
+      std::set<std::string> infoList;
+
+      int result = contentService->getProducerParameterListByProducerId(sessionId,producerInfo->mProducerId,sourceParameterKeyType,targetParameterKeyType,infoList);
+      if (result == 0)
       {
-        QueryServer::ParameterMapping m;
-        m.mProducerName = pl[0];
-        m.mParameterName = pl[1];
-        m.mParameterKeyType = toInt16(pl[2].c_str());
-        m.mParameterKey = pl[3];
-        m.mGeometryId = toInt32(pl[4].c_str());
-        m.mParameterLevelIdType = toInt16(pl[5].c_str());
-        m.mParameterLevelId = toInt16(pl[6].c_str());
-        m.mParameterLevel = toInt32(pl[7].c_str());
-
-        char key[200];
-        sprintf(key,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),pl[7].c_str());
-        std::string searchKey = m.mProducerName + ":" + m.mParameterName + std::to_string(m.mGeometryId);
-
-        if (mapList.find(std::string(key)) == mapList.end())
+        for (auto it=infoList.begin(); it != infoList.end(); ++it)
         {
-          mapList.insert(std::string(key));
-
-          bool found = false;
-          bool searchEnabled = false;
-          for (auto it = parameterMappings.begin(); it != parameterMappings.end() && !found; ++it)
+          std::vector<std::string> pl;
+          splitString(it->c_str(),';',pl);
+          if (pl.size() >= 8)
           {
-            if (it->getFilename() != mappingFile)
+            QueryServer::ParameterMapping m;
+            m.mProducerName = pl[0];
+            m.mParameterName = pl[1];
+            m.mParameterKeyType = toInt16(pl[2].c_str());
+            m.mParameterKey = pl[3];
+            m.mGeometryId = toInt32(pl[4].c_str());
+            m.mParameterLevelIdType = toInt16(pl[5].c_str());
+            m.mParameterLevelId = toInt16(pl[6].c_str());
+            m.mParameterLevel = toInt32(pl[7].c_str());
+
+            char key[200];
+            sprintf(key,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),pl[7].c_str());
+            std::string searchKey = m.mProducerName + ":" + m.mParameterName + std::to_string(m.mGeometryId);
+
+            if (mapList.find(std::string(key)) == mapList.end())
             {
-              if (it->getMapping(m) != nullptr)
+              mapList.insert(std::string(key));
+
+              bool found = false;
+              bool searchEnabled = false;
+              for (auto it = parameterMappings.begin(); it != parameterMappings.end() && !found; ++it)
               {
-                found = true;
-              }
-              else
-              {
-                if (searchList.find(searchKey) != searchList.end())
+                if (it->getFilename() != mappingFile)
                 {
-                  searchEnabled = true;
-                }
-                else
-                {
-                  QueryServer::ParameterMapping_vec vec;
-                  it->getMappings(m.mProducerName,m.mParameterName,m.mGeometryId,true,vec);
-                  if (vec.size() > 0)
+                  if (it->getMapping(m) != nullptr)
                   {
-                    searchEnabled = true;
+                    found = true;
+                  }
+                  else
+                  {
+                    if (searchList.find(searchKey) != searchList.end())
+                    {
+                      searchEnabled = true;
+                    }
+                    else
+                    {
+                      QueryServer::ParameterMapping_vec vec;
+                      it->getMappings(m.mProducerName,m.mParameterName,m.mGeometryId,true,vec);
+                      if (vec.size() > 0)
+                      {
+                        searchEnabled = true;
+                      }
+                    }
                   }
                 }
               }
-            }
-          }
 
-          if (!found)
-          {
-            numOfNewMappings++;
-
-            char s = 'D';
-            if (!searchEnabled  ||  (m.mParameterLevelId == 6   &&  m.mParameterLevel <= 10) ||  (m.mParameterLevelId == 1  &&  m.mParameterLevel == 0))
-            {
-              if (m.mParameterLevelId != 2  &&  m.mParameterLevelId != 3  &&  m.mParameterLevelId != 4)
-                s = 'E';
-            }
-
-            if (searchList.find(searchKey) == searchList.end())
-              searchList.insert(searchKey);
-
-            if (file == nullptr)
-              file = openMappingFile(mappingFile);
-
-            fprintf(file,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),pl[7].c_str());
-
-            Identification::FmiParameterDef paramDef;
-
-            bool found = false;
-            if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_NAME)
-              found = Identification::gridDef.getFmiParameterDefByName(pl[3],paramDef);
-            else
-            if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_ID)
-              found = Identification::gridDef.getFmiParameterDefById(pl[3],paramDef);
-            else
-            if (targetParameterKeyType == T::ParamKeyTypeValue::NEWBASE_ID)
-              found = Identification::gridDef.getFmiParameterDefByNewbaseId(pl[3],paramDef);
-
-            if (found)
-            {
-              if (paramDef.mAreaInterpolationMethod >= 0)
-                fprintf(file,"%d;",paramDef.mAreaInterpolationMethod);
-              else
-                fprintf(file,";");
-
-              if (paramDef.mTimeInterpolationMethod >= 0)
-                fprintf(file,"%d;",paramDef.mTimeInterpolationMethod);
-              else
-                fprintf(file,";");
-
-              if (paramDef.mLevelInterpolationMethod >= 0)
-                fprintf(file,"%d;",paramDef.mLevelInterpolationMethod);
-              else
-                fprintf(file,";");
-
-              fprintf(file,"0;%c;",s);
-
-              if (sourceParameterKeyType == T::ParamKeyTypeValue::NEWBASE_ID || sourceParameterKeyType == T::ParamKeyTypeValue::NEWBASE_NAME)
+              if (!found)
               {
-                Identification::FmiParameterId_newbase paramMapping;
-                if (Identification::gridDef.getNewbaseParameterMappingByFmiId(paramDef.mFmiParameterId,paramMapping))
+                numOfNewMappings++;
+
+                char s = 'D';
+                if (!searchEnabled  ||  (m.mParameterLevelId == 6   &&  m.mParameterLevel <= 10) ||  (m.mParameterLevelId == 1  &&  m.mParameterLevel == 0))
                 {
-                  fprintf(file,"%s;",paramMapping.mConversionFunction.c_str());
-                  fprintf(file,"%s;",paramMapping.mReverseConversionFunction.c_str());
+                  if (m.mParameterLevelId != 2  &&  m.mParameterLevelId != 3  &&  m.mParameterLevelId != 4)
+                    s = 'E';
+                }
+
+                if (searchList.find(searchKey) == searchList.end())
+                  searchList.insert(searchKey);
+
+                if (file == nullptr)
+                  file = openMappingFile(mappingFile);
+
+                fprintf(file,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),pl[7].c_str());
+
+                Identification::FmiParameterDef paramDef;
+
+                bool found = false;
+                if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_NAME)
+                  found = Identification::gridDef.getFmiParameterDefByName(pl[3],paramDef);
+                else
+                if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_ID)
+                  found = Identification::gridDef.getFmiParameterDefById(pl[3],paramDef);
+                else
+                if (targetParameterKeyType == T::ParamKeyTypeValue::NEWBASE_ID)
+                  found = Identification::gridDef.getFmiParameterDefByNewbaseId(pl[3],paramDef);
+
+                if (found)
+                {
+                  if (paramDef.mAreaInterpolationMethod >= 0)
+                    fprintf(file,"%d;",paramDef.mAreaInterpolationMethod);
+                  else
+                    fprintf(file,";");
+
+                  if (paramDef.mTimeInterpolationMethod >= 0)
+                    fprintf(file,"%d;",paramDef.mTimeInterpolationMethod);
+                  else
+                    fprintf(file,";");
+
+                  if (paramDef.mLevelInterpolationMethod >= 0)
+                    fprintf(file,"%d;",paramDef.mLevelInterpolationMethod);
+                  else
+                    fprintf(file,";");
+
+                  fprintf(file,"0;%c;",s);
+
+                  if (sourceParameterKeyType == T::ParamKeyTypeValue::NEWBASE_ID || sourceParameterKeyType == T::ParamKeyTypeValue::NEWBASE_NAME)
+                  {
+                    Identification::FmiParameterId_newbase paramMapping;
+                    if (Identification::gridDef.getNewbaseParameterMappingByFmiId(paramDef.mFmiParameterId,paramMapping))
+                    {
+                      fprintf(file,"%s;",paramMapping.mConversionFunction.c_str());
+                      fprintf(file,"%s;",paramMapping.mReverseConversionFunction.c_str());
+                    }
+                    else
+                    {
+                      fprintf(file,";;");
+                    }
+                  }
+                  else
+                  {
+                    fprintf(file,";;");
+                  }
+
+                  if (paramDef.mDefaultPrecision >= 0)
+                    fprintf(file,"%d;",(int)paramDef.mDefaultPrecision);
+                  else
+                    fprintf(file,";");
+
+                  fprintf(file,"\n");
                 }
                 else
                 {
-                  fprintf(file,";;");
+                  fprintf(file,"1;1;1;0;D;;;;\n");
                 }
               }
-              else
-              {
-                fprintf(file,";;");
-              }
-
-              if (paramDef.mDefaultPrecision >= 0)
-                fprintf(file,"%d;",(int)paramDef.mDefaultPrecision);
-              else
-                fprintf(file,";");
-
-              fprintf(file,"\n");
-            }
-            else
-            {
-              fprintf(file,"1;1;1;0;D;;;;\n");
             }
           }
         }

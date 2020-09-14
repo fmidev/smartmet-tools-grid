@@ -730,7 +730,7 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
           fprintf(file,"# %s => NEWBASE-PARAMETER[%s]\n",PQgetvalue(res,i,0),newbaseId.c_str());
       }
       else
-        fprintf(file,"# %s => UNKNOWN\n",PQgetvalue(res,i,0));
+        fprintf(file,"# %s => UNKNOWN\n# ",PQgetvalue(res,i,0));
 
       fprintf(file,"%s;%s;",PQgetvalue(res,i,2),PQgetvalue(res,i,3));
 
@@ -741,7 +741,7 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
       {
         if (unit == "K")
         {
-          fprintf(file,"SUM{$,-273.15};SUM{$,273.15};"); // Converting all kelvin values to celcius (assuming that the newbase has no Kelvin parameters)
+          fprintf(file,"SUM{$,-273.15};SUM{$,273.15};\n"); // Converting all kelvin values to celcius (assuming that the newbase has no Kelvin parameters)
         }
         else
         if (unit == "C")
@@ -749,15 +749,15 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
         else
         if (base != 0  &&  scale == 1)
         {
-          fprintf(file,"SUM{$,%f};SUM{$,%f};",base,-base);
+          fprintf(file,"SUM{$,%f};SUM{$,%f};\n",base,-base);
         }
         else
         if (base == 0  &&  scale != 1  &&  scale != 0)
         {
-          fprintf(file,"MUL{$,%f};DIV{$,%f};",scale,scale);
+          fprintf(file,"MUL{$,%f};DIV{$,%f};\n",scale,scale);
         }
         else
-          fprintf(file,";;");
+          fprintf(file,";;\n");
       }
       else
         fprintf(file,";;\n");

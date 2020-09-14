@@ -1,6 +1,5 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
-// #include "grid-content/contentServer/postgres/PostgresImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
@@ -15,15 +14,16 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 4)
+    if (argc < 5)
     {
-      fprintf(stdout,"USAGE: cs_getProducerParameterList <sessionId> <sourceParameterKeyType> <targetParameterKeyType> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"USAGE: cs_getProducerParameterListByProducerId <sessionId> <producerId> <sourceParameterKeyType> <targetParameterKeyType> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
     T::SessionId sessionId = toInt64(argv[1]);
-    T::ParamKeyType sourceParameterKeyType = toInt64(argv[2]);
-    T::ParamKeyType targetParameterKeyType = toInt64(argv[3]);
+    uint producerId = toInt64(argv[2]);
+    T::ParamKeyType sourceParameterKeyType = toInt64(argv[3]);
+    T::ParamKeyType targetParameterKeyType = toInt64(argv[4]);
 
     std::set<std::string> infoList;
 
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     }
 
     unsigned long long startTime = getTime();
-    int result = service->getProducerParameterList(sessionId,sourceParameterKeyType,targetParameterKeyType,infoList);
+    int result = service->getProducerParameterListByProducerId(sessionId,producerId,sourceParameterKeyType,targetParameterKeyType,infoList);
     unsigned long long endTime = getTime();
 
     if (result != 0)

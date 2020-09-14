@@ -1,5 +1,6 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
+// #include "grid-content/contentServer/postgres/PostgresImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
@@ -106,7 +107,8 @@ int main(int argc, char *argv[])
       fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
       return -6;
     }
-    generationInfoList.writeToFile(dir + "/generations.csv");
+    std::string fname = dir + "/generations.csv";
+    generationInfoList.writeToFile(fname);
 
 
     // Reading file information

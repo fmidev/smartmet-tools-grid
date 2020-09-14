@@ -1,4 +1,7 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
+#include "grid-content/contentServer/http/client/ClientImplementation.h"
+// #include "grid-content/contentServer/postgres/PostgresImplementation.h"
+#include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-files/common/Exception.h"
 #include "grid-files/common/GeneralFunctions.h"
 
@@ -10,13 +13,6 @@ int main(int argc, char *argv[])
 
   try
   {
-    char *serviceIor = getenv("SMARTMET_CS_IOR");
-    if (serviceIor == nullptr)
-    {
-      fprintf(stdout,"SMARTMET_CS_IOR not defined!\n");
-      return -2;
-    }
-
     if (argc != 12)
     {
       fprintf(stdout,"USAGE:\n");
@@ -52,10 +48,6 @@ int main(int argc, char *argv[])
 
     // ### Session:
     T::SessionId sessionId = toInt64(argv[1]);
-
-    // ### Service:
-    ContentServer::Corba::ClientImplementation contentServer;
-    contentServer.init(serviceIor);
 
     // ### Service parameters:
     uint generationId = toInt64(argv[2]);
@@ -108,8 +100,48 @@ int main(int argc, char *argv[])
     std::string forecastTime = argv[11];
     T::ContentInfoList infoList;
 
+    ContentServer::ServiceInterface *service = nullptr;
+
+    if (strcmp(argv[argc-2],"-http") == 0)
+    {
+      ContentServer::HTTP::ClientImplementation *httpClient = new ContentServer::HTTP::ClientImplementation();
+      httpClient->init(argv[argc-1]);
+      service = httpClient;
+    }
+    else
+    if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
+    {
+      ContentServer::RedisImplementation *redis = new ContentServer::RedisImplementation();
+      redis->init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
+      service = redis;
+    }
+    else
+    {
+      char *serviceIor = getenv("SMARTMET_CS_IOR");
+
+      if (strcmp(argv[argc-2],"-ior") == 0)
+        serviceIor = argv[argc-1];
+
+      if (serviceIor == nullptr)
+      {
+        fprintf(stdout,"Service IOR not defined!\n");
+        return -2;
+      }
+
+      ContentServer::Corba::ClientImplementation *corbaClient = new ContentServer::Corba::ClientImplementation();
+      corbaClient->init(serviceIor);
+      service = corbaClient;
+    }
+
+
+    if (service == nullptr)
+    {
+      fprintf(stdout,"ERROR : Service not defined!\n");
+      return -3;
+    }
+
     unsigned long long startTime = getTime();
-    int result = contentServer.getContentListByParameterGenerationIdAndForecastTime(sessionId,generationId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,level,forecastType,forecastNumber,geometryId,forecastTime,infoList);
+    int result = service->getContentListByParameterGenerationIdAndForecastTime(sessionId,generationId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,level,forecastType,forecastNumber,geometryId,forecastTime,infoList);
     unsigned long long endTime = getTime();
 
     if (result != 0)
@@ -123,6 +155,8 @@ int main(int argc, char *argv[])
     infoList.print(std::cout,0,0);
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
+
+    delete service;
 
     return 0;
   }

@@ -14,13 +14,14 @@ int main(int argc, char *argv[])
   {
     if (argc < 3)
     {
-      fprintf(stdout,"USAGE: cs_getFileInfoCountByProducerId <sessionId> <producerId> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"USAGE: cs_getHashByProducerId <sessionId> <producerId> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
     T::SessionId sessionId = toInt64(argv[1]);
+    T::ContentInfoList infoList;
     uint producerId = toInt64(argv[2]);
-    uint count = 0;
+    ulonglong hash = 0;
 
     ContentServer::ServiceInterface *service = nullptr;
 
@@ -63,7 +64,7 @@ int main(int argc, char *argv[])
     }
 
     unsigned long long startTime = getTime();
-    int result = service->getFileInfoCountByProducerId(sessionId,producerId,count);
+    int result = service->getHashByProducerId(sessionId,producerId,hash);
     unsigned long long endTime = getTime();
 
     if (result != 0)
@@ -73,7 +74,7 @@ int main(int argc, char *argv[])
     }
 
     // ### Result:
-    printf("COUNT = %u\n",count);
+    printf("HASH : %llu\n",hash);
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

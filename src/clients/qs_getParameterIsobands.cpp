@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 
     unsigned long long startTime = getTime();
 
-    auto s = boost::posix_time::from_iso_string(query.mStartTime);
+    auto s = Fmi::TimeParser::parse_iso(query.mStartTime);
     for (uint t=0; t<timesteps; t++)
     {
       QueryServer::Query newQuery(query);
