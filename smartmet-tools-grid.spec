@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 20.9.14
+Version: 20.9.15
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 20.9.8
-BuildRequires: smartmet-library-grid-files-devel >= 20.9.14
-BuildRequires: smartmet-library-grid-content-devel >= 20.9.14
+BuildRequires: smartmet-library-spine-devel >= 20.9.14
+BuildRequires: smartmet-library-grid-files-devel >= 20.9.15
+BuildRequires: smartmet-library-grid-content-devel >= 20.9.15
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -32,8 +32,8 @@ Requires: libconfig
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 20.9.14
-Requires: smartmet-library-grid-content >= 20.9.14
+Requires: smartmet-library-grid-files >= 20.9.15
+Requires: smartmet-library-grid-content >= 20.9.15
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -136,6 +136,7 @@ Provides: cs_getGenerationInfoListByGeometryId = %{Version}
 Provides: cs_getGenerationInfoListByProducerId = %{Version}
 Provides: cs_getGenerationInfoListByProducerName = %{Version}
 Provides: cs_getGenerationInfoListBySourceId = %{Version}
+Provides: cs_getHashByProducerId = %{Version}
 Provides: cs_getLastEventInfo = %{Version}
 Provides: cs_getLastGenerationInfoByProducerIdAndStatus = %{Version}
 Provides: cs_getLastGenerationInfoByProducerNameAndStatus = %{Version}
@@ -149,6 +150,7 @@ Provides: cs_getProducerInfoListByParameter = %{Version}
 Provides: cs_getProducerInfoListBySourceId = %{Version}
 Provides: cs_getProducerNameAndGeometryList = %{Version}
 Provides: cs_getProducerParameterList = %{Version}
+Provides: cs_getProducerParameterListByProducerId = %{Version}
 Provides: cs_reload = %{Version}
 Provides: cs_saveData = %{Version}
 Provides: cs_setGenerationInfoStatusById = %{Version}
@@ -340,6 +342,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_getGenerationInfoListByProducerId
 %{_bindir}/clients/cs_getGenerationInfoListByProducerName
 %{_bindir}/clients/cs_getGenerationInfoListBySourceId
+%{_bindir}/clients/cs_getHashByProducerId
 %{_bindir}/clients/cs_getLastEventInfo
 %{_bindir}/clients/cs_getLastGenerationInfoByProducerIdAndStatus
 %{_bindir}/clients/cs_getLastGenerationInfoByProducerNameAndStatus
@@ -353,6 +356,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_getProducerInfoListBySourceId
 %{_bindir}/clients/cs_getProducerNameAndGeometryList
 %{_bindir}/clients/cs_getProducerParameterList
+%{_bindir}/clients/cs_getProducerParameterListByProducerId
 %{_bindir}/clients/cs_reload
 %{_bindir}/clients/cs_saveData
 %{_bindir}/clients/cs_setGenerationInfoStatusById
@@ -448,6 +452,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Tue Sep 15 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.9.15-1.fmi
+- Minor improvements, code refactoring
 * Mon Sep 14 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.9.14-1.fmi
 - Repackaged due to library ABI changes
 * Mon Sep  7 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.9.7-1.fmi
