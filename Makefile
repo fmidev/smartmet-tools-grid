@@ -109,7 +109,8 @@ LIBS += -L$(libdir) \
 	-lcurl \
 	$(CORBA_LIBS) \
 	/usr/pgsql-9.5/lib/libpq.a \
-	-lssl -lcrypto -lgssapi_krb5 -lldap_r
+	-lssl -lcrypto -lgssapi_krb5 -lldap_r \
+	-lstdc++ -lm
 
 # What to install
 
@@ -178,7 +179,7 @@ src_debug: objdir $(LIBFILE)
 
 
 $(PROGS): % : obj/%.o
-	$(CXX) $(CFLAGS) $(LDFLAGS) $(INCLUDES) -o $@ obj/$@.o $(LIBS)
+	$(CC) $(LDFLAGS) $(LDFLAGS) $(INCLUDES) -o $@ obj/$@.o $(LIBS)
 
 
 clean:
