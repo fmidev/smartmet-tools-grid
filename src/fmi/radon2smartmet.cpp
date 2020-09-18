@@ -1506,7 +1506,7 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
           Identification::FmiParameterDef fmiDef;
           if (Identification::gridDef.getFmiParameterDefById(it->paramId, fmiDef))
           {
-            contentInfo->mFmiParameterName = fmiDef.mParameterName;
+            contentInfo->setFmiParameterName(fmiDef.mParameterName);
             contentInfo->mFmiParameterUnits = fmiDef.mParameterUnits;
 
             Identification::NewbaseParameterDef newbaseDef;
@@ -1607,7 +1607,7 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
           Identification::FmiParameterDef fmiDef;
           if (Identification::gridDef.getFmiParameterDefById(it->paramId, fmiDef))
           {
-            contentInfo->mFmiParameterName = fmiDef.mParameterName;
+            contentInfo->setFmiParameterName(fmiDef.mParameterName);
             contentInfo->mFmiParameterUnits = fmiDef.mParameterUnits;
 
             Identification::NewbaseParameterDef newbaseDef;

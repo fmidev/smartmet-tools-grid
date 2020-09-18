@@ -220,7 +220,7 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
       contentInfo.mGroupFlags = 0;
       contentInfo.mForecastTime = forecastTime;
       contentInfo.mFmiParameterId = message.getFmiParameterId();
-      contentInfo.mFmiParameterName = message.getFmiParameterName();
+      contentInfo.setFmiParameterName(message.getFmiParameterName());
       contentInfo.mGribParameterId = message.getGribParameterId();
       contentInfo.mCdmParameterId = message.getCdmParameterId();
       contentInfo.mCdmParameterName = message.getCdmParameterName();
@@ -259,7 +259,7 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
     printf("MESSAGE-INDEX      : %u\n",messageIndex);
     printf("REFERENCE-TIME     : %s\n",referenceTime.c_str());
     printf("FORECAST-TIME      : %s\n",forecastTime.c_str());
-    printf("FMI-PARAMETER-NAME : %s\n",contentInfo.mFmiParameterName.c_str());
+    printf("FMI-PARAMETER-NAME : %s\n",contentInfo.getFmiParameterName().c_str());
 
     //message.print(std);
     printf("\n");

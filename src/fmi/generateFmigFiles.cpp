@@ -662,11 +662,11 @@ void processParameters()
                   T::GridData data[totalLen];
 
                   char filename[300];
-                  sprintf(filename, "%s%s_%s_%s_%d_%d_%d_%d_%d.fmig", mProducerPrefix.c_str(),producerInfo.mName.c_str(), gInfo->mAnalysisTime.c_str(), cInfo->mFmiParameterName.c_str(),
+                  sprintf(filename, "%s%s_%s_%s_%d_%d_%d_%d_%d.fmig", mProducerPrefix.c_str(),producerInfo.mName.c_str(), gInfo->mAnalysisTime.c_str(), cInfo->getFmiParameterName().c_str(),
                       cInfo->mGeometryId, cInfo->mFmiParameterLevelId, cInfo->mParameterLevel, cInfo->mForecastType, cInfo->mForecastNumber);
                   filenameList.insert(std::string(filename));
 
-                  sprintf(filename, "%s/%s%s_%s_%s_%d_%d_%d_%d_%d.fmig", mTargetDir.c_str(), mProducerPrefix.c_str(),producerInfo.mName.c_str(), gInfo->mAnalysisTime.c_str(), cInfo->mFmiParameterName.c_str(),
+                  sprintf(filename, "%s/%s%s_%s_%s_%d_%d_%d_%d_%d.fmig", mTargetDir.c_str(), mProducerPrefix.c_str(),producerInfo.mName.c_str(), gInfo->mAnalysisTime.c_str(), cInfo->getFmiParameterName().c_str(),
                       cInfo->mGeometryId, cInfo->mFmiParameterLevelId, cInfo->mParameterLevel, cInfo->mForecastType, cInfo->mForecastNumber);
 
                   std::string newFileName = filename;
@@ -765,7 +765,7 @@ void processParameters()
                       p += sprintf(p, "generation.id\t%u\t", cInfo->mGenerationId);
                       p += sprintf(p, "generation.name\t%s\t", gInfo->mName.c_str());
                       p += sprintf(p, "param.fmi.id\t%s\t", cInfo->mFmiParameterId.c_str());
-                      p += sprintf(p, "param.fmi.name\t%s\t", cInfo->mFmiParameterName.c_str());
+                      p += sprintf(p, "param.fmi.name\t%s\t", cInfo->getFmiParameterName().c_str());
                       p += sprintf(p, "param.grib.id\t%s\t", cInfo->mGribParameterId.c_str());
                       p += sprintf(p, "param.cdm.id\t%s\t", cInfo->mCdmParameterId.c_str());
                       p += sprintf(p, "param.cdm.name\t%s\t", cInfo->mCdmParameterName.c_str());

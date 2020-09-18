@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
           contentInfo->mMessageIndex = toInt64(field[6]);
           contentInfo->mForecastTime = field[7];
           contentInfo->mFmiParameterId = field[8];
-          contentInfo->mFmiParameterName = field[9];
+          contentInfo->setFmiParameterName(field[9]);
           contentInfo->mGribParameterId = field[10];
           contentInfo->mFmiParameterLevelId = toInt64(field[11]);
           contentInfo->mGrib1ParameterLevelId = toInt64(field[12]);

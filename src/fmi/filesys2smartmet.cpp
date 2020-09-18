@@ -422,7 +422,7 @@ void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Messag
     contentInfo.mGroupFlags = 0;
     contentInfo.mForecastTime = message.getForecastTime();
     contentInfo.mFmiParameterId = message.getFmiParameterId();
-    contentInfo.mFmiParameterName = message.getFmiParameterName();
+    contentInfo.setFmiParameterName(message.getFmiParameterName());
     contentInfo.mGribParameterId = message.getGribParameterId();
     contentInfo.mCdmParameterId = message.getCdmParameterId();
     contentInfo.mCdmParameterName = message.getCdmParameterName();
