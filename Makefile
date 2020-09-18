@@ -48,30 +48,14 @@ DEFINES = -DUNIX -D_REENTRANT
 # Boost 1.69
 
 ifneq "$(wildcard /usr/include/boost169)" ""
-  INCLUDES += -I/usr/include/boost169
+  INCLUDES += -isystem /usr/include/boost169
   LIBS += -L/usr/lib64/boost169
 endif
 
 
-ifeq ($(CXX), clang++)
+FLAGS = -std=c++11 -fdiagnostics-color=always -fPIC -MD -Wall -W -Wno-unused-parameter
 
- FLAGS = \
-	-std=c++11 -fPIC -MD \
-	-Weverything \
-	-Wno-c++98-compat \
-	-Wno-float-equal \
-	-Wno-padded \
-	-Wno-missing-prototypes
-
- INCLUDES += \
-	-isystem $(includedir) \
-	-isystem $(includedir)/smartmet
-
-else
-
- FLAGS = -std=c++11 -fdiagnostics-color=always -fPIC -MD -Wall -W -Wno-unused-parameter
-
- FLAGS_DEBUG = \
+FLAGS_DEBUG = \
 	-Wcast-align \
 	-Winline \
 	-Wno-multichar \
@@ -87,17 +71,14 @@ else
 # Disabled for now:
 #	-Woverloaded-virtual
 
- FLAGS_RELEASE = -Wuninitialized
+FLAGS_RELEASE = -Wuninitialized
 
- INCLUDES += \
-	-I$(includedir) \
+INCLUDES += \
 	-I$(includedir)/smartmet \
-	-I /usr/include/postgresql \
-	-I /usr/pgsql-9.5/include \
+	-isystem /usr/include/postgresql \
+	-isystem /usr/pgsql-9.5/include \
 	$(pkg-config --cflags icu-i18n) \
 	$(CORBA_INCLUDE)
-
-endif
 
 # Compile options in detault, debug and profile modes
 
@@ -128,7 +109,8 @@ LIBS += -L$(libdir) \
 	-lcurl \
 	$(CORBA_LIBS) \
 	/usr/pgsql-9.5/lib/libpq.a \
-	-lssl -lcrypto -lgssapi_krb5 -lldap_r
+	-lssl -lcrypto -lgssapi_krb5 -lldap_r \
+	-lstdc++ -lm
 
 # What to install
 
@@ -197,7 +179,7 @@ src_debug: objdir $(LIBFILE)
 
 
 $(PROGS): % : obj/%.o
-	$(CXX) $(CFLAGS) $(LDFLAGS) $(INCLUDES) -o $@ obj/$@.o $(LIBS)
+	$(CC) $(LDFLAGS) $(LDFLAGS) $(INCLUDES) -o $@ obj/$@.o $(LIBS)
 
 
 clean:
