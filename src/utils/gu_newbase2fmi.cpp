@@ -1,4 +1,4 @@
-#include "grid-files/common/Exception.h"
+#include <macgyver/Exception.h>
 #include "grid-files/identification/GridDef.h"
 #include "grid-files/common/GeneralFunctions.h"
 
@@ -18,7 +18,7 @@ void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_ve
     FILE *file = fopen(filename,"re");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot open file!");
+      Fmi::Exception exception(BCP,"Cannot open file!");
       exception.addParameter("Filename",std::string(filename));
       throw exception;
     }
@@ -70,7 +70,7 @@ void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_ve
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -120,9 +120,9 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (SmartMet::Spine::Exception& e)
+  catch (Fmi::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
+    Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -7;
   }

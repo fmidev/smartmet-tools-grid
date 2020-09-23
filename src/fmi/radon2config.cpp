@@ -1,4 +1,4 @@
-#include "grid-files/common/Exception.h"
+#include <macgyver/Exception.h>
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ShowFunction.h"
@@ -36,7 +36,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
+      Fmi::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
       throw exception;
     }
@@ -266,7 +266,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -284,7 +284,7 @@ void create_fmi_levelId_grib2(PGconn *conn,const char *dir)
     FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
+      Fmi::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
       throw exception;
     }
@@ -339,7 +339,7 @@ void create_fmi_levelId_grib2(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -358,7 +358,7 @@ void create_fmi_levels(PGconn *conn,const char *dir)
     FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
+      Fmi::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
       throw exception;
     }
@@ -408,7 +408,7 @@ void create_fmi_levels(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -427,7 +427,7 @@ void create_fmi_levelId_grib1(PGconn *conn,const char *dir)
     FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
+      Fmi::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
       throw exception;
     }
@@ -482,7 +482,7 @@ void create_fmi_levelId_grib1(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -501,7 +501,7 @@ void create_fmi_parameterId_grib2(PGconn *conn,const char *dir)
     FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
+      Fmi::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
       throw exception;
     }
@@ -566,7 +566,7 @@ void create_fmi_parameterId_grib2(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -584,7 +584,7 @@ void create_fmi_parameterId_grib1(PGconn *conn,const char *dir)
     FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
+      Fmi::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
       throw exception;
     }
@@ -650,7 +650,7 @@ void create_fmi_parameterId_grib1(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -668,7 +668,7 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
     FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
+      Fmi::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
       throw exception;
     }
@@ -768,7 +768,7 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -786,7 +786,7 @@ void create_fmi_parameters(PGconn *conn,const char *dir)
     FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
+      Fmi::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
       throw exception;
     }
@@ -856,7 +856,7 @@ void create_fmi_parameters(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -874,7 +874,7 @@ void create_fmi_producerId_grib(PGconn *conn,const char *dir)
     FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot create the file!");
+      Fmi::Exception exception(BCP,"Cannot create the file!");
       exception.addParameter("Filename",filename);
       throw exception;
     }
@@ -933,7 +933,7 @@ void create_fmi_producerId_grib(PGconn *conn,const char *dir)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -983,9 +983,9 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (SmartMet::Spine::Exception& e)
+  catch (Fmi::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
+    Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -7;
   }

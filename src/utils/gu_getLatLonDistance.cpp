@@ -1,4 +1,4 @@
-#include "grid-files/common/Exception.h"
+#include <macgyver/Exception.h>
 #include "grid-files/common/CoordinateConversions.h"
 #include "grid-files/common/GeneralFunctions.h"
 
@@ -27,9 +27,9 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (SmartMet::Spine::Exception& e)
+  catch (Fmi::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
+    Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -7;
   }

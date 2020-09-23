@@ -1,7 +1,7 @@
 #include "grid-files/grid/PhysicalGridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GridDef.h"
-#include "grid-files/common/Exception.h"
+#include <macgyver/Exception.h>
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/GeneralDefinitions.h"
 #include "grid-files/common/ImageFunctions.h"
@@ -36,7 +36,7 @@ void init()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -94,7 +94,7 @@ void showInfo(SmartMet::GRID::GridFile& gridFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -168,7 +168,7 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -251,7 +251,7 @@ int run(int argc, char **argv)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -271,6 +271,6 @@ int main(int argc, char **argv) try
 }
 catch (...)
 {
-  SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+  Fmi::Exception exception(BCP,"Operation failed!",nullptr);
   exception.printError();
 }

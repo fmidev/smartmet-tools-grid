@@ -14,7 +14,7 @@
 #include "grid-content/queryServer/corba/server/Server.h"
 #include "grid-content/queryServer/corba/server/GridServer.h"
 #include "grid-content/queryServer/implementation/ServiceImplementation.h"
-#include "grid-files/common/Exception.h"
+#include <macgyver/Exception.h>
 #include "grid-files/identification/GridDef.h"
 #include "grid-files/common/Typedefs.h"
 #include "grid-files/common/GeneralFunctions.h"
@@ -146,7 +146,7 @@ void loadMappings(QueryServer::ParamMappingFile_vec& parameterMappings)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -161,7 +161,7 @@ FILE* openMappingFile(std::string mappingFile)
     FILE *file = fopen(mappingFile.c_str(),"we");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP, "Cannot open a mapping file for writing!");
+      Fmi::Exception exception(BCP, "Cannot open a mapping file for writing!");
       exception.addParameter("Filaname",mappingFile);
       throw exception;
     }
@@ -249,7 +249,7 @@ FILE* openMappingFile(std::string mappingFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -270,7 +270,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
     int result = contentService->getProducerInfoList(sessionId,producerInfoList);
     if (result != 0)
     {
-      std::cerr << CODE_LOCATION << "The 'contentServer.getProducerInfoList()' service call returns an error!  Result : " << result << " : " << ContentServer::getResultString(result).c_str() << "\n";
+      std::cerr << __FILE__ << ":" << __LINE__ << ": The 'contentServer.getProducerInfoList()' service call returns an error!  Result : " << result << " : " << ContentServer::getResultString(result).c_str() << "\n";
       return;
     }
 
@@ -438,7 +438,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -476,7 +476,7 @@ void updateMappings()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -496,7 +496,7 @@ void updateProcessing()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -514,7 +514,7 @@ static void* corbaQueryServer_updateThread(void *arg)
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
     pthread_exit(nullptr);
     exit(-1);
@@ -533,7 +533,7 @@ void startUpdateProcessing()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -624,7 +624,7 @@ void readConfigFile(const char* configFile)
     {
       if (!mConfigurationFile.findAttribute(configAttribute[t]))
       {
-        SmartMet::Spine::Exception exception(BCP, "Missing configuration attribute!");
+        Fmi::Exception exception(BCP, "Missing configuration attribute!");
         exception.addParameter("File",configFile);
         exception.addParameter("Attribute",configAttribute[t]);
         throw exception;
@@ -707,7 +707,7 @@ void readConfigFile(const char* configFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", nullptr);
+    throw Fmi::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
 
@@ -768,7 +768,7 @@ int main(int argc, char *argv[])
 
     if (contentService == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"No acceptable content source defined!");
+      Fmi::Exception exception(BCP,"No acceptable content source defined!");
       throw exception;
     }
 
@@ -884,7 +884,7 @@ int main(int argc, char *argv[])
       FILE *file = fopen(content_server_iorFile.c_str(),"we");
       if (file == nullptr)
       {
-        SmartMet::Spine::Exception exception(BCP,"Cannot create file for IOR!");
+        Fmi::Exception exception(BCP,"Cannot create file for IOR!");
         exception.addParameter("IorFile",content_server_iorFile);
         throw exception;
       }
@@ -903,7 +903,7 @@ int main(int argc, char *argv[])
       FILE *file = fopen(data_server_iorFile.c_str(),"we");
       if (file == nullptr)
       {
-        SmartMet::Spine::Exception exception(BCP,"Cannot create file for IOR!");
+        Fmi::Exception exception(BCP,"Cannot create file for IOR!");
         exception.addParameter("IorFile",data_server_iorFile);
         throw exception;
       }
@@ -922,7 +922,7 @@ int main(int argc, char *argv[])
       FILE *file = fopen(query_server_iorFile.c_str(),"we");
       if (file == nullptr)
       {
-        SmartMet::Spine::Exception exception(BCP,"Cannot create file for IOR!");
+        Fmi::Exception exception(BCP,"Cannot create file for IOR!");
         exception.addParameter("IorFile",query_server_iorFile);
         throw exception;
       }
@@ -944,7 +944,7 @@ int main(int argc, char *argv[])
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
     return -1;
   }

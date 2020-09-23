@@ -101,7 +101,7 @@ void readConfigFile(const char* configFile)
     {
       if (!mConfigurationFile.findAttribute(configAttribute[t]))
       {
-        SmartMet::Spine::Exception exception(BCP, "Missing configuration attribute!");
+        Fmi::Exception exception(BCP, "Missing configuration attribute!");
         exception.addParameter("File",configFile);
         exception.addParameter("Attribute",configAttribute[t]);
         throw exception;
@@ -146,7 +146,7 @@ void readConfigFile(const char* configFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", nullptr);
+    throw Fmi::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
 
@@ -184,7 +184,7 @@ void getMainPage(SmartMet::T::ResponseMessage& response)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -215,7 +215,7 @@ static int addParameter(void *cls, enum MHD_ValueKind kind, const char *key,cons
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -233,7 +233,7 @@ static void requestCompleted (void *cls, struct MHD_Connection *connection,void 
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -364,7 +364,7 @@ static int processRequest(void *cls,struct MHD_Connection *connection,const char
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
     return MHD_NO;
   }
@@ -433,7 +433,7 @@ int main(int argc,char ** argv)
 
     if (contentSource == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"No acceptable content source defined!");
+      Fmi::Exception exception(BCP,"No acceptable content source defined!");
       throw exception;
     }
 
@@ -505,7 +505,7 @@ int main(int argc,char ** argv)
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
     return -1;
   }

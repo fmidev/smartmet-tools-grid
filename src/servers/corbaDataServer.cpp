@@ -4,7 +4,7 @@
 #include "grid-content/dataServer/implementation/VirtualContentFactory_type1.h"
 #include "grid-content/dataServer/corba/server/ServerInterface.h"
 #include "grid-content/dataServer/corba/server/Server.h"
-#include "grid-files/common/Exception.h"
+#include <macgyver/Exception.h>
 #include "grid-files/common/Typedefs.h"
 #include "grid-files/grid/ValueCache.h"
 #include "grid-files/identification/GridDef.h"
@@ -82,7 +82,7 @@ void sig_handler(int signum)
     }
     catch (...)
     {
-      SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+      Fmi::Exception exception(BCP,"Operation failed!",nullptr);
       exception.printError();
       exit(-1);
     }
@@ -142,7 +142,7 @@ void readConfigFile(const char* configFile)
     {
       if (!mConfigurationFile.findAttribute(configAttribute[t]))
       {
-        SmartMet::Spine::Exception exception(BCP, "Missing configuration attribute!");
+        Fmi::Exception exception(BCP, "Missing configuration attribute!");
         exception.addParameter("File",configFile);
         exception.addParameter("Attribute",configAttribute[t]);
         throw exception;
@@ -191,7 +191,7 @@ void readConfigFile(const char* configFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", nullptr);
+    throw Fmi::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
 
@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
       FILE *file = fopen(mServerIorFile.c_str(),"we");
       if (file == nullptr)
       {
-        SmartMet::Spine::Exception exception(BCP,"Cannot create file for IOR!");
+        Fmi::Exception exception(BCP,"Cannot create file for IOR!");
         exception.addParameter("IorFile",mServerIorFile);
         throw exception;
       }
@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
     return -1;
   }

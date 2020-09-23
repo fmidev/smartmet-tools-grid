@@ -1,6 +1,6 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/dataServer/corba/client/ClientImplementation.h"
-#include "grid-files/common/Exception.h"
+#include <macgyver/Exception.h>
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ImageFunctions.h"
 #include "grid-files/common/ImagePaint.h"
@@ -29,7 +29,7 @@ void init()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -155,9 +155,9 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (SmartMet::Spine::Exception& e)
+  catch (Fmi::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
+    Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -6;
   }

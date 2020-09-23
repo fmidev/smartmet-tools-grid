@@ -1,7 +1,7 @@
 #include "grid-files/grid/PhysicalGridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GridDef.h"
-#include "grid-files/common/Exception.h"
+#include <macgyver/Exception.h>
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/GeneralDefinitions.h"
 #include "grid-files/common/ImageFunctions.h"
@@ -37,7 +37,7 @@ void init()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -159,7 +159,7 @@ void setMessage_LatLon1(GRID::Message *message,GRID::Message *dataMessage)
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
   }
 }
@@ -266,7 +266,7 @@ void setMessage_RotatedLatLon1(GRID::Message *message,GRID::Message *dataMessage
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
   }
 }
@@ -366,7 +366,7 @@ void setMessage_PolarStereographic1(GRID::Message *message,GRID::Message *dataMe
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
   }
 }
@@ -471,7 +471,7 @@ void setMessage_LambertConformal1(GRID::Message *message,GRID::Message *dataMess
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
   }
 }
@@ -573,7 +573,7 @@ void setMessage_Mercator1(GRID::Message *message,GRID::Message *dataMessage)
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
   }
 }
@@ -713,7 +713,7 @@ void setMessage_LatLon(GRID::Message *message,GRID::Message *dataMessage)
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
   }
 }
@@ -863,7 +863,7 @@ void setMessage_RotatedLatLon(GRID::Message *message,GRID::Message *dataMessage)
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
   }
 }
@@ -1004,7 +1004,7 @@ void setMessage_PolarStereographic(GRID::Message *message,GRID::Message *dataMes
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
   }
 }
@@ -1184,7 +1184,7 @@ void setMessage_LambertConformal(GRID::Message *message,GRID::Message *dataMessa
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
   }
 }
@@ -1327,7 +1327,7 @@ void setMessage_Mercator(GRID::Message *message,GRID::Message *dataMessage)
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
   }
 }
@@ -1541,7 +1541,7 @@ int main(int argc, char *argv[])
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
   }
 }

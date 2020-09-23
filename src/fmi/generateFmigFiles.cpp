@@ -6,7 +6,7 @@
 #include "grid-content/dataServer/cache/CacheImplementation.h"
 #include "grid-content/dataServer/implementation/ServiceImplementation.h"
 #include "grid-content/dataServer/implementation/VirtualContentFactory_type1.h"
-#include "grid-files/common/Exception.h"
+#include <macgyver/Exception.h>
 #include "grid-files/identification/GridDef.h"
 #include "grid-files/common/Typedefs.h"
 #include "grid-files/common/GeneralFunctions.h"
@@ -123,7 +123,7 @@ uint getTimesteps(const char *filename)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -179,7 +179,7 @@ void readConfigFile(const char* configFile)
     {
       if (!mConfigurationFile.findAttribute(configAttribute[t]))
       {
-        SmartMet::Spine::Exception exception(BCP, "Missing configuration attribute!");
+        Fmi::Exception exception(BCP, "Missing configuration attribute!");
         exception.addParameter("File", configFile);
         exception.addParameter("Attribute", configAttribute[t]);
         throw exception;
@@ -231,7 +231,7 @@ void readConfigFile(const char* configFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", nullptr);
+    throw Fmi::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
 
@@ -247,7 +247,7 @@ void readParameterFile(const char *filename)
     FILE *file = fopen(filename, "re");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP, "Cannot open the parameter file!");
+      Fmi::Exception exception(BCP, "Cannot open the parameter file!");
       exception.addParameter("Filename", std::string(filename));
       throw exception;
     }
@@ -357,7 +357,7 @@ void readParameterFile(const char *filename)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -368,7 +368,7 @@ uint getProducerId(std::string producerName)
   try
   {
     if (contentStorage == nullptr)
-      throw SmartMet::Spine::Exception(BCP, "Content storage not defined!");
+      throw Fmi::Exception(BCP, "Content storage not defined!");
 
 
     T::ProducerInfo producerInfo;
@@ -390,14 +390,14 @@ uint getProducerId(std::string producerName)
       if (res == ContentServer::Result::OK)
         return producerInfo.mProducerId;
 
-      throw SmartMet::Spine::Exception(BCP, ContentServer::getResultString(res));
+      throw Fmi::Exception(BCP, ContentServer::getResultString(res));
     }
 
-    throw SmartMet::Spine::Exception(BCP, ContentServer::getResultString(result));
+    throw Fmi::Exception(BCP, ContentServer::getResultString(result));
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -409,7 +409,7 @@ uint getGenerationId(uint producerId,std::string generationName,std::string anal
   try
   {
     if (contentStorage == nullptr)
-      throw SmartMet::Spine::Exception(BCP, "Content storage not defined!");
+      throw Fmi::Exception(BCP, "Content storage not defined!");
 
 
     T::GenerationInfo generationInfo;
@@ -434,14 +434,14 @@ uint getGenerationId(uint producerId,std::string generationName,std::string anal
       if (res == ContentServer::Result::OK)
         return generationInfo.mGenerationId;
 
-      throw SmartMet::Spine::Exception(BCP, ContentServer::getResultString(res));
+      throw Fmi::Exception(BCP, ContentServer::getResultString(res));
     }
 
-    throw SmartMet::Spine::Exception(BCP, ContentServer::getResultString(result));
+    throw Fmi::Exception(BCP, ContentServer::getResultString(result));
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -453,7 +453,7 @@ void addFile(uint producerId,uint generationId,std::string fileName,T::ContentIn
   try
   {
     if (contentStorage == nullptr)
-      throw SmartMet::Spine::Exception(BCP, "Content storage not defined!");
+      throw Fmi::Exception(BCP, "Content storage not defined!");
 
 
     /*int result =*/ contentStorage->deleteFileInfoByName(0,fileName);
@@ -488,11 +488,11 @@ void addFile(uint producerId,uint generationId,std::string fileName,T::ContentIn
     int  res = contentStorage->addFileInfoWithContentList(0,fileInfo,contentInfoList);
 
     if (res != ContentServer::Result::OK)
-      throw SmartMet::Spine::Exception(BCP, ContentServer::getResultString(res));
+      throw Fmi::Exception(BCP, ContentServer::getResultString(res));
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -505,7 +505,7 @@ void cleanProducerInformation(std::set<std::string>& producerList)
   try
   {
     if (contentStorage == nullptr)
-      throw SmartMet::Spine::Exception(BCP, "Content storage not defined!");
+      throw Fmi::Exception(BCP, "Content storage not defined!");
 
     for (auto prod = producerList.begin(); prod != producerList.end(); ++prod)
     {
@@ -548,7 +548,7 @@ void cleanProducerInformation(std::set<std::string>& producerList)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -907,9 +907,9 @@ void processParameters()
     }
 
   }
-  catch (SmartMet::Spine::Exception& e)
+  catch (Fmi::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
+    Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     throw exception;
   }
 }
@@ -1019,7 +1019,7 @@ int main(int argc, char *argv[])
   }
   catch (...)
   {
-    SmartMet::Spine::Exception exception(BCP,exception_operation_failed,nullptr);
+    Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
     return -1;
   }

@@ -1,7 +1,7 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
-#include "grid-files/common/Exception.h"
+#include <macgyver/Exception.h>
 #include "grid-files/common/GeneralFunctions.h"
 
 using namespace SmartMet;
@@ -19,7 +19,7 @@ void writeProducers(T::SessionId sessionId,ContentServer::ServiceInterface *serv
     FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot create file!");
+      Fmi::Exception exception(BCP,"Cannot create file!");
       exception.addParameter("Filename",filename);
       throw exception;
     }
@@ -28,7 +28,7 @@ void writeProducers(T::SessionId sessionId,ContentServer::ServiceInterface *serv
     int result = serviceInterface->getProducerInfoList(sessionId,producerList);
     if (result != 0)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot read the producer list from the data storage!");
+      Fmi::Exception exception(BCP,"Cannot read the producer list from the data storage!");
       exception.addParameter("Result",ContentServer::getResultString(result));
       throw exception;
     }
@@ -45,7 +45,7 @@ void writeProducers(T::SessionId sessionId,ContentServer::ServiceInterface *serv
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -64,7 +64,7 @@ void writeGenerations(T::SessionId sessionId,ContentServer::ServiceInterface *se
     FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot create file!");
+      Fmi::Exception exception(BCP,"Cannot create file!");
       exception.addParameter("Filename",filename);
       throw exception;
     }
@@ -73,7 +73,7 @@ void writeGenerations(T::SessionId sessionId,ContentServer::ServiceInterface *se
     int result = serviceInterface->getGenerationInfoList(sessionId,generationList);
     if (result != 0)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot read the generation list from the data storage!");
+      Fmi::Exception exception(BCP,"Cannot read the generation list from the data storage!");
       exception.addParameter("Result",ContentServer::getResultString(result));
       throw exception;
     }
@@ -90,7 +90,7 @@ void writeGenerations(T::SessionId sessionId,ContentServer::ServiceInterface *se
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -109,7 +109,7 @@ void writeFiles(T::SessionId sessionId,ContentServer::ServiceInterface *serviceI
     FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot create file!");
+      Fmi::Exception exception(BCP,"Cannot create file!");
       exception.addParameter("Filename",filename);
       throw exception;
     }
@@ -123,7 +123,7 @@ void writeFiles(T::SessionId sessionId,ContentServer::ServiceInterface *serviceI
       int result = serviceInterface->getFileInfoList(sessionId,startFileId,maxRecords,fileList);
       if (result != 0)
       {
-        SmartMet::Spine::Exception exception(BCP,"Cannot read the file list from the data storage!");
+        Fmi::Exception exception(BCP,"Cannot read the file list from the data storage!");
         exception.addParameter("Result",ContentServer::getResultString(result));
         throw exception;
       }
@@ -142,7 +142,7 @@ void writeFiles(T::SessionId sessionId,ContentServer::ServiceInterface *serviceI
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -161,7 +161,7 @@ void writeContent(T::SessionId sessionId,ContentServer::ServiceInterface *servic
     FILE *file = fopen(filename,"we");
     if (file == nullptr)
     {
-      SmartMet::Spine::Exception exception(BCP,"Cannot create file!");
+      Fmi::Exception exception(BCP,"Cannot create file!");
       exception.addParameter("Filename",filename);
       throw exception;
     }
@@ -177,7 +177,7 @@ void writeContent(T::SessionId sessionId,ContentServer::ServiceInterface *servic
       int result = serviceInterface->getContentList(sessionId,startFileId,startMessageIndex,maxRecords,contentList);
       if (result != 0)
       {
-        SmartMet::Spine::Exception exception(BCP,"Cannot read the content list from the data storage!");
+        Fmi::Exception exception(BCP,"Cannot read the content list from the data storage!");
         exception.addParameter("Result",ContentServer::getResultString(result));
         throw exception;
       }
@@ -199,7 +199,7 @@ void writeContent(T::SessionId sessionId,ContentServer::ServiceInterface *servic
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP,exception_operation_failed,nullptr);
+    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
 
@@ -280,9 +280,9 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (SmartMet::Spine::Exception& e)
+  catch (Fmi::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
+    Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -4;
   }

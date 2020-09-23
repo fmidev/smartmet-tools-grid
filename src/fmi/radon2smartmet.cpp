@@ -1,4 +1,4 @@
-#include "grid-files/common/Exception.h"
+#include <macgyver/Exception.h>
 #include "grid-files/common/Log.h"
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/common/GeneralFunctions.h"
@@ -158,7 +158,7 @@ void readConfigFile(const char* configFile)
     {
       if (!mConfigurationFile.findAttribute(configAttribute[t]))
       {
-        SmartMet::Spine::Exception exception(BCP, "Missing configuration attribute!");
+        Fmi::Exception exception(BCP, "Missing configuration attribute!");
         exception.addParameter("File", configFile);
         exception.addParameter("Attribute", configAttribute[t]);
         throw exception;
@@ -184,7 +184,7 @@ void readConfigFile(const char* configFile)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", nullptr);
+    throw Fmi::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
 
@@ -210,7 +210,7 @@ int getFileId(std::string filename,bool create)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", nullptr);
+    throw Fmi::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
 
@@ -229,7 +229,7 @@ std::string getFilename(int fileId)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Constructor failed!", nullptr);
+    throw Fmi::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
 
@@ -275,7 +275,7 @@ void readProducerList(const char *filename)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -291,14 +291,14 @@ void readTargetProducers(T::ProducerInfoList& targetProducerList)
     int result = mTargetInterface->getProducerInfoList(mSessionId, targetProducerList);
     if (result != 0)
     {
-      SmartMet::Spine::Exception exception(BCP, "Cannot read the producer list from the target data storage!");
+      Fmi::Exception exception(BCP, "Cannot read the producer list from the target data storage!");
       exception.addParameter("Result", ContentServer::getResultString(result));
       throw exception;
     }
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -315,14 +315,14 @@ void readTargetGenerations(T::GenerationInfoList& targetGenerationList)
     int result = mTargetInterface->getGenerationInfoList(mSessionId, targetGenerationList);
     if (result != 0)
     {
-      SmartMet::Spine::Exception exception(BCP, "Cannot read the generation list from the target data storage!");
+      Fmi::Exception exception(BCP, "Cannot read the generation list from the target data storage!");
       exception.addParameter("Result", ContentServer::getResultString(result));
       throw exception;
     }
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -359,7 +359,7 @@ void readTargetFileList(T::FileInfoList& targetFileList)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -401,7 +401,7 @@ void readTargetFileList(uint producerId, T::FileInfoList& targetFileList)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -442,7 +442,7 @@ void readTargetContentList(uint producerId, T::ContentInfoList& targetContentLis
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -483,7 +483,7 @@ void readTargetContentList(T::ContentInfoList& targetContentList)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -528,7 +528,7 @@ void readTargetContentList(std::set<unsigned long long>& targetContentList)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -573,7 +573,7 @@ void readTargetContentList(uint producerId,std::set<unsigned long long>& targetC
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -611,7 +611,7 @@ std::string getTableInfo(PGconn *conn, const char *tableName, uint producerId, c
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
     {
-      SmartMet::Spine::Exception exception(BCP, "Postgresql error!");
+      Fmi::Exception exception(BCP, "Postgresql error!");
       exception.addParameter("ErrorMessage", PQerrorMessage(conn));
       throw exception;
     }
@@ -635,7 +635,7 @@ std::string getTableInfo(PGconn *conn, const char *tableName, uint producerId, c
   catch (...)
   {
     reconnectionRequired = true;
-    SmartMet::Spine::Exception exception(BCP, exception_operation_failed, nullptr);
+    Fmi::Exception exception(BCP, "Operation failed!", nullptr);
     exception.printError();
     std::string tmp;
     return tmp;
@@ -687,7 +687,7 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
     {
-      SmartMet::Spine::Exception exception(BCP, "Postgresql error!");
+      Fmi::Exception exception(BCP, "Postgresql error!");
       exception.addParameter("ErrorMessage", PQerrorMessage(conn));
       throw exception;
     }
@@ -750,7 +750,7 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
   catch (...)
   {
     reconnectionRequired = true;
-    SmartMet::Spine::Exception exception(BCP, exception_operation_failed, nullptr);
+    Fmi::Exception exception(BCP, "Operation failed!", nullptr);
     exception.printError();
     // throw exception;
   }
@@ -816,7 +816,7 @@ std::vector<FileRec>& readSourceFilesAndContent(
   catch (...)
   {
     reconnectionRequired = true;
-    SmartMet::Spine::Exception exception(BCP, exception_operation_failed, nullptr);
+    Fmi::Exception exception(BCP, "Operation failed!", nullptr);
     exception.printError();
     // throw exception;
     return emptyRecList;
@@ -859,7 +859,7 @@ void readSourceForecastTimes(PGconn *conn, uint fmiProducerId, std::vector<Forec
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
     {
-      SmartMet::Spine::Exception exception(BCP, "Postgresql error!");
+      Fmi::Exception exception(BCP, "Postgresql error!");
       exception.addParameter("ErrorMessage", PQerrorMessage(conn));
       throw exception;
     }
@@ -897,7 +897,7 @@ void readSourceForecastTimes(PGconn *conn, uint fmiProducerId, std::vector<Forec
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -928,7 +928,7 @@ void readSourceGenerations(PGconn *conn)
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
     {
-      SmartMet::Spine::Exception exception(BCP, "Postgresql error!");
+      Fmi::Exception exception(BCP, "Postgresql error!");
       exception.addParameter("ErrorMessage", PQerrorMessage(conn));
       throw exception;
     }
@@ -968,7 +968,7 @@ void readSourceGenerations(PGconn *conn)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -997,7 +997,7 @@ void readSourceProducers(PGconn *conn)
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
     {
-      SmartMet::Spine::Exception exception(BCP, "Postgresql error!");
+      Fmi::Exception exception(BCP, "Postgresql error!");
       exception.addParameter("ErrorMessage", PQerrorMessage(conn));
       throw exception;
     }
@@ -1029,7 +1029,7 @@ void readSourceProducers(PGconn *conn)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -1060,7 +1060,7 @@ void updateProducers()
           int result = mTargetInterface->deleteProducerInfoById(mSessionId, targetProducer->mProducerId);
           if (result != 0)
           {
-            SmartMet::Spine::Exception exception(BCP, "Cannot delete the producer information from the target data storage!");
+            Fmi::Exception exception(BCP, "Cannot delete the producer information from the target data storage!");
             exception.addParameter("ProducerId", std::to_string(targetProducer->mProducerId));
             exception.addParameter("ProducerName", targetProducer->mName);
             exception.addParameter("Result", ContentServer::getResultString(result));
@@ -1090,7 +1090,7 @@ void updateProducers()
           int result = mTargetInterface->addProducerInfo(mSessionId, producer);
           if (result != 0)
           {
-            SmartMet::Spine::Exception exception(BCP, "Cannot add the producer information into the target data storage!");
+            Fmi::Exception exception(BCP, "Cannot add the producer information into the target data storage!");
             exception.addParameter("ProducerId", std::to_string(sourceProducer->mProducerId));
             exception.addParameter("ProducerName", sourceProducer->mName);
             exception.addParameter("Result", ContentServer::getResultString(result));
@@ -1102,7 +1102,7 @@ void updateProducers()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -1139,7 +1139,7 @@ void updateGenerations()
       int result = mTargetInterface->deleteGenerationInfoListByIdList(mSessionId, generationIdList);
       if (result != 0)
       {
-        SmartMet::Spine::Exception exception(BCP, "Cannot delete the generation information from the target data storage!");
+        Fmi::Exception exception(BCP, "Cannot delete the generation information from the target data storage!");
         exception.addParameter("Result", ContentServer::getResultString(result));
         exception.printError();
       }
@@ -1164,7 +1164,7 @@ void updateGenerations()
             T::ProducerInfo *targetProducer = mTargetProducerList.getProducerInfoByName(sourceProducer->mName);
             if (targetProducer == nullptr)
             {
-              SmartMet::Spine::Exception exception(BCP, "The producer information not found from the target data storage!");
+              Fmi::Exception exception(BCP, "The producer information not found from the target data storage!");
               exception.addParameter("ProducerName", sourceProducer->mName);
               throw exception;
             }
@@ -1179,7 +1179,7 @@ void updateGenerations()
             int result = mTargetInterface->addGenerationInfo(mSessionId, generationInfo);
             if (result != 0)
             {
-              SmartMet::Spine::Exception exception(BCP, "Cannot add the generation information into the target data storage!");
+              Fmi::Exception exception(BCP, "Cannot add the generation information into the target data storage!");
               exception.addParameter("GenerationName", generationInfo.mName);
               exception.addParameter("Result", ContentServer::getResultString(result));
               throw exception;
@@ -1191,7 +1191,7 @@ void updateGenerations()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -1214,7 +1214,7 @@ void updateGenerationStatus(uint producerId)
         int result = mTargetInterface->setGenerationInfoStatusById(mSessionId,targetGeneration->mGenerationId,T::GenerationInfo::Status::Ready);
         if (result != 0)
         {
-          SmartMet::Spine::Exception exception(BCP, "Cannot update the generation status into the target data storage!");
+          Fmi::Exception exception(BCP, "Cannot update the generation status into the target data storage!");
           exception.addParameter("GenerationName", targetGeneration->mName);
           exception.addParameter("Result", ContentServer::getResultString(result));
           throw exception;
@@ -1224,7 +1224,7 @@ void updateGenerationStatus(uint producerId)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -1248,7 +1248,7 @@ void updateGenerationStatus()
         int result = mTargetInterface->setGenerationInfoStatusById(mSessionId,targetGeneration->mGenerationId,T::GenerationInfo::Status::Ready);
         if (result != 0)
         {
-          SmartMet::Spine::Exception exception(BCP, "Cannot update the generation status into the target data storage!");
+          Fmi::Exception exception(BCP, "Cannot update the generation status into the target data storage!");
           exception.addParameter("GenerationName", targetGeneration->mName);
           exception.addParameter("Result", ContentServer::getResultString(result));
           throw exception;
@@ -1258,7 +1258,7 @@ void updateGenerationStatus()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -1291,7 +1291,7 @@ void deleteTargetFiles(T::FileInfoList& targetFileList)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -1324,7 +1324,7 @@ void deleteTargetFiles(uint producerId,T::FileInfoList& targetFileList)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -1360,7 +1360,7 @@ void deleteOldFileRecords(uint loadCounter)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -1382,7 +1382,7 @@ uint countFileRecords()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -1446,7 +1446,7 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -1547,7 +1547,7 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -1648,7 +1648,7 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -1759,7 +1759,7 @@ void updateTargetFiles(PGconn *conn)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, exception_operation_failed, nullptr);
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
 
@@ -1973,9 +1973,9 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (SmartMet::Spine::Exception& e)
+  catch (Fmi::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP, "Service call failed!", nullptr);
+    Fmi::Exception exception(BCP, "Service call failed!", nullptr);
     exception.printError();
     return -3;
   }

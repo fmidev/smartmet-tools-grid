@@ -1,4 +1,4 @@
-#include "grid-files/common/Exception.h"
+#include <macgyver/Exception.h>
 #include "grid-files/identification/GridDef.h"
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/GraphFunctions.h"
@@ -52,9 +52,9 @@ int main(int argc, char *argv[])
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
     return 0;
   }
-  catch (SmartMet::Spine::Exception& e)
+  catch (Fmi::Exception& e)
   {
-    SmartMet::Spine::Exception exception(BCP,"Service call failed!",nullptr);
+    Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
     return -7;
   }
