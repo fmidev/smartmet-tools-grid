@@ -465,7 +465,7 @@ void addFile(uint producerId,uint generationId,std::string fileName,T::ContentIn
     fileInfo.mFileId = 0;
     fileInfo.mFileType = T::FileTypeValue::Fmig1;
     fileInfo.mName = fileName;
-    fileInfo.mFlags = T::FileInfo::Flags::PredefinedContent;
+    fileInfo.mFlags = 0;
     fileInfo.mSourceId = mSourceId;
     //fileInfo.mModificationTime;
     //fileInfo.mDeletionTime;

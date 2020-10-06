@@ -74,22 +74,10 @@ int main(int argc, char *argv[])
     unsigned long long startTime = getTime();
 
 
-    // Reading data server information
-
-    T::ServerInfoList serverInfoList;
-    int result = service->getDataServerInfoList(sessionId,serverInfoList);
-    if (result != 0)
-    {
-      fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
-      return -4;
-    }
-    serverInfoList.writeToFile(dir + "/dataServers.csv");
-
-
     // Reading producer information
 
     T::ProducerInfoList producerInfoList;
-    result = service->getProducerInfoList(sessionId,producerInfoList);
+    int result = service->getProducerInfoList(sessionId,producerInfoList);
     if (result != 0)
     {
       fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());

@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     info.mGenerationId = toInt64(argv[4]);
     info.mFileType = toInt64(argv[5]);
     info.mName = argv[6];
-    info.mFlags = T::FileInfo::Flags::PredefinedContent;
+    info.mFlags = 0;
 
     T::ContentInfoList contentList;
     for (int t=7;t<argc; t++)

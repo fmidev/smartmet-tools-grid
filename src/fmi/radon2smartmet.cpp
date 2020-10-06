@@ -1433,7 +1433,7 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
         fc.mFileInfo.mFileId = 0;
         fc.mFileInfo.mFileType = T::FileTypeValue::Unknown;
         fc.mFileInfo.mName = filename;
-        fc.mFileInfo.mFlags = T::FileInfo::Flags::PredefinedContent;
+        fc.mFileInfo.mFlags = 0;
         fc.mFileInfo.mSourceId = mSourceId;
         fc.mFileInfo.mDeletionTime = forecast.deletionTime;
 

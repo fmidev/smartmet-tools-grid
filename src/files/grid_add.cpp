@@ -190,7 +190,7 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
             fileInfo.mName = filename.c_str() + len;
         }
         fileInfo.mGroupFlags = 0;
-        fileInfo.mFlags = T::FileInfo::Flags::PredefinedContent;
+        fileInfo.mFlags = 0;
         fileInfo.mSourceId = 0;
 
         int res = service->addFileInfo(0,fileInfo);

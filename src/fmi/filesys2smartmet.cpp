@@ -295,7 +295,7 @@ void readSourceFiles(std::vector<std::pair<std::string,std::string>>& fileList)
                 fileInfo->mFileId = mSourceFileList.getLength() + 1;
                 //fileInfo->mFileType;
                 fileInfo->mName = filename;
-                fileInfo->mFlags = T::FileInfo::Flags::PredefinedContent;
+                fileInfo->mFlags = 0;
                 fileInfo->mSourceId = mSourceId;
                 fileInfo->mModificationTime = localTimeFromTimeT(modificationTime,"UTC");
 
