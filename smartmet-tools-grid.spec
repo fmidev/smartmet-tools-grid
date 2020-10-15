@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 20.10.7
+Version: 20.10.15
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 20.10.7
-BuildRequires: smartmet-library-grid-files-devel >= 20.10.1
-BuildRequires: smartmet-library-grid-content-devel >= 20.10.6
+BuildRequires: smartmet-library-spine-devel >= 20.10.14
+BuildRequires: smartmet-library-grid-files-devel >= 20.10.15
+BuildRequires: smartmet-library-grid-content-devel >= 20.10.15
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -32,8 +32,8 @@ Requires: libconfig
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 20.10.1
-Requires: smartmet-library-grid-content >= 20.10.6
+Requires: smartmet-library-grid-files >= 20.10.15
+Requires: smartmet-library-grid-content >= 20.10.15
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -438,6 +438,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu Oct 15 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.10.15-1.fmi
+- Repackaged due to library ABI changes
+
 * Wed Oct  7 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.10.7-1.fmi
 - Removed cs_addDataServerInfo, cs_deleteDataServerInfoById, cs_getContentListByServerId, cs_getDataServerInfoById, cs_getDataServerInfoCount, cs_getDataServerInfoList and cs_unregisterContentListByServerId
 * Thu Oct  1 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.10.1-1.fmi
