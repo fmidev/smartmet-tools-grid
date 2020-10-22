@@ -154,10 +154,10 @@ int main(int argc, char *argv[])
               ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,false,rotate);
 
 
-              if (v->mValueData.size() > 0)
+              if ((*v)->mValueData.size() > 0)
               {
                 uint t = 0;
-                for (auto it = v->mValueData.begin(); it != v->mValueData.end(); ++it)
+                for (auto it = (*v)->mValueData.begin(); it != (*v)->mValueData.end(); ++it)
                 {
                   uint col = colorList[t];
                   if (col == 0xFFFFFFFF)

@@ -93,7 +93,6 @@ std::string data_server_grid_storage_directory;
 bool data_server_grid_storage_preloadEnabled = false;
 std::string data_server_grid_storage_preloadFile;
 bool data_server_grid_storage_preloadMemoryLock;
-std::string data_server_grid_storage_counterFile;
 bool data_server_virtualFiles_enabled = false;
 bool data_server_memoryMapCheck_enabled = false;
 std::string data_server_virtualFiles_definitionFile;
@@ -583,7 +582,6 @@ void readConfigFile(const char* configFile)
          "smartmet.tools.grid.data-server.grid-storage.preloadEnabled",
          "smartmet.tools.grid.data-server.grid-storage.preloadFile",
          "smartmet.tools.grid.data-server.grid-storage.preloadMemoryLock",
-         "smartmet.tools.grid.data-server.grid-storage.counterFile",
          "smartmet.tools.grid.data-server.virtualFiles.enabled",
          "smartmet.tools.grid.data-server.virtualFiles.definitionFile",
          "smartmet.tools.grid.data-server.luaFiles",
@@ -669,7 +667,6 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadEnabled",data_server_grid_storage_preloadEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadFile",data_server_grid_storage_preloadFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadMemoryLock",data_server_grid_storage_preloadMemoryLock);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.counterFile",data_server_grid_storage_counterFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.enabled",data_server_virtualFiles_enabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.definitionFile",data_server_virtualFiles_definitionFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.luaFiles",data_server_luaFiles);
@@ -839,7 +836,7 @@ int main(int argc, char *argv[])
     }
 
     dataService->setPointCacheEnabled(grid_files_pointCache_enabled,grid_files_pointCache_hitsRequired,grid_files_pointCache_timePeriod);
-    dataService->setPreload(data_server_grid_storage_preloadEnabled,data_server_grid_storage_preloadMemoryLock,data_server_grid_storage_preloadFile,data_server_grid_storage_counterFile,grid_files_requestCounter_enabled,grid_files_requestCounter_generatedPreloadFile,grid_files_requestCounter_generatedCounterFile);
+    dataService->setPreload(data_server_grid_storage_preloadEnabled,data_server_grid_storage_preloadMemoryLock,data_server_grid_storage_preloadFile);
     dataService->setVirtualContentEnabled(data_server_virtualFiles_enabled);
     dataService->setMemoryMapCheckEnabled(data_server_memoryMapCheck_enabled);
 
@@ -852,11 +849,6 @@ int main(int argc, char *argv[])
     }
 
     dataService->startEventProcessing();
-
-    if (grid_files_requestCounter_enabled)
-      dataService->startRequestCounting();
-
-
 
 
     if (query_server_processing_log_enabled && query_server_processing_log_file.length() > 0)
