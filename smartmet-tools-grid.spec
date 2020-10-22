@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 20.10.1
+Version: 20.10.15
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 20.9.23
-BuildRequires: smartmet-library-grid-files-devel >= 20.10.1
-BuildRequires: smartmet-library-grid-content-devel >= 20.10.1
+BuildRequires: smartmet-library-spine-devel >= 20.10.14
+BuildRequires: smartmet-library-grid-files-devel >= 20.10.15
+BuildRequires: smartmet-library-grid-content-devel >= 20.10.15
 BuildRequires: gdal-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -32,8 +32,8 @@ Requires: libconfig
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 20.10.1
-Requires: smartmet-library-grid-content >= 20.10.1
+Requires: smartmet-library-grid-files >= 20.10.15
+Requires: smartmet-library-grid-content >= 20.10.15
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -43,7 +43,6 @@ Provides: corbaDataServer = %{Version}
 Provides: corbaGridServer = %{Version}
 Provides: corbaQueryServer = %{Version}
 Provides: cs_addContentInfo = %{Version}
-Provides: cs_addDataServerInfo = %{Version}
 Provides: cs_addFileAndContentListFromFile = %{Version}
 Provides: cs_addFileInfo = %{Version}
 Provides: cs_addFileInfoListFromFile = %{Version}
@@ -60,7 +59,6 @@ Provides: cs_deleteContentListByGroupFlags = %{Version}
 Provides: cs_deleteContentListByProducerId = %{Version}
 Provides: cs_deleteContentListByProducerName = %{Version}
 Provides: cs_deleteContentListBySourceId = %{Version}
-Provides: cs_deleteDataServerInfoById = %{Version}
 Provides: cs_deleteFileInfoById = %{Version}
 Provides: cs_deleteFileInfoByName = %{Version}
 Provides: cs_deleteFileInfoListByFileIdList = %{Version}
@@ -98,7 +96,6 @@ Provides: cs_getContentListByParameterGenerationIdAndForecastTime = %{Version}
 Provides: cs_getContentListByProducerId = %{Version}
 Provides: cs_getContentListByProducerName = %{Version}
 Provides: cs_getContentListByRequestCounterKey = %{Version}
-Provides: cs_getContentListByServerId = %{Version}
 Provides: cs_getContentListBySourceId = %{Version}
 Provides: cs_getContentListOfInvalidIntegrity = %{Version}
 Provides: cs_getContentParamKeyListByGenerationId = %{Version}
@@ -107,9 +104,6 @@ Provides: cs_getContentTimeListByGenerationAndGeometryId = %{Version}
 Provides: cs_getContentTimeListByGenerationId = %{Version}
 Provides: cs_getContentTimeListByProducerId = %{Version}
 Provides: cs_getCsvFiles = %{Version}
-Provides: cs_getDataServerInfoById = %{Version}
-Provides: cs_getDataServerInfoCount = %{Version}
-Provides: cs_getDataServerInfoList = %{Version}
 Provides: cs_getEventInfoCount = %{Version}
 Provides: cs_getEventInfoList = %{Version}
 Provides: cs_getFileInfoById = %{Version}
@@ -159,7 +153,6 @@ Provides: cs_syncContent = %{Version}
 Provides: cs_syncContentFromCsv = %{Version}
 Provides: cs_syncContentFromCsvToHttp = %{Version}
 Provides: cs_syncContentFromCsvToRedis = %{Version}
-Provides: cs_unregisterContentListByServerId = %{Version}
 Provides: cs_updateVirtualContent = %{Version}
 Provides: ds_getGridAttributeList = %{Version}
 Provides: ds_getGridCoordinates = %{Version}
@@ -249,7 +242,6 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(0775,root,root,0775)
 %{_bindir}/clients/cs_addContentInfo
-%{_bindir}/clients/cs_addDataServerInfo
 %{_bindir}/clients/cs_addFileAndContentListFromFile
 %{_bindir}/clients/cs_addFileInfo
 %{_bindir}/clients/cs_addFileInfoListFromFile
@@ -266,7 +258,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_deleteContentListByProducerId
 %{_bindir}/clients/cs_deleteContentListByProducerName
 %{_bindir}/clients/cs_deleteContentListBySourceId
-%{_bindir}/clients/cs_deleteDataServerInfoById
 %{_bindir}/clients/cs_deleteFileInfoById
 %{_bindir}/clients/cs_deleteFileInfoByName
 %{_bindir}/clients/cs_deleteFileInfoListByFileIdList
@@ -304,7 +295,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_getContentListByProducerId
 %{_bindir}/clients/cs_getContentListByProducerName
 %{_bindir}/clients/cs_getContentListByRequestCounterKey
-%{_bindir}/clients/cs_getContentListByServerId
 %{_bindir}/clients/cs_getContentListBySourceId
 %{_bindir}/clients/cs_getContentListOfInvalidIntegrity
 %{_bindir}/clients/cs_getContentParamKeyListByGenerationId
@@ -313,9 +303,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_getContentTimeListByGenerationId
 %{_bindir}/clients/cs_getContentTimeListByProducerId
 %{_bindir}/clients/cs_getCsvFiles
-%{_bindir}/clients/cs_getDataServerInfoById
-%{_bindir}/clients/cs_getDataServerInfoCount
-%{_bindir}/clients/cs_getDataServerInfoList
 %{_bindir}/clients/cs_getEventInfoCount
 %{_bindir}/clients/cs_getEventInfoList
 %{_bindir}/clients/cs_getFileInfoById
@@ -365,7 +352,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_syncContentFromCsv
 %{_bindir}/clients/cs_syncContentFromCsvToHttp
 %{_bindir}/clients/cs_syncContentFromCsvToRedis
-%{_bindir}/clients/cs_unregisterContentListByServerId
 %{_bindir}/clients/cs_updateVirtualContent
 %{_bindir}/clients/ds_getGridAttributeList
 %{_bindir}/clients/ds_getGridCoordinates
@@ -452,6 +438,11 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu Oct 15 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.10.15-1.fmi
+- Repackaged due to library ABI changes
+
+* Wed Oct  7 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.10.7-1.fmi
+- Removed cs_addDataServerInfo, cs_deleteDataServerInfoById, cs_getContentListByServerId, cs_getDataServerInfoById, cs_getDataServerInfoCount, cs_getDataServerInfoList and cs_unregisterContentListByServerId
 * Thu Oct  1 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.10.1-1.fmi
 - Repackaged due to library ABI changes
 * Wed Sep 23 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.9.23-1.fmi
