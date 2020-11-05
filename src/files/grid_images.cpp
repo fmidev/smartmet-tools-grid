@@ -1,6 +1,4 @@
 #include "grid-files/grid/PhysicalGridFile.h"
-#include "grid-files/grib1/GribFile.h"
-#include "grid-files/grib2/GribFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GridDef.h"
 #include <macgyver/Exception.h>
