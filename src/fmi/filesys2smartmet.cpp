@@ -297,7 +297,7 @@ void readSourceFiles(std::vector<std::pair<std::string,std::string>>& fileList)
                 fileInfo->mName = filename;
                 fileInfo->mFlags = 0;
                 fileInfo->mSourceId = mSourceId;
-                fileInfo->mModificationTime = localTimeFromTimeT(modificationTime,"UTC");
+                fileInfo->mModificationTime = modificationTime;
 
                 mSourceFileList.addFileInfo(fileInfo);
                 fileInfo->print(std::cout,0,0);
@@ -451,7 +451,7 @@ void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Messag
 
 
 
-void readSourceContent(uint producerId,uint generationId,std::string& modificationTime,const char *filename,T::ContentInfoList& contentList)
+void readSourceContent(uint producerId,uint generationId,time_t modificationTime,const char *filename,T::ContentInfoList& contentList)
 {
   try
   {

@@ -27,7 +27,7 @@ struct ForecastRec
     uint producerId = 0;
     std::string producerName;
     std::string analysisTime;
-    std::string deletionTime;
+    time_t deletionTime = 0;
     std::string generationName;
     std::string forecastTime;
     std::string forecastPeriod;
@@ -387,9 +387,6 @@ void readTargetFileList(uint producerId, T::FileInfoList& targetFileList)
         if (fileInfo != nullptr)
         {
           // Clearing information that we do not need (=> saving memory)
-
-          fileInfo->mModificationTime = "";
-          fileInfo->mDeletionTime = "";
 
           targetFileList.addFileInfo(fileInfo->duplicate());
 
@@ -887,7 +884,8 @@ void readSourceForecastTimes(PGconn *conn, uint fmiProducerId, std::vector<Forec
         forecastRec.geometryId = toInt64(PQgetvalue(res, i, 6));
         forecastRec.forecastTypeId = toInt64(PQgetvalue(res, i, 7));
         forecastRec.forecastTypeValue = toInt64(PQgetvalue(res, i, 8));
-        forecastRec.deletionTime = PQgetvalue(res, i, 9);
+        std::string dtime = PQgetvalue(res, i, 9);
+        forecastRec.deletionTime = utcTimeToTimeT(dtime);
         forecastRec.lastUpdated = PQgetvalue(res, i, 10);
 
         sourceForecastList.push_back(forecastRec);
@@ -919,7 +917,8 @@ void readSourceGenerations(PGconn *conn)
     p += sprintf(p, "SELECT DISTINCT\n");
     p += sprintf(p, "  fmi_producer.id,\n");
     p += sprintf(p, "  fmi_producer.name,\n");
-    p += sprintf(p, "  to_char(ss_state_v.analysis_time at time zone 'utc', 'yyyymmddThh24MISS')\n");
+    p += sprintf(p, "  to_char(ss_state_v.analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),\n");
+    p += sprintf(p, "  to_char(ss_state_v.delete_time at time zone 'utc', 'yyyymmddThh24MISS')\n");
     p += sprintf(p, "FROM\n");
     p += sprintf(p, "  ss_state_v LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_state_v.producer_id\n");
     p += sprintf(p, "ORDER BY");
@@ -959,6 +958,8 @@ void readSourceGenerations(PGconn *conn)
         generation->mStatus = T::GenerationInfo::Status::Ready;
         generation->mFlags = 0;
         generation->mSourceId = mSourceId;
+        std::string dtime = PQgetvalue(res, i, 3);
+        generation->mDeletionTime = utcTimeToTimeT(dtime);
         mSourceGenerationList.addGenerationInfo(generation);
       }
     }
@@ -1501,7 +1502,8 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
           contentInfo->mFlags = 0;
           contentInfo->mSourceId = mSourceId;
           contentInfo->mGeometryId = it->geometryId;
-          contentInfo->mModificationTime = utcTimeFromTimeT(it->lastUpdated);
+          contentInfo->mModificationTime = it->lastUpdated;
+          contentInfo->mDeletionTime = fileInfo->mDeletionTime;
 
           Identification::FmiParameterDef fmiDef;
           if (Identification::gridDef.getFmiParameterDefById(it->paramId, fmiDef))
@@ -1602,7 +1604,8 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
           contentInfo->mFlags = 0;
           contentInfo->mSourceId = mSourceId;
           contentInfo->mGeometryId = it->geometryId;
-          contentInfo->mModificationTime = utcTimeFromTimeT(it->lastUpdated);
+          contentInfo->mModificationTime = it->lastUpdated;
+          contentInfo->mDeletionTime = fileInfo->mDeletionTime;
 
           Identification::FmiParameterDef fmiDef;
           if (Identification::gridDef.getFmiParameterDefById(it->paramId, fmiDef))
