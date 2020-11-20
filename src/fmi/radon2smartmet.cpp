@@ -64,7 +64,7 @@ struct FileRecVec
     std::vector<FileRec> files;
 };
 
-typedef std::map<std::string, FileRecVec> FileRec_map;
+typedef std::unordered_map<std::string, FileRecVec> FileRec_map;
 
 
 // Global variables:
@@ -107,7 +107,7 @@ T::GenerationInfoList mTargetGenerationList;
 
 FileRec_map mFileRecMap;
 std::set<std::string> mFileTables;
-std::map<std::string, std::string> mTableUpdates;
+std::unordered_map<std::string, std::string> mTableUpdates;
 uint mWaitTime = 300;
 uint mContentReadCount = 0;
 uint mContentAddCount = 0;
@@ -670,7 +670,7 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
     p += sprintf(p, "  level_value::int,\n");
     p += sprintf(p, "  to_char(analysis_time, 'yyyymmddThh24MISS'),\n");
     p += sprintf(p, "  to_char((analysis_time+forecast_period) at time zone 'utc','yyyymmddThh24MISS'),\n");
-    p += sprintf(p, "  forecast_period,\n");
+    p += sprintf(p, "  date_part('epoch',forecast_period::interval),\n");
     p += sprintf(p, "  forecast_type_id,\n");
     p += sprintf(p, "  forecast_type_value::int,\n");
     p += sprintf(p, "  geometry_id,\n");
@@ -838,7 +838,7 @@ void readSourceForecastTimes(PGconn *conn, uint fmiProducerId, std::vector<Forec
     p += sprintf(p, "  fmi_producer.name,\n");
     p += sprintf(p, "  to_char(ss_state_v.analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),\n");
     p += sprintf(p, "  to_char((ss_state_v.analysis_time+ss_state_v.forecast_period) at time zone 'utc', 'yyyymmddThh24MISS'),\n");
-    p += sprintf(p, "  ss_state_v.forecast_period,\n");
+    p += sprintf(p, "  date_part('epoch',ss_state_v.forecast_period::interval),\n");
     p += sprintf(p, "  ss_state_v.table_name,\n");
     p += sprintf(p, "  ss_state_v.geometry_id,\n");
     p += sprintf(p, "  ss_state_v.forecast_type_id,\n");
@@ -1750,7 +1750,7 @@ void updateTargetFiles(PGconn *conn)
       }
     }
 
-    std::map<std::string, std::string> tableUpdates;
+    std::unordered_map<std::string, std::string> tableUpdates;
     mTableUpdates.clear();
     mTableUpdates.swap(tableUpdates);
 
