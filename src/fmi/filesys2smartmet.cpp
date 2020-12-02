@@ -32,6 +32,7 @@ std::string               mStorageType;
 std::string               mRedisAddress;
 int                       mRedisPort = 6379;
 std::string               mRedisTablePrefix;
+bool                      mRedisLockEnabled = false;
 std::string               mContentServerIor;
 std::string               mContentServerUrl;
 bool                      mDebugLogEnabled = false;
@@ -119,6 +120,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.address",mRedisAddress);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.port",mRedisPort);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.tablePrefix",mRedisTablePrefix);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.lockEnabled",mRedisLockEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.corba.ior",mContentServerIor);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.http.url",mContentServerUrl);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.debug-log.enabled", mDebugLogEnabled);
