@@ -79,6 +79,7 @@ std::string mRadonConnectionString;
 std::string mStorageType;
 std::string mRedisAddress;
 int mRedisPort = 6379;
+bool mRedisLockEnabled = false;
 std::string mRedisTablePrefix;
 std::string mContentServerIor;
 std::string mContentServerUrl;
@@ -175,6 +176,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.address", mRedisAddress);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.port", mRedisPort);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.tablePrefix", mRedisTablePrefix);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.lockEnabled", mRedisLockEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.corba.ior", mContentServerIor);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.http.url", mContentServerUrl);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.debug-log.enabled", mDebugLogEnabled);
@@ -1806,7 +1808,7 @@ int main(int argc, char *argv[])
     if (mStorageType == "redis")
     {
       redisImplementation = new ContentServer::RedisImplementation();
-      redisImplementation->init(mRedisAddress.c_str(), mRedisPort, mRedisTablePrefix.c_str());
+      redisImplementation->init(mRedisAddress.c_str(), mRedisPort, mRedisTablePrefix.c_str(),mRedisLockEnabled);
       mTargetInterface = redisImplementation;
     }
 
