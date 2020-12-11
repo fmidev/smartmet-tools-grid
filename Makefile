@@ -221,7 +221,7 @@ objdir:
 rpm: $(SPEC).spec
 	rm -f $(SPEC).tar.gz # Clean a possible leftover from previous attempt
 	tar -czvf $(SPEC).tar.gz --exclude bin --exclude-vcs --transform "s,^,$(SPEC)/," *
-	rpmbuild -ta $(SPEC).tar.gz
+	rpmbuild -tb $(SPEC).tar.gz
 	rm -f $(SPEC).tar.gz
 
 .SUFFIXES: $(SUFFIXES) .cpp
