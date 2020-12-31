@@ -7,26 +7,30 @@ INCDIR = smartmet/$(SUBNAME)
 
 CORBA = enabled
 
+REQUIRES = libpqxx gdal
+
+include $(shell echo $${PREFIX-/usr})/share/smartmet/devel/makefile.inc
+
 
 # Installation directories
 
 processor := $(shell uname -p)
 
 ifeq ($(origin PREFIX), undefined)
-  PREFIX = /usr
+  EPREFIX = /usr
 else
-  PREFIX = $(PREFIX)
+  EPREFIX = $(PREFIX)
 endif
 
 ifeq ($(processor), x86_64)
-  libdir = $(PREFIX)/lib64
+  libdir = $(EPREFIX)/lib64
 else
-  libdir = $(PREFIX)/lib
+  libdir = $(EPREFIX)/lib
 endif
 
-bindir = $(PREFIX)/bin
-includedir = $(PREFIX)/include
-datadir = $(PREFIX)/share
+bindir = $(EPREFIX)/bin
+includedir = $(EPREFIX)/include
+datadir = $(EPREFIX)/share
 objdir = obj
 
 
@@ -77,7 +81,9 @@ INCLUDES += \
 	-I$(includedir)/smartmet \
 	-isystem /usr/include/postgresql \
 	-isystem /usr/pgsql-9.5/include \
-	$(pkg-config --cflags icu-i18n) \
+  -I `pg_config --includedir` \
+	`pkg-config --cflags freetype2` \
+	`pkg-config --cflags icu-i18n` \
 	$(CORBA_INCLUDE)
 
 # Compile options in detault, debug and profile modes
@@ -88,6 +94,8 @@ CFLAGS_PROFILE = $(DEFINES) $(FLAGS) $(FLAGS_PROFILE) -DNDEBUG -O2 -g -pg
 
 
 LIBS += -L$(libdir) \
+  -L `pg_config --libdir` \
+	$(REQUIRED_LIBS) \
 	-lsmartmet-spine \
 	-lsmartmet-macgyver \
 	-lsmartmet-newbase \
@@ -101,16 +109,18 @@ LIBS += -L$(libdir) \
 	-lboost_iostreams \
 	-lboost_date_time \
 	-lpthread \
-	-lgdal \
 	-ljpeg \
 	-lpng \
 	-lhiredis \
 	-lmicrohttpd \
 	-lcurl \
 	$(CORBA_LIBS) \
-	/usr/pgsql-9.5/lib/libpq.a \
-	-lssl -lcrypto -lgssapi_krb5 -lldap_r \
-	-lstdc++ -lm
+	-lssl -lcrypto \
+	-lstdc++ -lm \
+	-L /usr/lib/x86_64-linux-gnu -lpq \
+  `pkg-config --libs-only-l freetype2`
+#	-lgssapi_krb5 -lldap_r \
+#	/usr/pgsql-9.5/lib/libpq.a \
 
 # What to install
 
