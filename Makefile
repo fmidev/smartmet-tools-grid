@@ -56,6 +56,19 @@ ifneq "$(wildcard /usr/include/boost169)" ""
   LIBS += -L/usr/lib64/boost169
 endif
 
+ifneq "$(wildcard /usr/gdal32/include)" ""
+  INCLUDES += -isystem /usr/gdal32/include
+  LIBS += -L$(PREFIX)/gdal32/lib -lgdal
+else
+  ifneq "$(wildcard /usr/gdal30/include)" ""
+    INCLUDES += -isystem /usr/gdal30/include
+    LIBS += -L$(PREFIX)/gdal30/lib -lgdal
+  else
+    INCLUDES += -isystem /usr/include/gdal
+    LIBS += -lgdal
+  endif
+endif
+
 
 FLAGS = -std=c++11 -fdiagnostics-color=always -fPIC -MD -Wall -W -Wno-unused-parameter
 
@@ -79,9 +92,6 @@ FLAGS_RELEASE = -Wuninitialized
 
 INCLUDES += \
 	-I$(includedir)/smartmet \
-	-isystem /usr/include/postgresql \
-	-isystem /usr/pgsql-9.5/include \
-  -I `pg_config --includedir` \
 	`pkg-config --cflags freetype2` \
 	`pkg-config --cflags icu-i18n` \
 	$(CORBA_INCLUDE)
@@ -94,7 +104,6 @@ CFLAGS_PROFILE = $(DEFINES) $(FLAGS) $(FLAGS_PROFILE) -DNDEBUG -O2 -g -pg
 
 
 LIBS += -L$(libdir) \
-  -L `pg_config --libdir` \
 	$(REQUIRED_LIBS) \
 	-lsmartmet-spine \
 	-lsmartmet-macgyver \
@@ -118,9 +127,7 @@ LIBS += -L$(libdir) \
 	-lssl -lcrypto \
 	-lstdc++ -lm \
 	-L /usr/lib/x86_64-linux-gnu -lpq \
-  `pkg-config --libs-only-l freetype2`
-#	-lgssapi_krb5 -lldap_r \
-#	/usr/pgsql-9.5/lib/libpq.a \
+	`pkg-config --libs-only-l freetype2`
 
 # What to install
 
