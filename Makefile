@@ -7,7 +7,7 @@ INCDIR = smartmet/$(SUBNAME)
 
 CORBA = enabled
 
-REQUIRES = libpqxx gdal
+REQUIRES = libpqxx gdal icu-18n
 
 include $(shell echo $${PREFIX-/usr})/share/smartmet/devel/makefile.inc
 
@@ -49,47 +49,6 @@ endif
 
 DEFINES = -DUNIX -D_REENTRANT
 
-# Boost 1.69
-
-ifneq "$(wildcard /usr/include/boost169)" ""
-  INCLUDES += -isystem /usr/include/boost169
-  LIBS += -L/usr/lib64/boost169
-endif
-
-ifneq "$(wildcard /usr/gdal32/include)" ""
-  INCLUDES += -isystem /usr/gdal32/include
-  LIBS += -L$(PREFIX)/gdal32/lib -lgdal
-else
-  ifneq "$(wildcard /usr/gdal30/include)" ""
-    INCLUDES += -isystem /usr/gdal30/include
-    LIBS += -L$(PREFIX)/gdal30/lib -lgdal
-  else
-    INCLUDES += -isystem /usr/include/gdal
-    LIBS += -lgdal
-  endif
-endif
-
-
-FLAGS = -std=c++11 -fdiagnostics-color=always -fPIC -MD -Wall -W -Wno-unused-parameter
-
-FLAGS_DEBUG = \
-	-Wcast-align \
-	-Winline \
-	-Wno-multichar \
-	-Wno-pmf-conversions \
-	-Wpointer-arith \
-	-Wcast-qual \
-	-Wredundant-decls \
-	-Wwrite-strings \
-	-Wno-sign-promo \
-	-Wno-unknown-pragmas \
-	-Wno-inline
-
-# Disabled for now:
-#	-Woverloaded-virtual
-
-FLAGS_RELEASE = -Wuninitialized
-
 INCLUDES += \
 	-I$(includedir)/smartmet \
 	`pkg-config --cflags freetype2` \
@@ -124,6 +83,7 @@ LIBS += -L$(libdir) \
 	-lmicrohttpd \
 	-lcurl \
 	$(CORBA_LIBS) \
+	$(RQEUIRED_LIBS) \
 	-lssl -lcrypto \
 	-lstdc++ -lm \
 	-L /usr/lib/x86_64-linux-gnu -lpq \
@@ -132,11 +92,6 @@ LIBS += -L$(libdir) \
 # What to install
 
 LIBFILE = libsmartmet-$(SUBNAME).so
-
-# How to install
-
-INSTALL_PROG = install -p -m 775
-INSTALL_DATA = install -p -m 664
 
 # Compile option overrides
 
@@ -196,7 +151,7 @@ src_debug: objdir $(LIBFILE)
 
 
 $(PROGS): % : obj/%.o
-	$(CC) $(LDFLAGS) $(LDFLAGS) $(INCLUDES) -o $@ obj/$@.o $(LIBS)
+	$(CXX) $(LDFLAGS) $(LDFLAGS) $(INCLUDES) -o $@ obj/$@.o $(LIBS)
 
 
 clean:
