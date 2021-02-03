@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     }
 
 
-    query.mStartTime = argv[7];
+    query.mStartTime = utcTimeToTimeT(argv[7]);
 
     uint timestep = atoi(argv[8]);
     uint timesteps = atoi(argv[9]);
@@ -124,15 +124,14 @@ int main(int argc, char *argv[])
 
     unsigned long long startTime = getTime();
 
-    auto s = Fmi::TimeParser::parse_iso(query.mStartTime);
+    time_t s = query.mStartTime;
     for (uint t=0; t<timesteps; t++)
     {
       QueryServer::Query newQuery(query);
 
-      std::string str = Fmi::to_iso_string(s);
-      newQuery.mForecastTimeList.insert(str);
+      newQuery.mForecastTimeList.insert(s);
 
-      s = s + boost::posix_time::seconds(timestep*60);
+      s = s + (timestep*60);
 
       int result = service.executeQuery(sessionId,newQuery);
       if (result == 0)

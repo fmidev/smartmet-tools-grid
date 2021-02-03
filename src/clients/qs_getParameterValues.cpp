@@ -70,8 +70,8 @@ int main(int argc, char *argv[])
     param.mType = QueryServer::QueryParameter::Type::Vector;
     param.mLocationType = QueryServer::QueryParameter::LocationType::Geometry;
 
-    query.mStartTime = argv[3];
-    query.mEndTime = argv[4];
+    query.mStartTime = utcTimeToTimeT(argv[3]);
+    query.mEndTime = utcTimeToTimeT(argv[4]);
     query.mSearchType = QueryServer::Query::SearchType::TimeRange;
 
     param.mParam = argv[2];
