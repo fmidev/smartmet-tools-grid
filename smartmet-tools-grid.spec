@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 21.3.3
+Version: 21.4.1
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 21.3.1
-BuildRequires: smartmet-library-grid-files-devel >= 21.2.25
-BuildRequires: smartmet-library-grid-content-devel >= 21.3.3
+BuildRequires: smartmet-library-spine-devel >= 21.3.9
+BuildRequires: smartmet-library-grid-files-devel >= 21.3.31
+BuildRequires: smartmet-library-grid-content-devel >= 21.3.29
 BuildRequires: gdal32-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -31,8 +31,8 @@ Requires: libconfig
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 21.2.25
-Requires: smartmet-library-grid-content >= 21.3.3
+Requires: smartmet-library-grid-files >= 21.3.31
+Requires: smartmet-library-grid-content >= 21.3.29
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -435,6 +435,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu Apr  1 2021 Pertti Kinnia <pertti.kinnia@fmi.fi> - 21.4.1-1.fmi
+- Repackaged due to grid-files API changes
 * Wed Mar  3 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.3.3-1.fmi
 - Repackaged due to grid-files API changes
 * Wed Feb  3 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.2.3-1.fmi
