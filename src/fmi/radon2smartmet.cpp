@@ -663,7 +663,10 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
     char *p = sql;
 
     p += sprintf(p, "SELECT\n");
-    p += sprintf(p, "  file_location,\n");
+    // When encountering files in s3 storage, prepend a slash so that the file location looks like an absolute path to some directory.
+    // Then just expect that the bucket is mounted to correct location using s3fs or similar.
+    // For example file in s3: 'my-bucket/my-file.grib' becomes '/my-bucket/my-file.grib'
+    p += sprintf(p, "  CASE file_protocol_id WHEN 1 THEN file_location WHEN 2 THEN '/' || file_location END AS file_location,\n");
     p += sprintf(p, "  message_no,\n");
     p += sprintf(p, "  byte_offset,\n");
     p += sprintf(p, "  byte_length,\n");
