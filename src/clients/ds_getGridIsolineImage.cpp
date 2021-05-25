@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
     int imageWidth = width*mp;
     int imageHeight = height*mp;
 
-    ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFF,false,rotate);
+    ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFF,0x00000,0xA0A0A0,false,rotate);
 
     // ### Painting contours into the image:
 
@@ -121,7 +121,8 @@ int main(int argc, char *argv[])
         if (col == 0xFFFFFFFF)
           col = 0;
 
-        imagePaint.paintWkb(mp,mp,0,0,*it,col);
+        imagePaint.setFillColor(col);
+        imagePaint.paintWkb(mp,mp,0,0,*it);
         t++;
       }
     }

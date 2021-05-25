@@ -48,27 +48,28 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     fprintf(file,"#\n");
 
 
-    fprintf(file,"\n# LATLON : projection,id,name,ni,nj,first_point.x,first_point.y,di,dj,scanning_mode,description\n");
+    fprintf(file,"\n# LATLON : projection,id,name,ni,nj,first_lon,first_lat,di,dj,scanning_mode,earthSemiMajor,earthSemiMinor,description\n");
 
     char sql[3000];
     char *p = sql;
 
     p += sprintf(p,"SELECT\n");
-    p += sprintf(p,"  %u,\n",T::GridProjectionValue::LatLon);
-    p += sprintf(p,"  id,\n");
-    p += sprintf(p,"  name,\n");
+    p += sprintf(p,"  geometry_id,\n");
+    p += sprintf(p,"  geometry_name,\n");
     p += sprintf(p,"  ni,\n");
     p += sprintf(p,"  nj,\n");
-    p += sprintf(p,"  ST_X(first_point),\n");
-    p += sprintf(p,"  ST_Y(first_point),\n");
+    p += sprintf(p,"  first_lon,\n");
+    p += sprintf(p,"  first_lat,\n");
     p += sprintf(p,"  di,\n");
     p += sprintf(p,"  dj,\n");
     p += sprintf(p,"  scanning_mode,\n");
+    p += sprintf(p,"  earth_semi_major,\n");
+    p += sprintf(p,"  earth_semi_minor,\n");
     p += sprintf(p,"  description\n");
     p += sprintf(p,"FROM\n");
-    p += sprintf(p,"  geom_latitude_longitude\n");
+    p += sprintf(p,"  geom_latitude_longitude_v\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  id;\n");
+    p += sprintf(p,"  geometry_id;\n");
 
     PGresult *res = PQexec(conn,sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
@@ -79,39 +80,49 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
 
     for (int i = 0; i < rowCount; i++)
     {
-      for (int f=0; f< fieldCount; f++)
-      {
-        fprintf(file,"%s;",PQgetvalue(res,i,f));
-      }
-      fprintf(file,"\n");
+      fprintf(file,"%d;%s;%s;%d;%d;%.6f;%.6f;%.6f;%.6f;%s;%.6f;%.6f;%s;\n",
+        T::GridProjectionValue::LatLon,
+        PQgetvalue(res,i,0),
+        PQgetvalue(res,i,1),
+        atoi(PQgetvalue(res,i,2)),
+        atoi(PQgetvalue(res,i,3)),
+        atof(PQgetvalue(res,i,4)),
+        atof(PQgetvalue(res,i,5)),
+        fabs(atof(PQgetvalue(res,i,6))),
+        fabs(atof(PQgetvalue(res,i,7))),
+        PQgetvalue(res,i,8),
+        fabs(atof(PQgetvalue(res,i,9))),
+        fabs(atof(PQgetvalue(res,i,10))),
+        PQgetvalue(res,i,11));
     }
 
     PQclear(res);
 
 
-    fprintf(file,"\n# ROTATED LATLON : projection,id,name,ni,nj,first_point.x,first_point.y,di,dj,scanning_mode,south_pole.x,south_pole.y,angle,description\n");
+    fprintf(file,"\n# ROTATED LATLON : projection,id,name,ni,nj,first_lon,first_lat,di,dj,scanning_mode,south_pole_lon,south_pole_lat,angle,earthSemiMajor,earthSemiMinor,description\n");
 
     p = sql;
 
     p += sprintf(p,"SELECT\n");
-    p += sprintf(p,"  %u,\n",T::GridProjectionValue::RotatedLatLon);
-    p += sprintf(p,"  id,\n");
-    p += sprintf(p,"  name,\n");
+    p += sprintf(p,"  geometry_id,\n");
+    p += sprintf(p,"  geometry_name,\n");
     p += sprintf(p,"  ni,\n");
     p += sprintf(p,"  nj,\n");
-    p += sprintf(p,"  ST_X(first_point),\n");
-    p += sprintf(p,"  ST_Y(first_point),\n");
+    p += sprintf(p,"  first_lon,\n");
+    p += sprintf(p,"  first_lat,\n");
     p += sprintf(p,"  di,\n");
     p += sprintf(p,"  dj,\n");
     p += sprintf(p,"  scanning_mode,\n");
-    p += sprintf(p,"  ST_X(south_pole),\n");
-    p += sprintf(p,"  ST_Y(south_pole),\n");
+    p += sprintf(p,"  south_pole_lon,\n");
+    p += sprintf(p,"  south_pole_lat,\n");
     p += sprintf(p,"  0,\n");                  // Angle of rotation
+    p += sprintf(p,"  earth_semi_major,\n");
+    p += sprintf(p,"  earth_semi_minor,\n");
     p += sprintf(p,"  description\n");
     p += sprintf(p,"FROM\n");
-    p += sprintf(p,"  geom_rotated_latitude_longitude\n");
+    p += sprintf(p,"  geom_rotated_latitude_longitude_v\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  id;\n");
+    p += sprintf(p,"  geometry_id;\n");
 
 
     res = PQexec(conn,sql);
@@ -123,42 +134,55 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
 
     for (int i = 0; i < rowCount; i++)
     {
-      for (int f=0; f< fieldCount; f++)
-      {
-        fprintf(file,"%s;",PQgetvalue(res,i,f));
-      }
-      fprintf(file,"\n");
+      fprintf(file,"%d;%s;%s;%d;%d;%.6f;%.6f;%.6f;%.6f;%s;%.6f;%.6f;%.6f;%.6f;%.6f;%s;\n",
+        T::GridProjectionValue::RotatedLatLon,
+        PQgetvalue(res,i,0),
+        PQgetvalue(res,i,1),
+        atoi(PQgetvalue(res,i,2)),
+        atoi(PQgetvalue(res,i,3)),
+        atof(PQgetvalue(res,i,4)),
+        atof(PQgetvalue(res,i,5)),
+        fabs(atof(PQgetvalue(res,i,6))),
+        fabs(atof(PQgetvalue(res,i,7))),
+        PQgetvalue(res,i,8),
+        atof(PQgetvalue(res,i,9)),
+        atof(PQgetvalue(res,i,10)),
+        atof(PQgetvalue(res,i,11)),
+        atof(PQgetvalue(res,i,12)),
+        atof(PQgetvalue(res,i,13)),
+        PQgetvalue(res,i,14));
     }
 
     PQclear(res);
 
 
-    fprintf(file,"\n# LAMBERT CONFORMAL : projection,id,name,ni,nj,first_point.x,first_point.y,di,dj,scanning_mode,orientation,latin1,latin2,south_pole.x,south_pole.y,LaD,description\n");
+    fprintf(file,"\n# LAMBERT CONFORMAL : projection,id,name,ni,nj,first_lon,first_lat,di,dj,scanning_mode,orientation,latin1,latin2,south_pole_lon,south_pole_lat,LaD,earthSemiMajor,earthSemiMinor,description\n");
 
     p = sql;
 
     p += sprintf(p,"SELECT\n");
-    p += sprintf(p,"  %u,\n",T::GridProjectionValue::LambertConformal);
-    p += sprintf(p,"  id,\n");
-    p += sprintf(p,"  name,\n");
+    p += sprintf(p,"  geometry_id,\n");
+    p += sprintf(p,"  geometry_name,\n");
     p += sprintf(p,"  ni,\n");
     p += sprintf(p,"  nj,\n");
-    p += sprintf(p,"  ST_X(first_point),\n");
-    p += sprintf(p,"  ST_Y(first_point),\n");
+    p += sprintf(p,"  first_lon,\n");
+    p += sprintf(p,"  first_lat,\n");
     p += sprintf(p,"  di,\n");
     p += sprintf(p,"  dj,\n");
     p += sprintf(p,"  scanning_mode,\n");
     p += sprintf(p,"  orientation,\n");
     p += sprintf(p,"  latin1,\n");
     p += sprintf(p,"  latin2,\n");
-    p += sprintf(p,"  ST_X(south_pole),\n");
-    p += sprintf(p,"  ST_Y(south_pole),\n");
-    p += sprintf(p,"  60.0,\n");                  // LaD
+    p += sprintf(p,"  south_pole_lon,\n");
+    p += sprintf(p,"  south_pole_lat,\n");
+    p += sprintf(p,"  latin1,\n");                  // LaD
+    p += sprintf(p,"  earth_semi_major,\n");
+    p += sprintf(p,"  earth_semi_minor,\n");
     p += sprintf(p,"  description\n");
     p += sprintf(p,"FROM\n");
-    p += sprintf(p,"  geom_lambert_conformal\n");
+    p += sprintf(p,"  geom_lambert_conformal_v\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  id;\n");
+    p += sprintf(p,"  geometry_id;\n");
 
 
     res = PQexec(conn,sql);
@@ -170,11 +194,192 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
 
     for (int i = 0; i < rowCount; i++)
     {
-      for (int f=0; f< fieldCount; f++)
-      {
-        fprintf(file,"%s;",PQgetvalue(res,i,f));
-      }
-      fprintf(file,"\n");
+      fprintf(file,"%d;%s;%s;%d;%d;%.6f;%.6f;%.6f;%.6f;%s;%.6f;%.6f;%.6f;%.6f;%.6f;%.6f;%.6f;%.6f;%s;\n",
+        T::GridProjectionValue::LambertConformal,
+        PQgetvalue(res,i,0),
+        PQgetvalue(res,i,1),
+        atoi(PQgetvalue(res,i,2)),
+        atoi(PQgetvalue(res,i,3)),
+        atof(PQgetvalue(res,i,4)),
+        atof(PQgetvalue(res,i,5)),
+        fabs(atof(PQgetvalue(res,i,6))),
+        fabs(atof(PQgetvalue(res,i,7))),
+        PQgetvalue(res,i,8),
+        atof(PQgetvalue(res,i,9)),
+        atof(PQgetvalue(res,i,10)),
+        atof(PQgetvalue(res,i,11)),
+        atof(PQgetvalue(res,i,12)),
+        atof(PQgetvalue(res,i,13)),
+        atof(PQgetvalue(res,i,14)),
+        atof(PQgetvalue(res,i,15)),
+        atof(PQgetvalue(res,i,16)),
+        PQgetvalue(res,i,17));
+    }
+
+    PQclear(res);
+
+
+
+    fprintf(file,"\n# LAMBERT EQUAL AREA : projection,id,name,ni,nj,first_lon,first_lat,di,dj,scanning_mode,orientation,latin,earthSemiMajor,earthSemiMinor,description\n");
+
+    p = sql;
+
+    p += sprintf(p,"SELECT\n");
+    p += sprintf(p,"  geometry_id,\n");
+    p += sprintf(p,"  geometry_name,\n");
+    p += sprintf(p,"  ni,\n");
+    p += sprintf(p,"  nj,\n");
+    p += sprintf(p,"  first_lon,\n");
+    p += sprintf(p,"  first_lat,\n");
+    p += sprintf(p,"  di,\n");
+    p += sprintf(p,"  dj,\n");
+    p += sprintf(p,"  scanning_mode,\n");
+    p += sprintf(p,"  orientation,\n");
+    p += sprintf(p,"  latin,\n");
+    p += sprintf(p,"  earth_semi_major,\n");
+    p += sprintf(p,"  earth_semi_minor,\n");
+    p += sprintf(p,"  description\n");
+    p += sprintf(p,"FROM\n");
+    p += sprintf(p,"  geom_lambert_equal_area_v\n");
+    p += sprintf(p,"ORDER BY\n");
+    p += sprintf(p,"  geometry_id;\n");
+
+
+    res = PQexec(conn,sql);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+      error(PQresultErrorMessage(res));
+
+    fieldCount = PQnfields(res);
+    rowCount = PQntuples(res);
+
+    for (int i = 0; i < rowCount; i++)
+    {
+      fprintf(file,"%d;%s;%s;%d;%d;%.6f;%.6f;%.6f;%.6f;%s;%.6f;%.6f;%.6f;%.6f;%s;\n",
+        T::GridProjectionValue::LambertAzimuthalEqualArea,
+        PQgetvalue(res,i,0),
+        PQgetvalue(res,i,1),
+        atoi(PQgetvalue(res,i,2)),
+        atoi(PQgetvalue(res,i,3)),
+        atof(PQgetvalue(res,i,4)),
+        atof(PQgetvalue(res,i,5)),
+        fabs(atof(PQgetvalue(res,i,6))),
+        fabs(atof(PQgetvalue(res,i,7))),
+        PQgetvalue(res,i,8),
+        atof(PQgetvalue(res,i,9)),
+        atof(PQgetvalue(res,i,10)),
+        atof(PQgetvalue(res,i,11)),
+        atof(PQgetvalue(res,i,12)),
+        PQgetvalue(res,i,13));
+    }
+
+    PQclear(res);
+
+
+    fprintf(file,"\n# POLAR STEREOGRAPHIC : projection,id,name,ni,nj,first_lon,first_lat,di,dj,scanning_mode,orientation,laD,earthSemiMajor,earthSemiMinor,description\n");
+
+    p = sql;
+
+    p += sprintf(p,"SELECT\n");
+    p += sprintf(p,"  geometry_id,\n");
+    p += sprintf(p,"  geometry_name,\n");
+    p += sprintf(p,"  ni,\n");
+    p += sprintf(p,"  nj,\n");
+    p += sprintf(p,"  first_lon,\n");
+    p += sprintf(p,"  first_lat,\n");
+    p += sprintf(p,"  di,\n");
+    p += sprintf(p,"  dj,\n");
+    p += sprintf(p,"  scanning_mode,\n");
+    p += sprintf(p,"  orientation,\n");
+    p += sprintf(p,"  60.0,\n");
+    p += sprintf(p,"  earth_semi_major,\n");
+    p += sprintf(p,"  earth_semi_minor,\n");
+    p += sprintf(p,"  description\n");
+    p += sprintf(p,"FROM\n");
+    p += sprintf(p,"  geom_stereographic_v\n");
+    p += sprintf(p,"ORDER BY\n");
+    p += sprintf(p,"  geometry_id;\n");
+
+
+    res = PQexec(conn,sql);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+      error(PQresultErrorMessage(res));
+
+    fieldCount = PQnfields(res);
+    rowCount = PQntuples(res);
+
+    for (int i = 0; i < rowCount; i++)
+    {
+      fprintf(file,"%d;%s;%s;%d;%d;%.6f;%.6f;%.6f;%.6f;%s;%.6f;%.6f;%.6f;%.6f;%s;\n",
+        T::GridProjectionValue::PolarStereographic,
+        PQgetvalue(res,i,0),
+        PQgetvalue(res,i,1),
+        atoi(PQgetvalue(res,i,2)),
+        atoi(PQgetvalue(res,i,3)),
+        atof(PQgetvalue(res,i,4)),
+        atof(PQgetvalue(res,i,5)),
+        fabs(atof(PQgetvalue(res,i,6))),
+        fabs(atof(PQgetvalue(res,i,7))),
+        PQgetvalue(res,i,8),
+        atof(PQgetvalue(res,i,9)),
+        atof(PQgetvalue(res,i,10)),
+        atof(PQgetvalue(res,i,11)),
+        atof(PQgetvalue(res,i,12)),
+        PQgetvalue(res,i,13));
+    }
+
+    PQclear(res);
+
+
+    fprintf(file,"\n# TRANSVERSE MERCATOR : projection,id,name,ni,nj,first_lon,first_lat,di,dj,scanning_mode,orientation,latin,earthSemiMajor,earthSemiMinor,description\n");
+
+    p = sql;
+
+    p += sprintf(p,"SELECT\n");
+    p += sprintf(p,"  geometry_id,\n");
+    p += sprintf(p,"  geometry_name,\n");
+    p += sprintf(p,"  ni,\n");
+    p += sprintf(p,"  nj,\n");
+    p += sprintf(p,"  first_lon,\n");
+    p += sprintf(p,"  first_lat,\n");
+    p += sprintf(p,"  di,\n");
+    p += sprintf(p,"  dj,\n");
+    p += sprintf(p,"  scanning_mode,\n");
+    p += sprintf(p,"  orientation,\n");
+    p += sprintf(p,"  latin,\n");
+    p += sprintf(p,"  earth_semi_major,\n");
+    p += sprintf(p,"  earth_semi_minor,\n");
+    p += sprintf(p,"  description\n");
+    p += sprintf(p,"FROM\n");
+    p += sprintf(p,"  geom_transverse_mercator_v\n");
+    p += sprintf(p,"ORDER BY\n");
+    p += sprintf(p,"  geometry_id;\n");
+
+
+    res = PQexec(conn,sql);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+      error(PQresultErrorMessage(res));
+
+    fieldCount = PQnfields(res);
+    rowCount = PQntuples(res);
+
+    for (int i = 0; i < rowCount; i++)
+    {
+      fprintf(file,"%d;%s;%s;%d;%d;%.6f;%.6f;%.6f;%.6f;%s;%.6f;%.6f;%.6f;%.6f;%s;\n",
+        T::GridProjectionValue::TransverseMercator,
+        PQgetvalue(res,i,0),
+        PQgetvalue(res,i,1),
+        atoi(PQgetvalue(res,i,2)),
+        atoi(PQgetvalue(res,i,3)),
+        atof(PQgetvalue(res,i,4)),
+        atof(PQgetvalue(res,i,5)),
+        fabs(atof(PQgetvalue(res,i,6))),
+        fabs(atof(PQgetvalue(res,i,7))),
+        PQgetvalue(res,i,8),
+        atof(PQgetvalue(res,i,9)),
+        atof(PQgetvalue(res,i,10)),
+        atof(PQgetvalue(res,i,11)),
+        atof(PQgetvalue(res,i,12)),
+        PQgetvalue(res,i,13));
     }
 
     PQclear(res);
@@ -185,7 +390,6 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     p = sql;
 
     p += sprintf(p,"SELECT\n");
-    p += sprintf(p,"  %u,\n",T::GridProjectionValue::Gaussian);
     p += sprintf(p,"  id,\n");
     p += sprintf(p,"  name,\n");
     p += sprintf(p,"  nj,\n");
@@ -210,6 +414,18 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
 
     for (int i = 0; i < rowCount; i++)
     {
+      fprintf(file,"%d;%s;%s;%d;%.6f;%.6f;%s;%d;%d;%s;\n",
+        T::GridProjectionValue::Gaussian,
+        PQgetvalue(res,i,0),
+        PQgetvalue(res,i,1),
+        atoi(PQgetvalue(res,i,2)),
+        atof(PQgetvalue(res,i,3)),
+        atof(PQgetvalue(res,i,4)),
+        PQgetvalue(res,i,5),
+        atoi(PQgetvalue(res,i,6)),
+        atoi(PQgetvalue(res,i,7)),
+        PQgetvalue(res,i,8));
+
       for (int f=0; f< fieldCount; f++)
       {
         fprintf(file,"%s;",PQgetvalue(res,i,f));
@@ -219,48 +435,6 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
 
     PQclear(res);
 
-
-    fprintf(file,"\n# POLAR STEREOGRAPHIC : projection,id,name,ni,nj,first_point.x,first_point.y,di,dj,scanning_mode,orientation,laD,description\n");
-
-    p = sql;
-
-    p += sprintf(p,"SELECT\n");
-    p += sprintf(p,"  %u,\n",T::GridProjectionValue::PolarStereographic);
-    p += sprintf(p,"  id,\n");
-    p += sprintf(p,"  name,\n");
-    p += sprintf(p,"  ni,\n");
-    p += sprintf(p,"  nj,\n");
-    p += sprintf(p,"  ST_X(first_point),\n");
-    p += sprintf(p,"  ST_Y(first_point),\n");
-    p += sprintf(p,"  di,\n");
-    p += sprintf(p,"  dj,\n");
-    p += sprintf(p,"  scanning_mode,\n");
-    p += sprintf(p,"  orientation,\n");
-    p += sprintf(p,"  60.0,\n");
-    p += sprintf(p,"  description\n");
-    p += sprintf(p,"FROM\n");
-    p += sprintf(p,"  geom_stereographic\n");
-    p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  id;\n");
-
-
-    res = PQexec(conn,sql);
-    if (PQresultStatus(res) != PGRES_TUPLES_OK)
-      error(PQresultErrorMessage(res));
-
-    fieldCount = PQnfields(res);
-    rowCount = PQntuples(res);
-
-    for (int i = 0; i < rowCount; i++)
-    {
-      for (int f=0; f< fieldCount; f++)
-      {
-        fprintf(file,"%s;",PQgetvalue(res,i,f));
-      }
-      fprintf(file,"\n");
-    }
-
-    PQclear(res);
 
     fclose(file);
   }

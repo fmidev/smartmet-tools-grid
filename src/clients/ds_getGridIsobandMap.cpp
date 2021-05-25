@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 
 
-    ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,false,false);
+    ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,0x000000,0xA0A0A0,false,false);
 
     if (contours.size() > 0)
     {
@@ -134,7 +134,8 @@ int main(int argc, char *argv[])
         if (col == 0xFFFFFFFF)
           col = (c << 16) + (c << 8) + c;
 
-        imagePaint.paintWkb(mp,mp,0,0,*it,col);
+        imagePaint.setFillColor(col);
+        imagePaint.paintWkb(mp,mp,0,0,*it);
         c = c - step;
         t++;
       }
