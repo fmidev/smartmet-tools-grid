@@ -289,7 +289,7 @@ int run(int argc, char **argv)
     uint height = toInt64(argv[5]);
     double step = toDouble(argv[6]);
 
-    T::GribParamId parameterId;
+    T::GribParamId parameterId = 0;
     uint valueLevels = 256;
     uint flags = 0;
     std::vector<std::string>files;

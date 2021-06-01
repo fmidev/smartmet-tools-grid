@@ -276,7 +276,7 @@ int run(int argc, char **argv)
 
 
     std::string imageDir = argv[1];
-    T::GribParamId parameterId;
+    T::GribParamId parameterId = 0;
     uint valueLevels = 256;
     double scaleFactor = 1.0;
     uint flags = 0;
