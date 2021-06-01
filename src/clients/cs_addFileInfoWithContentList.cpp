@@ -20,9 +20,9 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc < 7)
+    if (argc < 6)
     {
-      fprintf(stdout,"USAGE: cs_addFileInfoWithContentList <sessionId> <groupFlags> <producerId> <generationId> <fileType> <filename>\n");
+      fprintf(stdout,"USAGE: cs_addFileInfoWithContentList <sessionId> <producerId> <generationId> <fileType> <filename>\n");
       fprintf(stdout,"       [-m <messageIndex> <timestamp> <fmiParamId> <gribParamId> ] [-m ...] [-m ...]\n");
       return -1;
     }
@@ -37,11 +37,10 @@ int main(int argc, char *argv[])
 
     // ### Service parameters:
     T::FileInfo info;
-    info.mGroupFlags  = toInt64(argv[2]);
-    info.mProducerId = toInt64(argv[3]);
-    info.mGenerationId = toInt64(argv[4]);
-    info.mFileType = toInt64(argv[5]);
-    info.mName = argv[6];
+    info.mProducerId = toInt64(argv[2]);
+    info.mGenerationId = toInt64(argv[3]);
+    info.mFileType = toInt64(argv[4]);
+    info.mName = argv[5];
     info.mFlags = 0;
 
     T::ContentInfoList contentList;
@@ -53,12 +52,11 @@ int main(int argc, char *argv[])
         cinfo->mFileId = info.mFileId;
         cinfo->mFileType = info.mFileType;
         cinfo->mGenerationId = info.mGenerationId;
-        cinfo->mGroupFlags = info.mGroupFlags;
         cinfo->mProducerId = info.mProducerId;
         cinfo->mMessageIndex = toInt64(argv[t+1]);
-        cinfo->mForecastTime = argv[t+2];
-        cinfo->mFmiParameterId = argv[t+3];
-        cinfo->mGribParameterId = argv[t+4];
+        cinfo->setForecastTime(argv[t+2]);
+        cinfo->mFmiParameterId = toUInt32(argv[t+3]);
+        cinfo->mGribParameterId = toUInt32(argv[t+4]);
 
         contentList.addContentInfo(cinfo);
       }

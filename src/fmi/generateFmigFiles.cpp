@@ -459,7 +459,6 @@ void addFile(uint producerId,uint generationId,std::string fileName,T::ContentIn
     /*int result =*/ contentStorage->deleteFileInfoByName(0,fileName);
 
     T::FileInfo fileInfo;
-    fileInfo.mGroupFlags = 0;
     fileInfo.mProducerId = producerId;
     fileInfo.mGenerationId = generationId;
     fileInfo.mFileId = 0;
@@ -629,9 +628,9 @@ void processParameters()
                     if (cInfo == nullptr)
                       cInfo = info;
 
-                    if (forecastTimes.find(info->mForecastTime) == forecastTimes.end())
+                    if (forecastTimes.find(info->getForecastTime()) == forecastTimes.end())
                     {
-                      forecastTimes.insert(info->mForecastTime);
+                      forecastTimes.insert(info->getForecastTime());
                     }
                   }
                 }
@@ -662,11 +661,11 @@ void processParameters()
                   T::GridData data[totalLen];
 
                   char filename[300];
-                  sprintf(filename, "%s%s_%s_%s_%d_%d_%d_%d_%d.fmig", mProducerPrefix.c_str(),producerInfo.mName.c_str(), gInfo->mAnalysisTime.c_str(), cInfo->getFmiParameterName().c_str(),
+                  sprintf(filename, "%s%s_%s_%s_%d_%d_%d_%d_%d.fmig", mProducerPrefix.c_str(),producerInfo.mName.c_str(), gInfo->mAnalysisTime.c_str(), cInfo->getFmiParameterName(),
                       cInfo->mGeometryId, cInfo->mFmiParameterLevelId, cInfo->mParameterLevel, cInfo->mForecastType, cInfo->mForecastNumber);
                   filenameList.insert(std::string(filename));
 
-                  sprintf(filename, "%s/%s%s_%s_%s_%d_%d_%d_%d_%d.fmig", mTargetDir.c_str(), mProducerPrefix.c_str(),producerInfo.mName.c_str(), gInfo->mAnalysisTime.c_str(), cInfo->getFmiParameterName().c_str(),
+                  sprintf(filename, "%s/%s%s_%s_%s_%d_%d_%d_%d_%d.fmig", mTargetDir.c_str(), mProducerPrefix.c_str(),producerInfo.mName.c_str(), gInfo->mAnalysisTime.c_str(), cInfo->getFmiParameterName(),
                       cInfo->mGeometryId, cInfo->mFmiParameterLevelId, cInfo->mParameterLevel, cInfo->mForecastType, cInfo->mForecastNumber);
 
                   std::string newFileName = filename;
@@ -713,9 +712,9 @@ void processParameters()
                         T::ContentInfo *cInfo = contentInfoList[f].getContentInfoByIndex(t);
                         if (cInfo != NULL)
                         {
-                          PRINT_DATA(mDebugLogPtr,"           * %u:%u:%u : ForecastTime : %s\n",idx,t,f,cInfo->mForecastTime.c_str());
+                          PRINT_DATA(mDebugLogPtr,"           * %u:%u:%u : ForecastTime : %s\n",idx,t,f,cInfo->getForecastTime());
                           dataServer->getGridData(sessionId, cInfo->mFileId, cInfo->mMessageIndex, data[idx]);
-                          data[t].mForecastTime = cInfo->mForecastTime;
+                          data[t].mForecastTime = cInfo->getForecastTime();
                           totalSize = data[idx].mValues.size();
                           if (data[idx].mValues.size() > 0)
                             gridSize = data[idx].mValues.size();
@@ -764,18 +763,15 @@ void processParameters()
                       p += sprintf(p, "geometry.id\t%d\t", cInfo->mGeometryId);
                       p += sprintf(p, "generation.id\t%u\t", cInfo->mGenerationId);
                       p += sprintf(p, "generation.name\t%s\t", gInfo->mName.c_str());
-                      p += sprintf(p, "param.fmi.id\t%s\t", cInfo->mFmiParameterId.c_str());
-                      p += sprintf(p, "param.fmi.name\t%s\t", cInfo->getFmiParameterName().c_str());
-                      p += sprintf(p, "param.grib.id\t%s\t", cInfo->mGribParameterId.c_str());
-                      p += sprintf(p, "param.cdm.id\t%s\t", cInfo->mCdmParameterId.c_str());
-                      p += sprintf(p, "param.cdm.name\t%s\t", cInfo->mCdmParameterName.c_str());
-                      p += sprintf(p, "param.newbase.id\t%s\t", cInfo->mNewbaseParameterId.c_str());
-                      p += sprintf(p, "param.newbase.name\t%s\t", cInfo->mNewbaseParameterName.c_str());
+                      p += sprintf(p, "param.fmi.id\t%u\t", cInfo->mFmiParameterId);
+                      p += sprintf(p, "param.fmi.name\t%s\t", cInfo->getFmiParameterName());
+                      p += sprintf(p, "param.grib.id\t%u\t", cInfo->mGribParameterId);
+                      p += sprintf(p, "param.newbase.id\t%u\t", cInfo->mNewbaseParameterId);
+                      p += sprintf(p, "param.newbase.name\t%s\t", cInfo->getNewbaseParameterName());
                       p += sprintf(p, "param.level.fmi.id\t%u\t", cInfo->mFmiParameterLevelId);
                       p += sprintf(p, "param.level.grib1.id\t%u\t", cInfo->mGrib1ParameterLevelId);
                       p += sprintf(p, "param.level.grib2.id\t%u\t", cInfo->mGrib2ParameterLevelId);
                       p += sprintf(p, "param.level.value\t%d\t", cInfo->mParameterLevel);
-                      p += sprintf(p, "param.units\t%s\t", cInfo->mFmiParameterUnits.c_str());
                       p += sprintf(p, "param.forecast.type\t%d\t", cInfo->mForecastType);
                       p += sprintf(p, "param.forecast.number\t%d\t", cInfo->mForecastNumber);
 

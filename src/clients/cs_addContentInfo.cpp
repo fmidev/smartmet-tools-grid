@@ -16,11 +16,11 @@ int main(int argc, char *argv[])
     {
       fprintf(stdout,"USAGE:\n");
       fprintf(stdout,"  cs_addContentInfo <1:sessionId> <2:fileId> <3:fileType> <4:messageIndex>\n");
-      fprintf(stdout,"     <5:producerId> <6:generationId> <7:groupFlags> <8:startTime> <9:endTime> \n");
-      fprintf(stdout,"     <10:fmiParameterId> <11:gribParameterId> <12:cdmParameterId> <13:cdmParameterName>\n");
-      fprintf(stdout,"     <14:newbaseParameterId> <15:newbaseParameterName>\n");
-      fprintf(stdout,"     <16:fmiParameterLevelId> <17:grib1ParameterLevelId> <18:grib2ParameterLevelId> \n");
-      fprintf(stdout,"     <19:parameterLevel> <20:fmiParameterUnits> <21:gribParameterUnits> <22:sourceId> <23:flags> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"     <5:producerId> <6:generationId> <7:startTime> \n");
+      fprintf(stdout,"     <8:fmiParameterId> <9:gribParameterId>\n");
+      fprintf(stdout,"     <10:newbaseParameterId> <11:newbaseParameterName>\n");
+      fprintf(stdout,"     <12:fmiParameterLevelId> <13:grib1ParameterLevelId> <14:grib2ParameterLevelId> \n");
+      fprintf(stdout,"     <15:parameterLevel> <16:sourceId> <17:flags> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
@@ -31,22 +31,17 @@ int main(int argc, char *argv[])
     info.mMessageIndex  = toInt64(argv[4]);
     info.mProducerId  = toInt64(argv[5]);
     info.mGenerationId  = toInt64(argv[6]);
-    info.mGroupFlags  = toInt64(argv[7]);
-    info.mForecastTime = argv[8];
-    info.mFmiParameterId = argv[9];
-    info.mGribParameterId = argv[10];
-    info.mCdmParameterId = argv[11];
-    info.mCdmParameterName = argv[12];
-    info.mNewbaseParameterId = argv[13];
-    info.mNewbaseParameterName = argv[14];
-    info.mFmiParameterLevelId  = toInt64(argv[15]);
-    info.mGrib1ParameterLevelId  = toInt64(argv[16]);
-    info.mGrib2ParameterLevelId  = toInt64(argv[17]);
-    info.mParameterLevel  = toInt64(argv[18]);
-    info.mFmiParameterUnits = argv[19];
-    info.mGribParameterUnits = argv[20];
-    info.mSourceId  = toInt64(argv[21]);
-    info.mFlags  = toInt64(argv[22]);
+    info.setForecastTime(argv[7]);
+    info.mFmiParameterId = toUInt32(argv[8]);
+    info.mGribParameterId = toUInt32(argv[9]);
+    info.mNewbaseParameterId = toUInt32(argv[10]);
+    info.setNewbaseParameterName(argv[11]);
+    info.mFmiParameterLevelId  = toInt64(argv[12]);
+    info.mGrib1ParameterLevelId  = toInt64(argv[13]);
+    info.mGrib2ParameterLevelId  = toInt64(argv[14]);
+    info.mParameterLevel  = toInt64(argv[15]);
+    info.mSourceId  = toInt64(argv[16]);
+    info.mFlags  = toInt64(argv[17]);
 
     ContentServer::ServiceInterface *service = nullptr;
 

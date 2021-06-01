@@ -189,7 +189,6 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
           if (strncmp(delPathPtr,filename.c_str(),len) == 0)
             fileInfo.mName = filename.c_str() + len;
         }
-        fileInfo.mGroupFlags = 0;
         fileInfo.mFlags = 0;
         fileInfo.mSourceId = 0;
 
@@ -217,24 +216,18 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
       contentInfo.mMessageSize = message.getMessageSize();
       contentInfo.mProducerId = producerId;
       contentInfo.mGenerationId = generationId;
-      contentInfo.mGroupFlags = 0;
-      contentInfo.mForecastTime = forecastTime;
+      contentInfo.setForecastTime(forecastTime);
       contentInfo.mFmiParameterId = message.getFmiParameterId();
       contentInfo.setFmiParameterName(message.getFmiParameterName());
       contentInfo.mGribParameterId = message.getGribParameterId();
-      contentInfo.mCdmParameterId = message.getCdmParameterId();
-      contentInfo.mCdmParameterName = message.getCdmParameterName();
       contentInfo.mNewbaseParameterId = message.getNewbaseParameterId();
-      contentInfo.mNewbaseParameterName = message.getNewbaseParameterName();
+      contentInfo.setNewbaseParameterName(message.getNewbaseParameterName());
       contentInfo.mFmiParameterLevelId = message.getFmiParameterLevelId();
       contentInfo.mGrib1ParameterLevelId = message.getGrib1ParameterLevelId();
       contentInfo.mGrib2ParameterLevelId = message.getGrib2ParameterLevelId();
       contentInfo.mParameterLevel = message.getGridParameterLevel();
-      contentInfo.mFmiParameterUnits = message.getFmiParameterUnits();
-      contentInfo.mGribParameterUnits = message.getGribParameterUnits();
       contentInfo.mForecastType = message.getForecastType();
       contentInfo.mForecastNumber = message.getForecastNumber();
-      contentInfo.mServerFlags = 0;
       contentInfo.mFlags = 0;
       contentInfo.mSourceId = 0;
       contentInfo.mGeometryId = message.getGridGeometryId();
@@ -259,7 +252,7 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
     printf("MESSAGE-INDEX      : %u\n",messageIndex);
     printf("REFERENCE-TIME     : %s\n",referenceTime.c_str());
     printf("FORECAST-TIME      : %s\n",forecastTime.c_str());
-    printf("FMI-PARAMETER-NAME : %s\n",contentInfo.getFmiParameterName().c_str());
+    printf("FMI-PARAMETER-NAME : %s\n",contentInfo.getFmiParameterName());
 
     //message.print(std);
     printf("\n");

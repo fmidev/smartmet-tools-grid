@@ -101,30 +101,26 @@ int main(int argc, char *argv[])
           T::FileInfo fileInfo;
           fileInfo.mFileId = 0;
           fileInfo.mFileType = toInt64(field[0]);
-          fileInfo.mGroupFlags = toInt64(field[1]);
-          fileInfo.mProducerId = toInt64(field[2]);
-          fileInfo.mGenerationId = toInt64(field[3]);
-          fileInfo.mName = field[4];
-          fileInfo.mFlags = toInt64(field[5]);
+          fileInfo.mProducerId = toInt64(field[1]);
+          fileInfo.mGenerationId = toInt64(field[2]);
+          fileInfo.mName = field[3];
+          fileInfo.mFlags = toInt64(field[4]);
 
           T::ContentInfo *contentInfo = new T::ContentInfo();
           contentInfo->mFileId = 0;
           contentInfo->mFileType = fileInfo.mFileType;
-          contentInfo->mGroupFlags = fileInfo.mGroupFlags;
           contentInfo->mProducerId = fileInfo.mProducerId;
           contentInfo->mGenerationId = fileInfo.mGenerationId;
-          contentInfo->mMessageIndex = toInt64(field[6]);
-          contentInfo->mForecastTime = field[7];
-          contentInfo->mFmiParameterId = field[8];
-          contentInfo->setFmiParameterName(field[9]);
-          contentInfo->mGribParameterId = field[10];
-          contentInfo->mFmiParameterLevelId = toInt64(field[11]);
-          contentInfo->mGrib1ParameterLevelId = toInt64(field[12]);
-          contentInfo->mGrib2ParameterLevelId = toInt64(field[13]);
-          contentInfo->mParameterLevel = (T::ParamLevel)toInt64(field[14]);
-          contentInfo->mFmiParameterUnits = field[15];
-          contentInfo->mGribParameterUnits = field[16];
-          contentInfo->mFlags = toInt64(field[17]);
+          contentInfo->mMessageIndex = toInt64(field[5]);
+          contentInfo->setForecastTime(field[6]);
+          contentInfo->mFmiParameterId = toUInt32(field[7]);
+          contentInfo->setFmiParameterName(field[8]);
+          contentInfo->mGribParameterId = toUInt32(field[9]);
+          contentInfo->mFmiParameterLevelId = toInt64(field[10]);
+          contentInfo->mGrib1ParameterLevelId = toInt64(field[11]);
+          contentInfo->mGrib2ParameterLevelId = toInt64(field[12]);
+          contentInfo->mParameterLevel = (T::ParamLevel)toInt64(field[13]);
+          contentInfo->mFlags = toInt64(field[14]);
 
 
           if (prevFileInfo.mName != fileInfo.mName)

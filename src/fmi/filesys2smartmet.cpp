@@ -291,7 +291,6 @@ void readSourceFiles(std::vector<std::pair<std::string,std::string>>& fileList)
               if (modificationTime > 0)
               {
                 T::FileInfo *fileInfo = new T::FileInfo();
-                fileInfo->mGroupFlags = 0;
                 fileInfo->mProducerId = producer->mProducerId;
                 fileInfo->mGenerationId = generation->mGenerationId;
                 fileInfo->mFileId = mSourceFileList.getLength() + 1;
@@ -421,24 +420,18 @@ void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Messag
     contentInfo.mFileType = gridFile.getFileType();
     contentInfo.mFilePosition = message.getFilePosition();
     contentInfo.mMessageSize = message.getMessageSize();
-    contentInfo.mGroupFlags = 0;
-    contentInfo.mForecastTime = message.getForecastTime();
+    contentInfo.setForecastTime(message.getForecastTime());
     contentInfo.mFmiParameterId = message.getFmiParameterId();
     contentInfo.setFmiParameterName(message.getFmiParameterName());
     contentInfo.mGribParameterId = message.getGribParameterId();
-    contentInfo.mCdmParameterId = message.getCdmParameterId();
-    contentInfo.mCdmParameterName = message.getCdmParameterName();
     contentInfo.mNewbaseParameterId = message.getNewbaseParameterId();
-    contentInfo.mNewbaseParameterName = message.getNewbaseParameterName();
+    contentInfo.setNewbaseParameterName(message.getNewbaseParameterName());
     contentInfo.mFmiParameterLevelId = message.getFmiParameterLevelId();
     contentInfo.mGrib1ParameterLevelId = message.getGrib1ParameterLevelId();
     contentInfo.mGrib2ParameterLevelId = message.getGrib2ParameterLevelId();
     contentInfo.mParameterLevel = message.getGridParameterLevel();
-    contentInfo.mFmiParameterUnits = message.getFmiParameterUnits();
-    contentInfo.mGribParameterUnits = message.getGribParameterUnits();
     contentInfo.mForecastType = message.getForecastType();
     contentInfo.mForecastNumber = message.getForecastNumber();
-    contentInfo.mServerFlags = 0;
     contentInfo.mFlags = 0;
     contentInfo.mSourceId = mSourceId;
     contentInfo.mGeometryId = message.getGridGeometryId();

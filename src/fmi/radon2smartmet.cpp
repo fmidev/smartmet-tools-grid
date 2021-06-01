@@ -44,7 +44,7 @@ struct FileRec
     uint messageIndex;
     ulonglong filePosition;
     uint messageSize;
-    std::string paramId;
+    uint paramId;
     short levelId;
     int levelValue;
     time_t analysisTime;
@@ -709,7 +709,7 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
       rec.messageIndex = toInt64(PQgetvalue(res, i, 1));
       rec.filePosition = toInt64(PQgetvalue(res, i, 2));
       rec.messageSize = toInt64(PQgetvalue(res, i, 3));
-      rec.paramId = PQgetvalue(res, i, 4);
+      rec.paramId = toUInt32(PQgetvalue(res, i, 4));
       rec.levelId = toInt64(PQgetvalue(res, i, 5));
       rec.levelValue = toInt64(PQgetvalue(res, i, 6));
       rec.analysisTime = utcTimeToTimeT(PQgetvalue(res, i, 7));
@@ -1433,7 +1433,6 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
 
         T::FileAndContent fc;
 
-        fc.mFileInfo.mGroupFlags = 0;
         fc.mFileInfo.mProducerId = generation.mProducerId;
         fc.mFileInfo.mGenerationId = generation.mGenerationId;
         fc.mFileInfo.mFileId = 0;
@@ -1496,14 +1495,12 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
           contentInfo->mMessageSize = it->messageSize;
           contentInfo->mProducerId = fileInfo->mProducerId;
           contentInfo->mGenerationId = fileInfo->mGenerationId;
-          contentInfo->mGroupFlags = 0;
-          contentInfo->mForecastTime = utcTimeFromTimeT(it->forecastTime);
+          contentInfo->setForecastTime(utcTimeFromTimeT(it->forecastTime));
           contentInfo->mFmiParameterId = it->paramId;
           contentInfo->mFmiParameterLevelId = it->levelId;
           contentInfo->mParameterLevel = it->levelValue;
           contentInfo->mForecastType = it->forecastType;
           contentInfo->mForecastNumber = it->forecastNumber;
-          contentInfo->mServerFlags = 0;
           contentInfo->mFlags = 0;
           contentInfo->mSourceId = mSourceId;
           contentInfo->mGeometryId = it->geometryId;
@@ -1514,13 +1511,12 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
           if (Identification::gridDef.getFmiParameterDefById(it->paramId, fmiDef))
           {
             contentInfo->setFmiParameterName(fmiDef.mParameterName);
-            contentInfo->mFmiParameterUnits = fmiDef.mParameterUnits;
 
             Identification::NewbaseParameterDef newbaseDef;
             if (Identification::gridDef.getNewbaseParameterDefByFmiId(it->paramId, newbaseDef))
             {
               contentInfo->mNewbaseParameterId = newbaseDef.mNewbaseParameterId;
-              contentInfo->mNewbaseParameterName = newbaseDef.mParameterName;
+              contentInfo->setNewbaseParameterName(newbaseDef.mParameterName);
             }
           }
 
@@ -1598,14 +1594,12 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
           contentInfo->mMessageSize = it->messageSize;
           contentInfo->mProducerId = fileInfo->mProducerId;
           contentInfo->mGenerationId = fileInfo->mGenerationId;
-          contentInfo->mGroupFlags = 0;
-          contentInfo->mForecastTime = utcTimeFromTimeT(it->forecastTime);
+          contentInfo->setForecastTime(utcTimeFromTimeT(it->forecastTime));
           contentInfo->mFmiParameterId = it->paramId;
           contentInfo->mFmiParameterLevelId = it->levelId;
           contentInfo->mParameterLevel = it->levelValue;
           contentInfo->mForecastType = it->forecastType;
           contentInfo->mForecastNumber = it->forecastNumber;
-          contentInfo->mServerFlags = 0;
           contentInfo->mFlags = 0;
           contentInfo->mSourceId = mSourceId;
           contentInfo->mGeometryId = it->geometryId;
@@ -1616,13 +1610,12 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
           if (Identification::gridDef.getFmiParameterDefById(it->paramId, fmiDef))
           {
             contentInfo->setFmiParameterName(fmiDef.mParameterName);
-            contentInfo->mFmiParameterUnits = fmiDef.mParameterUnits;
 
             Identification::NewbaseParameterDef newbaseDef;
             if (Identification::gridDef.getNewbaseParameterDefByFmiId(it->paramId, newbaseDef))
             {
               contentInfo->mNewbaseParameterId = newbaseDef.mNewbaseParameterId;
-              contentInfo->mNewbaseParameterName = newbaseDef.mParameterName;
+              contentInfo->setNewbaseParameterName(newbaseDef.mParameterName);
             }
           }
 

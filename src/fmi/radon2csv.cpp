@@ -120,13 +120,13 @@ void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uin
 
 
     Identification::FmiParameterDef fmiDef;
-    if (Identification::gridDef.getFmiParameterDefById(fmiParameterId,fmiDef))
+    if (Identification::gridDef.getFmiParameterDefById(toUInt32(fmiParameterId),fmiDef))
     {
       fmiParameterName = fmiDef.mParameterName;
       fmiParameterUnits = fmiDef.mParameterUnits;
 
       Identification::NewbaseParameterDef newbaseDef;
-      if (Identification::gridDef.getNewbaseParameterDefByFmiId(fmiParameterId,newbaseDef))
+      if (Identification::gridDef.getNewbaseParameterDefByFmiId(toUInt32(fmiParameterId),newbaseDef))
       {
         newbaseParameterId = newbaseDef.mNewbaseParameterId;
         newbaseParameterName = newbaseDef.mParameterName;

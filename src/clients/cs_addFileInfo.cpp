@@ -13,21 +13,20 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 9)
+    if (argc < 8)
     {
-      fprintf(stdout,"USAGE: cs_addFileInfo <sessionId> <groupFlags> <producerId> <generationId> <fileType> <sourceId> <flags> <filename> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"USAGE: cs_addFileInfo <sessionId> <producerId> <generationId> <fileType> <sourceId> <flags> <filename> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
     T::FileInfo info;
     T::SessionId sessionId = toInt64(argv[1]);
-    info.mGroupFlags  = toInt64(argv[2]);
-    info.mProducerId = toInt64(argv[3]);
-    info.mGenerationId = toInt64(argv[4]);
-    info.mFileType = toInt64(argv[5]);
-    info.mSourceId = toInt64(argv[6]);
-    info.mFlags = toInt64(argv[7]);
-    info.mName = argv[8];
+    info.mProducerId = toInt64(argv[2]);
+    info.mGenerationId = toInt64(argv[3]);
+    info.mFileType = toInt64(argv[4]);
+    info.mSourceId = toInt64(argv[5]);
+    info.mFlags = toInt64(argv[6]);
+    info.mName = argv[7];
 
     ContentServer::ServiceInterface *service = nullptr;
 

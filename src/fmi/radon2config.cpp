@@ -898,7 +898,7 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
       fprintf(file,"\n# %s\n",PQgetvalue(res,i,1));
       if (newbaseId > "0")
       {
-        if (Identification::gridDef.getNewbaseParameterDefById(newbaseId,paramDef))
+        if (Identification::gridDef.getNewbaseParameterDefById(toUInt32(newbaseId),paramDef))
           fprintf(file,"# %s => %s\n",PQgetvalue(res,i,0),paramDef.mParameterName.c_str());
         else
           fprintf(file,"# %s => NEWBASE-PARAMETER[%s]\n",PQgetvalue(res,i,0),newbaseId.c_str());
