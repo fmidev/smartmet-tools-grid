@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 21.5.25
+Version: 21.6.1
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 21.5.21
-BuildRequires: smartmet-library-grid-files-devel >= 21.5.25
-BuildRequires: smartmet-library-grid-content-devel >= 21.5.25
+BuildRequires: smartmet-library-spine-devel >= 21.5.31
+BuildRequires: smartmet-library-grid-files-devel >= 21.6.1
+BuildRequires: smartmet-library-grid-content-devel >= 21.6.1
 BuildRequires: gdal32-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -31,8 +31,8 @@ Requires: libconfig
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 21.5.25
-Requires: smartmet-library-grid-content >= 21.5.25
+Requires: smartmet-library-grid-files >= 21.6.1
+Requires: smartmet-library-grid-content >= 21.6.1
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -54,7 +54,6 @@ Provides: cs_deleteContentListByFileId = %{version}
 Provides: cs_deleteContentListByFileName = %{version}
 Provides: cs_deleteContentListByGenerationId = %{version}
 Provides: cs_deleteContentListByGenerationName = %{version}
-Provides: cs_deleteContentListByGroupFlags = %{version}
 Provides: cs_deleteContentListByProducerId = %{version}
 Provides: cs_deleteContentListByProducerName = %{version}
 Provides: cs_deleteContentListBySourceId = %{version}
@@ -64,7 +63,6 @@ Provides: cs_deleteFileInfoListByFileIdList = %{version}
 Provides: cs_deleteFileInfoListByGenerationId = %{version}
 Provides: cs_deleteFileInfoListByGenerationIdAndForecastTime = %{version}
 Provides: cs_deleteFileInfoListByGenerationName = %{version}
-Provides: cs_deleteFileInfoListByGroupFlags = %{version}
 Provides: cs_deleteFileInfoListByProducerId = %{version}
 Provides: cs_deleteFileInfoListByProducerName = %{version}
 Provides: cs_deleteFileInfoListBySourceId = %{version}
@@ -87,7 +85,6 @@ Provides: cs_getContentListByFileName = %{version}
 Provides: cs_getContentListByGenerationId = %{version}
 Provides: cs_getContentListByGenerationIdAndTimeRange = %{version}
 Provides: cs_getContentListByGenerationName = %{version}
-Provides: cs_getContentListByGroupFlags = %{version}
 Provides: cs_getContentListByParameter = %{version}
 Provides: cs_getContentListByParameterAndGenerationId = %{version}
 Provides: cs_getContentListByParameterAndProducerId = %{version}
@@ -252,7 +249,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_deleteContentListByFileName
 %{_bindir}/clients/cs_deleteContentListByGenerationId
 %{_bindir}/clients/cs_deleteContentListByGenerationName
-%{_bindir}/clients/cs_deleteContentListByGroupFlags
 %{_bindir}/clients/cs_deleteContentListByProducerId
 %{_bindir}/clients/cs_deleteContentListByProducerName
 %{_bindir}/clients/cs_deleteContentListBySourceId
@@ -262,7 +258,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_deleteFileInfoListByGenerationId
 %{_bindir}/clients/cs_deleteFileInfoListByGenerationIdAndForecastTime
 %{_bindir}/clients/cs_deleteFileInfoListByGenerationName
-%{_bindir}/clients/cs_deleteFileInfoListByGroupFlags
 %{_bindir}/clients/cs_deleteFileInfoListByProducerId
 %{_bindir}/clients/cs_deleteFileInfoListByProducerName
 %{_bindir}/clients/cs_deleteFileInfoListBySourceId
@@ -285,7 +280,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_getContentListByGenerationId
 %{_bindir}/clients/cs_getContentListByGenerationIdAndTimeRange
 %{_bindir}/clients/cs_getContentListByGenerationName
-%{_bindir}/clients/cs_getContentListByGroupFlags
 %{_bindir}/clients/cs_getContentListByParameter
 %{_bindir}/clients/cs_getContentListByParameterAndGenerationId
 %{_bindir}/clients/cs_getContentListByParameterAndProducerId
@@ -435,6 +429,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Tue Jun  1 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.6.1-1.fmi
+- Minor updates
 * Tue May 25 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.5.25-1.fmi
 - Minor improvements to image rendering and printouts
 * Thu Apr  1 2021 Pertti Kinnia <pertti.kinnia@fmi.fi> - 21.4.1-1.fmi
