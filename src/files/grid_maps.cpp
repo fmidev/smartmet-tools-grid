@@ -28,7 +28,7 @@ enum ImageFlags
 
 
 
-void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::ParamId parameterId,T::ParamValue& minValue,T::ParamValue& maxValue)
+void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::GribParamId parameterId,T::ParamValue& minValue,T::ParamValue& maxValue)
 {
   try
   {
@@ -66,7 +66,7 @@ void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::ParamId parameterId,T::P
 
 
 
-void getParameterIdentifiers(GRID::GridFile& gridFile,std::set<T::ParamId>& parameterIdList)
+void getParameterIdentifiers(GRID::GridFile& gridFile,std::set<T::GribParamId>& parameterIdList)
 {
   try
   {
@@ -175,11 +175,11 @@ void saveMessageMap(const char *imageFile,const GRID::Message *message,T::ParamV
 
 
 
-void saveMapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::ParamId parameterId,const char *imageDir,uint valueLevels,uint flags)
+void saveMapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::GribParamId parameterId,const char *imageDir,uint valueLevels,uint flags)
 {
   try
   {
-    printf("SAVE MAPS %s\n",parameterId.c_str());
+    printf("SAVE MAPS %u\n",parameterId);
 
     T::ParamValue minValue = 0;
     T::ParamValue maxValue = 0;
@@ -202,7 +202,7 @@ void saveMapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::
 
         auto level = message->getGridParameterLevel();
         char imageFile[300];
-        sprintf(imageFile,"%s/map-%04u-%s-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId.c_str(),level,toString(message->getForecastTime()).c_str(),(unsigned long long)m);
+        sprintf(imageFile,"%s/map-%04u-%u-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId,level,toString(message->getForecastTime()).c_str(),(unsigned long long)m);
         saveMessageMap(imageFile,message,minValue,maxValue,interpolationMethod,valueLevels,flags);
       }
     }
@@ -220,7 +220,7 @@ void saveAllMaps(uint fileIndex,SmartMet::GRID::GridFile& gridFile,const char *i
 {
   try
   {
-    std::set<T::ParamId> parameterIdList;
+    std::set<T::GribParamId> parameterIdList;
     getParameterIdentifiers(gridFile,parameterIdList);
 
     for (auto id = parameterIdList.begin();id != parameterIdList.end(); ++id)
@@ -275,7 +275,7 @@ int run(int argc, char **argv)
     }
 
     std::string imageDir = argv[1];
-    T::ParamId parameterId;
+    T::GribParamId parameterId;
     uint valueLevels = 256;
     uint flags = 0;
     std::vector<std::string>files;
@@ -284,7 +284,7 @@ int run(int argc, char **argv)
     {
       if (strcmp(argv[t],"-p") == 0  &&  (t+1) < argc)
       {
-        parameterId = argv[t+1];
+        parameterId = toUInt32(argv[t+1]);
         t++;
       }
       else
@@ -320,7 +320,7 @@ int run(int argc, char **argv)
       gridFile.read(file);
       unsigned long long readEndTime = getTime();
 
-      if (toInt64(parameterId.c_str()) != 0)
+      if (parameterId != 0)
         saveMapsByParameterId(fileIndex,gridFile,parameterId,imageDir.c_str(),valueLevels,flags);
       else
         saveAllMaps(fileIndex,gridFile,imageDir.c_str(),valueLevels,flags);

@@ -15,19 +15,18 @@ int main(int argc, char *argv[])
   {
     if (argc < 9)
     {
-      fprintf(stdout,"USAGE: cs_addFileInfoListFromFile <sessionId> <groupFlags> <producerId> <generationId> <fileType> <sourceId> <flags> <filename> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"USAGE: cs_addFileInfoListFromFile <sessionId> <producerId> <generationId> <fileType> <sourceId> <flags> <filename> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
 
     T::FileInfo info;
     T::SessionId sessionId = toInt64(argv[1]);
-    info.mGroupFlags  = toInt64(argv[2]);
-    info.mProducerId = toInt64(argv[3]);
-    info.mGenerationId = toInt64(argv[4]);
-    info.mFileType = toInt64(argv[5]);
-    info.mSourceId = toInt64(argv[6]);
-    info.mFlags = toInt64(argv[7]);
+    info.mProducerId = toInt64(argv[2]);
+    info.mGenerationId = toInt64(argv[3]);
+    info.mFileType = toInt64(argv[4]);
+    info.mSourceId = toInt64(argv[5]);
+    info.mFlags = toInt64(argv[6]);
 
     char* filename = argv[8];
 

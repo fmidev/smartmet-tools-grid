@@ -57,7 +57,7 @@ void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_ve
           Identification::NewbaseParameterDef rec;
 
           if (field[0][0] != '\0')
-            rec.mNewbaseParameterId = field[0];
+            rec.mNewbaseParameterId = toUInt32(field[0]);
 
           if (field[1][0] != '\0')
             rec.mParameterName = field[1];

@@ -27,7 +27,7 @@ enum ImageFlags
 
 
 
-void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::ParamId parameterId,T::ParamValue& minValue,T::ParamValue& maxValue)
+void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::GribParamId parameterId,T::ParamValue& minValue,T::ParamValue& maxValue)
 {
   try
   {
@@ -166,11 +166,11 @@ void saveMessageImage(const char *imageFile,const GRID::Message *message,T::Para
 
 
 
-void saveImagesByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::ParamId parameterId,const char *imageDir,double scaleFactor,uint valueLevels,uint flags)
+void saveImagesByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::GribParamId parameterId,const char *imageDir,double scaleFactor,uint valueLevels,uint flags)
 {
   try
   {
-    printf("SAVE IMAGES %s\n",parameterId.c_str());
+    printf("SAVE IMAGES %u\n",parameterId);
 
     T::ParamValue minValue = 0;
     T::ParamValue maxValue = 0;
@@ -193,7 +193,7 @@ void saveImagesByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T
           message->getGridMinAndMaxValues(minValue,maxValue);
 
         char imageFile[300];
-        sprintf(imageFile,"%s/image-%04u-%s-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId.c_str(),level,toString(message->getForecastTime()).c_str(),(unsigned long long)m);
+        sprintf(imageFile,"%s/image-%04u-%u-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId,level,toString(message->getForecastTime()).c_str(),(unsigned long long)m);
         saveMessageImage(imageFile,message,minValue,maxValue,interpolationMethod,scaleFactor,valueLevels,flags);
       }
     }
@@ -276,7 +276,7 @@ int run(int argc, char **argv)
 
 
     std::string imageDir = argv[1];
-    T::ParamId parameterId;
+    T::GribParamId parameterId;
     uint valueLevels = 256;
     double scaleFactor = 1.0;
     uint flags = 0;
@@ -286,7 +286,7 @@ int run(int argc, char **argv)
     {
       if (strcmp(argv[t],"-p") == 0  &&  (t+1) < argc)
       {
-        parameterId = argv[t+1];
+        parameterId = toUInt32(argv[t+1]);
         t++;
       }
       else
@@ -331,7 +331,7 @@ int run(int argc, char **argv)
       gridFile.read(file);
       unsigned long long readEndTime = getTime();
 
-      if (toInt64(parameterId.c_str()) != 0)
+      if (parameterId != 0)
         saveImagesByParameterId(fileIndex,gridFile,parameterId,imageDir.c_str(),scaleFactor,valueLevels,flags);
       else
         saveAllImages(fileIndex,gridFile,imageDir.c_str(),scaleFactor,valueLevels,flags);

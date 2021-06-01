@@ -28,7 +28,7 @@ enum ImageFlags
 
 
 
-void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::ParamId parameterId,T::ParamValue& minValue,T::ParamValue& maxValue)
+void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::GribParamId parameterId,T::ParamValue& minValue,T::ParamValue& maxValue)
 {
   try
   {
@@ -65,7 +65,7 @@ void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::ParamId parameterId,T::P
 
 
 
-void getParameterIdentifiers(GRID::GridFile& gridFile,std::set<T::ParamId>& parameterIdList)
+void getParameterIdentifiers(GRID::GridFile& gridFile,std::set<T::GribParamId>& parameterIdList)
 {
   try
   {
@@ -179,11 +179,11 @@ void saveMessageSubmap(const char *imageFile,const GRID::Message *message,double
 
 
 
-void saveSubmapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::ParamId parameterId,double lat,double lon,uint width,uint height,double step,const char *imageDir,uint valueLevels,uint flags)
+void saveSubmapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::GribParamId parameterId,double lat,double lon,uint width,uint height,double step,const char *imageDir,uint valueLevels,uint flags)
 {
   try
   {
-    printf("SAVE SUBMAPS %s\n",parameterId.c_str());
+    printf("SAVE SUBMAPS %u\n",parameterId);
 
     T::ParamValue minValue = 0;
     T::ParamValue maxValue = 0;
@@ -206,7 +206,7 @@ void saveSubmapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,
 
         auto level = message->getGridParameterLevel();
         char imageFile[300];
-        sprintf(imageFile,"%s/submap-%04u-%s-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId.c_str(),level,toString(message->getForecastTime()).c_str(),(unsigned long long)m);
+        sprintf(imageFile,"%s/submap-%04u-%u-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId,level,toString(message->getForecastTime()).c_str(),(unsigned long long)m);
         saveMessageSubmap(imageFile,message,lat,lon,width,height,step,minValue,maxValue,interpolationMethod,valueLevels,flags);
       }
     }
@@ -224,7 +224,7 @@ void saveAllSubmaps(uint fileIndex,SmartMet::GRID::GridFile& gridFile,double lat
 {
   try
   {
-    std::set<T::ParamId> parameterIdList;
+    std::set<T::GribParamId> parameterIdList;
     getParameterIdentifiers(gridFile,parameterIdList);
 
     for (auto id = parameterIdList.begin();id != parameterIdList.end(); ++id)
@@ -289,7 +289,7 @@ int run(int argc, char **argv)
     uint height = toInt64(argv[5]);
     double step = toDouble(argv[6]);
 
-    T::ParamId parameterId;
+    T::GribParamId parameterId;
     uint valueLevels = 256;
     uint flags = 0;
     std::vector<std::string>files;
@@ -298,7 +298,7 @@ int run(int argc, char **argv)
     {
       if (strcmp(argv[t],"-p") == 0  &&  (t+1) < argc)
       {
-        parameterId = argv[t+1];
+        parameterId = toUInt32(argv[t+1]);
         t++;
       }
       else
@@ -334,7 +334,7 @@ int run(int argc, char **argv)
       gridFile.read(file);
       unsigned long long readEndTime = getTime();
 
-      if (toInt64(parameterId.c_str()) != 0)
+      if (parameterId != 0)
         saveSubmapsByParameterId(fileIndex,gridFile,parameterId,lat,lon,width,height,step,imageDir.c_str(),valueLevels,flags);
       else
         saveAllSubmaps(fileIndex,gridFile,lat,lon,width,height,step,imageDir.c_str(),valueLevels,flags);

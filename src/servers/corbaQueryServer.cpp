@@ -159,8 +159,6 @@ FILE* openMappingFile(std::string mappingFile)
     fprintf(file,"#         3 = GRIB_ID\n");
     fprintf(file,"#         4 = NEWBASE_ID\n");
     fprintf(file,"#         5 = NEWBASE_NAME\n");
-    fprintf(file,"#         6 = CDM_ID\n");
-    fprintf(file,"#         7 = CDM_NAME\n");
     fprintf(file,"#  4) Parameter id / name\n");
     fprintf(file,"#  5) Geometry id\n");
     fprintf(file,"#  6) Parameter level id type:\n");
@@ -338,10 +336,10 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
                   found = Identification::gridDef.getFmiParameterDefByName(pl[3],paramDef);
                 else
                 if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_ID)
-                  found = Identification::gridDef.getFmiParameterDefById(pl[3],paramDef);
+                  found = Identification::gridDef.getFmiParameterDefById(toUInt32(pl[3]),paramDef);
                 else
                 if (targetParameterKeyType == T::ParamKeyTypeValue::NEWBASE_ID)
-                  found = Identification::gridDef.getFmiParameterDefByNewbaseId(pl[3],paramDef);
+                  found = Identification::gridDef.getFmiParameterDefByNewbaseId(toUInt32(pl[3]),paramDef);
 
                 if (found)
                 {

@@ -32,8 +32,6 @@ int main(int argc, char *argv[])
       fprintf(stdout,"                            fmi-id       => Radon identifier\n");
       fprintf(stdout,"                            fmi-name     => Radon name\n");
       fprintf(stdout,"                            grib-id      => GRIB identifier\n");
-      fprintf(stdout,"                            cdm-id       => CDM identifier\n");
-      fprintf(stdout,"                            cdm-name     => CDM name\n");
       fprintf(stdout,"                            newbase-id   => Newbase identifier\n");
       fprintf(stdout,"                            newbase-name => Newbase name\n");
       fprintf(stdout,"  parameterKey          = Parameter search key\n");
@@ -73,12 +71,6 @@ int main(int argc, char *argv[])
     else
     if (strcmp(argv[2],"grib-id") == 0)
       paramKeyType = T::ParamKeyTypeValue::GRIB_ID;
-    else
-    if (strcmp(argv[2],"cdm-id") == 0)
-      paramKeyType = T::ParamKeyTypeValue::CDM_ID;
-    else
-    if (strcmp(argv[2],"cdm-name") == 0)
-      paramKeyType = T::ParamKeyTypeValue::CDM_NAME;
     else
     if (strcmp(argv[2],"newbase-id") == 0)
       paramKeyType = T::ParamKeyTypeValue::NEWBASE_ID;
