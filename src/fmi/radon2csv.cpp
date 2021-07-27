@@ -128,7 +128,7 @@ void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uin
       Identification::NewbaseParameterDef newbaseDef;
       if (Identification::gridDef.getNewbaseParameterDefByFmiId(toUInt32(fmiParameterId),newbaseDef))
       {
-        newbaseParameterId = newbaseDef.mNewbaseParameterId;
+        newbaseParameterId = std::to_string(newbaseDef.mNewbaseParameterId);
         newbaseParameterName = newbaseDef.mParameterName;
       }
 /*
