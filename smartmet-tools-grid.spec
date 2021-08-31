@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 21.7.27
+Version: 21.8.31
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,9 +14,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 21.7.5
-BuildRequires: smartmet-library-grid-files-devel >= 21.6.8
-BuildRequires: smartmet-library-grid-content-devel >= 21.6.8
+BuildRequires: smartmet-library-spine-devel >= 21.8.30
+BuildRequires: smartmet-library-grid-files-devel >= 21.8.31
+BuildRequires: smartmet-library-grid-content-devel >= 21.8.18
 BuildRequires: gdal32-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -31,8 +31,8 @@ Requires: libconfig
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 21.6.8
-Requires: smartmet-library-grid-content >= 21.6.8
+Requires: smartmet-library-grid-files >= 21.8.31
+Requires: smartmet-library-grid-content >= 21.8.18
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -429,6 +429,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Tue Aug 31 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.8.31-1.fmi
+- Repackaged due to Spine ABI changes
 * Tue Jul 27 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.7.27-1.fmi
 - Fixed string conversion bug in radon2csv
 * Tue Jun  8 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.6.8-1.fmi
