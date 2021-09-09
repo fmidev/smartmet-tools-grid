@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 21.8.31
+Version: 21.9.9
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -13,7 +13,6 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
-BuildRequires: libconfig-devel
 BuildRequires: smartmet-library-spine-devel >= 21.8.30
 BuildRequires: smartmet-library-grid-files-devel >= 21.8.31
 BuildRequires: smartmet-library-grid-content-devel >= 21.8.18
@@ -26,7 +25,6 @@ BuildRequires: libpng-devel
 BuildRequires: openldap-devel
 BuildRequires: openssl-devel
 BuildRequires: krb5-devel
-Requires: libconfig
 #Requires: smartmet-library-macgyver >= 18.2.6
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
@@ -429,6 +427,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu Sep  9 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.9.9-1.fmi
+- Removed obsolete libconfig dependency
 * Tue Aug 31 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.8.31-1.fmi
 - Repackaged due to Spine ABI changes
 * Tue Jul 27 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.7.27-1.fmi
