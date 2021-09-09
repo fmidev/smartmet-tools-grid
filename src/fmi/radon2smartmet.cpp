@@ -41,6 +41,7 @@ struct ForecastRec
 struct FileRec
 {
     int fileId;
+    uchar format;
     uint messageIndex;
     ulonglong filePosition;
     uint messageSize;
@@ -679,11 +680,12 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
     p += sprintf(p, "  forecast_type_id,\n");
     p += sprintf(p, "  forecast_type_value::int,\n");
     p += sprintf(p, "  geometry_id,\n");
-    p += sprintf(p, "  producer_id\n");
+    p += sprintf(p, "  producer_id,\n");
+    p += sprintf(p, "  file_format_id\n");
     p += sprintf(p, "FROM\n");
     p += sprintf(p, "  %s\n", tableName);
     p += sprintf(p, "WHERE\n");
-    p += sprintf(p, "  producer_id=%u AND analysis_time = to_timestamp('%s', 'yyyymmddThh24MISS') AND file_format_id IN (1,2)\n", producerId, analysisTime);
+    p += sprintf(p, "  producer_id=%u AND analysis_time = to_timestamp('%s', 'yyyymmddThh24MISS') AND file_format_id IN (1,2,3,4)\n", producerId, analysisTime);
 
     //printf("%s\n",sql);
     PGresult *res = PQexec(conn, sql);
@@ -721,6 +723,8 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
       rec.forecastNumber = toInt64(PQgetvalue(res, i, 11));
       rec.geometryId = toInt64(PQgetvalue(res, i, 12));
       rec.producerId = toInt64(PQgetvalue(res, i, 13));
+
+      rec.format = toInt32(PQgetvalue(res, i, 14));
       rec.producerName = producerName;
       rec.lastUpdated = utcTimeToTimeT(updateTime.c_str());
 
@@ -1436,7 +1440,7 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
         fc.mFileInfo.mProducerId = generation.mProducerId;
         fc.mFileInfo.mGenerationId = generation.mGenerationId;
         fc.mFileInfo.mFileId = 0;
-        fc.mFileInfo.mFileType = T::FileTypeValue::Unknown;
+        fc.mFileInfo.mFileType = it->format;
         fc.mFileInfo.mName = filename;
         fc.mFileInfo.mFlags = 0;
         fc.mFileInfo.mSourceId = mSourceId;
@@ -1489,7 +1493,7 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
           T::ContentInfo *contentInfo = new T::ContentInfo();
 
           contentInfo->mFileId = fileInfo->mFileId;
-          contentInfo->mFileType = T::FileTypeValue::Unknown;
+          contentInfo->mFileType = fileInfo->mFileType;
           contentInfo->mMessageIndex = it->messageIndex;
           contentInfo->mFilePosition = it->filePosition;
           contentInfo->mMessageSize = it->messageSize;
@@ -1517,6 +1521,12 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
             {
               contentInfo->mNewbaseParameterId = newbaseDef.mNewbaseParameterId;
               contentInfo->setNewbaseParameterName(newbaseDef.mParameterName);
+            }
+
+            Identification::NetCdfParameterDef netCdfDef;
+            if (Identification::gridDef.getNetCdfParameterDefByFmiId(it->paramId, netCdfDef))
+            {
+              contentInfo->setNetCdfParameterName(netCdfDef.mParameterName);
             }
           }
 
@@ -1616,6 +1626,12 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
             {
               contentInfo->mNewbaseParameterId = newbaseDef.mNewbaseParameterId;
               contentInfo->setNewbaseParameterName(newbaseDef.mParameterName);
+            }
+
+            Identification::NetCdfParameterDef netCdfDef;
+            if (Identification::gridDef.getNetCdfParameterDefByFmiId(it->paramId, netCdfDef))
+            {
+              contentInfo->setNetCdfParameterName(netCdfDef.mParameterName);
             }
           }
 

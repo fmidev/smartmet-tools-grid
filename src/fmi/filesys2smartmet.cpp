@@ -417,7 +417,7 @@ void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Messag
 {
   try
   {
-    contentInfo.mFileType = gridFile.getFileType();
+    contentInfo.mFileType = message.getMessageType();
     contentInfo.mFilePosition = message.getFilePosition();
     contentInfo.mMessageSize = message.getMessageSize();
     contentInfo.setForecastTime(message.getForecastTime());
@@ -426,6 +426,7 @@ void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Messag
     contentInfo.mGribParameterId = message.getGribParameterId();
     contentInfo.mNewbaseParameterId = message.getNewbaseParameterId();
     contentInfo.setNewbaseParameterName(message.getNewbaseParameterName());
+    contentInfo.setNetCdfParameterName(message.getNetCdfParameterName());
     contentInfo.mFmiParameterLevelId = message.getFmiParameterLevelId();
     contentInfo.mGrib1ParameterLevelId = message.getGrib1ParameterLevelId();
     contentInfo.mGrib2ParameterLevelId = message.getGrib2ParameterLevelId();
@@ -469,6 +470,7 @@ void readSourceContent(uint producerId,uint generationId,time_t modificationTime
         contentInfo->mModificationTime = modificationTime;
 
         setMessageContent(gridFile,*message,*contentInfo);
+        //contentInfo->print(std::cout,0,0);
         contentList.addContentInfo(contentInfo);
       }
     }
