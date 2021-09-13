@@ -11,28 +11,10 @@ REQUIRES = libpqxx gdal icu-i18n
 
 include $(shell echo $${PREFIX-/usr})/share/smartmet/devel/makefile.inc
 
-
-# Installation directories
-
-processor := $(shell uname -p)
-
-ifeq ($(origin PREFIX), undefined)
-  EPREFIX = /usr
-else
-  EPREFIX = $(PREFIX)
+ifneq ($(wildcard /usr/pgsql-12/lib/libpq.so),)
+INCLUDES += -isystem /usr/pgsql-12/include
+REQUIRED_LIBS += -L/usr/pgsql-12/lib
 endif
-
-ifeq ($(processor), x86_64)
-  libdir = $(EPREFIX)/lib64
-else
-  libdir = $(EPREFIX)/lib
-endif
-
-bindir = $(EPREFIX)/bin
-includedir = $(EPREFIX)/include
-datadir = $(EPREFIX)/share
-objdir = obj
-
 
 ifeq ($(CORBA), disabled)
   CORBA_FLAGS = -DCORBA_DISABLED
@@ -43,10 +25,6 @@ else
   CORBA_LIBS = -lomniORB4 -lomnithread
 endif
 
-
-
-# Compiler options
-
 DEFINES = -DUNIX -D_REENTRANT
 
 INCLUDES += \
@@ -56,14 +34,7 @@ INCLUDES += \
 	$(CORBA_INCLUDE)
 
 # Compile options in detault, debug and profile modes
-
-CFLAGS         = $(DEFINES) $(FLAGS) $(FLAGS_RELEASE) -DNDEBUG -O2 -g
-CFLAGS_DEBUG   = $(DEFINES) $(FLAGS) $(FLAGS_DEBUG)   -Werror  -Og -g
-CFLAGS_PROFILE = $(DEFINES) $(FLAGS) $(FLAGS_PROFILE) -DNDEBUG -O2 -g -pg
-
-
 LIBS += -L$(libdir) \
-	$(REQUIRED_LIBS) \
 	-lsmartmet-spine \
 	-lsmartmet-macgyver \
 	-lsmartmet-newbase \
@@ -83,7 +54,7 @@ LIBS += -L$(libdir) \
 	-lmicrohttpd \
 	-lcurl \
 	$(CORBA_LIBS) \
-	$(RQEUIRED_LIBS) \
+	$(REQUIRED_LIBS) \
 	-lssl -lcrypto \
 	-lstdc++ -lm \
 	-L /usr/lib/x86_64-linux-gnu -lpq \
