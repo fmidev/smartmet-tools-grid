@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 21.9.9
+Version: 21.9.13
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -427,6 +427,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Mon Sep 13 2021 Andris Pavēnis <andris.pavenis@fmi.fi> 21.9.13-1.fmi
+- Build update
+
 * Thu Sep  9 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.9.9-1.fmi
 - Removed obsolete libconfig dependency
 * Tue Aug 31 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.8.31-1.fmi
