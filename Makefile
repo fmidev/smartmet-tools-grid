@@ -7,7 +7,7 @@ INCDIR = smartmet/$(SUBNAME)
 
 CORBA = enabled
 
-REQUIRES = libpqxx gdal icu-18n
+REQUIRES = libpqxx gdal icu-i18n
 
 include $(shell echo $${PREFIX-/usr})/share/smartmet/devel/makefile.inc
 
