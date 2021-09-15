@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 21.9.13
+Version: 21.9.15
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -13,9 +13,9 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
-BuildRequires: smartmet-library-spine-devel >= 21.8.30
-BuildRequires: smartmet-library-grid-files-devel >= 21.8.31
-BuildRequires: smartmet-library-grid-content-devel >= 21.8.18
+BuildRequires: smartmet-library-spine-devel >= 21.9.13
+BuildRequires: smartmet-library-grid-files-devel >= 21.9.15
+BuildRequires: smartmet-library-grid-content-devel >= 21.9.15
 BuildRequires: gdal32-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -29,8 +29,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 21.8.31
-Requires: smartmet-library-grid-content >= 21.8.18
+Requires: smartmet-library-grid-files >= 21.9.15
+Requires: smartmet-library-grid-content >= 21.9.15
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -427,9 +427,10 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Sep 15 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.9.15-1.fmi
+- NetCDF support
 * Mon Sep 13 2021 Andris Pavēnis <andris.pavenis@fmi.fi> 21.9.13-1.fmi
 - Build update
-
 * Thu Sep  9 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.9.9-1.fmi
 - Removed obsolete libconfig dependency
 * Tue Aug 31 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.8.31-1.fmi
