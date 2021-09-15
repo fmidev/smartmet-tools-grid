@@ -93,6 +93,7 @@ string_vec          mParameterMappingFiles;
 pthread_t           mThread;
 std::string         mParameterMappingUpdateFile_fmi;
 std::string         mParameterMappingUpdateFile_newbase;
+std::string         mParameterMappingUpdateFile_netCdf;
 time_t              mParameterMappingUpdateTime = 0;
 T::ParamKeyType     mMappingTargetKeyType = T::ParamKeyTypeValue::FMI_NAME;
 
@@ -159,6 +160,7 @@ FILE* openMappingFile(std::string mappingFile)
     fprintf(file,"#         3 = GRIB_ID\n");
     fprintf(file,"#         4 = NEWBASE_ID\n");
     fprintf(file,"#         5 = NEWBASE_NAME\n");
+    fprintf(file,"#         6 = NETCDF_NAME\n");
     fprintf(file,"#  4) Parameter id / name\n");
     fprintf(file,"#  5) Geometry id\n");
     fprintf(file,"#  6) Parameter level id type:\n");
@@ -340,6 +342,9 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
                 else
                 if (targetParameterKeyType == T::ParamKeyTypeValue::NEWBASE_ID)
                   found = Identification::gridDef.getFmiParameterDefByNewbaseId(toUInt32(pl[3]),paramDef);
+                else
+                if (targetParameterKeyType == T::ParamKeyTypeValue::NETCDF_NAME)
+                  found = Identification::gridDef.getFmiParameterDefByNetCdfName(pl[3],paramDef);
 
                 if (found)
                 {
@@ -364,6 +369,20 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
                   {
                     Identification::FmiParameterId_newbase paramMapping;
                     if (Identification::gridDef.getNewbaseParameterMappingByFmiId(paramDef.mFmiParameterId,paramMapping))
+                    {
+                      fprintf(file,"%s;",paramMapping.mConversionFunction.c_str());
+                      fprintf(file,"%s;",paramMapping.mReverseConversionFunction.c_str());
+                    }
+                    else
+                    {
+                      fprintf(file,";;");
+                    }
+                  }
+                  else
+                  if (sourceParameterKeyType == T::ParamKeyTypeValue::NETCDF_NAME)
+                  {
+                    Identification::FmiParameterId_netCdf paramMapping;
+                    if (Identification::gridDef.getNetCdfParameterMappingByFmiId(paramDef.mFmiParameterId,paramMapping))
                     {
                       fprintf(file,"%s;",paramMapping.mConversionFunction.c_str());
                       fprintf(file,"%s;",paramMapping.mReverseConversionFunction.c_str());
@@ -443,6 +462,11 @@ void updateMappings()
       if (!mParameterMappingUpdateFile_newbase.empty())
       {
         updateMappings(T::ParamKeyTypeValue::NEWBASE_NAME,mMappingTargetKeyType,mParameterMappingUpdateFile_newbase,parameterMappings);
+      }
+
+      if (!mParameterMappingUpdateFile_netCdf.empty())
+      {
+        updateMappings(T::ParamKeyTypeValue::NETCDF_NAME,mMappingTargetKeyType,mParameterMappingUpdateFile_netCdf,parameterMappings);
       }
     }
   }
@@ -625,6 +649,7 @@ void readConfigFile(const char* configFile)
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.fmi",mParameterMappingUpdateFile_fmi);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.newbase",mParameterMappingUpdateFile_newbase);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.netCdf",mParameterMappingUpdateFile_netCdf);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingFiles",mParameterMappingFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.aliasFiles",mParameterAliasFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.luaFiles",mQueryServerLuaFiles);

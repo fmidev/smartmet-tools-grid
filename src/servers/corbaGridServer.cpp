@@ -111,6 +111,7 @@ std::vector<std::string> query_server_producerAliasFiles;
 uint query_server_mappingTargetKeyType = 0;
 std::string query_server_mappingUpdateFile_fmi;
 std::string query_server_mappingUpdateFile_newbase;
+std::string query_server_mappingUpdateFile_netCdf;
 std::vector<std::string> query_server_luaFiles;
 std::vector<std::string> query_server_mappingFiles;
 std::vector<std::string> query_server_aliasFiles;
@@ -184,6 +185,7 @@ FILE* openMappingFile(std::string mappingFile)
     fprintf(file,"#         3 = GRIB_ID\n");
     fprintf(file,"#         4 = NEWBASE_ID\n");
     fprintf(file,"#         5 = NEWBASE_NAME\n");
+    fprintf(file,"#         6 = NETCDF_NAME\n");
     fprintf(file,"#  4) Parameter id / name\n");
     fprintf(file,"#  5) Geometry id\n");
     fprintf(file,"#  6) Parameter level id type:\n");
@@ -469,6 +471,11 @@ void updateMappings()
       {
         updateMappings(T::ParamKeyTypeValue::NEWBASE_NAME,query_server_mappingTargetKeyType,query_server_mappingUpdateFile_newbase,parameterMappings);
       }
+
+      if (!query_server_mappingUpdateFile_netCdf.empty())
+      {
+        updateMappings(T::ParamKeyTypeValue::NETCDF_NAME,query_server_mappingTargetKeyType,query_server_mappingUpdateFile_netCdf,parameterMappings);
+      }
     }
   }
   catch (...)
@@ -682,6 +689,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingTargetKeyType",query_server_mappingTargetKeyType);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.fmi",query_server_mappingUpdateFile_fmi);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.newbase",query_server_mappingUpdateFile_newbase);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.netCdf",query_server_mappingUpdateFile_netCdf);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.luaFiles",query_server_luaFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingFiles",query_server_mappingFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.aliasFiles",query_server_aliasFiles);

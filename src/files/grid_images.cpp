@@ -176,7 +176,7 @@ void saveImagesByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T
     T::ParamValue maxValue = 0;
     short interpolationMethod = T::AreaInterpolationMethod::Linear;
     Identification::GribParameterDef def;
-    if (Identification::gridDef.getGribParamDefById(parameterId,def))
+    if (Identification::gridDef.getGribParameterDefById(parameterId,def))
       interpolationMethod = Identification::gridDef.getPreferredInterpolationMethodByUnits(def.mParameterUnits);
 
     if ((flags & IMGF_PARAM) != 0)
