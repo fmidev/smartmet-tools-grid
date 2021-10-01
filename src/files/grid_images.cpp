@@ -107,7 +107,7 @@ void saveMessageImage(const char *imageFile,const GRID::Message *message,T::Para
     int height = (int)(d.ny() * scaleFactor);
 
     if (width == 0)
-      width = (int)((int)message->getGridOriginalColumnCount() * scaleFactor);
+      width = (int)((int)message->getGridColumnCount() * scaleFactor);
 
     uint *image = new uint[width*height];
 
@@ -175,9 +175,6 @@ void saveImagesByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T
     T::ParamValue minValue = 0;
     T::ParamValue maxValue = 0;
     short interpolationMethod = T::AreaInterpolationMethod::Linear;
-    Identification::GribParameterDef def;
-    if (Identification::gridDef.getGribParameterDefById(parameterId,def))
-      interpolationMethod = Identification::gridDef.getPreferredInterpolationMethodByUnits(def.mParameterUnits);
 
     if ((flags & IMGF_PARAM) != 0)
       getGridMinAndMaxValues(gridFile,parameterId,minValue,maxValue);

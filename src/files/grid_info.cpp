@@ -155,8 +155,8 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
         else
           printf(" - Dimensions                    :\n");
 
-        printf(" - Grid rows                     : %u\n",msg->getGridOriginalRowCount());
-        printf(" - Grid columns                  : %u\n",msg->getGridOriginalColumnCount());
+        printf(" - Grid rows                     : %u\n",msg->getGridRowCount());
+        printf(" - Grid columns                  : %u\n",msg->getGridColumnCount());
         printf(" - Units                         : %s\n",paramDef->mParameterUnits.c_str());
         printf(" - Time range                    : %s - %s\n",startTime.c_str(),endTime.c_str());
         printf(" - Number of messages            : %llu\n",(unsigned long long)messages);
