@@ -35,6 +35,7 @@ Requires: smartmet-library-grid-content >= 21.9.15
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
+#TestRequires: smartmet-utils-devel
 
 Provides: corbaContentServer = %{version}
 Provides: corbaDataServer = %{version}
