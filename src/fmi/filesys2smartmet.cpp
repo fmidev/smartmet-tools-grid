@@ -428,8 +428,8 @@ void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Messag
     contentInfo.setNewbaseParameterName(message.getNewbaseParameterName());
     contentInfo.setNetCdfParameterName(message.getNetCdfParameterName());
     contentInfo.mFmiParameterLevelId = message.getFmiParameterLevelId();
-    contentInfo.mGrib1ParameterLevelId = message.getGrib1ParameterLevelId();
-    contentInfo.mGrib2ParameterLevelId = message.getGrib2ParameterLevelId();
+    //contentInfo.mGrib1ParameterLevelId = message.getGrib1ParameterLevelId();
+    //contentInfo.mGrib2ParameterLevelId = message.getGrib2ParameterLevelId();
     contentInfo.mParameterLevel = message.getGridParameterLevel();
     contentInfo.mForecastType = message.getForecastType();
     contentInfo.mForecastNumber = message.getForecastNumber();

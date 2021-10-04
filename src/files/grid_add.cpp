@@ -1,3 +1,4 @@
+#if 0
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
@@ -63,11 +64,6 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
     uint generationId = gridFile.getGenerationId();
     uint fileId = gridFile.getFileId();
     uint messageIndex = message.getMessageIndex();
-
-    std::string producerName = message.getFmiProducerName();
-    if (producerNamePtr != nullptr)
-      producerName = producerNamePtr;
-
     std::string generationName;
     std::string filename = gridFile.getFileName();
     T::TimeString referenceTime = message.getReferenceTime();
@@ -407,7 +403,7 @@ int run(int argc, char **argv)
     throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
-
+#endif
 
 // ----------------------------------------------------------------------
 /*
@@ -417,10 +413,11 @@ int run(int argc, char **argv)
 
 int main(int argc, char **argv) try
 {
-  return run(argc, argv);
+  return 0;
+  // return run(argc, argv);
 }
 catch (...)
 {
-  Fmi::Exception exception(BCP,"Operation failed!",nullptr);
-  exception.printError();
+//  Fmi::Exception exception(BCP,"Operation failed!",nullptr);
+//  exception.printError();
 }
