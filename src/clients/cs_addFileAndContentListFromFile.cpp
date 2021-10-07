@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
           }
         }
 
-        if (c >= 17)
+        if (c >= 12)
         {
           T::FileInfo fileInfo;
           fileInfo.mFileId = 0;
@@ -115,12 +115,12 @@ int main(int argc, char *argv[])
           contentInfo->setForecastTime(field[6]);
           contentInfo->mFmiParameterId = toUInt32(field[7]);
           contentInfo->setFmiParameterName(field[8]);
-          contentInfo->mGribParameterId = toUInt32(field[9]);
-          contentInfo->mFmiParameterLevelId = toInt64(field[10]);
-          contentInfo->mGrib1ParameterLevelId = toInt64(field[11]);
-          contentInfo->mGrib2ParameterLevelId = toInt64(field[12]);
-          contentInfo->mParameterLevel = (T::ParamLevel)toInt64(field[13]);
-          contentInfo->mFlags = toInt64(field[14]);
+          //contentInfo->mGribParameterId = toUInt32(field[9]);
+          contentInfo->mFmiParameterLevelId = toInt64(field[9]);
+          //contentInfo->mGrib1ParameterLevelId = toInt64(field[11]);
+          // contentInfo->mGrib2ParameterLevelId = toInt64(field[12]);
+          contentInfo->mParameterLevel = (T::ParamLevel)toInt64(field[10]);
+          contentInfo->mFlags = toInt64(field[11]);
 
 
           if (prevFileInfo.mName != fileInfo.mName)

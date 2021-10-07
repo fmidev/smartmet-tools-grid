@@ -271,7 +271,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
             m.mParameterKeyType = toInt16(pl[2].c_str());
             m.mParameterKey = pl[3];
             m.mGeometryId = toInt32(pl[4].c_str());
-            m.mParameterLevelIdType = toInt16(pl[5].c_str());
+            //m.mParameterLevelIdType = toInt16(pl[5].c_str());
             m.mParameterLevelId = toInt16(pl[6].c_str());
             m.mParameterLevel = toInt32(pl[7].c_str());
 

@@ -12,15 +12,12 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 24)
+    if (argc < 13)
     {
       fprintf(stdout,"USAGE:\n");
       fprintf(stdout,"  cs_addContentInfo <1:sessionId> <2:fileId> <3:fileType> <4:messageIndex>\n");
-      fprintf(stdout,"     <5:producerId> <6:generationId> <7:startTime> \n");
-      fprintf(stdout,"     <8:fmiParameterId> <9:gribParameterId>\n");
-      fprintf(stdout,"     <10:newbaseParameterId> <11:newbaseParameterName>\n");
-      fprintf(stdout,"     <12:fmiParameterLevelId> <13:grib1ParameterLevelId> <14:grib2ParameterLevelId> \n");
-      fprintf(stdout,"     <15:parameterLevel> <16:sourceId> <17:flags> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"     <5:producerId> <6:generationId> <7:startTime> <8:fmiParameterId>\n");
+      fprintf(stdout,"     <9:fmiParameterLevelId> <10:parameterLevel> <11:sourceId> <12:flags> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
@@ -33,15 +30,15 @@ int main(int argc, char *argv[])
     info.mGenerationId  = toInt64(argv[6]);
     info.setForecastTime(argv[7]);
     info.mFmiParameterId = toUInt32(argv[8]);
-    info.mGribParameterId = toUInt32(argv[9]);
-    info.mNewbaseParameterId = toUInt32(argv[10]);
-    info.setNewbaseParameterName(argv[11]);
-    info.mFmiParameterLevelId  = toInt64(argv[12]);
-    info.mGrib1ParameterLevelId  = toInt64(argv[13]);
-    info.mGrib2ParameterLevelId  = toInt64(argv[14]);
-    info.mParameterLevel  = toInt64(argv[15]);
-    info.mSourceId  = toInt64(argv[16]);
-    info.mFlags  = toInt64(argv[17]);
+    //info.mGribParameterId = toUInt32(argv[9]);
+    //info.mNewbaseParameterId = toUInt32(argv[10]);
+    //info.setNewbaseParameterName(argv[11]);
+    info.mFmiParameterLevelId  = toInt64(argv[9]);
+    //info.mGrib1ParameterLevelId  = toInt64(argv[13]);
+    //info.mGrib2ParameterLevelId  = toInt64(argv[14]);
+    info.mParameterLevel  = toInt64(argv[10]);
+    info.mSourceId  = toInt64(argv[11]);
+    info.mFlags  = toInt64(argv[12]);
 
     ContentServer::ServiceInterface *service = nullptr;
 

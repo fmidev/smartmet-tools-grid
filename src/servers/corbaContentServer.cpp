@@ -27,7 +27,6 @@ std::string         mServerAddress;
 std::string         mServerPort;
 std::string         mServerIorFile;
 bool                mCacheEnabled = false;
-uint                mCacheContentSortingFlags = 0;
 bool                mRequestForwardEnabled = false;
 std::string         mContentSourceType;
 bool                mDataLoadEnabled = false;
@@ -37,7 +36,6 @@ uint                mDataEventListMaxSize = 3000000;
 std::string         mDataDir;
 uint                mDataSaveInterval;
 uint                mEventListMaxSize = 3000000;
-uint                mMemoryContentSortingFlags;
 bool                mProcessingLogEnabled = false;
 std::string         mProcessingLogFile;
 int                 mProcessingLogMaxSize = 100000000;
@@ -95,7 +93,6 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.content-server.port",
         "smartmet.tools.grid.content-server.iorFile",
         "smartmet.tools.grid.content-server.cache.enabled",
-        "smartmet.tools.grid.content-server.cache.contentSortingFlags",
         "smartmet.tools.grid.content-server.cache.requestForwardEnabled",
         "smartmet.tools.grid.content-server.cache.eventListMaxSize",
         "smartmet.tools.grid.content-server.content-source.type",
@@ -110,7 +107,6 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.content-server.content-source.memory.eventListMaxSize",
         "smartmet.tools.grid.content-server.content-source.memory.contentDir",
         "smartmet.tools.grid.content-server.content-source.memory.contentSaveInterval",
-        "smartmet.tools.grid.content-server.content-source.memory.contentSortingFlags",
         "smartmet.tools.grid.content-server.processing-log.enabled",
         "smartmet.tools.grid.content-server.processing-log.file",
         "smartmet.tools.grid.content-server.processing-log.maxSize",
@@ -144,7 +140,6 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.iorFile", mServerIorFile);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.enabled", mCacheEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.contentSortingFlags", mCacheContentSortingFlags);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.requestForwardEnabled", mRequestForwardEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.eventListMaxSize", mEventListMaxSize);
 
@@ -164,7 +159,6 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.eventListMaxSize", mDataEventListMaxSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.contentDir", mDataDir);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.contentSaveInterval", mDataSaveInterval);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.memory.contentSortingFlags", mMemoryContentSortingFlags);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.processing-log.enabled", mProcessingLogEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.processing-log.file", mProcessingLogFile);
@@ -248,7 +242,7 @@ int main(int argc, char *argv[])
     if (strcasecmp(mContentSourceType.c_str(),"memory") == 0)
     {
       memoryImplementation = new ContentServer::MemoryImplementation();
-      memoryImplementation->init(mDataLoadEnabled,mDataSaveEnabled,mDataSyncEnabled,true,mDataDir,mDataSaveInterval,mMemoryContentSortingFlags);
+      memoryImplementation->init(mDataLoadEnabled,mDataSaveEnabled,mDataSyncEnabled,true,mDataDir,mDataSaveInterval);
       memoryImplementation->setEventListMaxLength(mDataEventListMaxSize);
       contentSource = memoryImplementation;
     }
@@ -276,7 +270,7 @@ int main(int argc, char *argv[])
         cacheImplementation->setDebugLog(&mDebugLog);
       }
 
-      cacheImplementation->init(0,contentSource,mCacheContentSortingFlags);
+      cacheImplementation->init(0,contentSource);
       cacheImplementation->setEventListMaxLength(mEventListMaxSize);
 
       cacheImplementation->startEventProcessing();

@@ -20,11 +20,11 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc < 15)
+    if (argc < 14)
     {
       fprintf(stdout,"USAGE:\n");
       fprintf(stdout,"  cs_getContentListByParameterAndProducerId <sessionId>  <producerId> <parameterIdType>\n");
-      fprintf(stdout,"     <parameterKey>  <parameterLevelIdType> <parameterLevelId> <minLevel> <maxLevel> \n");
+      fprintf(stdout,"     <parameterKey> <parameterLevelId> <minLevel> <maxLevel> \n");
       fprintf(stdout,"     <forecastType> <forecastNumber> <geometryId> <startTime> <endTime> <requestFlags>\n");
       fprintf(stdout,"WHERE:\n");
       fprintf(stdout,"  sessionId             = Session identifier\n");
@@ -36,12 +36,6 @@ int main(int argc, char *argv[])
       fprintf(stdout,"                            newbase-id   => Newbase identifier\n");
       fprintf(stdout,"                            newbase-name => Newbase name\n");
       fprintf(stdout,"  parameterKey          = Parameter search key\n");
-      fprintf(stdout,"  parameterLevelIdType  = Parameter level id type:\n");
-      fprintf(stdout,"                             any         => All level types are accepted\n");
-      fprintf(stdout,"                             fmi         => Radon level identifier\n");
-      fprintf(stdout,"                             grib1       => GRIB 1 level identifier\n");
-      fprintf(stdout,"                             grib2       => GRIB 2 level identifier\n");
-      fprintf(stdout,"                             ignore      => All level types and values are accepted\n");
       fprintf(stdout,"  parameterLevelId       = Parameter level type\n");
       fprintf(stdout,"  minLevel               = Minimum parameter level\n");
       fprintf(stdout,"  maxLevel               = Maximum parameter level\n");
@@ -78,32 +72,15 @@ int main(int argc, char *argv[])
       paramKeyType = T::ParamKeyTypeValue::NEWBASE_NAME;
 
     T::ParamId parameterKey = argv[4];
-    T::ParamLevelIdType parameterLevelIdType = T::ParamLevelIdTypeValue::ANY;
-
-    if (strcmp(argv[5],"any") == 0)
-      parameterLevelIdType = T::ParamLevelIdTypeValue::ANY;
-    else
-    if (strcmp(argv[5],"fmi") == 0)
-      parameterLevelIdType = T::ParamLevelIdTypeValue::FMI;
-    else
-    if (strcmp(argv[5],"grib1") == 0)
-      parameterLevelIdType = T::ParamLevelIdTypeValue::GRIB1;
-    else
-    if (strcmp(argv[5],"grib2") == 0)
-      parameterLevelIdType = T::ParamLevelIdTypeValue::GRIB2;
-    else
-    if (strcmp(argv[5],"ignore") == 0)
-      parameterLevelIdType = T::ParamLevelIdTypeValue::IGNORE;
-
-    T::ParamLevelId parameterLevelId = toInt64(argv[6]);
-    T::ParamLevel minLevel = (T::ParamLevel)toInt64(argv[7]);
-    T::ParamLevel maxLevel = (T::ParamLevel)toInt64(argv[8]);
-    T::ForecastType forecastType = (T::ForecastType)toInt64(argv[9]);
-    T::ForecastNumber forecastNumber = (T::ForecastNumber)toInt64(argv[10]);
-    T::GeometryId geometryId = (T::GeometryId)toInt64(argv[11]);
-    std::string start = argv[12];
-    std::string end = argv[13];
-    uint requestFlags = toInt64(argv[14]);
+    T::ParamLevelId parameterLevelId = toInt64(argv[5]);
+    T::ParamLevel minLevel = (T::ParamLevel)toInt64(argv[6]);
+    T::ParamLevel maxLevel = (T::ParamLevel)toInt64(argv[7]);
+    T::ForecastType forecastType = (T::ForecastType)toInt64(argv[8]);
+    T::ForecastNumber forecastNumber = (T::ForecastNumber)toInt64(argv[9]);
+    T::GeometryId geometryId = (T::GeometryId)toInt64(argv[10]);
+    std::string start = argv[11];
+    std::string end = argv[12];
+    uint requestFlags = toInt64(argv[13]);
     T::ContentInfoList infoList;
     //Log processingLog;
 
@@ -148,7 +125,7 @@ int main(int argc, char *argv[])
     }
 
     unsigned long long startTime = getTime();
-    int result = service->getContentListByParameterAndProducerId(sessionId,producerId,paramKeyType,parameterKey,parameterLevelIdType,parameterLevelId,minLevel,maxLevel,forecastType,forecastNumber,geometryId,start,end,requestFlags,infoList);
+    int result = service->getContentListByParameterAndProducerId(sessionId,producerId,paramKeyType,parameterKey,parameterLevelId,minLevel,maxLevel,forecastType,forecastNumber,geometryId,start,end,requestFlags,infoList);
     unsigned long long endTime = getTime();
 
     if (result != 0)
