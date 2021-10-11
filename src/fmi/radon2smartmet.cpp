@@ -1515,7 +1515,7 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
           if (Identification::gridDef.getFmiParameterDefById(it->paramId, fmiDef))
           {
             contentInfo->setFmiParameterName(fmiDef.mParameterName);
-
+/*
             Identification::NewbaseParameterDef newbaseDef;
             if (Identification::gridDef.getNewbaseParameterDefByFmiId(it->paramId, newbaseDef))
             {
@@ -1528,6 +1528,7 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
             {
               contentInfo->setNetCdfParameterName(netCdfDef.mParameterName);
             }
+*/
           }
 
           contentList.addContentInfo(contentInfo);
@@ -1620,7 +1621,7 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
           if (Identification::gridDef.getFmiParameterDefById(it->paramId, fmiDef))
           {
             contentInfo->setFmiParameterName(fmiDef.mParameterName);
-
+/*
             Identification::NewbaseParameterDef newbaseDef;
             if (Identification::gridDef.getNewbaseParameterDefByFmiId(it->paramId, newbaseDef))
             {
@@ -1633,6 +1634,7 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
             {
               contentInfo->setNetCdfParameterName(netCdfDef.mParameterName);
             }
+*/
           }
 
           contentList.addContentInfo(contentInfo);

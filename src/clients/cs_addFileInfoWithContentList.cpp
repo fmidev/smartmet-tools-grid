@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     if (argc < 6)
     {
       fprintf(stdout,"USAGE: cs_addFileInfoWithContentList <sessionId> <producerId> <generationId> <fileType> <filename>\n");
-      fprintf(stdout,"       [-m <messageIndex> <timestamp> <fmiParamId> <gribParamId> ] [-m ...] [-m ...]\n");
+      fprintf(stdout,"       [-m <messageIndex> <timestamp> <fmiParamId>] [-m ...] [-m ...]\n");
       return -1;
     }
 
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
         cinfo->mMessageIndex = toInt64(argv[t+1]);
         cinfo->setForecastTime(argv[t+2]);
         cinfo->mFmiParameterId = toUInt32(argv[t+3]);
-        cinfo->mGribParameterId = toUInt32(argv[t+4]);
+        //cinfo->mGribParameterId = toUInt32(argv[t+4]);
 
         contentList.addContentInfo(cinfo);
       }

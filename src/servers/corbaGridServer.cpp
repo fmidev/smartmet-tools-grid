@@ -75,7 +75,6 @@ std::string content_server_content_source_redis_tablePrefix;
 std::string content_server_content_source_corba_ior;
 std::string content_server_content_source_http_url;
 bool content_server_cache_enabled = false;
-uint content_server_cache_contentSortingFlags = 0;
 bool content_server_cache_requestForwardEnabled = false;
 uint content_server_cache_eventListMaxSize = 10;
 bool content_server_processing_log_enabled = false;
@@ -296,7 +295,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
             m.mParameterKeyType = toInt16(pl[2].c_str());
             m.mParameterKey = pl[3];
             m.mGeometryId = toInt32(pl[4].c_str());
-            m.mParameterLevelIdType = toInt16(pl[5].c_str());
+            //m.mParameterLevelIdType = toInt16(pl[5].c_str());
             m.mParameterLevelId = toInt16(pl[6].c_str());
             m.mParameterLevel = toInt32(pl[7].c_str());
 
@@ -570,7 +569,6 @@ void readConfigFile(const char* configFile)
          "smartmet.tools.grid.content-server.content-source.corba.ior",
          "smartmet.tools.grid.content-server.content-source.http.url",
          "smartmet.tools.grid.content-server.cache.enabled",
-         "smartmet.tools.grid.content-server.cache.contentSortingFlags",
          "smartmet.tools.grid.content-server.cache.requestForwardEnabled",
          "smartmet.tools.grid.content-server.cache.eventListMaxSize",
          "smartmet.tools.grid.content-server.processing-log.enabled",
@@ -655,7 +653,6 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.corba.ior",content_server_content_source_corba_ior);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.http.url",content_server_content_source_http_url);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.enabled",content_server_cache_enabled);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.contentSortingFlags",content_server_cache_contentSortingFlags);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.requestForwardEnabled",content_server_cache_requestForwardEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.eventListMaxSize",content_server_cache_eventListMaxSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.processing-log.enabled",content_server_processing_log_enabled);
@@ -792,7 +789,7 @@ int main(int argc, char *argv[])
         cacheImplementation->setDebugLog(&mContentServerDebugLog);
       }
 
-      cacheImplementation->init(0,contentService,content_server_cache_contentSortingFlags);
+      cacheImplementation->init(0,contentService);
       cacheImplementation->setEventListMaxLength(content_server_cache_eventListMaxSize);
 
       cacheImplementation->startEventProcessing();

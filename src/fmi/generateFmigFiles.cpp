@@ -564,7 +564,6 @@ void processParameters()
     T::SessionId sessionId = 0;
 
     T::ParamKeyType paramKeyType = T::ParamKeyTypeValue::FMI_NAME;
-    T::ParamLevelIdType parameterLevelIdType = T::ParamLevelIdTypeValue::FMI;
     std::string start = "15000101T000000";
     std::string end = "30000101T000000";
     uint requestFlags = 0;
@@ -616,7 +615,7 @@ void processParameters()
                 {
                   PRINT_DATA(mDebugLogPtr, "     * Parameter : %s:%s:%d:%d:%d:%d:%d\n",param->parameter.c_str(),param->producerName.c_str(),param->geometryId,param->levelId, param->level, param->forecastType, param->forecastNumber[f]);
 
-                  result = contentServer->getContentListByParameterAndGenerationId(sessionId, gInfo->mGenerationId, paramKeyType, param->parameter, parameterLevelIdType,
+                  result = contentServer->getContentListByParameterAndGenerationId(sessionId, gInfo->mGenerationId, paramKeyType, param->parameter,
                     param->levelId, param->level, param->level, param->forecastType, param->forecastNumber[f], param->geometryId, start, end, requestFlags, contentInfoList[f]);
 
                   PRINT_DATA(mDebugLogPtr,"        -- Timesteps : %u\n",contentInfoList[f].getLength());
@@ -765,12 +764,12 @@ void processParameters()
                       p += sprintf(p, "generation.name\t%s\t", gInfo->mName.c_str());
                       p += sprintf(p, "param.fmi.id\t%u\t", cInfo->mFmiParameterId);
                       p += sprintf(p, "param.fmi.name\t%s\t", cInfo->getFmiParameterName());
-                      p += sprintf(p, "param.grib.id\t%u\t", cInfo->mGribParameterId);
-                      p += sprintf(p, "param.newbase.id\t%u\t", cInfo->mNewbaseParameterId);
-                      p += sprintf(p, "param.newbase.name\t%s\t", cInfo->getNewbaseParameterName());
+                      //p += sprintf(p, "param.grib.id\t%u\t", cInfo->mGribParameterId);
+                      //p += sprintf(p, "param.newbase.id\t%u\t", cInfo->mNewbaseParameterId);
+                      //p += sprintf(p, "param.newbase.name\t%s\t", cInfo->getNewbaseParameterName());
                       p += sprintf(p, "param.level.fmi.id\t%u\t", cInfo->mFmiParameterLevelId);
-                      p += sprintf(p, "param.level.grib1.id\t%u\t", cInfo->mGrib1ParameterLevelId);
-                      p += sprintf(p, "param.level.grib2.id\t%u\t", cInfo->mGrib2ParameterLevelId);
+                      //p += sprintf(p, "param.level.grib1.id\t%u\t", cInfo->mGrib1ParameterLevelId);
+                      //p += sprintf(p, "param.level.grib2.id\t%u\t", cInfo->mGrib2ParameterLevelId);
                       p += sprintf(p, "param.level.value\t%d\t", cInfo->mParameterLevel);
                       p += sprintf(p, "param.forecast.type\t%d\t", cInfo->mForecastType);
                       p += sprintf(p, "param.forecast.number\t%d\t", cInfo->mForecastNumber);

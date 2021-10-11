@@ -35,12 +35,21 @@ std::string               mRedisTablePrefix;
 bool                      mRedisLockEnabled = false;
 std::string               mContentServerIor;
 std::string               mContentServerUrl;
+
+bool                      mProcessingLogEnabled = false;
+std::string               mProcessingLogFile;
+int                       mProcessingLogMaxSize = 100000000;
+int                       mProcessingLogTruncateSize = 20000000;
+Log                       mProcessingLog;
+Log*                      mProcessingLogPtr = nullptr;
+
 bool                      mDebugLogEnabled = false;
 std::string               mDebugLogFile;
 int                       mDebugLogMaxSize = 100000000;
 int                       mDebugLogTruncateSize = 20000000;
 Log                       mDebugLog;
 Log*                      mDebugLogPtr = nullptr;
+
 T::SessionId              mSessionId = 0;
 uint                      mGlobalFileId = 0;
 
@@ -88,6 +97,10 @@ void readConfigFile(const char* configFile)
       "smartmet.tools.grid.filesys2smartmet.debug-log.file",
       "smartmet.tools.grid.filesys2smartmet.debug-log.maxSize",
       "smartmet.tools.grid.filesys2smartmet.debug-log.truncateSize",
+      "smartmet.tools.grid.filesys2smartmet.processing-log.enabled",
+      "smartmet.tools.grid.filesys2smartmet.processing-log.file",
+      "smartmet.tools.grid.filesys2smartmet.processing-log.maxSize",
+      "smartmet.tools.grid.filesys2smartmet.processing-log.truncateSize",
       nullptr
     };
 
@@ -123,6 +136,12 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.lockEnabled",mRedisLockEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.corba.ior",mContentServerIor);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.http.url",mContentServerUrl);
+
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.processing-log.enabled", mProcessingLogEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.processing-log.file", mProcessingLogFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.processing-log.maxSize", mProcessingLogMaxSize);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.processing-log.truncateSize", mProcessingLogTruncateSize);
+
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.debug-log.enabled", mDebugLogEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.debug-log.file", mDebugLogFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.debug-log.maxSize", mDebugLogMaxSize);
@@ -130,7 +149,6 @@ void readConfigFile(const char* configFile)
 
     if (mLuaFilename > " ")
      mLuaFile.init(mLuaFilename);
-
   }
   catch (...)
   {
@@ -301,7 +319,7 @@ void readSourceFiles(std::vector<std::pair<std::string,std::string>>& fileList)
                 fileInfo->mModificationTime = modificationTime;
 
                 mSourceFileList.addFileInfo(fileInfo);
-                fileInfo->print(std::cout,0,0);
+                //fileInfo->print(std::cout,0,0);
               }
             }
             else
@@ -423,10 +441,10 @@ void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Messag
     contentInfo.setForecastTime(message.getForecastTime());
     contentInfo.mFmiParameterId = message.getFmiParameterId();
     contentInfo.setFmiParameterName(message.getFmiParameterName());
-    contentInfo.mGribParameterId = message.getGribParameterId();
-    contentInfo.mNewbaseParameterId = message.getNewbaseParameterId();
-    contentInfo.setNewbaseParameterName(message.getNewbaseParameterName());
-    contentInfo.setNetCdfParameterName(message.getNetCdfParameterName());
+    //contentInfo.mGribParameterId = message.getGribParameterId();
+    //contentInfo.mNewbaseParameterId = message.getNewbaseParameterId();
+    //contentInfo.setNewbaseParameterName(message.getNewbaseParameterName());
+    //contentInfo.setNetCdfParameterName(message.getNetCdfParameterName());
     contentInfo.mFmiParameterLevelId = message.getFmiParameterLevelId();
     //contentInfo.mGrib1ParameterLevelId = message.getGrib1ParameterLevelId();
     //contentInfo.mGrib2ParameterLevelId = message.getGrib2ParameterLevelId();
@@ -582,11 +600,17 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
           int result = targetInterface->deleteProducerInfoById(mSessionId,targetProducer->mProducerId);
           if (result != 0)
           {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;FAIL;%s;",targetProducer->mName.c_str());
+
             Fmi::Exception exception(BCP,"Cannot delete the producer information from the target data storage!");
             exception.addParameter("ProducerId",std::to_string(targetProducer->mProducerId));
             exception.addParameter("ProducerName",targetProducer->mName);
             exception.addParameter("Result",ContentServer::getResultString(result));
             throw exception;
+          }
+          else
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;OK;%s;",targetProducer->mName.c_str());
           }
         }
       }
@@ -612,11 +636,17 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
           int result = targetInterface->addProducerInfo(mSessionId,producer);
           if (result != 0)
           {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-ADD;FAIL;%s;",producer.mName.c_str());
+
             Fmi::Exception exception(BCP,"Cannot add the producer information into the target data storage!");
             exception.addParameter("ProducerId",std::to_string(sourceProducer->mProducerId));
             exception.addParameter("ProducerName",sourceProducer->mName);
             exception.addParameter("Result",ContentServer::getResultString(result));
             throw exception;
+          }
+          else
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-ADD;OK;%s;",producer.mName.c_str());
           }
         }
       }
@@ -638,6 +668,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
   try
   {
     std::set<uint> generationIdList;
+    std::vector<std::string> generationNameList;
     uint len = mTargetGenerationList.getLength();
     for (uint t=0; t<len; t++)
     {
@@ -653,6 +684,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
           PRINT_DATA(mDebugLogPtr,"  -- Remove generation : %s\n",targetGeneration->mName.c_str());
 
           generationIdList.insert(targetGeneration->mGenerationId);
+          generationNameList.push_back(targetGeneration->mName);
         }
       }
     }
@@ -662,9 +694,17 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
       int result = targetInterface->deleteGenerationInfoListByIdList(mSessionId,generationIdList);
       if (result != 0)
       {
+        for (auto it = generationNameList.begin(); it != generationNameList.end(); ++it)
+          PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;FAIL;%s;",it->c_str());
+
         Fmi::Exception exception(BCP,"Cannot delete the generation information from the target data storage!");
         exception.addParameter("Result",ContentServer::getResultString(result));
         throw exception;
+      }
+      else
+      {
+        for (auto it = generationNameList.begin(); it != generationNameList.end(); ++it)
+          PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;OK;%s;",it->c_str());
       }
     }
 
@@ -693,10 +733,16 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
           int result = targetInterface->addGenerationInfo(mSessionId,generationInfo);
           if (result != 0)
           {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;FAIL;%s;",generationInfo.mName.c_str());
+
             Fmi::Exception exception(BCP,"Cannot add the generation information into the target data storage!");
             exception.addParameter("GenerationName",generationInfo.mName);
             exception.addParameter("Result",ContentServer::getResultString(result));
             throw exception;
+          }
+          else
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;OK;%s;",generationInfo.mName.c_str());
           }
         }
       }
@@ -718,6 +764,7 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
   try
   {
     std::set<uint> fileIdList;
+    std::vector<std::string> fileNameList;
     uint len = mTargetFileList.getLength();
     for (uint t=0; t<len; t++)
     {
@@ -732,6 +779,7 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
 
           PRINT_DATA(mDebugLogPtr,"  -- Remove file : %s\n",targetFile->mName.c_str());
 
+          fileNameList.push_back(targetFile->mName);
           fileIdList.insert(targetFile->mFileId);
         }
       }
@@ -742,9 +790,18 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
       int result = targetInterface->deleteFileInfoListByFileIdList(mSessionId,fileIdList);
       if (result != 0)
       {
+        for (auto it = fileNameList.begin(); it != fileNameList.end(); ++it)
+          PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;FAIL;%s;",it->c_str());
+
+
         Fmi::Exception exception(BCP,"Cannot delete the file information from the target data storage!");
         exception.addParameter("Result",ContentServer::getResultString(result));
         throw exception;
+      }
+      else
+      {
+        for (auto it = fileNameList.begin(); it != fileNameList.end(); ++it)
+          PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;OK;%s;",it->c_str());
       }
     }
 
@@ -764,9 +821,15 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
           int result = targetInterface->deleteFileInfoById(mSessionId,targetFile->mFileId);
           if (result != 0)
           {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;FAIL;%s;",targetFile->mName.c_str());
+
             Fmi::Exception exception(BCP,"Cannot delete the file information from the target data storage!");
             exception.addParameter("Result",ContentServer::getResultString(result));
             throw exception;
+          }
+          else
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;OK;%s;",targetFile->mName.c_str());
           }
           targetFile = nullptr;
         }
@@ -781,17 +844,37 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
           PRINT_DATA(mDebugLogPtr,"  -- Add file: %s\n",fileInfo.mName.c_str());
 
           T::ContentInfoList contentList;
-          readSourceContent(fileInfo.mProducerId,fileInfo.mGenerationId,fileInfo.mModificationTime,fileInfo.mName.c_str(),contentList);
+          try
+          {
+            readSourceContent(fileInfo.mProducerId,fileInfo.mGenerationId,fileInfo.mModificationTime,fileInfo.mName.c_str(),contentList);
+          }
+          catch (...)
+          {
+            Fmi::Exception exception(BCP,"File read failed!");
+            std::string st = exception.getStackTrace();
+            PRINT_DATA(mDebugLogPtr,"%s",st.c_str());
+          }
+
           if (contentList.getLength() > 0)
           {
             int result = targetInterface->addFileInfoWithContentList(mSessionId,fileInfo,contentList);
             if (result != 0)
             {
+              PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-ADD;FAIL;%s;",fileInfo.mName.c_str());
+
               Fmi::Exception exception(BCP,"Cannot add the file information into the target data storage!");
               exception.addParameter("FileName",fileInfo.mName);
               exception.addParameter("Result",ContentServer::getResultString(result));
               throw exception;
             }
+            else
+            {
+              PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-ADD;OK;%s;",fileInfo.mName.c_str());
+            }
+          }
+          else
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-READ;FAIL;%s;",fileInfo.mName.c_str());
           }
         }
       }
@@ -857,6 +940,12 @@ int main(int argc, char *argv[])
       mDebugLogPtr = &mDebugLog;
     }
 
+    if (mProcessingLogEnabled)
+    {
+      mProcessingLog.init(true,mProcessingLogFile.c_str(),mProcessingLogMaxSize,mProcessingLogTruncateSize);
+      mProcessingLogPtr = &mProcessingLog;
+    }
+
     if (targetInterface == nullptr)
     {
       fprintf(stderr,"No target data source defined!\n");
@@ -867,6 +956,8 @@ int main(int argc, char *argv[])
     bool ind = true;
     while (ind)
     {
+      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-START");
+
       PRINT_DATA(mDebugLogPtr,"\n");
       PRINT_DATA(mDebugLogPtr,"********************************************************************\n");
       PRINT_DATA(mDebugLogPtr,"****************************** UPDATE ******************************\n");
@@ -923,6 +1014,8 @@ int main(int argc, char *argv[])
 
 
       PRINT_DATA(mDebugLogPtr,"********************************************************************\n\n");
+
+      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-END");
 
       if (waitTime > 0)
         sleep(waitTime);
