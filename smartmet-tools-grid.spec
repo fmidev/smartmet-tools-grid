@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 21.10.11
+Version: 21.10.19
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -13,9 +13,9 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
-BuildRequires: smartmet-library-spine-devel >= 21.10.11
-BuildRequires: smartmet-library-grid-files-devel >= 21.10.11
-BuildRequires: smartmet-library-grid-content-devel >= 21.10.11
+BuildRequires: smartmet-library-spine-devel >= 21.10.18
+BuildRequires: smartmet-library-grid-files-devel >= 21.10.19
+BuildRequires: smartmet-library-grid-content-devel >= 21.10.19
 BuildRequires: gdal32-devel
 BuildRequires: postgresql12-devel
 BuildRequires: omniORB-devel
@@ -30,8 +30,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-spine >= 18.1.15
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 21.10.11
-Requires: smartmet-library-grid-content >= 21.10.11
+Requires: smartmet-library-grid-files >= 21.10.19
+Requires: smartmet-library-grid-content >= 21.10.19
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -429,6 +429,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Tue Oct 19 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.10.19-1.fmi
+- Added low level filtering capability
 * Mon Oct 11 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.10.11-1.fmi
 - Simplified grid storage structures
 * Mon Oct  4 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.10.4-1.fmi
