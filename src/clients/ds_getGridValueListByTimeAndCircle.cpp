@@ -47,9 +47,11 @@ int main(int argc, char *argv[])
     double radius = toDouble(argv[10]);
     short timeInterpolationMethod = toInt16(argv[11]);
     T::GridValueList valueList;
+    uint modificationOperation = 0;
+    double_vec modificationParameters;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueListByTimeAndCircle(sessionId,fileId1,messageIndex1,fileId2,messageIndex2,timestamp,coordinateType,origoX,origoY,radius,timeInterpolationMethod,valueList);
+    int result = dataServer.getGridValueListByTimeAndCircle(sessionId,fileId1,messageIndex1,fileId2,messageIndex2,timestamp,coordinateType,origoX,origoY,radius,timeInterpolationMethod,modificationOperation,modificationParameters,valueList);
     unsigned long long endTime = getTime();
 
 

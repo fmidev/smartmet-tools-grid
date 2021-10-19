@@ -46,9 +46,11 @@ int main(int argc, char *argv[])
     short areaInterpolationMethod = toInt16(argv[10]);
     short timeInterpolationMethod = toInt16(argv[11]);
     T::ParamValue value = 0;
+    uint modificationOperation = 0;
+    double_vec modificationParameters;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueByTimeAndPoint(sessionId,fileId1,messageIndex1,fileId2,messageIndex2,timestamp,coordinateType,x,y,areaInterpolationMethod,timeInterpolationMethod,value);
+    int result = dataServer.getGridValueByTimeAndPoint(sessionId,fileId1,messageIndex1,fileId2,messageIndex2,timestamp,coordinateType,x,y,areaInterpolationMethod,timeInterpolationMethod,modificationOperation,modificationParameters,value);
     unsigned long long endTime = getTime();
 
 

@@ -42,9 +42,11 @@ int main(int argc, char *argv[])
     std::string newTime = argv[6];
     uint timeInterpolationMethod = toInt64(argv[7]);
     T::ParamValue_vec values;
+    uint modificationOperation = 0;
+    double_vec modificationParameters;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueVectorByTime(sessionId,fileId1,messageIndex1,fileId2,messageIndex2,newTime,timeInterpolationMethod,values);
+    int result = dataServer.getGridValueVectorByTime(sessionId,fileId1,messageIndex1,fileId2,messageIndex2,newTime,timeInterpolationMethod,modificationOperation,modificationParameters,values);
     unsigned long long endTime = getTime();
 
 

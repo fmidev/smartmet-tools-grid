@@ -43,9 +43,11 @@ int main(int argc, char *argv[])
     double origoY = toDouble(argv[6]);
     double radius = toDouble(argv[7]);
     T::GridValueList valueList;
+    uint modificationOperation = 0;
+    double_vec modificationParameters;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueListByCircle(sessionId,fileId,messageIndex,coordinateType,origoX,origoY,radius,valueList);
+    int result = dataServer.getGridValueListByCircle(sessionId,fileId,messageIndex,coordinateType,origoX,origoY,radius,modificationOperation,modificationParameters,valueList);
     unsigned long long endTime = getTime();
 
 

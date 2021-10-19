@@ -137,9 +137,11 @@ int main(int argc, char *argv[])
     short interpolationMethod = (short)toInt64(argv[11]);
     char *imageFile = argv[12];
     T::ParamValue_vec values;
+    uint modificationOperation = 0;
+    double_vec modificationParameters;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,coordinateType,columns,rows,x,y,xStep,yStep,interpolationMethod,values);
+    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,coordinateType,columns,rows,x,y,xStep,yStep,interpolationMethod,modificationOperation,modificationParameters,values);
     unsigned long long endTime = getTime();
 
     if (result != 0)

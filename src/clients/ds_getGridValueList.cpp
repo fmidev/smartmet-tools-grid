@@ -41,6 +41,8 @@ int main(int argc, char *argv[])
     double lon = toDouble(argv[5]);
     double lat = toDouble(argv[6]);
     T::ValueRecordList valueRecordList;
+    uint modificationOperation = 0;
+    double_vec modificationParameters;
 
     for (uint t=startFileId;t<=endFileId;t++)
     {
@@ -55,7 +57,7 @@ int main(int argc, char *argv[])
     }
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getMultipleGridValues(sessionId,valueRecordList);
+    int result = dataServer.getMultipleGridValues(sessionId,modificationOperation,modificationParameters,valueRecordList);
     unsigned long long endTime = getTime();
 
 

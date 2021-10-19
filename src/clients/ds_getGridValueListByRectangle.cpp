@@ -44,9 +44,11 @@ int main(int argc, char *argv[])
     double x2 = toDouble(argv[7]);
     double y2 = toDouble(argv[8]);
     T::GridValueList valueList;
+    uint modificationOperation = 0;
+    double_vec modificationParameters;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueListByRectangle(sessionId,fileId,messageIndex,coordinateType,x1,y1,x2,y2,valueList);
+    int result = dataServer.getGridValueListByRectangle(sessionId,fileId,messageIndex,coordinateType,x1,y1,x2,y2,modificationOperation,modificationParameters,valueList);
     unsigned long long endTime = getTime();
 
 

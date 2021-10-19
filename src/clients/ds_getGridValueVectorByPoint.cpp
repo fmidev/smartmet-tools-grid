@@ -42,9 +42,11 @@ int main(int argc, char *argv[])
     double y = toDouble(argv[6]);
     uint vectorType = toInt64(argv[7]);
     double_vec valueVector;
+    uint modificationOperation = 0;
+    double_vec modificationParameters;
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueVectorByPoint(sessionId,fileId,messageIndex,coordinateType,x,y,vectorType,valueVector);
+    int result = dataServer.getGridValueVectorByPoint(sessionId,fileId,messageIndex,coordinateType,x,y,vectorType,modificationOperation,modificationParameters,valueVector);
     unsigned long long endTime = getTime();
 
 

@@ -17,9 +17,9 @@ int main(int argc, char *argv[])
       return -2;
     }
 
-    if (argc != 4)
+    if (argc < 4)
     {
-      fprintf(stdout,"USAGE: ds_getGridValueVector <sessionId> <fileId> <messageIndex>\n");
+      fprintf(stdout,"USAGE: ds_getGridValueVector <sessionId> <fileId> <messageIndex> [<modificationParameters]\n");
       return -1;
     }
 
@@ -38,9 +38,13 @@ int main(int argc, char *argv[])
     uint fileId = toInt64(argv[2]);
     uint messageIndex = toInt64(argv[3]);
     T::ParamValue_vec values;
+    uint modificationOperation = 0;
+    double_vec modificationParameters;
+    if (argc == 5)
+      splitString(argv[4],',',modificationParameters);
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueVector(sessionId,fileId,messageIndex,values);
+    int result = dataServer.getGridValueVector(sessionId,fileId,messageIndex,modificationOperation,modificationParameters,values);
     unsigned long long endTime = getTime();
 
 

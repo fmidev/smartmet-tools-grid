@@ -52,7 +52,8 @@ int main(int argc, char *argv[])
     uint areaInterpolation = toInt64(argv[10]);
     double mp = toDouble(argv[11]);
     char *pngFile = argv[12];
-
+    uint modificationOperation = 0;
+    double_vec modificationParameters;
     int imageWidth = mp * width;
     int imageHeight = mp * height;
 
@@ -98,7 +99,7 @@ int main(int argc, char *argv[])
     attributeList.addAttribute("contour.coordinateType",std::to_string(T::CoordinateTypeValue::LATLON_COORDINATES));
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridIsobandsByGrid(sessionId,fileId,messageIndex,lowValues,highValues,width,height,coordinates,attributeList,contours);
+    int result = dataServer.getGridIsobandsByGrid(sessionId,fileId,messageIndex,lowValues,highValues,width,height,coordinates,attributeList,modificationOperation,modificationParameters,contours);
     unsigned long long endTime = getTime();
 
 

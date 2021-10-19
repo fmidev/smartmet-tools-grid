@@ -46,7 +46,8 @@ int main(int argc, char *argv[])
     double mp = toDouble(argv[5]);
     bool rotate = (bool)toInt64(argv[6]);
     char *pngFile = argv[7];
-
+    uint modificationOperation = 0;
+    double_vec modificationParameters;
     std::vector<uint> colorList;
 
     for (int t=8; t<argc; t++)
@@ -73,7 +74,7 @@ int main(int argc, char *argv[])
     // ### Calling the dataServer:
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridIsolines(sessionId,fileId,messageIndex,values,attributeList,contours);
+    int result = dataServer.getGridIsolines(sessionId,fileId,messageIndex,values,attributeList,modificationOperation,modificationParameters,contours);
     unsigned long long endTime = getTime();
 
 

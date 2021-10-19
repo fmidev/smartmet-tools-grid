@@ -45,6 +45,8 @@ int main(int argc, char *argv[])
     T::CoordinateType coordinateType = toInt64(argv[8]);
     std::vector<T::Coordinate> polygonPoints;
     T::GridValueList valueList;
+    uint modificationOperation = 0;
+    double_vec modificationParameters;
 
     char buf[100];
     for (int t=9; t<argc; t++)
@@ -63,7 +65,7 @@ int main(int argc, char *argv[])
     }
 
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueListByTimeAndPolygon(sessionId,fileId1,messageIndex1,fileId2,messageIndex2,timestamp,coordinateType,polygonPoints,timeInterpolationMethod,valueList);
+    int result = dataServer.getGridValueListByTimeAndPolygon(sessionId,fileId1,messageIndex1,fileId2,messageIndex2,timestamp,coordinateType,polygonPoints,timeInterpolationMethod,modificationOperation,modificationParameters,valueList);
     unsigned long long endTime = getTime();
 
 

@@ -116,9 +116,10 @@ int main(int argc, char *argv[])
     uint columns = 1800;
     uint rows = 900;
     T::ParamValue_vec values;
-
+    uint modificationOperation = 0;
+    double_vec modificationParameters;
     unsigned long long startTime = getTime();
-    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,T::CoordinateTypeValue::LATLON_COORDINATES,columns,rows,-180,90,360/C_DOUBLE(columns),-180/C_DOUBLE(rows),T::AreaInterpolationMethod::Nearest,values);
+    int result = dataServer.getGridValueVectorByRectangle(sessionId,fileId,messageIndex,T::CoordinateTypeValue::LATLON_COORDINATES,columns,rows,-180,90,360/C_DOUBLE(columns),-180/C_DOUBLE(rows),T::AreaInterpolationMethod::Nearest,modificationOperation,modificationParameters,values);
     unsigned long long endTime = getTime();
 
     if (result != 0)
