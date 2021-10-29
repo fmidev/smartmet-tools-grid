@@ -270,6 +270,7 @@ void readSourceFiles(std::vector<std::pair<std::string,std::string>>& fileList)
       {
         std::vector<std::string> params;
         params.push_back(fn);
+        params.push_back(it->first);
         fn = mLuaFile.executeFunctionCall6(mLuaFunction,params);
       }
       //printf("FILE : %s\n",fn.c_str());
@@ -358,6 +359,7 @@ void readSourceGenerations(std::vector<std::pair<std::string,std::string>>& file
       {
         std::vector<std::string> params;
         params.push_back(fn);
+        params.push_back(it->first);
         fn = mLuaFile.executeFunctionCall6(mLuaFunction,params);
       }
 
