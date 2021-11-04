@@ -59,9 +59,6 @@ QueryServer::AliasFileCollection mProducerAliasFileCollection;
 std::string grid_files_configFile;
 uint grid_files_cache_numOfGrids = 0;
 uint grid_files_cache_maxSizeInMegaBytes;
-bool grid_files_pointCache_enabled = false;
-uint grid_files_pointCache_hitsRequired = 0;
-uint grid_files_pointCache_timePeriod = 0;
 bool grid_files_requestCounter_enabled = false;
 std::string grid_files_requestCounter_generatedPreloadFile;
 std::string grid_files_requestCounter_generatedCounterFile;
@@ -553,9 +550,6 @@ void readConfigFile(const char* configFile)
          "smartmet.library.grid-files.configFile",
          "smartmet.library.grid-files.cache.numOfGrids",
          "smartmet.library.grid-files.cache.maxSizeInMegaBytes",
-         "smartmet.library.grid-files.pointCache.enabled",
-         "smartmet.library.grid-files.pointCache.hitsRequired",
-         "smartmet.library.grid-files.pointCache.timePeriod",
          "smartmet.library.grid-files.requestCounter.enabled",
          "smartmet.library.grid-files.requestCounter.generatedPreloadFile",
          "smartmet.library.grid-files.requestCounter.generatedCounterFile",
@@ -637,9 +631,6 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.configFile",grid_files_configFile);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.numOfGrids",grid_files_cache_numOfGrids);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.maxSizeInMegaBytes",grid_files_cache_maxSizeInMegaBytes);
-    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.pointCache.enabled",grid_files_pointCache_enabled);
-    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.pointCache.hitsRequired",grid_files_pointCache_hitsRequired);
-    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.pointCache.timePeriod",grid_files_pointCache_timePeriod);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.requestCounter.enabled",grid_files_requestCounter_enabled);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.requestCounter.generatedPreloadFile",grid_files_requestCounter_generatedPreloadFile);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.requestCounter.generatedCounterFile",grid_files_requestCounter_generatedCounterFile);
@@ -838,7 +829,6 @@ int main(int argc, char *argv[])
       dataService->setDebugLog(&mDataServerDebugLog);
     }
 
-    dataService->setPointCacheEnabled(grid_files_pointCache_enabled,grid_files_pointCache_hitsRequired,grid_files_pointCache_timePeriod);
     dataService->setPreload(data_server_grid_storage_preloadEnabled,data_server_grid_storage_preloadMemoryLock,data_server_grid_storage_preloadFile);
     dataService->setVirtualContentEnabled(data_server_virtualFiles_enabled);
     dataService->setMemoryMapCheckEnabled(data_server_memoryMapCheck_enabled);

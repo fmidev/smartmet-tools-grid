@@ -48,9 +48,6 @@ std::string         mGridDirectory;
 std::string         mGridConfigFile;
 uint                mNumOfCachedGrids = 8000;
 uint                mMaxSizeOfCachedGridsInMegaBytes = 10000;
-bool                mPointCacheEnabled = false;
-uint                mPointCacheHitsRequired = 20; // 20 hits required during the last 20 minutes
-uint                mPointCacheTimePeriod = 1200;
 bool                mPreloadMemoryLock = false;
 bool                mMemoryMapCheckEnabled = false;
 
@@ -98,9 +95,6 @@ void readConfigFile(const char* configFile)
         "smartmet.library.grid-files.configFile",
         "smartmet.library.grid-files.cache.numOfGrids",
         "smartmet.library.grid-files.cache.maxSizeInMegaBytes",
-        "smartmet.library.grid-files.pointCache.enabled",
-        "smartmet.library.grid-files.pointCache.hitsRequired",
-        "smartmet.library.grid-files.pointCache.timePeriod",
         "smartmet.tools.grid.data-server.name",
         "smartmet.tools.grid.data-server.id",
         "smartmet.tools.grid.data-server.address",
@@ -145,10 +139,6 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.configFile", mGridConfigFile);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.numOfGrids", mNumOfCachedGrids);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.maxSizeInMegaBytes", mMaxSizeOfCachedGridsInMegaBytes);
-
-    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.pointCache.enabled", mPointCacheEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.pointCache.hitsRequired", mPointCacheHitsRequired);
-    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.pointCache.timePeriod", mPointCacheTimePeriod);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.name", mServerName);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.id", mServerId);
@@ -259,7 +249,6 @@ int main(int argc, char *argv[])
 
 
     dataServer->init(0,mServerId,mServerName.c_str(),corbaServer->getServiceIor().c_str(),mGridDirectory.c_str(),&contentServerClient,mLuaFiles);
-    dataServer->setPointCacheEnabled(mPointCacheEnabled,mPointCacheHitsRequired,mPointCacheTimePeriod);
     dataServer->setPreload(mGridPreloadEnabled,mPreloadMemoryLock,mGridPreloadFile);
     dataServer->setVirtualContentEnabled(mVirtualFilesEnabled);
     dataServer->setMemoryMapCheckEnabled(mMemoryMapCheckEnabled);
