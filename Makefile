@@ -130,6 +130,13 @@ clean:
 	rm -rf obj
 	rm -rf bin/*
 
+clean-install:
+	rm -rf $(bindir)/fmi
+	rm -rf $(bindir)/servers
+	rm -rf $(bindir)/utils
+	rm -rf $(bindir)/files
+	rm -rf $(bindir)/clients
+
 format:
 	clang-format -i -style=file $(SUBNAME)/*.h $(SUBNAME)/*.cpp test/*.cpp
 
