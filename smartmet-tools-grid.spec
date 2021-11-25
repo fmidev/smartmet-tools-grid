@@ -16,7 +16,7 @@ BuildRequires: boost169-devel
 BuildRequires: smartmet-library-spine-devel >= 21.11.10
 BuildRequires: smartmet-library-grid-files-devel >= 21.11.15
 BuildRequires: smartmet-library-grid-content-devel >= 21.11.15
-BuildRequires: gdal32-devel
+BuildRequires: gdal33-devel
 BuildRequires: postgresql12-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
