@@ -17,7 +17,7 @@ BuildRequires: smartmet-library-spine-devel >= 21.12.2
 BuildRequires: smartmet-library-grid-files-devel >= 21.12.2
 BuildRequires: smartmet-library-grid-content-devel >= 21.12.2
 BuildRequires: gdal33-devel
-BuildRequires: postgresql12-devel
+BuildRequires: postgresql13-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
 BuildRequires: libmicrohttpd-devel
