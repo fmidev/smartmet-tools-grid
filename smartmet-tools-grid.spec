@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 21.11.15
+Version: 21.12.2
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -13,9 +13,9 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
-BuildRequires: smartmet-library-spine-devel >= 21.11.10
-BuildRequires: smartmet-library-grid-files-devel >= 21.11.15
-BuildRequires: smartmet-library-grid-content-devel >= 21.11.15
+BuildRequires: smartmet-library-spine-devel >= 21.12.2
+BuildRequires: smartmet-library-grid-files-devel >= 21.12.2
+BuildRequires: smartmet-library-grid-content-devel >= 21.12.2
 BuildRequires: gdal33-devel
 BuildRequires: postgresql12-devel
 BuildRequires: omniORB-devel
@@ -26,16 +26,16 @@ BuildRequires: libpng-devel
 BuildRequires: openldap-devel
 BuildRequires: openssl-devel
 BuildRequires: krb5-devel
-#Requires: smartmet-library-macgyver >= 18.2.6
-#Requires: smartmet-library-spine >= 18.1.15
+#Requires: smartmet-library-macgyver >= 18.12.1
+#Requires: smartmet-library-spine >= 18.12.2
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 21.11.15
-Requires: smartmet-library-grid-content >= 21.11.15
+Requires: smartmet-library-grid-files >= 21.12.2
+Requires: smartmet-library-grid-content >= 21.12.2
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
-#TestRequires: smartmet-utils-devel
+#TestRequires: smartmet-utils-devel >= 21.11.23
 
 Provides: corbaContentServer = %{version}
 Provides: corbaDataServer = %{version}
