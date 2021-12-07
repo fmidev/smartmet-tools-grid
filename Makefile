@@ -11,9 +11,9 @@ REQUIRES = libpqxx gdal icu-i18n
 
 include $(shell echo $${PREFIX-/usr})/share/smartmet/devel/makefile.inc
 
-ifneq ($(wildcard /usr/pgsql-12/lib/libpq.so),)
-INCLUDES += -isystem /usr/pgsql-12/include
-REQUIRED_LIBS += -L/usr/pgsql-12/lib
+ifneq ($(wildcard /usr/pgsql-13/lib/libpq.so),)
+INCLUDES += -isystem /usr/pgsql-13/include
+REQUIRED_LIBS += -L/usr/pgsql-13/lib
 endif
 
 ifeq ($(CORBA), disabled)
