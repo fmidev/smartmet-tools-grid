@@ -95,6 +95,9 @@ T::SessionId mSessionId = 0;
 
 std::set<std::string> mProducerList;
 std::set<uint> mProducerIdList;
+std::unordered_map<std::string, std::vector<std::string>> mProducerDependensies;
+
+
 std::set<std::string> mUpdateProducerList;
 T::ProducerInfoList mSourceProducerList;
 T::GenerationInfoList mSourceGenerationList;
@@ -123,8 +126,11 @@ int mLoopCounter = 1;
 std::set<uint> mIgnoreGeneration;
 bool reconnectionRequired = true;
 bool shutdownRequested = false;
+std::set<std::string> mGenerationStatusCheckIgnore;
+
 
 ContentServer::ServiceInterface *mTargetInterface = nullptr;
+std::unordered_map<std::string,time_t> mReadyGenerations;
 
 
 
@@ -260,6 +266,7 @@ void readProducerList(const char *filename)
     }
 
     mProducerList.clear();
+    mProducerDependensies.clear();
 
     char st[1000];
     while (!feof(file))
@@ -268,26 +275,40 @@ void readProducerList(const char *filename)
       {
         int f = 1;
         int i = 1;
+        int e = 0;
         char *p = strstr(st,"\n");
         if (p)
           *p = '\0';
 
-        p = strstr(st,";");
-        if (p)
-        {
-          f = atoi(p+1);
-          *p = '\0';
+        std::vector <std::string> fields;
+        splitString(st,';',fields);
 
-          p = strstr(p+1,";");
-          if (p)
-          {
-            i = atoi(p+1);
-            *p = '\0';
-          }
-        }
+        if (fields.size() > 1)
+          e = toInt32(fields[1]);
+
+        if (fields.size() > 2)
+          f = toInt32(fields[2]);
+
+        if (fields.size() > 3)
+          i = toInt32(fields[3]);
 
         if (mWaitTime == 0 || mLoopCounter == f || (mLoopCounter > f  &&  ((mLoopCounter-f) % i) == 0))
-          mProducerList.insert(toLowerString(std::string(st)));
+        {
+          std::vector<std::string> pList;
+          splitString(fields[0],',',pList);
+
+          for (auto it = pList.begin(); it != pList.end(); ++it)
+          {
+            std::string pname = toUpperString(*it);
+            mProducerList.insert(pname);
+
+            if (e == 0)
+              mGenerationStatusCheckIgnore.insert(pname);
+
+            if (pList.size() > 1)
+              mProducerDependensies.insert(std::pair<std::string, std::vector<std::string>>(pname,pList));
+          }
+        }
       }
     }
     fclose(file);
@@ -1029,6 +1050,82 @@ void readSourceGenerations(PGconn *conn)
 
 
 
+void readReadyGenerations(PGconn *conn,std::unordered_map<std::string,time_t>& readyGenerations)
+{
+  FUNCTION_TRACE
+  try
+  {
+    if (shutdownRequested)
+      return;
+
+    readyGenerations.clear();
+
+    char sql[1000];
+    char *p = sql;
+    p += sprintf(p, "SELECT DISTINCT\n");
+    p += sprintf(p, "  fmi_producer.id,\n");
+    p += sprintf(p, "  fmi_producer.name,\n");
+    p += sprintf(p, "  to_char(ss_forecast_status.analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),\n");
+    p += sprintf(p, "  to_char(ss_forecast_status.status_time at time zone 'utc', 'yyyymmddThh24MISS')\n");
+    p += sprintf(p, "FROM\n");
+    p += sprintf(p, "  ss_forecast_status LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_forecast_status.producer_id\n");
+    p += sprintf(p, "WHERE\n");
+    p += sprintf(p, " ss_forecast_status.geometry_id IS NULL AND upper(status)='READY'\n");
+    p += sprintf(p, "ORDER BY\n");
+    p += sprintf(p, "  fmi_producer.id,to_char(ss_forecast_status.analysis_time at time zone 'utc', 'yyyymmddThh24MISS') desc,");
+    p += sprintf(p, "  to_char(ss_forecast_status.status_time at time zone 'utc', 'yyyymmddThh24MISS') desc;");
+
+    PGresult *res = PQexec(conn, sql);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    {
+      Fmi::Exception exception(BCP, "Postgresql error!");
+      exception.addParameter("ErrorMessage", PQerrorMessage(conn));
+      reconnectionRequired = true;
+      throw exception;
+    }
+
+    //int fieldCount = PQnfields(res);
+    int rowCount = PQntuples(res);
+
+    uint prevProducerId = 0;
+    std::string prevAnalysisTime;
+
+    for (int i = 0; i < rowCount; i++)
+    {
+      if (shutdownRequested)
+        return;
+
+      char st[1000];
+
+      uint producerId = toInt64(PQgetvalue(res, i, 0));
+      std::string analysisTime = PQgetvalue(res, i, 2);
+
+      T::ProducerInfo *producer = mSourceProducerList.getProducerInfoById(producerId);
+      if (producer != nullptr)
+      {
+        if (producerId != prevProducerId || analysisTime != prevAnalysisTime)
+        {
+          std::string mtime = PQgetvalue(res, i, 3);
+          sprintf(st, "%s:%s", producer->mName.c_str(), analysisTime.c_str());
+
+          readyGenerations.insert(std::pair<std::string,time_t>(st,utcTimeToTimeT(mtime)));
+          prevProducerId = producerId;
+          prevAnalysisTime = analysisTime;
+        }
+      }
+    }
+    PQclear(res);
+  }
+  catch (...)
+  {
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
+  }
+}
+
+
+
+
+
 void readSourceProducers(PGconn *conn)
 {
   FUNCTION_TRACE
@@ -1065,7 +1162,7 @@ void readSourceProducers(PGconn *conn)
       if (shutdownRequested)
         return;
 
-      std::string searchStr = toLowerString(std::string(PQgetvalue(res, i, 1)));
+      std::string searchStr = toUpperString(std::string(PQgetvalue(res, i, 1)));
       if (mProducerList.size() == 0 || mProducerList.find(searchStr) != mProducerList.end())
       {
         T::ProducerInfo *producer = new T::ProducerInfo();
@@ -1105,7 +1202,7 @@ void updateProducers()
       // Checking if we have created the current producers - if so, then we can also remove it.
       if (targetProducer->mSourceId == mSourceId)
       {
-        std::string searchStr = toLowerString(targetProducer->mName);
+        std::string searchStr = toUpperString(targetProducer->mName);
         if (mProducerList.size() == 0 || mProducerList.find(searchStr) != mProducerList.end())
         {
           mProducerIdList.insert(targetProducer->mProducerId);
@@ -1260,27 +1357,43 @@ void updateGenerations()
 
 
 
-void updateGenerationStatus(uint producerId)
+void updateGenerationStatus(T::ProducerInfo& targetProducer)
 {
   FUNCTION_TRACE
   try
   {
+
+    std::string pname = toUpperString(targetProducer.mName);
+    bool ignore = false;
+    if (mGenerationStatusCheckIgnore.find(pname) != mGenerationStatusCheckIgnore.end())
+      ignore = true;
+
+    if (!ignore)
+    {
+      auto rec = mProducerDependensies.find(pname);
+      if (rec != mProducerDependensies.end())
+        return; // The producer update has dependensies. We update these kinds of producers later.
+    }
+
     uint len = mTargetGenerationList.getLength();
     for (uint t = 0; t < len; t++)
     {
       T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoByIndex(t);
-      if (targetGeneration->mSourceId == mSourceId  &&  targetGeneration->mProducerId == producerId  &&  targetGeneration->mStatus == T::GenerationInfo::Status::Running)
+      if (targetGeneration->mSourceId == mSourceId  &&  targetGeneration->mProducerId == targetProducer.mProducerId  &&  targetGeneration->mStatus != T::GenerationInfo::Status::Ready)
       {
-        PRINT_DATA(mDebugLogPtr, "  -- Update generation status : %s\n", targetGeneration->mName.c_str());
-        targetGeneration->mStatus = T::GenerationInfo::Status::Ready;
-
-        int result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
-        if (result != 0)
+        if (ignore || mReadyGenerations.find(targetGeneration->mName) != mReadyGenerations.end())
         {
-          Fmi::Exception exception(BCP, "Cannot update the generation status into the target data storage!");
-          exception.addParameter("GenerationName", targetGeneration->mName);
-          exception.addParameter("Result", ContentServer::getResultString(result));
-          throw exception;
+          PRINT_DATA(mDebugLogPtr, "  -- Update generation status : %s\n", targetGeneration->mName.c_str());
+          targetGeneration->mStatus = T::GenerationInfo::Status::Ready;
+
+          int result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+          if (result != 0)
+          {
+            Fmi::Exception exception(BCP, "Cannot update the generation status into the target data storage!");
+            exception.addParameter("GenerationName", targetGeneration->mName);
+            exception.addParameter("Result", ContentServer::getResultString(result));
+            throw exception;
+          }
         }
       }
     }
@@ -1294,7 +1407,6 @@ void updateGenerationStatus(uint producerId)
 
 
 
-
 void updateGenerationStatus()
 {
   FUNCTION_TRACE
@@ -1304,12 +1416,52 @@ void updateGenerationStatus()
     for (uint t = 0; t < len; t++)
     {
       T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoByIndex(t);
-      if (targetGeneration->mSourceId == mSourceId  &&  targetGeneration->mStatus == T::GenerationInfo::Status::Running)
-      {
-        PRINT_DATA(mDebugLogPtr, "  -- Update generation status : %s\n", targetGeneration->mName.c_str());
-        targetGeneration->mStatus = T::GenerationInfo::Status::Ready;
 
-        int result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+      if (targetGeneration->mSourceId == mSourceId)
+      {
+        std::vector<std::string> parts;
+        splitString(targetGeneration->mName,':',parts);
+        std::string pname = toUpperString(parts[0]);
+        bool ready = true;
+
+        if (mGenerationStatusCheckIgnore.find(pname) == mGenerationStatusCheckIgnore.end())
+        {
+          auto gen = mReadyGenerations.find(targetGeneration->mName);
+          if (gen == mReadyGenerations.end())
+          {
+            ready = false;
+          }
+          else
+          {
+            auto rec = mProducerDependensies.find(pname);
+            if (rec != mProducerDependensies.end())
+            {
+              for (auto it = rec->second.begin(); it != rec->second.end(); ++it)
+              {
+                std::string n = *it + ":" + parts[1];
+                auto gen = mReadyGenerations.find(n);
+                if (gen == mReadyGenerations.end())
+                  ready = false;
+              }
+            }
+          }
+        }
+
+        int result = 0;
+        if (ready  &&  targetGeneration->mStatus != T::GenerationInfo::Status::Ready)
+        {
+          PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'ready': %s\n", targetGeneration->mName.c_str());
+          targetGeneration->mStatus = T::GenerationInfo::Status::Ready;
+          result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+        }
+        else
+        if (!ready  &&  targetGeneration->mStatus == T::GenerationInfo::Status::Ready)
+        {
+          PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'running': %s\n", targetGeneration->mName.c_str());
+          targetGeneration->mStatus = T::GenerationInfo::Status::Running;
+          result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+        }
+
         if (result != 0)
         {
           Fmi::Exception exception(BCP, "Cannot update the generation status into the target data storage!");
@@ -1767,6 +1919,8 @@ void updateTargetFiles(PGconn *conn)
     mContentReadCount = 0;
     mContentAddCount = 0;
 
+    readReadyGenerations(conn,mReadyGenerations);
+
     uint len = mSourceProducerList.getLength();
     for (uint t = 0; t < len; t++)
     {
@@ -1844,7 +1998,7 @@ void updateTargetFiles(PGconn *conn)
           //printf("-- save target content %ld\n",fileRecList.size());
 
           PRINT_DATA(mDebugLogPtr, "* Updating generation status information into the target data storage\n");
-          updateGenerationStatus(targetProducer->mProducerId);
+          updateGenerationStatus(*targetProducer);
 
           time_t endTime = time(nullptr);
           PRINT_DATA(mDebugLogPtr, "### PRODUCER UPDATED IN %ld SECONDS (%s)\n",(endTime-startTime),targetProducer->mName.c_str());
@@ -1852,6 +2006,8 @@ void updateTargetFiles(PGconn *conn)
         }
       }
     }
+
+    updateGenerationStatus();
 
     std::unordered_map<std::string, std::string> tableUpdates;
     mTableUpdates.clear();
