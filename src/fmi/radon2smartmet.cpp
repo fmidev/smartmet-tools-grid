@@ -85,12 +85,21 @@ bool mRedisLockEnabled = false;
 std::string mRedisTablePrefix;
 std::string mContentServerIor;
 std::string mContentServerUrl;
+
+bool mProcessingLogEnabled = false;
+std::string mProcessingLogFile;
+int mProcessingLogMaxSize = 100000000;
+int mProcessingLogTruncateSize = 20000000;
+Log mProcessingLog;
+Log* mProcessingLogPtr = nullptr;
+
 bool mDebugLogEnabled = false;
 std::string mDebugLogFile;
 int mDebugLogMaxSize = 100000000;
 int mDebugLogTruncateSize = 20000000;
 Log mDebugLog;
 Log* mDebugLogPtr = nullptr;
+
 T::SessionId mSessionId = 0;
 
 std::set<std::string> mProducerList;
@@ -160,10 +169,15 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.radon2smartmet.content-storage.redis.tablePrefix",
         "smartmet.tools.grid.radon2smartmet.content-storage.corba.ior",
         "smartmet.tools.grid.radon2smartmet.content-storage.http.url",
+        "smartmet.tools.grid.radon2smartmet.processing-log.enabled",
+        "smartmet.tools.grid.radon2smartmet.processing-log.file",
+        "smartmet.tools.grid.radon2smartmet.processing-log.maxSize",
+        "smartmet.tools.grid.radon2smartmet.processing-log.truncateSize",
         "smartmet.tools.grid.radon2smartmet.debug-log.enabled",
         "smartmet.tools.grid.radon2smartmet.debug-log.file",
         "smartmet.tools.grid.radon2smartmet.debug-log.maxSize",
-        "smartmet.tools.grid.radon2smartmet.debug-log.truncateSize", nullptr };
+        "smartmet.tools.grid.radon2smartmet.debug-log.truncateSize",
+        nullptr };
 
     mConfigurationFile.readFile(configFile);
     //mConfigurationFile.print(std::cout,0,0);
@@ -193,6 +207,10 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.lockEnabled", mRedisLockEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.corba.ior", mContentServerIor);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.http.url", mContentServerUrl);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.processing-log.enabled", mProcessingLogEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.processing-log.file", mProcessingLogFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.processing-log.maxSize", mProcessingLogMaxSize);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.processing-log.truncateSize", mProcessingLogTruncateSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.debug-log.enabled", mDebugLogEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.debug-log.file", mDebugLogFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.debug-log.maxSize", mDebugLogMaxSize);
@@ -1215,6 +1233,15 @@ void updateProducers()
             PRINT_DATA(mDebugLogPtr, "  -- Remove producer : %s\n", targetProducer->mName.c_str());
 
             int result = mTargetInterface->deleteProducerInfoById(mSessionId, targetProducer->mProducerId);
+            if (result == 0)
+            {
+              PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;OK;%s;",targetProducer->mName.c_str());
+            }
+            else
+            {
+              PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;FAIL;%s;",targetProducer->mName.c_str());
+            }
+
             if (result != 0)
             {
               Fmi::Exception exception(BCP, "Cannot delete the producer information from the target data storage!");
@@ -1246,6 +1273,15 @@ void updateProducers()
           PRINT_DATA(mDebugLogPtr, "  -- Add producer : %s\n", producer.mName.c_str());
 
           int result = mTargetInterface->addProducerInfo(mSessionId, producer);
+          if (result == 0)
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-ADD;OK;%s;",sourceProducer->mName.c_str());
+          }
+          else
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-ADD;FAIL;%s;",sourceProducer->mName.c_str());
+          }
+
           if (result != 0)
           {
             Fmi::Exception exception(BCP, "Cannot add the producer information into the target data storage!");
@@ -1285,6 +1321,7 @@ void updateGenerations()
           // The generation information is not available in the source data storage. So, we should remove
           // it also from the target data storage.
 
+          PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;OK;%s;",targetGeneration->mName.c_str());
           PRINT_DATA(mDebugLogPtr, "  -- Remove generation : %s\n", targetGeneration->mName.c_str());
 
           generationIdList.insert(targetGeneration->mGenerationId);
@@ -1336,8 +1373,18 @@ void updateGenerations()
             //sourceGeneration->print(std::cout,0,0);
 
             int result = mTargetInterface->addGenerationInfo(mSessionId, generationInfo);
+            if (result == 0)
+            {
+              PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;OK;%s;",generationInfo.mName.c_str());
+            }
+            else
+            {
+              PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;FAIL;%s;",generationInfo.mName.c_str());
+            }
+
             if (result != 0)
             {
+
               Fmi::Exception exception(BCP, "Cannot add the generation information into the target data storage!");
               exception.addParameter("GenerationName", generationInfo.mName);
               exception.addParameter("Result", ContentServer::getResultString(result));
@@ -1387,6 +1434,16 @@ void updateGenerationStatus(T::ProducerInfo& targetProducer)
           targetGeneration->mStatus = T::GenerationInfo::Status::Ready;
 
           int result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+
+          if (result == 0)
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-READY;OK;%s;",targetGeneration->mName.c_str());
+          }
+          else
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-READY;FAIL;%s;",targetGeneration->mName.c_str());
+          }
+
           if (result != 0)
           {
             Fmi::Exception exception(BCP, "Cannot update the generation status into the target data storage!");
@@ -1453,6 +1510,14 @@ void updateGenerationStatus()
           PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'ready': %s\n", targetGeneration->mName.c_str());
           targetGeneration->mStatus = T::GenerationInfo::Status::Ready;
           result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+          if (result == 0)
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-READY;OK;%s;",targetGeneration->mName.c_str());
+          }
+          else
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-READY;FAIL;%s;",targetGeneration->mName.c_str());
+          }
         }
         else
         if (!ready  &&  targetGeneration->mStatus == T::GenerationInfo::Status::Ready)
@@ -1460,6 +1525,14 @@ void updateGenerationStatus()
           PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'running': %s\n", targetGeneration->mName.c_str());
           targetGeneration->mStatus = T::GenerationInfo::Status::Running;
           result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+          if (result == 0)
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
+          }
+          else
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;FAIL;%s;",targetGeneration->mName.c_str());
+          }
         }
 
         if (result != 0)
@@ -1771,6 +1844,7 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
 
           if (contentList.getLength() >= mMaxMessageSize)
           {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"CONTENT-ADD;OK;%u (%u/%u);",contentList.getLength(), mContentAddCount, mContentReadCount);
             PRINT_DATA(mDebugLogPtr, "  -- Add content information : %u (%u/%u)\n", contentList.getLength(), mContentAddCount, mContentReadCount);
             mTargetInterface->addContentList(mSessionId, contentList);
             contentList.clear();
@@ -1784,6 +1858,7 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
       mContentAddCount++;
     }
 
+    PRINT_EVENT_LINE(mProcessingLogPtr,"CONTENT-ADD;OK;%u (%u/%u);",contentList.getLength(), mContentAddCount, mContentReadCount);
     PRINT_DATA(mDebugLogPtr, "  -- Add content information : %u (%u/%u)\n", contentList.getLength(), mContentAddCount, mContentReadCount);
     if (contentList.getLength() > 0)
       mTargetInterface->addContentList(mSessionId, contentList);
@@ -1930,6 +2005,8 @@ void updateTargetFiles(PGconn *conn)
         T::ProducerInfo *targetProducer = mTargetProducerList.getProducerInfoByName(sourceProducer->mName);
         if (targetProducer != nullptr)
         {
+          PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-UPDATE;START;%s;",targetProducer->mName.c_str());
+
           time_t startTime = time(nullptr);
           PRINT_DATA(mDebugLogPtr, "* Reading file information from the target data storage\n");
 
@@ -2001,6 +2078,7 @@ void updateTargetFiles(PGconn *conn)
           updateGenerationStatus(*targetProducer);
 
           time_t endTime = time(nullptr);
+          PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-UPDATE;END;%s updated in %ld seconds;",targetProducer->mName.c_str(),(endTime-startTime));
           PRINT_DATA(mDebugLogPtr, "### PRODUCER UPDATED IN %ld SECONDS (%s)\n",(endTime-startTime),targetProducer->mName.c_str());
           // printf("### PRODUCER UPDATED IN %3ld SECONDS (%s)\n",(endTime-startTime),targetProducer->mName.c_str());
         }
@@ -2083,6 +2161,12 @@ int main(int argc, char *argv[])
       mTargetInterface = httpClient;
     }
 
+    if (mProcessingLogEnabled)
+    {
+      mProcessingLog.init(true, mProcessingLogFile.c_str(), mProcessingLogMaxSize, mProcessingLogTruncateSize);
+      mProcessingLogPtr = &mProcessingLog;
+    }
+
     if (mDebugLogEnabled)
     {
       mDebugLog.init(true, mDebugLogFile.c_str(), mDebugLogMaxSize, mDebugLogTruncateSize);
@@ -2117,6 +2201,8 @@ int main(int argc, char *argv[])
       PRINT_DATA(mDebugLogPtr, "********************************************************************\n");
       PRINT_DATA(mDebugLogPtr, "****************************** UPDATE ******************************\n");
       PRINT_DATA(mDebugLogPtr, "********************************************************************\n");
+
+      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE;START;;");
 
       try
       {
@@ -2234,6 +2320,8 @@ int main(int argc, char *argv[])
           lastDatabaseRead = time(nullptr);
         }
       }
+
+      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE;END;Loop time %ld seconds;",time(0)-loopStart);
 
       if (mWaitTime > 0 && !shutdownRequested)
       {
