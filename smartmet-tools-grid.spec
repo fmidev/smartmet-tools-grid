@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 21.12.7
+Version: 22.1.5
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -13,9 +13,9 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
-BuildRequires: smartmet-library-spine-devel >= 21.12.2
-BuildRequires: smartmet-library-grid-files-devel >= 21.12.2
-BuildRequires: smartmet-library-grid-content-devel >= 21.12.2
+BuildRequires: smartmet-library-spine-devel >= 22.1.5
+BuildRequires: smartmet-library-grid-files-devel >= 22.1.5
+BuildRequires: smartmet-library-grid-content-devel >= 22.1.5
 BuildRequires: gdal33-devel
 BuildRequires: postgresql13-devel
 BuildRequires: omniORB-devel
@@ -30,8 +30,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-spine >= 18.12.2
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 21.12.2
-Requires: smartmet-library-grid-content >= 21.12.2
+Requires: smartmet-library-grid-files >= 22.1.5
+Requires: smartmet-library-grid-content >= 22.1.5
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -429,9 +429,10 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Jan  5 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.1.5-1.fmi
+- Repackaged all GRID-packages
 * Tue Dec  7 2021 Andris Pavēnis <andris.pavenis@fmi.fi> 21.12.7-1.fmi
 - Upgrade to PostgreSQL 13 and GDAL-3.3
-
 * Mon Nov 15 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.11.15-1.fmi
 - Performance improvements to redis tools
 * Fri Oct 29 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.10.29-1.fmi
