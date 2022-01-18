@@ -1,18 +1,13 @@
-<style>t1{font-size:20pt;}</style>
-<style>t2{font-size:48pt; text-align: center; font-weight:bold;}</style>
-<style>pre{background:#E0E0C0;font-size:10pt;}</style>
+<hr/>
+
+**Finnish Meteorological Institute / SmartMet Server / 2022-01-18**
 
 <hr/>
-<t1>2022-01-18</t1>
+
+# QUICK SETUP
 
 <hr/>
-<t1>SmartMet Server</t1>
 
-<t2>QUICK SETUP</t2>
-
-<t1>Finnish Meteorological Institute</t1>
-
-<hr/>
 # TABLE OF CONTENTS
 
 <ul>
@@ -34,16 +29,18 @@
 </br>
 
 <hr/>
-# <span id="chapter-1"></span>1. QUICK SETUP
 
-## <span id="chapter-1-1"></span>1.1. Purpose
+# <span id="chapter-1"></span>1 QUICK SETUP
+
+## <span id="chapter-1-1"></span>1.1 Purpose
 
 The purpose of this document is to describe a quick setup for the
 SmartMet Server so that it can use grid-files (GRIB1, GRIB2, NetCDF,
 QueryData) for its timeseries queries.
 
 <hr/>
-## <span id="chapter-1-2"></span>1.2. Requirements
+
+## <span id="chapter-1-2"></span>1.2 Requirements
 
 In this quick setup we expect that the following requirements are
 fulfilled before the setup is started:
@@ -56,19 +53,21 @@ fulfilled before the setup is started:
     files.
 
 <hr/>
-## <span id="chapter-1-3"></span>1.3. Phases
+
+## <span id="chapter-1-3"></span>1.3 Phases
 
 This quick setup is divided into the following phases:
 
 <ul>
-<li><a href="#phase-1">1.  Parameter recognition and mapping</a>
-<li><a href="#phase-2">2.  Filling the Content Storage</a>
-<li><a href="#phase-3">3.  Checking grid information</a>
-<li><a href="#phase-4">4.  Querying grid information</a>
-<li><a href="#phase-5">5.  Problem solving</a>
+<li><a href="#phase-1">1. Parameter recognition and mapping</a>
+<li><a href="#phase-2">2. Filling the Content Storage</a>
+<li><a href="#phase-3">3. Checking grid information</a>
+<li><a href="#phase-4">4. Querying grid information</a>
+<li><a href="#phase-5">5. Problem solving</a>
 </ul>
 
 <hr/>
+
 ### <span id="phase-1"></span>PHASE 1: Parameter recognition and mapping
 
 The first thing to do is to make sure that the system can recognize
@@ -83,9 +82,7 @@ given in the environment variable “**SMARTMET\_GRID\_CONFIG\_FILE**”.
 You can define this by the following command.
 
 <pre>
-
-    export SMARTMET_GRID_CONFIG_FILE~=/usr/share/smartmet/grid-files/grid-files.conf
-
+  export SMARTMET_GRID_CONFIG_FILE~=/usr/share/smartmet/grid-files/grid-files.conf
 </pre>
 
 After that you should be able to execute the “**grid\_dump**”
@@ -93,21 +90,18 @@ application (this is usually located in “/usr/bin/files” directory). The
 application takes a grid file name as a parameter.
 
 <pre>
-
-    grid_dump /grib/ECG_20210309T000000_RH-PRCNT_pressure.grib
-
+  grid_dump /grib/ECG_20210309T000000_RH-PRCNT_pressure.grib
 </pre>
 
 The result looks something like this:
 
 <pre>
-
  --------------------------------------------------------------------------------------------
- FILE : /grib/ECG\_20210309T000000\_RH-PRCNT\_pressure.grib
+ FILE : /grib/ECG_20210309T000000_RH-PRCNT\_pressure.grib
  --------------------------------------------------------------------------------------------
  PhysicalGridFile
     GridFile
-    - fileName        = /grib/ECG\_20210309T000000\_RH-PRCNT\_pressure.grib
+    - fileName        = /grib/ECG_20210309T000000_RH-PRCNT_pressure.grib
     - fileId          = 0
     - deletionTime    = 19700101T000000
     - groupFlags      = 0
@@ -138,7 +132,6 @@ The result looks something like this:
  - newbaseParameterName     = Humidity
  - netCdfParameterName      = 
  - gridHash                 = 15139342594299081125
-
 </pre>
 
 The recognition was successful if the “**fmiParameterId**”,
@@ -155,16 +148,13 @@ application prints on screen the line that should be added into the
 geometry definition file (usually named as “fmi\_geometeries.csv”). 
 
 <pre>
-
  ** GRIB1 Geometry not configured:
  /grib/ECG_20210309T000000_RH-PRCNT_pressure.grib
-
 
   ** Add the following line into the geometry definition file (=\> fill
      id, name and description fields):
 
   1;id;name;3600;1801;0.000000;90.000000;0.100000;0.100000;+x-y;description
-
 </pre>
 
 The point of this identifier is that we might have the same data in
@@ -187,6 +177,7 @@ If you cannot get the parameter recognition and mapping to work, then
 there is no reason to continue the setup before this is fixed.
 
 <hr/>
+
 ### <span id="phase-2"></span>PHASE 2: Filling the Content Storage
 
 Now we know that the system is able to recognize and map parameters in
@@ -204,9 +195,7 @@ Notice, that this information does not contain the actual grid data.
 The current application can be executed like this:
 
 <pre>
-
-    filesys2smartmet &lt;configFile&gt; &lt;loopWaitTimeInSeconds&gt;
-
+  filesys2smartmet &lt;configFile&gt; &lt;loopWaitTimeInSeconds&gt;
 </pre>
 
 The first parameter is the name of the configuration file and the second
@@ -218,80 +207,84 @@ described in the “filesys2smartmet.pdf” document. In this document we
 describe required configuration steps in very simplified way.
 
 <hr/>
+
 #### <span id="anchor-6"></span>STEP 1:
 
 Define the location (= directories) of your grid files and patterns that
 are used for searching these files.
 
-<pre style="background:#E0E0E0;">
-
-    content-source : 
-    { 
-        directories = \[ "/grib"\]
-        patterns = \["\*.grib","\*.grib1","\*.grib2"\]
-    }
-
+<pre>
+  content-source : 
+  { 
+    directories = 
+    [ 
+      "/grib"
+    ]
+    
+    patterns = 
+    [
+      "*.grib",
+      "*.grib1",
+      "*.grib2"
+    ]
+  }
 </pre>
 
 <hr/>
+
 #### <span id="anchor-7"></span>STEP 2:
 
 Define the producer information into the file, which name is defined
 with “producerDefFile” parameter. This producer information will be
 copied into the Content Storage.
 
-<pre style="background:#E0E0E0;">
-
-    ECG;ECG;ECMWF; European Centre for Medium-Range Weather Forecasts
-    PAL;PAL_SCANDINAVIA; PAL-Scandinavia; PAL-Scandinavia Ground Level forecasts
-
+<pre>
+  ECG;ECG;ECMWF; European Centre for Medium-Range Weather Forecasts
+  PAL;PAL_SCANDINAVIA; PAL-Scandinavia; PAL-Scandinavia Ground Level forecasts
 </pre>
 
 <hr/>
+
 #### <span id="anchor-8"></span>STEP 3:
 
 Rename your grid files so that they contain the producer’s short name
 and the generation/analysis time in the beginning of the file (separated
 by the ‘\_’ character). 
 
-<pre style="background:#F0E0E0;">
-
-    ECG_20220124T000000_filexxx.grib
-    PAL_20220214T000000_filezdf3.grib
-
+<pre>
+  ECG_20220124T000000_filexxx.grib
+  PAL_20220214T000000_filezdf3.grib
 </pre>
 
 <hr/>
+
 #### <span id="anchor-9"></span>STEP 4:
 
 Define the type and the location of the Content Storage (= Redis
 database):
 
-<pre style="background:#E0E0E0;">
+<pre>
+  content-storage : 
+  {
+    type = "redis"
 
-    content-storage : 
+    redis :
     {
-        type = "redis"
-
-        redis :
-        {
-            address      = "127.0.0.1"
-            port         = 6379
-            tablePrefix  = "a."
-        }
+      address      = "127.0.0.1"
+      port         = 6379
+      tablePrefix  = "a."
     }
-
+ }
 </pre>
 
 <hr/>
+
 #### <span id="anchor-10"></span>STEP 5:
 
 Execute the “**filesys2smartmet**” application:
 
 <pre>
-
-    filesys2smartmet /cfg/filesys-to-smartmet.conf 0
-
+  filesys2smartmet /cfg/filesys-to-smartmet.conf 0
 </pre>
 
 If everything went well, we should now have some information in the
@@ -307,15 +300,12 @@ can fetch a list of content information records from the Redis database
 by the following command:
 
 <pre>
-
-    cs_getContentList 0 0 0 100 -redis 127.0.0.1 6379 "a."
-
+  cs_getContentList 0 0 0 100 -redis 127.0.0.1 6379 "a."
 </pre>
 
 And the response would be something like this:
 
 <pre>
-
  ContentInfoList
 
     ContentInfo
@@ -339,38 +329,32 @@ And the response would be something like this:
     - mGeometryId            = 1087
     - mModificationTime      = 20220103T021143
     - mDeletionTime          = 20220106T120000
-
 </pre>
 
 You can fetch a list of all producers by the following command:
 
 <pre>
-
-    cs_getProducerInfoList 0 -redis 127.0.0.1 6379 "a."
-
+  cs_getProducerInfoList 0 -redis 127.0.0.1 6379 "a."
 </pre>
 
 You can fetch a list of all generations by the following command:
 
 <pre>
-
-    cs_getGenerationInfoList 0 -redis 127.0.0.1 6379 "a."
-
+  cs_getGenerationInfoList 0 -redis 127.0.0.1 6379 "a."
 </pre>
 
 You can fetch a list of files belonging to the producer “ECG” by the
 following command:
 
 <pre>
-
-    cs_getFileInfoListByProducerName 0 ECG 0 100 -redis 127.0.0.1 6379 "a."
-
+  cs_getFileInfoListByProducerName 0 ECG 0 100 -redis 127.0.0.1 6379 "a."
 </pre>
 
 Notice that there are tens of other commands that you can use. 
 
 <hr/>
-### <span id="phase-4"></span>PHASE 3: Checking grid information
+
+### <span id="phase-3"></span>PHASE 3: Checking grid information
 
 Now we know that we have content information available in the Content
 Storage. The next step is to start the SmartMet server so that we can
@@ -383,20 +367,18 @@ Both the grid-engine and the grid-admin need connection to the Content
 Storage (= Redis database). Define these connections into their main
 configuration files. 
 
-<pre style="background:#E0E0E0;">
+<pre>
+  content-storage : 
+  {
+    type = "redis"
 
-    content-storage : 
+    redis :
     {
-        type = "redis"
-
-        redis :
-        {
-            address      = "127.0.0.1"
-            port         = 6379
-            tablePrefix  = "a."
-        }
+      address      = "127.0.0.1"
+      port         = 6379
+      tablePrefix  = "a."
     }
-
+ }
 </pre>
 
 In this phase, we can ignore all other configuration parameters.
@@ -432,6 +414,7 @@ this information into the Content Storage and 3) to fetch this
 information from the Content Storage.
 
 <hr/>
+
 ### <span id="phase-4"></span>PHASE 4: Querying grid information
 
 The next step is to make sure that we are able to query grid information
@@ -445,15 +428,13 @@ file defines two things: 1) producer & geometry combinations that can be
 queried and 2) the search order of the producers if the producer is not
 given in the query.
 
-<pre style="background:#F0E0E0;">
-
-    SMARTMET;1096;;
-    SMARTMETMTA;1096;;
-    ECG;1007;;
-    ECGMTA;1007;;
-    ECG;1008;;
-    ECGMTA;1008;;
-
+<pre>
+  SMARTMET;1096;;
+  SMARTMETMTA;1096;;
+  ECG;1007;;
+  ECGMTA;1007;;
+  ECG;1008;;
+  ECGMTA;1008;;
 </pre>
 
 After that you should be able to use the timeseries plugin for querying
@@ -466,6 +447,7 @@ files.
 <img src="media/quick-setup-3.png"/>
 
 <hr/>
+
 ### <span id="phase-5"></span>PHASE 5: Problem solving
 
 If the timeseries queries do not work immediately, then there is
@@ -476,33 +458,32 @@ parameters that are used in the Query Server. More detailed description
 of this configuration can be found from the “grid-engine.pdf” document.
 
 <hr/>
+
 #### <span id="anchor-14"></span>STEP 1:
 
 The grid-engine automatically generates mapping information for the
 parameters that it founds from the Content Storage. These mappings are
 generated to the following files:
 
-<pre style="background:#E0E0E0;">
+<pre>
+  query-server** :
+  {
+    mappingTargetKeyType = 2   
 
-    query-server** :
+    mappingUpdateFile :
     {
-        mappingTargetKeyType = 2   
-
-        mappingUpdateFile :
-        {
-            fmi     = "%(DIR)/mapping_fmi_auto.csv"
-            newbase = "%(DIR)/mapping_newbase_auto.csv"
-            netCdf  = "%(DIR)/mapping_netCdf_auto.csv"
-        }
-
+      fmi     = "%(DIR)/mapping_fmi_auto.csv"
+      newbase = "%(DIR)/mapping_newbase_auto.csv"
+      netCdf  = "%(DIR)/mapping_netCdf_auto.csv"
     }
-
+  }
 </pre>
 
 Make sure that these automatically generated files exist. If not, check
 the filesystem permissions.
 
 <hr/>
+
 #### <span id="anchor-15"></span>STEP 2:
 
 Usually, mappings in these automatically generated files are manually
@@ -515,36 +496,33 @@ automatically generated files.
 Make sure that all permanent mapping files and also all automatically
 generated files are in the grid-engine’s mapping file list.
 
-<pre style="background:#E0E0E0;">
-
-    query-server :
-    {
-        mappingFiles =
-        [
-            "%(DIR)/mapping_fmi.csv",
-            "%(DIR)/mapping_fmi\_auto.csv",
-            "%(DIR)/mapping_newbase.csv",
-            "%(DIR)/mapping_newbase\_auto.csv",
-            "%(DIR)/mapping_netCdf.csv",
-            "%(DIR)/mapping_netCdf\_auto.csv"
-        ];
-    }
-
+<pre>
+  query-server :
+  {
+    mappingFiles =
+    [
+      "%(DIR)/mapping_fmi.csv",
+      "%(DIR)/mapping_fmi_auto.csv",
+      "%(DIR)/mapping_newbase.csv",
+      "%(DIR)/mapping_newbase_auto.csv",
+      "%(DIR)/mapping_netCdf.csv",
+      "%(DIR)/mapping_netCdf_auto.csv"
+    ];
+  }
 </pre>
 
 <hr/>
+
 #### <span id="anchor-16"></span>STEP 3:
 
 Check the content of the “mapping\_fmi\*.csv” files. You should find
 mapping definitions for the producers and parameters that you added
 earlier. 
 
-<pre style="background:#F0E0E0;">
-
-    ECG;ALBEDO-0TO1;2;ALBEDO-0TO1;1007;1;1;00000;1;1;1;0;E;;;;
-    ECG;ALBEDOSLR-0TO1;2;ALBEDOSLR-0TO1;1008;1;1;00000;1;1;1;0;E;;;;
-    ECG;CAPE-JKG;2;CAPE-JKG;1007;1;1;00000;1;1;1;0;E;;;;
-
+<pre>
+  ECG;ALBEDO-0TO1;2;ALBEDO-0TO1;1007;1;1;00000;1;1;1;0;E;;;;
+  ECG;ALBEDOSLR-0TO1;2;ALBEDOSLR-0TO1;1008;1;1;00000;1;1;1;0;E;;;;
+  ECG;CAPE-JKG;2;CAPE-JKG;1007;1;1;00000;1;1;1;0;E;;;;
 </pre>
 
 Make sure that the geometry identifiers of these mappings are same as
@@ -552,6 +530,7 @@ the geometry identifiers in the producer file that was defined in the
 previous phase.
 
 <hr/>
+
 #### <span id="anchor-17"></span>STEP 4:
 
 Make sure that you and the grid engine has the same understanding of the
@@ -565,19 +544,17 @@ look like this.
 
 <img src="media/quick-setup-4.png"/>
 
-
-#### 
-
 <hr/>
+
 #### <span id="anchor-18"></span>STEP 5:
 
 If the previous steps did not help then we should start debugging the
 actual queries. You can do this by using admin-plugin. 
+
 <ul>
 <li>1. Go the page “Query Server: Debug Log” and push the “Enable” button.
 <li>2. Execute a simple Timeseries query.
-<li>3. Push the “Refresh” button in the grid-admin. Now you should see
-something like this.
+<li>3. Push the “Refresh” button in the grid-admin. Now you should see something like this.
 </ul>
 
 <img src="media/quick-setup-5.png"/>
@@ -586,13 +563,11 @@ something like this.
 <li>4. Check that the Query record contains all essential information
 related to the query.
 
-<li>5. Go down as long as you find line “**METHOD getGridValues()**”. The
+<li>5. Go down as long as you find line “METHOD getGridValues()”. The
 reason for the query failure usually comes very soon after this line.
 </ul>
 
-
-<pre style="background:#F0E0E0;">
-
+<pre>
  METHOD getGridValues()
  - queryType               : 0
  - producers               : 1 items
@@ -623,15 +598,16 @@ reason for the query failure usually comes very soon after this line.
  - radius                  : 0.000000
  
  - Producer and Geometry : ECG:7777
- - The producer and the geometry are acceptable\!
- - No parameter mappings 'ECG:T-K:7777:0:-1' found\!
-
+ - The producer and the geometry are acceptable!
+ - No parameter mappings 'ECG:T-K:7777:0:-1' found!
 </pre>
 
 In this case we tried to query a parameter from the geometry that was
 not used by the ECG producers and that’s why the Query Server could not
 find any parameter mappings for this geometry.
+
 <hr/>
+
 #### <span id="anchor-19"></span>STEP 6:
 
 If you still have problems then you should probably use all possible
@@ -642,6 +618,7 @@ the query processing. Unfortunately, this might be a little bit
 difficult for an average user. 
 
 <hr/>
+
 #### <span id="anchor-20"></span>STEP 7:
 
 If you have “a standard” server installation, ask help from the
