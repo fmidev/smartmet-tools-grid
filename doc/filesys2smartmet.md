@@ -1,18 +1,14 @@
-<style>t1{font-size:20pt;}</style>
-<style>t2{font-size:48pt; text-align: center; font-weight:bold;}</style>
-<style>pre{background:#E0E0C0;font-size:10pt;}</style>
+<hr/>
+
+**Finnish Meteorological Institute / SmartMet Server / 2022-01-18**
 
 <hr/>
-<t1>2022-01-18</t1>
-<hr/>
-<t1>SmartMet Server</t1>
 
-<t2>filesys2smartmet</t2>
-
-<t1>Finnish Meteorological Institute</t1>
+# filesys2smartmet 
 
 <hr/>
-#TABLE OF CONTENTS
+
+# TABLE OF CONTENTS
 
 <ul>
   <li><a href="#chapter-1">1 FILESYS2SMARTMET</a>
@@ -31,6 +27,7 @@
 </ul>
 
 <hr/>
+
 # <span id="chapter-1"></span>1 FILESYS2SMARTMET
 
 ## <span id="chapter-1-1"></span>1.1 Introduction
@@ -40,14 +37,13 @@ The Content Storage is a database that contains information about the available 
 The **"filesys2smartmet"** application can be used for updating the Content Storage according to grid files found from the file system. The basic idea is that the **"filesys2smartmet"** application scans the file system and seeks valid grid files (GRIB1, GRIB2, NetCDF, QueryData). When it finds a grid file, it reads it and registers its content into the Content Information Storage. It can also remove this information from the Content Information Storage when files are removed from the file system.
 
 <hr/>
+
 ## <span id="chapter-1-2"></span>1.2 Grid files
 
 Registration of grid files requires that we can somehow detect the correct producer and the generation from the grid file. The easiest way to do this is to encode this information into the file name. That&#39;s why the **"filesys2smartmet"** application assumes that all grid files have the name with the following format:
 
-<pre style="background:#E0E0E0;">
-
-    PROD_YYYYMMDDTHHMMSS_XXXXX.grib**
-
+<pre>
+  PROD_YYYYMMDDTHHMMSS_XXXXX.grib**
 </pre>
 
 In practice, the name is divided into three parts with &#39;\_&#39; character.
@@ -63,6 +59,7 @@ If a grid file name does not follow this naming structure and if it is not possi
 The name of the current LUA file and the name of the used LUA function is defined in the program&#39;s configuration file.
 
 <hr/>
+
 ## <span id="chapter-1-3"></span>1.3 Execution
 
 The **"filesys2smartmet"** application is usually executed in a loop, because it tries to keep the Content Storage up to data all the time. Each loop updates the Content Storage according the current available grid files in the file system. The point is that the information in the file system usually changes all the time and these changes need to be updated to the Content Storage as well.
@@ -70,12 +67,11 @@ The **"filesys2smartmet"** application is usually executed in a loop, because it
 The **"filesys2smartmet"** application is started with two parameters. The first parameter is the name of the application&#39;s main configuration file. The second parameter is the wait time between the update loops (expressed in seconds). If the wait time is zero then the loop is executed only once.
 
 <pre>
-
-    filesys2smartmet &lt;configurationFile&gt; &lt;loopWaitTimeInSeconds&gt;
-
+  filesys2smartmet &lt;configurationFile&gt; &lt;loopWaitTimeInSeconds&gt;
 </pre>
 
 <hr/>
+
 ## <span id="chapter-1-4"></span>1.4 Configuration
 
 The main configuration file of the **"filesys2smartmet"** application is a simple text file that uses JSON syntax. It can use the same "special features" that was used in the grid-engine&#39;s main configuration file (see the "grid-engine.pdf" document). For example, it can import definitions (like passwords, connection parameters, etc.) from other files. It can also use values of environmental parameters.
@@ -87,64 +83,61 @@ The configuration file contains three main sections:
 3. Content Storage parameters (=&gt; Redis)
 
 <hr/>
+
 ### <span id="chapter-1-4-1"></span>1.4.1 Grid-files library
 
 The biggest challenge in the grid file registration is to identify grid parameters in such way that they can be used in queries. The point is that all grid file formats identify parameters differently and that&#39;s why they need to be mapped parameters (= FMI-parameters) that are used in the SmartMet Server. There is a separate document ("grid-files.pdf") that defines in details how this mapping is done and how it should be configured.
 
 The grid-files library is a component that is responsible for identification of the grid parameters. We have to initialize this library before we can use it in the " **filesys2smartmet**" application. This means in practice that we have to define the name of the main configuration file for this library.
 
-<pre style="background:#E0E0E0;">
-
-    smartmet.library.grid-files.configFile = "$(SMARTMET_CONF)/smartmet-library-grid-files/grid-files.conf"
-
+<pre>
+  smartmet.library.grid-files.configFile = "$(SMARTMET_CONF)/smartmet-library-grid-files/grid-files.conf"
 </pre>
 
 If the " **filesys2smartmet**" application does not manage to identify all grid parameters then the reason is most likely found from the configuration information of this library. More information about the mapping definitions can be found from the "grid-files.pdf" document.
 
 <hr/>
+
 ### <span id="chapter-1-4-2"></span>1.4.2 Content Source parameters
 
 In this case the Content Source is the file system. The Content Source can be configured like this:
 
-<pre style="background:#E0E0E0;">
+<pre>
+  content-source : 
+  { 
+    source-id = 200 
+    producerDefFile = "%(DIR)/producerDef.csv" 
 
-    content-source : 
+    directories = 
+    [
+      "/smartmet/data/ecmwf/skandinavia/pinta/querydata", 
+      "/smartmet/data/smartmet/grid"
+    ] 
+
+    patterns = 
+    [
+      "*.grib", 
+      "*.grib1", 
+      "*.grib2", 
+      "*.nc", 
+      "*.sqd"
+    ] 
+
+    filenameFixer : 
     { 
-        source-id = 200 
-        producerDefFile = "%(DIR)/producerDef.csv" 
-
-        directories = 
-        [
-            "/smartmet/data/ecmwf/skandinavia/pinta/querydata", 
-            "/smartmet/data/smartmet/grid"
-        ] 
-
-        patterns = 
-        [
-            "*.grib", 
-            "*.grib1", 
-            "*.grib2", 
-            "*.nc", 
-            "*.sqd"] 
-
-        filenameFixer : 
-        { 
-            luaFilename = "%(DIR)/filenameFixer.lua" 
-            luaFunction = "fixFilename" 
-        } 
-    }
-
+      luaFilename = "%(DIR)/filenameFixer.lua" 
+      luaFunction = "fixFilename" 
+    } 
+  }
 </pre>
 
 The "source-id" parameter is a random number that is used in the Content Storage for identifying the source of the different data. The point is that the content information can come from multiple sources and we should be able to mark this data in such way that we can easily separate it from the other data. For example, we can easily remove data coming from source X.
 
 The "producerDefFile" parameter is used for defining a file that contains producer definitions. The idea is that a grid file name contains just an abbreviation of the produce&#39;s name and the rest of the producer&#39;s information can be found from this file. The current producer file might look like this:
 
-<pre style="background:#F0E0E0;">
-
-    ECG;ECG;ECMWF; European Centre for Medium-Range Weather Forecasts 
-    PAL;PAL_SCANDINAVIA; PAL-Scandinavia; PAL-Scandinavia Ground Level forecasts
-
+<pre>
+  ECG;ECG;ECMWF; European Centre for Medium-Range Weather Forecasts 
+  PAL;PAL_SCANDINAVIA; PAL-Scandinavia; PAL-Scandinavia Ground Level forecasts
 </pre>
 
 The producer file contains four fields (separated by &#39;;&#39;). The first field is the abbreviation used in the grid file names. The second field is the name that is used in query. The third field is an "official name" that can be used in documents. The fourth field is a general description of the current producer.
@@ -157,8 +150,7 @@ As was mentioned earlier, all grid files should follow a certain naming format. 
 
 The "filenameFixer" parameter is used for defining a LUA file and a LUA function that is used for fixing filenames. The LUA file might look like this.
 
-<pre style="background:#D0E0E0;">
-
+<pre>
     function fixFilename(numOfParams,params) 
         local f = params[1];    -- original filename 
         local p = params[2];    -- path 
@@ -175,7 +167,6 @@ The "filenameFixer" parameter is used for defining a LUA file and a LUA function
         return f;   -- Returning the original name 
     end
 
-
     -- This function should be in all LUA files. It is used for registering 
     -- functions that can be called  
 
@@ -188,10 +179,10 @@ The "filenameFixer" parameter is used for defining a LUA file and a LUA function
 
         return functionNames; 
     end
-
 </pre>
 
 <hr/>
+
 ### <span id="chapter-1-4-3"></span>1.4.3 Content Storage parameters
 
 The " **filesys2smartmet**" application can connect to the Content Storage in different ways. When the Content Storage is a Redis database then the simplest way to use Redis is via its TCP connection. If the Content Storage is a CORBA-server then we just need to define its IOR (International Object Reference). The Content Storage can be also a HTTP-server, which means that we need to define its URL.
@@ -200,51 +191,49 @@ The configuration of the Content Storage connection is quite easy (especially if
 
 For example, if we select the type to be "redis" then we just fill the rest of the "redis" related parameters and ignore parameters related to other types (corba, http, file).
 
-<pre style="background:#E0E0E0;">
-
-    content-storage : 
-    { 
-        # Content storage type (redis/corba/http) 
-        type = "redis" 
+<pre>
+  content-storage : 
+  { 
+    # Content storage type (redis/corba/http) 
+    type = "redis" 
     
-        redis : { 
-            address = "127.0.0.1" 
-            port = 6379 
-            tablePrefix = "a." 
-        } 
+    redis : 
+    { 
+      address = "127.0.0.1" 
+      port = 6379 
+     tablePrefix = "a." 
+    } 
 
-        corba : 
-        {
-            ior = "$(CORBA_CONTENT_SERVER_IOR)" 
-        } 
+    corba : 
+    {
+      ior = "$(CORBA_CONTENT_SERVER_IOR)" 
+    } 
 
-        http : 
-        {
-            url = "$(HTTP\_CONTENT\_SERVER\_URL)" 
-        } 
-
-    }
-
+    http : 
+    {
+      url = "$(HTTP\_CONTENT\_SERVER\_URL)" 
+    } 
+  }
 </pre>
 
 The same Radon database can be used by multiple SmartMet Server installations. The "tablePrefix" parameter is used in order to separate different installations. It is a kind of "namespace" definition that is added in the beginning of table names. For example, the SmartMet Sever uses table names like "producers", "generations", "files", "content", etc. Because the Radon database does not contain namespace definitions itself, we just add the "table prefix" on the front of these table names (=\&gt; "a.producers", "a.generations", etc.).
 
 <hr/>
+
 ### <span id="chapter-1-4-4"></span>1.4.4 Logs
 
 The " **filesys2smartmet**" application has two different logs: 1) the processing log and 2) the debug log
 
 The processing log is a formal log that shows starting times of different processing phases. The processing log can be enabled in the main configuration file.
 
-<pre style="background:#E0E0E0;">
-
-    processing-log : 
-    { 
-        enabled = true
-        file = "/tmp/filesys2smartmet\_processing.log" 
-        maxSize = 100000000 
-        truncateSize = 20000000 
-    }
+<pre>
+  processing-log : 
+  { 
+    enabled      = true
+    file         = "/tmp/filesys2smartmet\_processing.log" 
+    maxSize      = 100000000 
+    truncateSize = 20000000 
+  }
 
 </pre>
 
@@ -252,16 +241,14 @@ The **"maxSize"** parameter is the maximum size limit for the log file. After th
 
 The debug log is used for debugging purposes. The debug log can contain whatever debug information that the developer has wanted to print into it (parameter values, code phase indicators, warnings, etc.). It is configured in the same way as the processing log.
 
-<pre style="background:#E0E0E0;">
-
-    debug-log : 
-    { 
-        enabled = false
-        file = "/tmp/filesys2smartmet\_debug.log" 
-        maxSize = 100000000   
-        truncateSize = 20000000 
-    }
-
+<pre>
+  debug-log : 
+  { 
+    enabled      = false
+    file         = "/tmp/filesys2smartmet\_debug.log" 
+    maxSize      = 100000000   
+    truncateSize = 20000000 
+  }
 </pre>
 
 <hr/>
