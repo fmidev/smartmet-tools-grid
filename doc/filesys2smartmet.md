@@ -94,7 +94,7 @@ The grid-files library is a component that is responsible for identification of 
   smartmet.library.grid-files.configFile = "$(SMARTMET_CONF)/smartmet-library-grid-files/grid-files.conf"
 </pre>
 
-If the " **filesys2smartmet**" application does not manage to identify all grid parameters then the reason is most likely found from the configuration information of this library. More information about the mapping definitions can be found from the "grid-files.pdf" document.
+If the " **filesys2smartmet**" application does not manage to identify all grid parameters then the reason is most likely found from the configuration information of this library. More information about the mapping definitions can be found from the <a href="https://github.com/fmidev/smartmet-library-grid-files/blob/master/doc/grid-files.md">"grid-files"</a> document.
 
 <hr/>
 
