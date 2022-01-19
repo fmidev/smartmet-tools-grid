@@ -45,7 +45,7 @@ QueryData) for its timeseries queries.
 In this quick setup we expect that the following requirements are
 fulfilled before the setup is started:
 
-1.  The latest versions of the SmartMet components are configuration
+1.  The latest versions of the SmartMet components and configuration
     files are installed. 
 2.  Redis server is running and accessible (locally or remotely) and its
     address and port is known.
