@@ -213,7 +213,7 @@ The Grid-Files Library was developed during the grid support project. It is used
 
 Technically, all file format specific identifiers are mapped into so called FMI-identifiers. This means for example, that all grid parameter identifiers (like grib-id, NetCDF-name, Newbase-name, etc.) are mapped to FMI parameter identifiers, all level type identifiers are mapped to FMI level identifiers, and so on. The point is that in this way we can say which parameters and levels are equal in spite of that they might be defined in different grid files.
 
-The configuration and the usage of this library is described in the “grid-files.pdf” document.
+The configuration and the usage of this library is described in the <a href="https://github.com/fmidev/smartmet-library-grid-files/blob/master/doc/grid-files.md">"grid-files”</a> document.
 
 Notice that there are several SmartMet components (like the Grid Engine and the Grid-GUI Plugin) that are using the Grid-Files Library, which means that they need to initialize the current library before they can use it. That's why the configuration files of these components usually define also the location of the configuration file used by the Grid-Files library.
 
@@ -587,9 +587,9 @@ At the moment there are two feeding applications available:
     2. radon2smarmet
 </pre>
 
-The **"filesys2smartmet"** application can be used for updating the Content Storage according to grid files found from the file system. The basic idea is that the **“filesys2smartmet”** application scans the file system and seeks valid grid files (GRIB1, GRIB2, NetCDF, QueryData). When it finds a grid file, it reads it and registers its content into the Content Storage. It can also remove this information from the Content Storage when files are removed from the file system. The configuration and the usage of this application is described in the “filesys2smartmet.pdf” document.
+The **"filesys2smartmet"** application can be used for updating the Content Storage according to grid files found from the file system. The basic idea is that the **“filesys2smartmet”** application scans the file system and seeks valid grid files (GRIB1, GRIB2, NetCDF, QueryData). When it finds a grid file, it reads it and registers its content into the Content Storage. It can also remove this information from the Content Storage when files are removed from the file system. The configuration and the usage of this application is described in the <a href="https://github.com/fmidev/smartmet-tools-grid/blob/master/doc/filesys2smartmet.md">“filesys2smartmet”</a> document.
 
-Finnish Meteorological Institute uses the **"radon2smartmet"** application in order to keep the Content Storage up to date.  This application just updates the Content Storage according to information that it gets from the other FMI's internal database (Radon). Unfortunately, this application is useless for the users who do not have the Radon database. The configuration and the usage of this application is described in the “radon2smartmet.pdf” document.
+Finnish Meteorological Institute uses the **"radon2smartmet"** application in order to keep the Content Storage up to date.  This application just updates the Content Storage according to information that it gets from the other FMI's internal database (Radon). Unfortunately, this application is useless for the users who do not have the Radon database. The configuration and the usage of this application is described in the <a href="https://github.com/fmidev/smartmet-tools-grid/blob/master/doc/radon2smartmet.md">“radon2smartmet”</a> document.
 
 <hr/>
 
@@ -1371,7 +1371,7 @@ Timeseries can load alias definitions from multiple alias files. The names of th
 
 The Query Server can be used as an independent server, but usually it is used as an embedded part of the SmartMet Grid Engine. That's why the configuration file of the SmartMet Grid Engine usually contains a lot of Query Server related configuration parameters.
 
-The usage and configuration of the grid-engine is described in the “grid-engine.pdf” document. This document also describes the configuration of the Query Server. 
+The usage and configuration of the grid-engine is described in the <a href="https://github.com/fmidev/smartmet-engine-grid/blob/master/doc/grid-engine.md">“grid-engine”</a> document. This document also describes the configuration of the Query Server. 
 
 
 <hr/>
@@ -1454,7 +1454,7 @@ All these APIs can be found from the Grid Engine. At the moment the following pl
 
 ### <span id="chapter-6-3-2"></span>6.3.2 Documentation
 
-The configuration of the grid engine is described in the “grid-engine.pdf” document.
+The configuration of the grid engine is described in the <a href="https://github.com/fmidev/smartmet-engine-grid/blob/master/doc/grid-engine.md">“grid-engine” </a>document.
 
 <hr/>
 
@@ -1462,7 +1462,7 @@ The configuration of the grid engine is described in the “grid-engine.pdf” d
 
 ### <span id="chapter-6-4-1"></span>6.4.1 Introduction
 
-The Grid-GUI Plugin can be used in order to visualize grid files, which information is registered into the Content Storage. Originally this plugin was created in order to help the development work in the grid support project. In other words, we just wanted to see that our key components were working correctly and they can open different kinds of grid files and support multiple projections. In addition, it offered us a nice way to see almost all information that was stored into the Content Storage.
+The <a href="https://github.com/fmidev/smartmet-plugin-grid-gui">Grid-GUI Plugin</a> can be used in order to visualize grid files, which information is registered into the Content Storage. Originally this plugin was created in order to help the development work in the grid support project. In other words, we just wanted to see that our key components were working correctly and they can open different kinds of grid files and support multiple projections. In addition, it offered us a nice way to see almost all information that was stored into the Content Storage.
 
 We noticed that the Grid-GUI was very useful and that's why we decided to publish it. However, it is good to understand that this is a very special tool and it was not originally designed for very wide use. In other words, in spite of that this GUI is quite functional, we could develop even better GUIs if we had more time for this. In practice, this GUI demonstrates some of the capabilities that the grid support brings to developers.
 
@@ -1592,7 +1592,7 @@ A typical Grid-GUI Plugin configuration file looks like this:
 
 ### <span id="chapter-6-5-1"></span>6.5.1 Introduction
 
-The Grid-Admin Plugin is a simple plugin that offers an HTTP interface to the Content Storage. So, technically other system (for example, feeding systems) can use this interface for updating and fetching content information from the Content Storage
+The <a href="https://github.com/fmidev/smartmet-plugin-grid-admin">Grid-Admin Plugin</a> is a simple plugin that offers an HTTP interface to the Content Storage. So, technically other system (for example, feeding systems) can use this interface for updating and fetching content information from the Content Storage
 
 The Grid-Admin Plugin does not use the Grid Engine. Instead, it connects directly to the Content Server by using its own configuration information.
 
