@@ -36,8 +36,18 @@ Small changes and bug fixes can be submitted via pull request. In larger contrib
 CLA is required in order to contribute. Please contact us for more information!
 
 ## Documentation
-SmartMet Server Grid support (https://github.com/fmidev/smartmet-tools-grid/raw/master/doc/grid-support.pdf)
 
+<a href="https://github.com/fmidev/smartmet-tools-grid/blob/master/doc/grid-support.md">Grid support</a>
+
+<a href="https://github.com/fmidev/smartmet-tools-grid/blob/master/doc/quick-setup.md">Quick setup</a>
+
+<a href="https://github.com/fmidev/smartmet-library-grid-files/blob/master/doc/grid-files.md">Grid files</a>
+
+<a href="https://github.com/fmidev/smartmet-engine-grid/blob/master/doc/grid-engine.md">Grid Engine</a>
+
+<a href="https://github.com/fmidev/smartmet-tools-grid/blob/master/doc/radon2smartmet.md">radon2smartmet</a>
+
+<a href="https://github.com/fmidev/smartmet-tools-grid/blob/master/doc/filesys2smartmet.md">filesys2smartmet</a>
 
 ## Communication and Resources
 You may contact us from following channels:
