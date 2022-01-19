@@ -50,7 +50,7 @@ The **"radon2smartmet"** application is started with two parameters. The first p
 
 ## <span id="chapter-1-3"></span>1.3  Configuration
 
-The main configuration file of the **"radon2smartmet"** application is a simple text file that uses JSON syntax. It can use the same “special features” that was used in the grid-engine’s main configuration file (see the “grid-engine.pdf” document). For example, it can import definitions (like passwords, connection parameters, etc.) from other files. It can also use values of environmental parameters.
+The main configuration file of the **"radon2smartmet"** application is a simple text file that uses JSON syntax. It can use the same “special features” that was used in the grid-engine’s main configuration file (see the <a href="https://github.com/fmidev/smartmet-engine-grid/blob/master/doc/grid-engine.md">“grid-engine”</a> document). For example, it can import definitions (like passwords, connection parameters, etc.) from other files. It can also use values of environmental parameters.
 
 The configuration file contains two main sections: 
  
