@@ -73,10 +73,10 @@ This quick setup is divided into the following phases:
 The first thing to do is to make sure that the system can recognize
 parameters in our grid files. The easiest way to test this is to use
 "**grid\_dump**" application, which prints the content of the given grid
-file. 
+file. This application belongs to the <a href="https://github.com/fmidev/smartmet-tools-grid">"smartmet-tools-grid"</a> package.
 
 The current application needs to know the location of the main
-configuration file used by the “smartmet-library-grid-files” module
+configuration file used by the <a href="https://github.com/fmidev/smartmet-library-grid-files/blob/master/doc/grid-files.md">“smartmet-library-grid-files”</a> module 
 (which is responsible for extraction of grid files). This location is
 given in the environment variable “**SMARTMET\_GRID\_CONFIG\_FILE**”.
 You can define this by the following command.
@@ -101,12 +101,12 @@ The result looks something like this:
  --------------------------------------------------------------------------------------------
  PhysicalGridFile
     GridFile
-    - fileName        = /grib/ECG_20210309T000000_RH-PRCNT_pressure.grib
-    - fileId          = 0
-    - deletionTime    = 19700101T000000
-    - groupFlags      = 0
-    - producerId      = 0
-    - generationId    = 0
+    - fileName         = /grib/ECG_20210309T000000_RH-PRCNT_pressure.grib
+    - fileId           = 0
+    - deletionTime     = 19700101T000000
+    - groupFlags       = 0
+    - producerId       = 0
+    - generationId     = 0
     - numberOfMessages = 1
 
  ########## MESSAGE [0] ##########
@@ -171,7 +171,7 @@ used in GRIB files.
 It is possible to configure this library so that it can recognize also
 very exotic parameters. This is a little bit complex operation and we do
 not explain it here. You can find details related to this operation in
-“grid-files.pdf” document.
+"<a href="https://github.com/fmidev/smartmet-library-grid-files/blob/master/doc/grid-files.md">“grid-files”</a> document.
 
 If you cannot get the parameter recognition and mapping to work, then
 there is no reason to continue the setup before this is fixed.
@@ -187,7 +187,8 @@ this information is searched. It knows what kind of information is
 available and where it can be found.
 
 We use the “**filesys2smartmet**” application in order to scan
-directories and searching grid files. When it finds a grid file, it
+directories and searching grid files. This application belongs
+to the <a href="https://github.com/fmidev/smartmet-tools-grid">"smartmet-tools-grid"</a> package. When it finds a grid file, it
 recognizes grid parameters and all essential information (timesteps,
 levels, etc.) and stores this information into the Content Storage.
 Notice, that this information does not contain the actual grid data.
@@ -203,7 +204,7 @@ parameter is the wait time (in seconds) between scanning loops. If the
 wait time is zero then the scanning is executed only once. The
 configuration file contains all necessary configuration information
 needed by the current application. Details of this configuration file is
-described in the “filesys2smartmet.pdf” document. In this document we
+described in the <a href="https://github.com/fmidev/smartmet-tools-grid/blob/master/doc/filesys2smartmet.md">“filesys2smartmet”</a> document. In this document we
 describe required configuration steps in very simplified way.
 
 <hr/>
@@ -360,12 +361,13 @@ Now we know that we have content information available in the Content
 Storage. The next step is to start the SmartMet server so that we can
 get more detailed look to the current grid information. 
 
-In this phase we need just 1) the **grid-engine** and 2) the
-**grid-admin** and 3) the **grid-gui** plugins. 
+In this phase we need just 1) the <a href="https://github.com/fmidev/smartmet-engine-grid">**grid-engine**</a> and 2) the
+<a href="https://github.com/fmidev/smartmet-plugin-grid-admin">**grid-admin**</a> and 3) the <a href="https://github.com/fmidev/smartmet-plugin-grid-gui">**grid-gui**</a> plugins. 
 
 Both the grid-engine and the grid-admin need connection to the Content
 Storage (= Redis database). Define these connections into their main
-configuration files. 
+configuration files (usually named as <a href="https://github.com/fmidev/smartmet-engine-grid/blob/master/cfg/grid-engine.conf">"grid-engine.conf"</a> 
+and <a href="https://github.com/fmidev/smartmet-plugin-grid-admin/blob/master/cfg/grid-admin-plugin.conf">"grid-admin-plugin.conf"</a>). 
 
 <pre>
   content-storage : 
@@ -423,7 +425,7 @@ gis-engine, the geonames-engine, the querydata-engine and the
 timeseries-plugin into the SmartMet Server’s main configuration file.
 
 After that we should add available producers and geometries into the
-grid-engine’s producer file (usually named as “producers.csv”). This
+grid-engine’s producer file (usually named as <a href="https://github.com/fmidev/smartmet-engine-grid/blob/master/cfg/producers.csv">“producers.csv”</a>). This
 file defines two things: 1) producer & geometry combinations that can be
 queried and 2) the search order of the producers if the producer is not
 given in the query.
@@ -455,7 +457,7 @@ probably something wrong in the grid-engine’s configuration. Our
 previous phases have approved that the current data is available and
 accessible, so the problem is most likely in the configuration
 parameters that are used in the Query Server. More detailed description
-of this configuration can be found from the “grid-engine.pdf” document.
+of this configuration can be found from the <a href="https://github.com/fmidev/smartmet-engine-grid/blob/master/doc/grid-engine.md">“grid-engine”</a> document.
 
 <hr/>
 
