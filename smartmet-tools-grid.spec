@@ -13,10 +13,10 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
-BuildRequires: smartmet-library-spine-devel >= 22.1.5
-BuildRequires: smartmet-library-grid-files-devel >= 22.1.13
-BuildRequires: smartmet-library-grid-content-devel >= 22.1.13
-BuildRequires: gdal33-devel
+BuildRequires: smartmet-library-spine-devel >= 21.1.21
+BuildRequires: smartmet-library-grid-files-devel >= 21.1.21
+BuildRequires: smartmet-library-grid-content-devel >= 21.1.21
+BuildRequires: gdal34-devel
 BuildRequires: postgresql13-devel
 BuildRequires: omniORB-devel
 BuildRequires: libpqxx-devel
@@ -26,16 +26,16 @@ BuildRequires: libpng-devel
 BuildRequires: openldap-devel
 BuildRequires: openssl-devel
 BuildRequires: krb5-devel
-#Requires: smartmet-library-macgyver >= 18.12.1
-#Requires: smartmet-library-spine >= 18.12.2
+#Requires: smartmet-library-macgyver >= 21.1.21
+#Requires: smartmet-library-spine >= 21.1.21
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 22.1.13
-Requires: smartmet-library-grid-content >= 22.1.13
+Requires: smartmet-library-grid-files >= 21.1.21
+Requires: smartmet-library-grid-content >= 21.1.21
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
-#TestRequires: smartmet-utils-devel >= 21.11.23
+#TestRequires: smartmet-utils-devel >= 22.1.20
 
 Provides: corbaContentServer = %{version}
 Provides: corbaDataServer = %{version}
