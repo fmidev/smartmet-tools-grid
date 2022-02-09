@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 22.1.25
+Version: 22.2.9
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,8 +14,8 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
 BuildRequires: smartmet-library-spine-devel >= 22.1.21
-BuildRequires: smartmet-library-grid-files-devel >= 22.1.25
-BuildRequires: smartmet-library-grid-content-devel >= 22.1.25
+BuildRequires: smartmet-library-grid-files-devel >= 22.2.9
+BuildRequires: smartmet-library-grid-content-devel >= 22.2.9
 BuildRequires: gdal34-devel
 BuildRequires: postgresql13-devel
 BuildRequires: omniORB-devel
@@ -30,8 +30,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-spine >= 21.1.21
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 22.1.25
-Requires: smartmet-library-grid-content >= 22.1.25
+Requires: smartmet-library-grid-files >= 22.2.9
+Requires: smartmet-library-grid-content >= 22.2.9
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -71,6 +71,10 @@ Provides: cs_deleteGenerationInfoByName = %{version}
 Provides: cs_deleteGenerationInfoListByProducerId = %{version}
 Provides: cs_deleteGenerationInfoListByProducerName = %{version}
 Provides: cs_deleteGenerationInfoListBySourceId = %{version}
+Provides: cs_deleteGeometryInfoById = %{version}
+Provides: cs_deleteGeometryInfoListByGenerationId = %{version}
+Provides: cs_deleteGeometryInfoListByProducerId = %{version}
+Provides: cs_deleteGeometryInfoListBySourceId = %{version}
 Provides: cs_deleteProducerInfoById = %{version}
 Provides: cs_deleteProducerInfoByName = %{version}
 Provides: cs_deleteProducerInfoListBySourceId = %{version}
@@ -125,6 +129,11 @@ Provides: cs_getGenerationInfoListByGeometryId = %{version}
 Provides: cs_getGenerationInfoListByProducerId = %{version}
 Provides: cs_getGenerationInfoListByProducerName = %{version}
 Provides: cs_getGenerationInfoListBySourceId = %{version}
+Provides: cs_getGeometryInfoById = %{version}
+Provides: cs_getGeometryInfoList = %{version}
+Provides: cs_getGeometryInfoListByGenerationId = %{version}
+Provides: cs_getGeometryInfoListByProducerId = %{version}
+Provides: cs_getGeometryInfoListBySourceId = %{version}
 Provides: cs_getHashByProducerId = %{version}
 Provides: cs_getLastEventInfo = %{version}
 Provides: cs_getLastGenerationInfoByProducerIdAndStatus = %{version}
@@ -144,6 +153,7 @@ Provides: cs_reload = %{version}
 Provides: cs_saveData = %{version}
 Provides: cs_setGenerationInfoStatusById = %{version}
 Provides: cs_setGenerationInfoStatusByName = %{version}
+Provides: cs_setGeometryInfoStatusById = %{version}
 Provides: cs_syncContent = %{version}
 Provides: cs_syncContentFromCsv = %{version}
 Provides: cs_syncContentFromCsvToHttp = %{version}
@@ -266,6 +276,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_deleteGenerationInfoListByProducerId
 %{_bindir}/clients/cs_deleteGenerationInfoListByProducerName
 %{_bindir}/clients/cs_deleteGenerationInfoListBySourceId
+%{_bindir}/clients/cs_deleteGeometryInfoById
+%{_bindir}/clients/cs_deleteGeometryInfoListByGenerationId
+%{_bindir}/clients/cs_deleteGeometryInfoListByProducerId
+%{_bindir}/clients/cs_deleteGeometryInfoListBySourceId
 %{_bindir}/clients/cs_deleteProducerInfoById
 %{_bindir}/clients/cs_deleteProducerInfoByName
 %{_bindir}/clients/cs_deleteProducerInfoListBySourceId
@@ -320,6 +334,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_getGenerationInfoListByProducerId
 %{_bindir}/clients/cs_getGenerationInfoListByProducerName
 %{_bindir}/clients/cs_getGenerationInfoListBySourceId
+%{_bindir}/clients/cs_getGeometryInfoById
+%{_bindir}/clients/cs_getGeometryInfoList
+%{_bindir}/clients/cs_getGeometryInfoListByGenerationId
+%{_bindir}/clients/cs_getGeometryInfoListByProducerId
+%{_bindir}/clients/cs_getGeometryInfoListBySourceId
 %{_bindir}/clients/cs_getHashByProducerId
 %{_bindir}/clients/cs_getLastEventInfo
 %{_bindir}/clients/cs_getLastGenerationInfoByProducerIdAndStatus
@@ -339,6 +358,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/clients/cs_saveData
 %{_bindir}/clients/cs_setGenerationInfoStatusById
 %{_bindir}/clients/cs_setGenerationInfoStatusByName
+%{_bindir}/clients/cs_setGeometryInfoStatusById
 %{_bindir}/clients/cs_syncContent
 %{_bindir}/clients/cs_syncContentFromCsv
 %{_bindir}/clients/cs_syncContentFromCsvToHttp
@@ -429,6 +449,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Feb  9 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.2.9-1.fmi
+- Generation geometry information handling
 * Tue Jan 25 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.1.25-1.fmi
 - Repackaged due to ABI changes in libraries
 * Fri Jan 21 2022 Andris Pavēnis <andris.pavenis@fmi.fi> 22.1.21-1.fmi
