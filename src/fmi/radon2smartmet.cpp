@@ -66,6 +66,15 @@ struct FileRecVec
     std::vector<FileRec> files;
 };
 
+struct GeomRec
+{
+    uint producerId = 0;
+    std::string producerName;
+    std::string analysisTime;
+    T::GeometryId geometryId = 0;
+    T::ParamLevelId levelId = 0;
+};
+
 typedef std::unordered_map<std::string, FileRecVec> FileRec_map;
 
 
@@ -104,6 +113,8 @@ T::SessionId mSessionId = 0;
 
 std::set<std::string> mProducerList;
 std::set<uint> mProducerIdList;
+std::unordered_map<std::string,GeomRec> mSourceGeometryList;
+
 std::unordered_map<std::string, std::vector<std::string>> mProducerDependensies;
 
 
@@ -121,6 +132,7 @@ string_bimap mFilenameMap;
 
 T::ProducerInfoList mTargetProducerList;
 T::GenerationInfoList mTargetGenerationList;
+T::GeometryInfoList mTargetGeometryList;
 std::set<unsigned long long> mTargetContentList;
 uint fileReadCount = 0;
 
@@ -376,6 +388,30 @@ void readTargetGenerations(T::GenerationInfoList& targetGenerationList)
     if (result != 0)
     {
       Fmi::Exception exception(BCP, "Cannot read the generation list from the target data storage!");
+      exception.addParameter("Result", ContentServer::getResultString(result));
+      throw exception;
+    }
+  }
+  catch (...)
+  {
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
+  }
+}
+
+
+
+
+void readTargetGeometries(T::GeometryInfoList& targetGeometryList)
+{
+  FUNCTION_TRACE
+  try
+  {
+    targetGeometryList.clear();
+    targetGeometryList.setComparisonMethod(T::GeometryInfo::ComparisonMethod::none);
+    int result = mTargetInterface->getGeometryInfoList(mSessionId, targetGeometryList);
+    if (result != 0)
+    {
+      Fmi::Exception exception(BCP, "Cannot read the geometry list from the target data storage!");
       exception.addParameter("Result", ContentServer::getResultString(result));
       throw exception;
     }
@@ -1068,6 +1104,73 @@ void readSourceGenerations(PGconn *conn)
 
 
 
+
+void readSourceGeometries(PGconn *conn,std::unordered_map<std::string,GeomRec>& geometries)
+{
+  FUNCTION_TRACE
+  try
+  {
+    if (shutdownRequested)
+      return;
+
+    geometries.clear();
+
+    char sql[1000];
+    char *p = sql;
+    p += sprintf(p, "SELECT DISTINCT\n");
+    p += sprintf(p, "  producer_id,\n");
+    p += sprintf(p, "  geometry_id,\n");
+    p += sprintf(p, "  to_char(analysis_time at time zone 'utc', 'yyyymmddThh24MISS')\n");
+    p += sprintf(p, "FROM\n");
+    p += sprintf(p, "  ss_state\n");
+    p += sprintf(p, "ORDER BY\n");
+    p += sprintf(p, "  producer_id,to_char(analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),");
+    p += sprintf(p, "  geometry_id;");
+
+    PGresult *res = PQexec(conn, sql);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    {
+      Fmi::Exception exception(BCP, "Postgresql error!");
+      exception.addParameter("ErrorMessage", PQerrorMessage(conn));
+      reconnectionRequired = true;
+      throw exception;
+    }
+
+    //int fieldCount = PQnfields(res);
+    int rowCount = PQntuples(res);
+
+    for (int i = 0; i < rowCount; i++)
+    {
+      if (shutdownRequested)
+        return;
+
+      char st[1000];
+
+      GeomRec rec;
+      rec.producerId = toInt64(PQgetvalue(res, i, 0));
+      rec.geometryId = toInt64(PQgetvalue(res, i, 1));
+      rec.analysisTime = PQgetvalue(res, i, 2);
+
+      T::ProducerInfo *producer = mSourceProducerList.getProducerInfoById(rec.producerId);
+      if (producer != nullptr)
+      {
+        rec.producerName = producer->mName;
+        sprintf(st, "%s:%s:%d:%d",rec.producerName.c_str(), rec.analysisTime.c_str(),rec.geometryId,rec.levelId);
+        geometries.insert(std::pair<std::string,GeomRec>(toUpperString(st),rec));
+      }
+    }
+    PQclear(res);
+  }
+  catch (...)
+  {
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
+  }
+}
+
+
+
+
+
 void readReadyGenerations(PGconn *conn,std::unordered_map<std::string,time_t>& readyGenerations)
 {
   FUNCTION_TRACE
@@ -1083,12 +1186,15 @@ void readReadyGenerations(PGconn *conn,std::unordered_map<std::string,time_t>& r
     p += sprintf(p, "SELECT DISTINCT\n");
     p += sprintf(p, "  fmi_producer.id,\n");
     p += sprintf(p, "  fmi_producer.name,\n");
+    p += sprintf(p, "  geometry_id,\n");
+    p += sprintf(p, "  0,\n");
     p += sprintf(p, "  to_char(ss_forecast_status.analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),\n");
     p += sprintf(p, "  to_char(ss_forecast_status.status_time at time zone 'utc', 'yyyymmddThh24MISS')\n");
     p += sprintf(p, "FROM\n");
     p += sprintf(p, "  ss_forecast_status LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_forecast_status.producer_id\n");
     p += sprintf(p, "WHERE\n");
-    p += sprintf(p, " ss_forecast_status.geometry_id IS NULL AND upper(status)='READY'\n");
+    p += sprintf(p, " upper(status)='READY'\n");
+    //p += sprintf(p, " ss_forecast_status.geometry_id IS NULL AND upper(status)='READY'\n");
     p += sprintf(p, "ORDER BY\n");
     p += sprintf(p, "  fmi_producer.id,to_char(ss_forecast_status.analysis_time at time zone 'utc', 'yyyymmddThh24MISS') desc,");
     p += sprintf(p, "  to_char(ss_forecast_status.status_time at time zone 'utc', 'yyyymmddThh24MISS') desc;");
@@ -1107,6 +1213,8 @@ void readReadyGenerations(PGconn *conn,std::unordered_map<std::string,time_t>& r
 
     uint prevProducerId = 0;
     std::string prevAnalysisTime;
+    int prevGeometryId = -100;
+    int prevLevelId = -100;
 
     for (int i = 0; i < rowCount; i++)
     {
@@ -1116,18 +1224,22 @@ void readReadyGenerations(PGconn *conn,std::unordered_map<std::string,time_t>& r
       char st[1000];
 
       uint producerId = toInt64(PQgetvalue(res, i, 0));
-      std::string analysisTime = PQgetvalue(res, i, 2);
+      int geometryId = toInt64(PQgetvalue(res, i, 2));
+      int levelId = toInt64(PQgetvalue(res, i, 3));
+      std::string analysisTime = PQgetvalue(res, i, 4);
 
       T::ProducerInfo *producer = mSourceProducerList.getProducerInfoById(producerId);
       if (producer != nullptr)
       {
-        if (producerId != prevProducerId || analysisTime != prevAnalysisTime)
+        if (producerId != prevProducerId || analysisTime != prevAnalysisTime  || prevGeometryId != geometryId || prevLevelId != levelId)
         {
-          std::string mtime = PQgetvalue(res, i, 3);
-          sprintf(st, "%s:%s", producer->mName.c_str(), analysisTime.c_str());
-
-          readyGenerations.insert(std::pair<std::string,time_t>(st,utcTimeToTimeT(mtime)));
+          std::string mtime = PQgetvalue(res, i, 5);
+          sprintf(st, "%s:%s:%d:%d", producer->mName.c_str(), analysisTime.c_str(),geometryId,levelId);
+          std::string key = toUpperString(st);
+          readyGenerations.insert(std::pair<std::string,time_t>(key,utcTimeToTimeT(mtime)));
           prevProducerId = producerId;
+          prevGeometryId = geometryId;
+          prevLevelId = levelId;
           prevAnalysisTime = analysisTime;
         }
       }
@@ -1303,6 +1415,7 @@ void updateProducers()
 
 
 
+
 void updateGenerations()
 {
   FUNCTION_TRACE
@@ -1404,6 +1517,97 @@ void updateGenerations()
 
 
 
+void updateGeometries()
+{
+  FUNCTION_TRACE
+  try
+  {
+    std::set<uint> generationIdList;
+    uint len = mTargetGeometryList.getLength();
+    for (uint t = 0; t < len; t++)
+    {
+      T::GeometryInfo *targetGeometry = mTargetGeometryList.getGeometryInfoByIndex(t);
+      if (targetGeometry->mSourceId == mSourceId  &&  mProducerIdList.find(targetGeometry->mGeometryId) != mProducerIdList.end())
+      {
+        T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoById(targetGeometry->mGenerationId);
+        if (targetGeneration != NULL)
+        {
+          char st[200];
+          sprintf(st, "%s:%d:%d",targetGeneration->mName.c_str(),targetGeometry->mGeometryId,targetGeometry->mLevelId);
+
+          std::string key = toUpperString(st);
+          if (mSourceGeometryList.find(key) == mSourceGeometryList.end())
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-DELETE;OK;%u;%d;%d",targetGeometry->mGenerationId,targetGeometry->mGeometryId,targetGeometry->mLevelId);
+            PRINT_DATA(mDebugLogPtr, "  -- Remove geometry : %s\n",key.c_str());
+
+            int result = mTargetInterface->deleteGeometryInfoById(mSessionId,targetGeometry->mGenerationId,targetGeometry->mGeometryId,targetGeometry->mLevelId);
+            if (result != 0)
+            {
+              Fmi::Exception exception(BCP, "Cannot delete the geometry information from the target data storage!");
+              exception.addParameter("Result", ContentServer::getResultString(result));
+              exception.printError();
+            }
+          }
+        }
+      }
+    }
+
+    for (auto g = mSourceGeometryList.begin(); g != mSourceGeometryList.end(); ++g)
+    {
+      std::string gname = toUpperString(g->second.producerName + ":" + g->second.analysisTime);
+      T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoByName(gname);
+      if (targetGeneration != nullptr)
+      {
+        T::GeometryInfo *targetGeom = mTargetGeometryList.getGeometryInfoById(targetGeneration->mGenerationId,g->second.geometryId,g->second.levelId);
+
+        if (targetGeom == nullptr)
+        {
+          // The geometry information is not available in the target data storage. So, we should add it.
+
+          T::GeometryInfo geomInfo;
+          geomInfo.mProducerId = targetGeneration->mProducerId;
+          geomInfo.mGenerationId = targetGeneration->mGenerationId;
+          geomInfo.mGeometryId = g->second.geometryId;
+          geomInfo.mLevelId = g->second.levelId;
+          geomInfo.mSourceId = mSourceId;
+          geomInfo.mStatus = T::GenerationInfo::Status::Running;
+          geomInfo.mModificationTime = targetGeneration->mModificationTime;
+          geomInfo.mDeletionTime = targetGeneration->mDeletionTime;
+
+          PRINT_DATA(mDebugLogPtr, "  -- Add geometry : %s:%d\n", gname.c_str(),geomInfo.mGeometryId);
+
+          int result = mTargetInterface->addGeometryInfo(mSessionId,geomInfo);
+          if (result == 0)
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GEMETRY-ADD;OK;%u;%d;%d;",geomInfo.mGenerationId,geomInfo.mGeometryId,geomInfo.mLevelId);
+          }
+          else
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;FAIL;%u;%d;%d",geomInfo.mGenerationId,geomInfo.mGeometryId,geomInfo.mLevelId);
+          }
+          if (result != 0)
+          {
+            Fmi::Exception exception(BCP, "Cannot add the geometry information into the target data storage!");
+            exception.addParameter("Generation", gname);
+            exception.addParameter("GeometryId", std::to_string(geomInfo.mGeometryId));
+            exception.addParameter("LevelId", std::to_string(geomInfo.mLevelId));
+            exception.addParameter("Result", ContentServer::getResultString(result));
+            throw exception;
+          }
+        }
+      }
+    }
+  }
+  catch (...)
+  {
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
+  }
+}
+
+
+
+
 void updateGenerationStatus(T::ProducerInfo& targetProducer)
 {
   FUNCTION_TRACE
@@ -1428,10 +1632,37 @@ void updateGenerationStatus(T::ProducerInfo& targetProducer)
       T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoByIndex(t);
       if (targetGeneration->mSourceId == mSourceId  &&  targetGeneration->mProducerId == targetProducer.mProducerId  &&  targetGeneration->mStatus != T::GenerationInfo::Status::Ready)
       {
-        if (ignore || mReadyGenerations.find(targetGeneration->mName) != mReadyGenerations.end())
+        std::string key = toUpperString(targetGeneration->mName + ":0:0");
+        auto mTime = mReadyGenerations.find(key);
+        if (ignore || mTime != mReadyGenerations.end())
         {
+          uint gLen = mTargetGeometryList.getLength();
+          for (uint g=0; g<gLen; g++)
+          {
+            T::GeometryInfo *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
+            if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
+            {
+              if (mTime != mReadyGenerations.end())
+                geomInfo->mModificationTime = mTime->second;
+
+              geomInfo->mStatus = T::GeometryInfo::Status::Ready;
+              int result = mTargetInterface->setGeometryInfo(mSessionId,*geomInfo);
+
+              if (result == 0)
+              {
+                PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;OK;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
+              }
+              else
+              {
+                PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;FAIL;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
+              }
+            }
+          }
+
           PRINT_DATA(mDebugLogPtr, "  -- Update generation status : %s\n", targetGeneration->mName.c_str());
           targetGeneration->mStatus = T::GenerationInfo::Status::Ready;
+          if (mTime != mReadyGenerations.end())
+            targetGeneration->mModificationTime = mTime->second;
 
           int result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
 
@@ -1450,6 +1681,40 @@ void updateGenerationStatus(T::ProducerInfo& targetProducer)
             exception.addParameter("GenerationName", targetGeneration->mName);
             exception.addParameter("Result", ContentServer::getResultString(result));
             throw exception;
+          }
+        }
+        else
+        {
+          uint gLen = mTargetGeometryList.getLength();
+          for (uint g=0; g<gLen; g++)
+          {
+            T::GeometryInfo *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
+            if (geomInfo->mGenerationId == targetGeneration->mGenerationId  &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
+            {
+              std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
+              auto mTime = mReadyGenerations.find(key);
+              if (mTime == mReadyGenerations.end())
+              {
+                key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId));
+                mTime = mReadyGenerations.find(key);
+              }
+
+              if (mTime != mReadyGenerations.end())
+              {
+                geomInfo->mModificationTime = mTime->second;
+                geomInfo->mStatus = T::GeometryInfo::Status::Ready;
+                int result = mTargetInterface->setGeometryInfo(mSessionId,*geomInfo);
+
+                if (result == 0)
+                {
+                  PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;OK;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
+                }
+                else
+                {
+                  PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;FAIL;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
+                }
+              }
+            }
           }
         }
       }
@@ -1483,19 +1748,21 @@ void updateGenerationStatus()
 
         if (mGenerationStatusCheckIgnore.find(pname) == mGenerationStatusCheckIgnore.end())
         {
-          auto gen = mReadyGenerations.find(targetGeneration->mName);
+          std::string key = toUpperString(targetGeneration->mName + ":0:0");
+          auto gen = mReadyGenerations.find(key);
           if (gen == mReadyGenerations.end())
           {
             ready = false;
           }
           else
           {
+            targetGeneration->mModificationTime = gen->second;
             auto rec = mProducerDependensies.find(pname);
             if (rec != mProducerDependensies.end())
             {
               for (auto it = rec->second.begin(); it != rec->second.end(); ++it)
               {
-                std::string n = *it + ":" + parts[1];
+                std::string n = toUpperString(*it + ":" + parts[1] + ":0:0");
                 auto gen = mReadyGenerations.find(n);
                 if (gen == mReadyGenerations.end())
                   ready = false;
@@ -1507,6 +1774,27 @@ void updateGenerationStatus()
         int result = 0;
         if (ready  &&  targetGeneration->mStatus != T::GenerationInfo::Status::Ready)
         {
+          uint gLen = mTargetGeometryList.getLength();
+          for (uint g=0; g<gLen; g++)
+          {
+            T::GeometryInfo *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
+            if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
+            {
+              geomInfo->mModificationTime = targetGeneration->mModificationTime;
+              geomInfo->mStatus = T::GeometryInfo::Status::Ready;
+              int result = mTargetInterface->setGeometryInfo(mSessionId,*geomInfo);
+
+              if (result == 0)
+              {
+                PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;OK;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
+              }
+              else
+              {
+                PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;FAIL;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
+              }
+            }
+          }
+
           PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'ready': %s\n", targetGeneration->mName.c_str());
           targetGeneration->mStatus = T::GenerationInfo::Status::Ready;
           result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
@@ -1522,6 +1810,52 @@ void updateGenerationStatus()
         else
         if (!ready  &&  targetGeneration->mStatus == T::GenerationInfo::Status::Ready)
         {
+          uint gLen = mTargetGeometryList.getLength();
+          for (uint g=0; g<gLen; g++)
+          {
+            bool geom_ready = true;
+            T::GeometryInfo *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
+            if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
+            {
+              std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId));
+              auto gen = mReadyGenerations.find(key);
+              if (gen == mReadyGenerations.end())
+              {
+                geom_ready = false;
+              }
+              else
+              {
+                geomInfo->mModificationTime = gen->second;
+                auto rec = mProducerDependensies.find(pname);
+                if (rec != mProducerDependensies.end())
+                {
+                  for (auto it = rec->second.begin(); it != rec->second.end(); ++it)
+                  {
+                    std::string n = toUpperString(*it + ":" + parts[1] + ":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId));
+                    auto gen = mReadyGenerations.find(n);
+                    if (gen == mReadyGenerations.end())
+                      geom_ready = false;
+                  }
+                }
+              }
+            }
+
+            if (geom_ready)
+            {
+              geomInfo->mStatus = T::GeometryInfo::Status::Ready;
+              int result = mTargetInterface->setGeometryInfo(mSessionId,*geomInfo);
+
+              if (result == 0)
+              {
+                PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;OK;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
+              }
+              else
+              {
+                PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;FAIL;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
+              }
+            }
+          }
+
           PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'running': %s\n", targetGeneration->mName.c_str());
           targetGeneration->mStatus = T::GenerationInfo::Status::Running;
           result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
@@ -2250,6 +2584,27 @@ int main(int argc, char *argv[])
           updateGenerations();
           readTargetGenerations(mTargetGenerationList);
           mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
+        }
+
+        if (!shutdownRequested)
+        {
+          PRINT_DATA(mDebugLogPtr, "* Reading geometry information from the target data storage\n");
+          readTargetGeometries(mTargetGeometryList);
+          mTargetGeometryList.sort(T::GeometryInfo::ComparisonMethod::generationId);
+        }
+
+        if (!shutdownRequested)
+        {
+          PRINT_DATA(mDebugLogPtr, "* Reading geometry information from the source data storage\n");
+          readSourceGeometries(conn,mSourceGeometryList);
+        }
+
+        if (!shutdownRequested)
+        {
+          PRINT_DATA(mDebugLogPtr, "* Updating geometry information into the target data storage\n");
+          updateGeometries();
+          readTargetGeometries(mTargetGeometryList);
+          mTargetGeometryList.sort(T::GeometryInfo::ComparisonMethod::generationId);
         }
 
         if (!shutdownRequested)
