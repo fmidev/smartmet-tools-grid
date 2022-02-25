@@ -64,6 +64,7 @@ int                 mDataServerDebugLogMaxSize = 100000000;
 int                 mDataServerDebugLogTruncateSize = 20000000;
 Log                 mDataServerDebugLog;
 
+bool                mQueryServerCheckGeometryStatus = false;
 string_vec          mQueryServerLuaFiles;
 bool                mQueryServerProcessingLogEnabled = false;
 std::string         mQueryServerProcessingLogFile;
@@ -638,6 +639,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.address", mServerAddress);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.port", mServerPort);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.iorFile", mServerIorFile);
+    mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.checkGeometryStatus",mQueryServerCheckGeometryStatus);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerFile",mProducerFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerAliasFiles",mProducerAliasFiles);
@@ -717,7 +719,7 @@ int main(int argc, char *argv[])
     dataServer->init(mDataServerIor);
 
 
-    queryServer->init(contentServer,dataServer,mGridConfigFile,mParameterMappingFiles,mParameterAliasFiles,mProducerFile,mProducerAliasFiles,mQueryServerLuaFiles);
+    queryServer->init(contentServer,dataServer,mGridConfigFile,mParameterMappingFiles,mParameterAliasFiles,mProducerFile,mProducerAliasFiles,mQueryServerLuaFiles,mQueryServerCheckGeometryStatus);
 
     if (mContentServerProcessingLogEnabled &&  mContentServerProcessingLogFile.length() > 0)
     {
