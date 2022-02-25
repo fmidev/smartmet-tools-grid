@@ -1642,8 +1642,18 @@ void updateGenerationStatus(T::ProducerInfo& targetProducer)
             T::GeometryInfo *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
             if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
             {
-              if (mTime != mReadyGenerations.end())
-                geomInfo->mModificationTime = mTime->second;
+              std::string gkey = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
+              auto gTime = mReadyGenerations.find(gkey);
+
+              if (gTime != mReadyGenerations.end())
+              {
+                geomInfo->mModificationTime = gTime->second;
+              }
+              else
+              {
+                if (mTime != mReadyGenerations.end())
+                  geomInfo->mModificationTime = mTime->second;
+              }
 
               geomInfo->mStatus = T::GeometryInfo::Status::Ready;
               int result = mTargetInterface->setGeometryInfo(mSessionId,*geomInfo);
@@ -1780,7 +1790,13 @@ void updateGenerationStatus()
             T::GeometryInfo *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
             if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
             {
-              geomInfo->mModificationTime = targetGeneration->mModificationTime;
+              std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
+              auto gTime = mReadyGenerations.find(key);
+              if (gTime != mReadyGenerations.end())
+                geomInfo->mModificationTime = gTime->second;
+              else
+                geomInfo->mModificationTime = targetGeneration->mModificationTime;
+
               geomInfo->mStatus = T::GeometryInfo::Status::Ready;
               int result = mTargetInterface->setGeometryInfo(mSessionId,*geomInfo);
 
@@ -1818,14 +1834,14 @@ void updateGenerationStatus()
             if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
             {
               std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId));
-              auto gen = mReadyGenerations.find(key);
-              if (gen == mReadyGenerations.end())
+              auto gTime = mReadyGenerations.find(key);
+              if (gTime == mReadyGenerations.end())
               {
                 geom_ready = false;
               }
               else
               {
-                geomInfo->mModificationTime = gen->second;
+                geomInfo->mModificationTime = gTime->second;
                 auto rec = mProducerDependensies.find(pname);
                 if (rec != mProducerDependensies.end())
                 {
