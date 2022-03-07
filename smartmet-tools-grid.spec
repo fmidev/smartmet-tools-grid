@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 22.2.28
+Version: 22.3.7
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -14,8 +14,8 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
 BuildRequires: smartmet-library-spine-devel >= 22.2.10
-BuildRequires: smartmet-library-grid-files-devel >= 22.2.28
-BuildRequires: smartmet-library-grid-content-devel >= 22.2.28
+BuildRequires: smartmet-library-grid-files-devel >= 22.3.7
+BuildRequires: smartmet-library-grid-content-devel >= 22.3.7
 BuildRequires: gdal34-devel
 BuildRequires: postgresql13-devel
 BuildRequires: omniORB-devel
@@ -30,8 +30,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-spine >= 21.1.21
 #Requires: smartmet-server >= 17.11.10
 Requires: boost169-date-time
-Requires: smartmet-library-grid-files >= 22.2.28
-Requires: smartmet-library-grid-content >= 22.2.28
+Requires: smartmet-library-grid-files >= 22.3.7
+Requires: smartmet-library-grid-content >= 22.3.7
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -449,6 +449,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Mon Mar  7 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.3.7-1.fmi
+- Repackaged due to API changes in base libraries
 * Mon Feb 28 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.2.28-1.fmi
 - Added a parameter for geometry status checking
 * Wed Feb  9 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.2.9-1.fmi
