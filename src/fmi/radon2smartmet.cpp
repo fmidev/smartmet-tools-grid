@@ -114,6 +114,7 @@ T::SessionId mSessionId = 0;
 std::set<std::string> mProducerList;
 std::set<uint> mProducerIdList;
 std::unordered_map<std::string,GeomRec> mSourceGeometryList;
+std::unordered_map<std::string,std::set<int>> mProducerGeometryList;
 
 std::unordered_map<std::string, std::vector<std::string>> mProducerDependensies;
 
@@ -312,6 +313,7 @@ void readProducerList(const char *filename)
 
         std::vector <std::string> fields;
         splitString(st,';',fields);
+        std::set<int> geometries;
 
         if (fields.size() > 1)
           e = toInt32(fields[1]);
@@ -322,6 +324,9 @@ void readProducerList(const char *filename)
         if (fields.size() > 3)
           i = toInt32(fields[3]);
 
+        if (fields.size() > 4)
+          splitString(fields[4],',',geometries);
+
         if (mWaitTime == 0 || mLoopCounter == f || (mLoopCounter > f  &&  ((mLoopCounter-f) % i) == 0))
         {
           std::vector<std::string> pList;
@@ -331,6 +336,9 @@ void readProducerList(const char *filename)
           {
             std::string pname = toUpperString(*it);
             mProducerList.insert(pname);
+
+            if (geometries.size() > 0)
+              mProducerGeometryList.insert(std::pair<std::string, std::set<int>>(pname,geometries));
 
             if (e == 0)
               mGenerationStatusCheckIgnore.insert(pname);
@@ -674,7 +682,7 @@ void readTargetContentList(uint producerId,std::set<unsigned long long>& targetC
 
 
 
-std::string getTableInfo(PGconn *conn, const char *tableName, uint producerId, const char *analysisTime,time_t& lastUpdate,uint& count)
+std::string getTableInfo(PGconn *conn, const char *tableName, uint producerId, uint geometryId, const char *analysisTime,time_t& lastUpdate,uint& count)
 {
   FUNCTION_TRACE
   try
@@ -682,7 +690,7 @@ std::string getTableInfo(PGconn *conn, const char *tableName, uint producerId, c
     if (shutdownRequested)
       return "";
 
-    std::string tbl = std::string(tableName) + ":" + std::to_string(producerId) + ":" + std::string(analysisTime);
+    std::string tbl = std::string(tableName) + ":" + std::to_string(producerId) + ":" + std::to_string(geometryId) + ":" + std::string(analysisTime);
     auto pos = mTableUpdates.find(tbl);
     if (pos != mTableUpdates.end())
       return pos->second;
@@ -690,7 +698,7 @@ std::string getTableInfo(PGconn *conn, const char *tableName, uint producerId, c
     char sql[2000];
     char *p = sql;
 
-    PRINT_DATA(mDebugLogPtr, "      ---- Read table information %s:%u:%s\n", tableName, producerId, analysisTime);
+    PRINT_DATA(mDebugLogPtr, "      ---- Read table information %s:%u:%u:%s\n", tableName, producerId, geometryId, analysisTime);
 
     p += sprintf(p, "SELECT\n");
     p += sprintf(p, "  count(file_location),\n");
@@ -698,7 +706,7 @@ std::string getTableInfo(PGconn *conn, const char *tableName, uint producerId, c
     p += sprintf(p, "FROM\n");
     p += sprintf(p, "  %s\n", tableName);
     p += sprintf(p, "WHERE\n");
-    p += sprintf(p, "  producer_id=%u AND analysis_time = to_timestamp('%s', 'yyyymmddThh24MISS')\n", producerId, analysisTime);
+    p += sprintf(p, "  producer_id=%u AND geometry_id=%u AND analysis_time = to_timestamp('%s', 'yyyymmddThh24MISS')\n", producerId, geometryId, analysisTime);
 
     //printf("%s\n",sql);
     PGresult *res = PQexec(conn, sql);
@@ -744,7 +752,7 @@ std::string getTableInfo(PGconn *conn, const char *tableName, uint producerId, c
 
 
 
-void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std::string& producerName,const char *analysisTime, time_t updateTime, std::string& info)
+void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std::string& producerName,uint geometryId,const char *analysisTime, time_t updateTime, std::string& info)
 {
   FUNCTION_TRACE
   try
@@ -752,7 +760,7 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
     if (shutdownRequested)
       return;
 
-    std::string tbl = std::string(tableName) + ":" + std::to_string(producerId) + ":" + std::string(analysisTime);
+    std::string tbl = std::string(tableName) + ":" + std::to_string(producerId) + ":" + std::to_string(geometryId) + ":" + std::string(analysisTime);
     if (mFileTables.find(tbl) != mFileTables.end())
       return;
 
@@ -783,7 +791,7 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
     p += sprintf(p, "FROM\n");
     p += sprintf(p, "  %s\n", tableName);
     p += sprintf(p, "WHERE\n");
-    p += sprintf(p, "  producer_id=%u AND analysis_time = to_timestamp('%s', 'yyyymmddThh24MISS') AND file_format_id IN (1,2,3,4)\n", producerId, analysisTime);
+    p += sprintf(p, "  producer_id=%u AND geometry_id = %u AND analysis_time = to_timestamp('%s', 'yyyymmddThh24MISS') AND file_format_id IN (1,2,3,4)\n", producerId, geometryId,analysisTime);
 
     //printf("%s\n",sql);
     PGresult *res = PQexec(conn, sql);
@@ -888,7 +896,7 @@ std::vector<FileRec>& readSourceFilesAndContent(
 
     uint count = 0;
     time_t lastUpdate = 0;
-    std::string info = getTableInfo(conn, tableName, producerId, analysisTime,lastUpdate,count);
+    std::string info = getTableInfo(conn, tableName, producerId, geometryId, analysisTime,lastUpdate,count);
     if (info.empty())
       return emptyRecList;
 
@@ -902,7 +910,7 @@ std::vector<FileRec>& readSourceFilesAndContent(
       }
       else
       {
-        std::string tbl = std::string(tableName) + ":" + std::to_string(producerId) + ":" + std::string(analysisTime);
+        std::string tbl = std::string(tableName) + ":" + std::to_string(producerId) + ":" + std::to_string(geometryId) + ":" + std::string(analysisTime);
         auto pos = mFileTables.find(tbl);
         if (pos != mFileTables.end())
         {
@@ -911,7 +919,7 @@ std::vector<FileRec>& readSourceFilesAndContent(
       }
     }
 
-    readTableRecords(conn, tableName, producerId, producerName, analysisTime, updateTime, info);
+    readTableRecords(conn, tableName, producerId, producerName, geometryId, analysisTime, updateTime, info);
     pos = mFileRecMap.find(key);
     if (pos == mFileRecMap.end())
       return emptyRecList;
@@ -984,26 +992,32 @@ void readSourceForecastTimes(PGconn *conn, uint fmiProducerId, std::vector<Forec
 
       uint producerId = toInt64(PQgetvalue(res, i, 0));
       std::string analysisTime = PQgetvalue(res, i, 2);
+      int geometryId = toInt64(PQgetvalue(res, i, 6));
+
 
       T::ProducerInfo *producer = mSourceProducerList.getProducerInfoById(producerId);
       if (producer != nullptr)
       {
-        ForecastRec forecastRec;
-        forecastRec.producerId = producerId;
-        forecastRec.producerName = PQgetvalue(res, i, 1);
-        forecastRec.analysisTime = analysisTime;
-        forecastRec.generationName = forecastRec.producerName + ":" + forecastRec.analysisTime;
-        forecastRec.forecastTime = PQgetvalue(res, i, 3);
-        forecastRec.forecastPeriod = PQgetvalue(res, i, 4);
-        forecastRec.tableName = PQgetvalue(res, i, 5);
-        forecastRec.geometryId = toInt64(PQgetvalue(res, i, 6));
-        forecastRec.forecastTypeId = toInt64(PQgetvalue(res, i, 7));
-        forecastRec.forecastTypeValue = toInt64(PQgetvalue(res, i, 8));
-        std::string dtime = PQgetvalue(res, i, 9);
-        forecastRec.deletionTime = utcTimeToTimeT(dtime);
-        std::string modtime = PQgetvalue(res, i, 10);
-        forecastRec.lastUpdated = utcTimeToTimeT(modtime);
-        sourceForecastList.push_back(forecastRec);
+        auto geom = mProducerGeometryList.find(toUpperString(producer->mName));
+        if (geom == mProducerGeometryList.end() ||  geom->second.find(geometryId) != geom->second.end())
+        {
+          ForecastRec forecastRec;
+          forecastRec.producerId = producerId;
+          forecastRec.producerName = PQgetvalue(res, i, 1);
+          forecastRec.analysisTime = analysisTime;
+          forecastRec.generationName = forecastRec.producerName + ":" + forecastRec.analysisTime;
+          forecastRec.forecastTime = PQgetvalue(res, i, 3);
+          forecastRec.forecastPeriod = PQgetvalue(res, i, 4);
+          forecastRec.tableName = PQgetvalue(res, i, 5);
+          forecastRec.geometryId = geometryId;
+          forecastRec.forecastTypeId = toInt64(PQgetvalue(res, i, 7));
+          forecastRec.forecastTypeValue = toInt64(PQgetvalue(res, i, 8));
+          std::string dtime = PQgetvalue(res, i, 9);
+          forecastRec.deletionTime = utcTimeToTimeT(dtime);
+          std::string modtime = PQgetvalue(res, i, 10);
+          forecastRec.lastUpdated = utcTimeToTimeT(modtime);
+          sourceForecastList.push_back(forecastRec);
+        }
       }
     }
     PQclear(res);
@@ -1150,13 +1164,18 @@ void readSourceGeometries(PGconn *conn,std::unordered_map<std::string,GeomRec>& 
       rec.producerId = toInt64(PQgetvalue(res, i, 0));
       rec.geometryId = toInt64(PQgetvalue(res, i, 1));
       rec.analysisTime = PQgetvalue(res, i, 2);
+      rec.levelId = 0;
 
       T::ProducerInfo *producer = mSourceProducerList.getProducerInfoById(rec.producerId);
       if (producer != nullptr)
       {
-        rec.producerName = producer->mName;
-        sprintf(st, "%s:%s:%d:%d",rec.producerName.c_str(), rec.analysisTime.c_str(),rec.geometryId,rec.levelId);
-        geometries.insert(std::pair<std::string,GeomRec>(toUpperString(st),rec));
+        auto geom = mProducerGeometryList.find(toUpperString(producer->mName));
+        if (geom == mProducerGeometryList.end() ||  geom->second.find(rec.geometryId) != geom->second.end())
+        {
+          rec.producerName = producer->mName;
+          sprintf(st, "%s:%s:%d:%d",rec.producerName.c_str(), rec.analysisTime.c_str(),rec.geometryId,rec.levelId);
+          geometries.insert(std::pair<std::string,GeomRec>(toUpperString(st),rec));
+        }
       }
     }
     PQclear(res);
@@ -1527,7 +1546,7 @@ void updateGeometries()
     for (uint t = 0; t < len; t++)
     {
       T::GeometryInfo *targetGeometry = mTargetGeometryList.getGeometryInfoByIndex(t);
-      if (targetGeometry->mSourceId == mSourceId  &&  mProducerIdList.find(targetGeometry->mGeometryId) != mProducerIdList.end())
+      if (targetGeometry->mSourceId == mSourceId  &&  mProducerIdList.find(targetGeometry->mProducerId) != mProducerIdList.end())
       {
         T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoById(targetGeometry->mGenerationId);
         if (targetGeneration != NULL)
@@ -1547,6 +1566,18 @@ void updateGeometries()
               Fmi::Exception exception(BCP, "Cannot delete the geometry information from the target data storage!");
               exception.addParameter("Result", ContentServer::getResultString(result));
               exception.printError();
+            }
+
+            PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'running': %s\n", targetGeneration->mName.c_str());
+            targetGeneration->mStatus = T::GenerationInfo::Status::Running;
+            result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+            if (result == 0)
+            {
+              PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
+            }
+            else
+            {
+              PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;FAIL;%s;",targetGeneration->mName.c_str());
             }
           }
         }
@@ -1580,7 +1611,7 @@ void updateGeometries()
           int result = mTargetInterface->addGeometryInfo(mSessionId,geomInfo);
           if (result == 0)
           {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GEMETRY-ADD;OK;%u;%d;%d;",geomInfo.mGenerationId,geomInfo.mGeometryId,geomInfo.mLevelId);
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-ADD;OK;%u;%d;%d;",geomInfo.mGenerationId,geomInfo.mGeometryId,geomInfo.mLevelId);
           }
           else
           {
@@ -1595,6 +1626,19 @@ void updateGeometries()
             exception.addParameter("Result", ContentServer::getResultString(result));
             throw exception;
           }
+
+          PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'running': %s\n", targetGeneration->mName.c_str());
+          targetGeneration->mStatus = T::GenerationInfo::Status::Running;
+          result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+          if (result == 0)
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
+          }
+          else
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;FAIL;%s;",targetGeneration->mName.c_str());
+          }
+
         }
       }
     }
@@ -1617,13 +1661,19 @@ void updateGenerationStatus(T::ProducerInfo& targetProducer)
     std::string pname = toUpperString(targetProducer.mName);
     bool ignore = false;
     if (mGenerationStatusCheckIgnore.find(pname) != mGenerationStatusCheckIgnore.end())
+    {
+      PRINT_DATA(mDebugLogPtr, "  -- Ignore generation status update : %s\n", targetProducer.mName.c_str());
       ignore = true;
+    }
 
     if (!ignore)
     {
       auto rec = mProducerDependensies.find(pname);
       if (rec != mProducerDependensies.end())
+      {
+        PRINT_DATA(mDebugLogPtr, "  -- Postpone generation status update : %s\n", targetProducer.mName.c_str());
         return; // The producer update has dependensies. We update these kinds of producers later.
+      }
     }
 
     uint len = mTargetGenerationList.getLength();
@@ -1751,6 +1801,8 @@ void updateGenerationStatus()
 
       if (targetGeneration->mSourceId == mSourceId)
       {
+        PRINT_DATA(mDebugLogPtr, "  -- Checking generation status : %s (status=%u)\n", targetGeneration->mName.c_str(),targetGeneration->mStatus);
+
         std::vector<std::string> parts;
         splitString(targetGeneration->mName,':',parts);
         std::string pname = toUpperString(parts[0]);
@@ -1762,6 +1814,7 @@ void updateGenerationStatus()
           auto gen = mReadyGenerations.find(key);
           if (gen == mReadyGenerations.end())
           {
+            PRINT_DATA(mDebugLogPtr, "  -- Generation not ready : %s\n", key.c_str());
             ready = false;
           }
           else
@@ -1775,7 +1828,10 @@ void updateGenerationStatus()
                 std::string n = toUpperString(*it + ":" + parts[1] + ":0:0");
                 auto gen = mReadyGenerations.find(n);
                 if (gen == mReadyGenerations.end())
+                {
+                  PRINT_DATA(mDebugLogPtr, "  -- Generation dependency not ready : %s\n", n.c_str());
                   ready = false;
+                }
               }
             }
           }
@@ -1837,6 +1893,7 @@ void updateGenerationStatus()
               auto gTime = mReadyGenerations.find(key);
               if (gTime == mReadyGenerations.end())
               {
+                PRINT_DATA(mDebugLogPtr, "  -- Geometry not ready: %s\n", key.c_str());
                 geom_ready = false;
               }
               else
@@ -1850,7 +1907,10 @@ void updateGenerationStatus()
                     std::string n = toUpperString(*it + ":" + parts[1] + ":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId));
                     auto gen = mReadyGenerations.find(n);
                     if (gen == mReadyGenerations.end())
+                    {
+                      PRINT_DATA(mDebugLogPtr, "  -- Geometry dependency not ready: %s\n", n.c_str());
                       geom_ready = false;
+                    }
                   }
                 }
               }
