@@ -431,12 +431,12 @@ queried and 2) the search order of the producers if the producer is not
 given in the query.
 
 <pre>
-  SMARTMET;1096;;
-  SMARTMETMTA;1096;;
-  ECG;1007;;
-  ECGMTA;1007;;
-  ECG;1008;;
-  ECGMTA;1008;;
+  SMARTMET:1096
+  SMARTMETMTA:1096
+  ECG:1007
+  ECGMTA:1007
+  ECG:1008:
+  ECGMTA:1008
 </pre>
 
 After that you should be able to use the timeseries plugin for querying
