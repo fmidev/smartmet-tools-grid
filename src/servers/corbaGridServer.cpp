@@ -101,6 +101,7 @@ bool data_server_debug_log_enabled = false;
 std::string data_server_debug_log_file;
 uint data_server_debug_log_maxSize = 0;
 uint data_server_debug_log_truncateSize = 0;
+bool data_server_methods_enabled = false;
 std::string query_server_producerFile;
 std::string query_server_iorFile;
 bool query_server_checkGeometryStatus = false;
@@ -698,6 +699,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.debug-log.file",query_server_debug_log_file);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.debug-log.maxSize",query_server_debug_log_maxSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.debug-log.truncateSize",query_server_debug_log_truncateSize);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.dataServerMethodsEnabled",data_server_methods_enabled);
 
 
 
@@ -820,7 +822,7 @@ int main(int argc, char *argv[])
 
 
     dataService->init(0,data_server_id,data_server_name.c_str(),corbaServer->getDataServiceIor().c_str(),data_server_grid_storage_directory.c_str(),contentService,data_server_luaFiles);
-    queryService->init(contentService,dataService,grid_files_configFile,query_server_mappingFiles,query_server_aliasFiles,query_server_producerFile,query_server_producerAliasFiles,query_server_luaFiles,query_server_checkGeometryStatus);
+    queryService->init(contentService,dataService,grid_files_configFile,query_server_mappingFiles,query_server_aliasFiles,query_server_producerFile,query_server_producerAliasFiles,query_server_luaFiles,query_server_checkGeometryStatus,data_server_methods_enabled);
 
 
 
