@@ -1253,9 +1253,17 @@ void readReadyGenerations(PGconn *conn,std::unordered_map<std::string,time_t>& r
         if (producerId != prevProducerId || analysisTime != prevAnalysisTime  || prevGeometryId != geometryId || prevLevelId != levelId)
         {
           std::string mtime = PQgetvalue(res, i, 5);
+          time_t modTime = utcTimeToTimeT(mtime);
+
+          sprintf(st, "%s:%s", producer->mName.c_str(), analysisTime.c_str());
+          std::string gName = toUpperString(st);
+          T::GenerationInfo *sourceGeneration = mSourceGenerationList.getGenerationInfoByName(gName);
+          if (sourceGeneration != nullptr  &&  sourceGeneration->mModificationTime > modTime)
+            modTime = sourceGeneration->mModificationTime;
+
           sprintf(st, "%s:%s:%d:%d", producer->mName.c_str(), analysisTime.c_str(),geometryId,levelId);
           std::string key = toUpperString(st);
-          readyGenerations.insert(std::pair<std::string,time_t>(key,utcTimeToTimeT(mtime)));
+          readyGenerations.insert(std::pair<std::string,time_t>(key,modTime));
           prevProducerId = producerId;
           prevGeometryId = geometryId;
           prevLevelId = levelId;
@@ -1450,13 +1458,29 @@ void updateGenerations()
         T::GenerationInfo *sourceGeneration = mSourceGenerationList.getGenerationInfoByName(targetGeneration->mName);
         if (sourceGeneration == nullptr)
         {
-          // The generation information is not available in the source data storage. So, we should remove
-          // it also from the target data storage.
+          // The generation information is not available in the source data storage.
+          // So, we should remove the generation from the target data storage.
 
           PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;OK;%s;",targetGeneration->mName.c_str());
           PRINT_DATA(mDebugLogPtr, "  -- Remove generation : %s\n", targetGeneration->mName.c_str());
 
           generationIdList.insert(targetGeneration->mGenerationId);
+        }
+        else if (sourceGeneration->mModificationTime > targetGeneration->mModificationTime)
+        {
+          std::string key = toUpperString(targetGeneration->mName + ":0:0");
+          auto mTime = mReadyGenerations.find(key);
+          if (mTime != mReadyGenerations.end())
+          {
+            // The target generation is marked to be "ready" but it is older than the source
+            // generation. So, we should remove the generation from the target data storage and reload
+            // its information.
+
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;OK;%s;",targetGeneration->mName.c_str());
+            PRINT_DATA(mDebugLogPtr, "  -- Remove modified generation : %s\n", targetGeneration->mName.c_str());
+
+            generationIdList.insert(targetGeneration->mGenerationId);
+          }
         }
       }
     }
@@ -1470,6 +1494,9 @@ void updateGenerations()
         exception.addParameter("Result", ContentServer::getResultString(result));
         exception.printError();
       }
+
+      for (auto it = generationIdList.begin(); it != generationIdList.end(); ++it)
+        mTargetGenerationList.deleteGenerationInfoById(*it);
     }
 
     len = mSourceGenerationList.getLength();
