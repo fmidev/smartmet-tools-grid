@@ -9,11 +9,18 @@ Group: SmartMet/Plugins
 URL: https://github.com/fmidev/smartmet-plugin-grid-gui
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+%if 0%{?rhel} && 0%{rhel} < 9
+%define smartmet_boost boost169
+%else
+%define smartmet_boost boost
+%endif
+
 BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
-BuildRequires: boost169-devel
-BuildRequires: smartmet-library-spine-devel >= 22.6.8
+BuildRequires: %{smartmet_boost}-devel
+BuildRequires: smartmet-library-spine-devel >= 22.6.16
 BuildRequires: smartmet-library-grid-files-devel >= 22.5.24
 BuildRequires: smartmet-library-grid-content-devel >= 22.6.8
 BuildRequires: gdal34-devel
@@ -26,10 +33,10 @@ BuildRequires: libpng-devel
 BuildRequires: openldap-devel
 BuildRequires: openssl-devel
 BuildRequires: krb5-devel
-#Requires: smartmet-library-macgyver >= 21.1.21
-#Requires: smartmet-library-spine >= 21.1.21
+#Requires: smartmet-library-macgyver >= 22.6.16
+#Requires: smartmet-library-spine >= 22.6.16
 #Requires: smartmet-server >= 17.11.10
-Requires: boost169-date-time
+Requires: %{smartmet_boost}-date-time
 Requires: smartmet-library-grid-files >= 22.5.24
 Requires: smartmet-library-grid-content >= 22.6.8
 Requires: openldap
