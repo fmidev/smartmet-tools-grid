@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 22.6.20
+Version: 22.6.30
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -456,6 +456,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu Jun 30 2022 Andris Pavēnis <andris.pavenis@fmi.fi> 22.6.30-1.fmi
+- Fix build for RHEL 9
+
 * Mon Jun 20 2022 Andris Pavēnis <andris.pavenis@fmi.fi> 22.6.20-1.fmi
 - Add support for RHEL9, upgrade libpqxx to 7.7.0 (rhel8+) and fmt to 8.1.1
 
