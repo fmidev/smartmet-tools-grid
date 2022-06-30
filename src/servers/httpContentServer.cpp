@@ -15,6 +15,11 @@
 
 using namespace SmartMet;
 
+// MHD_Result used as return value in microhttpd beginning from MHD_VERSION >= 0x00093904
+// Earlier int ist used instead. See: https://github.com/scottjg/libmicrohttpd.git
+#if !defined(MHD_VERSION) || MHD_VERSION < 0x00093904
+typedef int MHD_Result
+#endif
 
 ContentServer::ServiceInterface *contentSource = nullptr;
 ContentServer::Corba::ClientImplementation *corbaClient = nullptr;
@@ -186,7 +191,7 @@ void getMainPage(SmartMet::T::ResponseMessage& response)
 
 
 
-static int addParameter(void *cls, enum MHD_ValueKind kind, const char *key,const char *value)
+static MHD_Result addParameter(void *cls, enum MHD_ValueKind kind, const char *key,const char *value)
 {
   try
   {
@@ -235,7 +240,7 @@ static void requestCompleted (void *cls, struct MHD_Connection *connection,void 
 
 
 
-static int processRequest(void *cls,struct MHD_Connection *connection,const char *url,const char *method,const char *version,
+static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,const char *url,const char *method,const char *version,
         const char *upload_data,size_t *upload_data_size,void **ptr)
 {
   try
@@ -352,7 +357,7 @@ static int processRequest(void *cls,struct MHD_Connection *connection,const char
 
     *ptr = nullptr; /* clear context pointer */
     struct MHD_Response *response = MHD_create_response_from_buffer(strlen(content),(void*)content,MHD_RESPMEM_MUST_FREE);
-    int ret = MHD_queue_response(connection,MHD_HTTP_OK,response);
+    MHD_Result ret = MHD_queue_response(connection,MHD_HTTP_OK,response);
     MHD_destroy_response(response);
     return ret;
   }
