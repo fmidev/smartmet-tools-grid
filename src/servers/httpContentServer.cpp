@@ -18,7 +18,7 @@ using namespace SmartMet;
 // MHD_Result used as return value in microhttpd beginning from MHD_VERSION >= 0x00093904
 // Earlier int ist used instead. See: https://github.com/scottjg/libmicrohttpd.git
 #if !defined(MHD_VERSION) || MHD_VERSION < 0x00093904
-typedef int MHD_Result
+typedef int MHD_Result;
 #endif
 
 ContentServer::ServiceInterface *contentSource = nullptr;
