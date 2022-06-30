@@ -3,7 +3,7 @@
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
 Version: 22.6.30
-Release: 1%{?dist}.fmi
+Release: 2%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
 URL: https://github.com/fmidev/smartmet-plugin-grid-gui
@@ -456,6 +456,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu Jun 30 2022 Andris Pavēnis <andris.pavenis@fmi.fi> 22.6.30-2.fmi
+- Fix build for RHEL 9 (+fix typo)
+
 * Thu Jun 30 2022 Andris Pavēnis <andris.pavenis@fmi.fi> 22.6.30-1.fmi
 - Fix build for RHEL 9
 
