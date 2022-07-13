@@ -15,9 +15,10 @@
 
 using namespace SmartMet;
 
-// MHD_Result used as return value in microhttpd beginning from MHD_VERSION >= 0x00093904
-// Earlier int ist used instead. See: https://github.com/scottjg/libmicrohttpd.git
-#if !defined(MHD_VERSION) || MHD_VERSION < 0x00093904
+// MHD_Result used as return value in newer versions of microhttpd. Earlier defines
+// MHD_YES and MHD_NO are being used. Workaround ABI compatibility by using typedef
+// for older versions
+#if defined(MHD_YES) && defined(MHD_NO)
 typedef int MHD_Result;
 #endif
 
