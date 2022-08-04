@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 22.7.13
+Version: 22.8.4
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -456,6 +456,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu Aug  4 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.8.4-1.fmi
+- Fixed error in removing producers from Redis when they have been removed from producers.cfg
+
 * Wed Jul 13 2022 Andris Pavēnis <andris.pavenis@fmi.fi> 22.7.13-1.fmi
 - Fix microhttpd ABI incompatibility workaround
 
