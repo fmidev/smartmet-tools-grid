@@ -1360,36 +1360,43 @@ void updateProducers()
       if (targetProducer->mSourceId == mSourceId)
       {
         std::string searchStr = toUpperString(targetProducer->mName);
-        if (mProducerList.size() == 0 || mProducerList.find(searchStr) != mProducerList.end())
+        bool producerFound = false;
+        if (mProducerList.find(searchStr) != mProducerList.end())
+          producerFound = true;
+
+        T::ProducerInfo *sourceProducer = nullptr;
+        if (producerFound)
+          sourceProducer = mSourceProducerList.getProducerInfoByName(targetProducer->mName);
+
+        if (sourceProducer == nullptr)
+        {
+          // The producer information is not wanted or it is not available in the source data
+          // storage. So, we should remove it also from the target data storage.
+
+          PRINT_DATA(mDebugLogPtr, "  -- Remove producer : %s\n", targetProducer->mName.c_str());
+
+          int result = mTargetInterface->deleteProducerInfoById(mSessionId, targetProducer->mProducerId);
+          if (result == 0)
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;OK;%s;",targetProducer->mName.c_str());
+          }
+          else
+          {
+            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;FAIL;%s;",targetProducer->mName.c_str());
+          }
+
+          if (result != 0)
+          {
+            Fmi::Exception exception(BCP, "Cannot delete the producer information from the target data storage!");
+            exception.addParameter("ProducerId", std::to_string(targetProducer->mProducerId));
+            exception.addParameter("ProducerName", targetProducer->mName);
+            exception.addParameter("Result", ContentServer::getResultString(result));
+            exception.printError();
+          }
+        }
+        else
         {
           mProducerIdList.insert(targetProducer->mProducerId);
-          T::ProducerInfo *sourceProducer = mSourceProducerList.getProducerInfoByName(targetProducer->mName);
-          if (sourceProducer == nullptr)
-          {
-            // The producer information is not available in the source data storage. So, we should remove
-            // it also from the target data storage.
-
-            PRINT_DATA(mDebugLogPtr, "  -- Remove producer : %s\n", targetProducer->mName.c_str());
-
-            int result = mTargetInterface->deleteProducerInfoById(mSessionId, targetProducer->mProducerId);
-            if (result == 0)
-            {
-              PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;OK;%s;",targetProducer->mName.c_str());
-            }
-            else
-            {
-              PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;FAIL;%s;",targetProducer->mName.c_str());
-            }
-
-            if (result != 0)
-            {
-              Fmi::Exception exception(BCP, "Cannot delete the producer information from the target data storage!");
-              exception.addParameter("ProducerId", std::to_string(targetProducer->mProducerId));
-              exception.addParameter("ProducerName", targetProducer->mName);
-              exception.addParameter("Result", ContentServer::getResultString(result));
-              exception.printError();
-            }
-          }
         }
       }
     }
