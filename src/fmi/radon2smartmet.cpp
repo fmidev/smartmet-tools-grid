@@ -1361,7 +1361,7 @@ void updateProducers()
       {
         std::string searchStr = toUpperString(targetProducer->mName);
         bool producerFound = false;
-        if (mProducerList.find(searchStr) != mProducerList.end())
+        if (mProducerList.size() == 0 || mProducerList.find(searchStr) != mProducerList.end())
           producerFound = true;
 
         T::ProducerInfo *sourceProducer = nullptr;
