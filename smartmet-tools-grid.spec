@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 22.8.4
+Version: 22.8.17
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -22,7 +22,7 @@ BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
 BuildRequires: smartmet-library-spine-devel >= 22.6.16
 BuildRequires: smartmet-library-grid-files-devel >= 22.5.24
-BuildRequires: smartmet-library-grid-content-devel >= 22.6.8
+BuildRequires: smartmet-library-grid-content-devel >= 22.7.17
 BuildRequires: gdal34-devel
 BuildRequires: postgresql13-devel
 BuildRequires: omniORB-devel
@@ -38,7 +38,7 @@ BuildRequires: krb5-devel
 #Requires: smartmet-server >= 17.11.10
 Requires: %{smartmet_boost}-date-time
 Requires: smartmet-library-grid-files >= 22.5.24
-Requires: smartmet-library-grid-content >= 22.6.8
+Requires: smartmet-library-grid-content >= 22.7.17
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -89,6 +89,7 @@ Provides: cs_deleteVirtualContent = %{version}
 Provides: cs_getContentCount = %{version}
 Provides: cs_getContentGeometryIdListByGenerationId = %{version}
 Provides: cs_getContentInfo = %{version}
+Provides: cs_getContentLevelListByGenerationGeometryAndLevelId = %{version}
 Provides: cs_getContentList = %{version}
 Provides: cs_getContentListByFileId = %{version}
 Provides: cs_getContentListByFileIdList = %{version}
@@ -104,9 +105,12 @@ Provides: cs_getContentListByProducerId = %{version}
 Provides: cs_getContentListByProducerName = %{version}
 Provides: cs_getContentListBySourceId = %{version}
 Provides: cs_getContentListOfInvalidIntegrity = %{version}
+Provides: cs_getContentParamKeyListByGenerationAndGeometryId = %{version}
+Provides: cs_getContentParamKeyListByGenerationGeometryAndLevelId = %{version}
 Provides: cs_getContentParamKeyListByGenerationId = %{version}
 Provides: cs_getContentParamListByGenerationId = %{version}
 Provides: cs_getContentTimeListByGenerationAndGeometryId = %{version}
+Provides: cs_getContentTimeListByGenerationGeometryAndLevelId = %{version}
 Provides: cs_getContentTimeListByGenerationId = %{version}
 Provides: cs_getContentTimeListByProducerId = %{version}
 Provides: cs_getCsvFiles = %{version}
@@ -253,196 +257,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(0775,root,root,0775)
-%{_bindir}/clients/cs_addContentInfo
-%{_bindir}/clients/cs_addFileAndContentListFromFile
-%{_bindir}/clients/cs_addFileInfo
-%{_bindir}/clients/cs_addFileInfoListFromFile
-%{_bindir}/clients/cs_addFileInfoWithContentList
-%{_bindir}/clients/cs_addGenerationInfo
-%{_bindir}/clients/cs_addProducerInfo
-%{_bindir}/clients/cs_clear
-%{_bindir}/clients/cs_deleteContentInfo
-%{_bindir}/clients/cs_deleteContentListByFileId
-%{_bindir}/clients/cs_deleteContentListByFileName
-%{_bindir}/clients/cs_deleteContentListByGenerationId
-%{_bindir}/clients/cs_deleteContentListByGenerationName
-%{_bindir}/clients/cs_deleteContentListByProducerId
-%{_bindir}/clients/cs_deleteContentListByProducerName
-%{_bindir}/clients/cs_deleteContentListBySourceId
-%{_bindir}/clients/cs_deleteFileInfoById
-%{_bindir}/clients/cs_deleteFileInfoByName
-%{_bindir}/clients/cs_deleteFileInfoListByFileIdList
-%{_bindir}/clients/cs_deleteFileInfoListByGenerationId
-%{_bindir}/clients/cs_deleteFileInfoListByGenerationIdAndForecastTime
-%{_bindir}/clients/cs_deleteFileInfoListByGenerationName
-%{_bindir}/clients/cs_deleteFileInfoListByProducerId
-%{_bindir}/clients/cs_deleteFileInfoListByProducerName
-%{_bindir}/clients/cs_deleteFileInfoListBySourceId
-%{_bindir}/clients/cs_deleteGenerationInfoById
-%{_bindir}/clients/cs_deleteGenerationInfoByName
-%{_bindir}/clients/cs_deleteGenerationInfoListByProducerId
-%{_bindir}/clients/cs_deleteGenerationInfoListByProducerName
-%{_bindir}/clients/cs_deleteGenerationInfoListBySourceId
-%{_bindir}/clients/cs_deleteGeometryInfoById
-%{_bindir}/clients/cs_deleteGeometryInfoListByGenerationId
-%{_bindir}/clients/cs_deleteGeometryInfoListByProducerId
-%{_bindir}/clients/cs_deleteGeometryInfoListBySourceId
-%{_bindir}/clients/cs_deleteProducerInfoById
-%{_bindir}/clients/cs_deleteProducerInfoByName
-%{_bindir}/clients/cs_deleteProducerInfoListBySourceId
-%{_bindir}/clients/cs_deleteVirtualContent
-%{_bindir}/clients/cs_getContentCount
-%{_bindir}/clients/cs_getContentGeometryIdListByGenerationId
-%{_bindir}/clients/cs_getContentInfo
-%{_bindir}/clients/cs_getContentList
-%{_bindir}/clients/cs_getContentListByFileId
-%{_bindir}/clients/cs_getContentListByFileIdList
-%{_bindir}/clients/cs_getContentListByFileName
-%{_bindir}/clients/cs_getContentListByGenerationId
-%{_bindir}/clients/cs_getContentListByGenerationIdAndTimeRange
-%{_bindir}/clients/cs_getContentListByGenerationName
-%{_bindir}/clients/cs_getContentListByParameter
-%{_bindir}/clients/cs_getContentListByParameterAndGenerationId
-%{_bindir}/clients/cs_getContentListByParameterAndProducerId
-%{_bindir}/clients/cs_getContentListByParameterGenerationIdAndForecastTime
-%{_bindir}/clients/cs_getContentListByProducerId
-%{_bindir}/clients/cs_getContentListByProducerName
-%{_bindir}/clients/cs_getContentListBySourceId
-%{_bindir}/clients/cs_getContentListOfInvalidIntegrity
-%{_bindir}/clients/cs_getContentParamKeyListByGenerationId
-%{_bindir}/clients/cs_getContentParamListByGenerationId
-%{_bindir}/clients/cs_getContentTimeListByGenerationAndGeometryId
-%{_bindir}/clients/cs_getContentTimeListByGenerationId
-%{_bindir}/clients/cs_getContentTimeListByProducerId
-%{_bindir}/clients/cs_getCsvFiles
-%{_bindir}/clients/cs_getEventInfoCount
-%{_bindir}/clients/cs_getEventInfoList
-%{_bindir}/clients/cs_getFileInfoById
-%{_bindir}/clients/cs_getFileInfoByName
-%{_bindir}/clients/cs_getFileInfoCount
-%{_bindir}/clients/cs_getFileInfoCountByGenerationId
-%{_bindir}/clients/cs_getFileInfoCountByProducerId
-%{_bindir}/clients/cs_getFileInfoCountBySourceId
-%{_bindir}/clients/cs_getFileInfoCountsByGenerations
-%{_bindir}/clients/cs_getFileInfoCountsByProducers
-%{_bindir}/clients/cs_getFileInfoList
-%{_bindir}/clients/cs_getFileInfoListByFileIdList
-%{_bindir}/clients/cs_getFileInfoListByGenerationId
-%{_bindir}/clients/cs_getFileInfoListByGenerationName
-%{_bindir}/clients/cs_getFileInfoListByProducerId
-%{_bindir}/clients/cs_getFileInfoListByProducerName
-%{_bindir}/clients/cs_getFileInfoListBySourceId
-%{_bindir}/clients/cs_getGenerationIdGeometryIdAndForecastTimeList
-%{_bindir}/clients/cs_getGenerationInfoById
-%{_bindir}/clients/cs_getGenerationInfoByName
-%{_bindir}/clients/cs_getGenerationInfoCount
-%{_bindir}/clients/cs_getGenerationInfoList
-%{_bindir}/clients/cs_getGenerationInfoListByGeometryId
-%{_bindir}/clients/cs_getGenerationInfoListByProducerId
-%{_bindir}/clients/cs_getGenerationInfoListByProducerName
-%{_bindir}/clients/cs_getGenerationInfoListBySourceId
-%{_bindir}/clients/cs_getGeometryInfoById
-%{_bindir}/clients/cs_getGeometryInfoList
-%{_bindir}/clients/cs_getGeometryInfoListByGenerationId
-%{_bindir}/clients/cs_getGeometryInfoListByProducerId
-%{_bindir}/clients/cs_getGeometryInfoListBySourceId
-%{_bindir}/clients/cs_getHashByProducerId
-%{_bindir}/clients/cs_getLastEventInfo
-%{_bindir}/clients/cs_getLastGenerationInfoByProducerIdAndStatus
-%{_bindir}/clients/cs_getLastGenerationInfoByProducerNameAndStatus
-%{_bindir}/clients/cs_getLevelInfoList
-%{_bindir}/clients/cs_getParameterPreloadList
-%{_bindir}/clients/cs_getProducerInfoById
-%{_bindir}/clients/cs_getProducerInfoByName
-%{_bindir}/clients/cs_getProducerInfoCount
-%{_bindir}/clients/cs_getProducerInfoList
-%{_bindir}/clients/cs_getProducerInfoListByParameter
-%{_bindir}/clients/cs_getProducerInfoListBySourceId
-%{_bindir}/clients/cs_getProducerNameAndGeometryList
-%{_bindir}/clients/cs_getProducerParameterList
-%{_bindir}/clients/cs_getProducerParameterListByProducerId
-%{_bindir}/clients/cs_reload
-%{_bindir}/clients/cs_saveData
-%{_bindir}/clients/cs_setGenerationInfoStatusById
-%{_bindir}/clients/cs_setGenerationInfoStatusByName
-%{_bindir}/clients/cs_setGeometryInfoStatusById
-%{_bindir}/clients/cs_syncContent
-%{_bindir}/clients/cs_syncContentFromCsv
-%{_bindir}/clients/cs_syncContentFromCsvToHttp
-%{_bindir}/clients/cs_syncContentFromCsvToRedis
-%{_bindir}/clients/cs_updateVirtualContent
-%{_bindir}/clients/ds_getGridAttributeList
-%{_bindir}/clients/ds_getGridCoordinates
-%{_bindir}/clients/ds_getGridData
-%{_bindir}/clients/ds_getGridFileCount
-%{_bindir}/clients/ds_getGridImage
-%{_bindir}/clients/ds_getGridImageByArea
-%{_bindir}/clients/ds_getGridIsobandImage
-%{_bindir}/clients/ds_getGridIsobandImageByGeometry
-%{_bindir}/clients/ds_getGridIsobandImageByTime
-%{_bindir}/clients/ds_getGridIsobandImageByTimeAndGeometry
-%{_bindir}/clients/ds_getGridIsobandMap
-%{_bindir}/clients/ds_getGridIsolineImage
-%{_bindir}/clients/ds_getGridIsolineImageByGeometry
-%{_bindir}/clients/ds_getGridIsolineImageByTime
-%{_bindir}/clients/ds_getGridIsolineImageByTimeAndGeometry
-%{_bindir}/clients/ds_getGridIsolineMap
-%{_bindir}/clients/ds_getGridMap
-%{_bindir}/clients/ds_getGridValueByLevelAndPoint
-%{_bindir}/clients/ds_getGridValueByPoint
-%{_bindir}/clients/ds_getGridValueByTimeAndPoint
-%{_bindir}/clients/ds_getGridValueByTimeLevelAndPoint
-%{_bindir}/clients/ds_getGridValueList
-%{_bindir}/clients/ds_getGridValueListByCircle
-%{_bindir}/clients/ds_getGridValueListByPolygon
-%{_bindir}/clients/ds_getGridValueListByRectangle
-%{_bindir}/clients/ds_getGridValueListByTimeAndCircle
-%{_bindir}/clients/ds_getGridValueListByTimeAndPolygon
-%{_bindir}/clients/ds_getGridValueVector
-%{_bindir}/clients/ds_getGridValueVectorByPoint
-%{_bindir}/clients/ds_getGridValueVectorByRectangle
-%{_bindir}/clients/ds_getGridValueVectorByTime
-%{_bindir}/clients/qs_getParameterIsobands
-%{_bindir}/clients/qs_getParameterIsolines
-%{_bindir}/clients/qs_getParameterValueByPointAndTime
-%{_bindir}/clients/qs_getParameterValues
-%{_bindir}/clients/qs_getParameterValuesByPointAndTimeList
-%{_bindir}/clients/qs_getProducerList
-%{_bindir}/files/grid_add
-%{_bindir}/files/grid_create
-%{_bindir}/files/grid_dump
-%{_bindir}/files/grid_getIsobandImage
-%{_bindir}/files/grid_getIsolineImage
-%{_bindir}/files/grid_images
-%{_bindir}/files/grid_info
-%{_bindir}/files/grid_maps
-%{_bindir}/files/grid_query
-%{_bindir}/files/grid_submaps
-%{_bindir}/fmi/filesys2smartmet
-%{_bindir}/fmi/generateFmigFiles
-%{_bindir}/fmi/radon2config
-%{_bindir}/fmi/radon2csv
-%{_bindir}/fmi/radon2smartmet
-%{_bindir}/servers/corbaContentServer
-%{_bindir}/servers/corbaDataServer
-%{_bindir}/servers/corbaGridServer
-%{_bindir}/servers/corbaQueryServer
-%{_bindir}/servers/httpContentServer
-%{_bindir}/utils/gu_executeLuaFunction
-%{_bindir}/utils/gu_getEnlargedPolygon
-%{_bindir}/utils/gu_getGridGeometryIdListByLatLon
-%{_bindir}/utils/gu_getGridLatLonCoordinatesByGeometryId
-%{_bindir}/utils/gu_getGridPointsInsideCircle
-%{_bindir}/utils/gu_getGridPointsInsidePolygon
-%{_bindir}/utils/gu_getGridPointsInsidePolygonPath
-%{_bindir}/utils/gu_getLatLonDistance
-%{_bindir}/utils/gu_getLuaFunctions
-%{_bindir}/utils/gu_mergePngFiles
-%{_bindir}/utils/gu_mergePngFilesSeq
-%{_bindir}/utils/gu_newbase2fmi
-%{_bindir}/utils/gu_replaceConfigurationAttributes
-%{_bindir}/utils/gu_showConfigurationAttributes
-
+%{_bindir}/clients/*
+%{_bindir}/files/*
+%{_bindir}/fmi/*
+%{_bindir}/servers/*
+%{_bindir}/utils/*
 
 %defattr(0644,root,root,0755)
 %config(noreplace) %{_unitdir}/radon2smartmet.service
@@ -456,6 +275,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Aug 17 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.8.17-1.fmi
+- Added new commands for testing purposes
+
 * Thu Aug  4 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.8.4-1.fmi
 - Fixed error in removing producers from Redis when they have been removed from producers.cfg
 
