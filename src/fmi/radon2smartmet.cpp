@@ -1694,7 +1694,7 @@ void updateGenerationStatus(T::ProducerInfo& targetProducer)
 
     std::string pname = toUpperString(targetProducer.mName);
     bool ignore = false;
-    if (mGenerationStatusCheckIgnore.find(pname) != mGenerationStatusCheckIgnore.end())
+    if (mProducerList.size() == 0  ||  mGenerationStatusCheckIgnore.find(pname) != mGenerationStatusCheckIgnore.end())
     {
       PRINT_DATA(mDebugLogPtr, "  -- Ignore generation status update : %s\n", targetProducer.mName.c_str());
       ignore = true;
@@ -1842,7 +1842,7 @@ void updateGenerationStatus()
         std::string pname = toUpperString(parts[0]);
         bool ready = true;
 
-        if (mGenerationStatusCheckIgnore.find(pname) == mGenerationStatusCheckIgnore.end())
+        if (mProducerList.size() > 0  &&  mGenerationStatusCheckIgnore.find(pname) == mGenerationStatusCheckIgnore.end())
         {
           std::string key = toUpperString(targetGeneration->mName + ":0:0");
           auto gen = mReadyGenerations.find(key);
