@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 22.8.23
+Version: 22.8.24
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -22,7 +22,7 @@ BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
 BuildRequires: smartmet-library-spine-devel >= 22.8.23
 BuildRequires: smartmet-library-grid-files-devel >= 22.6.23
-BuildRequires: smartmet-library-grid-content-devel >= 22.8.23
+BuildRequires: smartmet-library-grid-content-devel >= 22.8.24
 BuildRequires: gdal34-devel
 BuildRequires: postgresql13-devel
 BuildRequires: omniORB-devel
@@ -38,7 +38,7 @@ BuildRequires: krb5-devel
 #Requires: smartmet-server >= 17.11.10
 Requires: %{smartmet_boost}-date-time
 Requires: smartmet-library-grid-files >= 22.6.23
-Requires: smartmet-library-grid-content >= 22.8.23
+Requires: smartmet-library-grid-content >= 22.8.24
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -275,6 +275,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Aug 24 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.8.24-1.fmi
+- Repackaged due to an ABI change in ServiceImplementation
+
 * Tue Aug 23 2022 Pertti Kinnia <pertti.kinnia@fmi.fi> - 22.8.23-1.fmi
 - Repackaged due to API changes in base libraries
 
