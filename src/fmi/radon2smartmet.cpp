@@ -112,6 +112,7 @@ Log* mDebugLogPtr = nullptr;
 T::SessionId mSessionId = 0;
 
 std::set<std::string> mProducerList;
+std::set<std::string> mProducerFullList;
 std::set<uint> mProducerIdList;
 std::unordered_map<std::string,GeomRec> mSourceGeometryList;
 std::unordered_map<std::string,std::set<int>> mProducerGeometryList;
@@ -297,6 +298,7 @@ void readProducerList(const char *filename)
     }
 
     mProducerList.clear();
+    mProducerFullList.clear();
     mProducerDependensies.clear();
 
     char st[1000];
@@ -327,14 +329,16 @@ void readProducerList(const char *filename)
         if (fields.size() > 4)
           splitString(fields[4],',',geometries);
 
-        if (mWaitTime == 0 || mLoopCounter == f || (mLoopCounter > f  &&  ((mLoopCounter-f) % i) == 0))
-        {
-          std::vector<std::string> pList;
-          splitString(fields[0],',',pList);
+        std::vector<std::string> pList;
+        splitString(fields[0],',',pList);
 
-          for (auto it = pList.begin(); it != pList.end(); ++it)
+        for (auto it = pList.begin(); it != pList.end(); ++it)
+        {
+          std::string pname = toUpperString(*it);
+          mProducerFullList.insert(pname);
+
+          if (mWaitTime == 0 || mLoopCounter == f || (mLoopCounter > f  &&  ((mLoopCounter-f) % i) == 0))
           {
-            std::string pname = toUpperString(*it);
             mProducerList.insert(pname);
 
             if (geometries.size() > 0)
@@ -1361,7 +1365,7 @@ void updateProducers()
       {
         std::string searchStr = toUpperString(targetProducer->mName);
         bool producerFound = false;
-        if (mProducerList.size() == 0 || mProducerList.find(searchStr) != mProducerList.end())
+        if (mProducerFullList.size() == 0 || mProducerList.find(searchStr) != mProducerList.end())
           producerFound = true;
 
         T::ProducerInfo *sourceProducer = nullptr;
@@ -1370,28 +1374,31 @@ void updateProducers()
 
         if (sourceProducer == nullptr)
         {
-          // The producer information is not wanted or it is not available in the source data
-          // storage. So, we should remove it also from the target data storage.
-
-          PRINT_DATA(mDebugLogPtr, "  -- Remove producer : %s\n", targetProducer->mName.c_str());
-
-          int result = mTargetInterface->deleteProducerInfoById(mSessionId, targetProducer->mProducerId);
-          if (result == 0)
+          if (mProducerFullList.find(searchStr) == mProducerFullList.end())
           {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;OK;%s;",targetProducer->mName.c_str());
-          }
-          else
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;FAIL;%s;",targetProducer->mName.c_str());
-          }
+            // The producer information is not wanted or it is not available in the source data
+            // storage. So, we should remove it also from the target data storage.
 
-          if (result != 0)
-          {
-            Fmi::Exception exception(BCP, "Cannot delete the producer information from the target data storage!");
-            exception.addParameter("ProducerId", std::to_string(targetProducer->mProducerId));
-            exception.addParameter("ProducerName", targetProducer->mName);
-            exception.addParameter("Result", ContentServer::getResultString(result));
-            exception.printError();
+            PRINT_DATA(mDebugLogPtr, "  -- Remove producer : %s\n", targetProducer->mName.c_str());
+
+            int result = mTargetInterface->deleteProducerInfoById(mSessionId, targetProducer->mProducerId);
+            if (result == 0)
+            {
+              PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;OK;%s;",targetProducer->mName.c_str());
+            }
+            else
+            {
+              PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;FAIL;%s;",targetProducer->mName.c_str());
+            }
+
+            if (result != 0)
+            {
+              Fmi::Exception exception(BCP, "Cannot delete the producer information from the target data storage!");
+              exception.addParameter("ProducerId", std::to_string(targetProducer->mProducerId));
+              exception.addParameter("ProducerName", targetProducer->mName);
+              exception.addParameter("Result", ContentServer::getResultString(result));
+              exception.printError();
+            }
           }
         }
         else
@@ -1832,6 +1839,7 @@ void updateGenerationStatus()
     for (uint t = 0; t < len; t++)
     {
       T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoByIndex(t);
+      //PRINT_EVENT_LINE(mProcessingLogPtr,"TARGET GENERATION %s:%d;",targetGeneration->mName.c_str(),targetGeneration->mGenerationId);
 
       if (targetGeneration->mSourceId == mSourceId)
       {
@@ -1903,7 +1911,9 @@ void updateGenerationStatus()
 
           PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'ready': %s\n", targetGeneration->mName.c_str());
           targetGeneration->mStatus = T::GenerationInfo::Status::Ready;
+          targetGeneration->mModificationTime++;
           result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+
           if (result == 0)
           {
             PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-READY;OK;%s;",targetGeneration->mName.c_str());
@@ -1948,26 +1958,27 @@ void updateGenerationStatus()
                   }
                 }
               }
-            }
 
-            if (geom_ready)
-            {
-              geomInfo->mStatus = T::GeometryInfo::Status::Ready;
-              int result = mTargetInterface->setGeometryInfo(mSessionId,*geomInfo);
+              if (geom_ready)
+              {
+                geomInfo->mStatus = T::GeometryInfo::Status::Ready;
+                int result = mTargetInterface->setGeometryInfo(mSessionId,*geomInfo);
 
-              if (result == 0)
-              {
-                PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;OK;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
-              }
-              else
-              {
-                PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;FAIL;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
+                if (result == 0)
+                {
+                  PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;OK;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
+                }
+                else
+                {
+                  PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;FAIL;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
+                }
               }
             }
           }
 
           PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'running': %s\n", targetGeneration->mName.c_str());
           targetGeneration->mStatus = T::GenerationInfo::Status::Running;
+          targetGeneration->mModificationTime++;
           result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
           if (result == 0)
           {
@@ -2194,7 +2205,6 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
       {
         generation->mModificationTime = forecast.lastUpdated;
         time_t diff = (time(nullptr) - forecast.lastUpdated);
-        // printf("TIME %ld\n",diff);
         if (diff > 300)
           generation->mModificationTime = forecast.lastUpdated + 1;
       }
