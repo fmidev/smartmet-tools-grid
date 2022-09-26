@@ -51,6 +51,7 @@ int                 mRedisPort;
 std::string         mRedisTablePrefix;
 std::string         mCorbaIor;
 std::string         mHttpUrl;
+std::string         mGridConfigFile;
 
 
 
@@ -89,6 +90,7 @@ void readConfigFile(const char* configFile)
   {
     const char *configAttribute[] =
     {
+        "smartmet.library.grid-files.configFile",
         "smartmet.tools.grid.content-server.address",
         "smartmet.tools.grid.content-server.port",
         "smartmet.tools.grid.content-server.iorFile",
@@ -134,6 +136,8 @@ void readConfigFile(const char* configFile)
       }
       t++;
     }
+
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.configFile", mGridConfigFile);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.address", mServerAddress);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.port", mServerPort);
@@ -214,6 +218,8 @@ int main(int argc, char *argv[])
     signal(SIGINT, sig_handler);
 
     readConfigFile(argv[1]);
+
+    Identification::gridDef.init(mGridConfigFile.c_str());
 
     corbaServer = new ContentServer::Corba::Server(mServerAddress.c_str(),mServerPort.c_str());
 

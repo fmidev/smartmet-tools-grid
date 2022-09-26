@@ -84,7 +84,7 @@ uint                mMaxCompressedMegaBytesOfCachedGrids = 10000;
 uint                mMaxUncompressedMegaBytesOfCachedGrids = 10000;
 
 std::string         mProducerFile;
-string_vec          mProducerAliasFiles;
+string_vec          mProducerMappingFiles;
 bool                mVirtualFilesEnabled = false;
 std::string         mVirtualFileDefinitions;
 bool                mContentPreloadEnabled = false;
@@ -99,7 +99,7 @@ std::string         mParameterMappingUpdateFile_netCdf;
 time_t              mParameterMappingUpdateTime = 0;
 T::ParamKeyType     mMappingTargetKeyType = T::ParamKeyTypeValue::FMI_NAME;
 
-QueryServer::AliasFileCollection mProducerAliasFileCollection;
+QueryServer::AliasFileCollection mProducerMappingFileCollection;
 
 
 
@@ -579,7 +579,7 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.query-server.iorFile",
 
         "smartmet.tools.grid.query-server.producerFile",
-        "smartmet.tools.grid.query-server.producerAliasFile",
+//        "smartmet.tools.grid.query-server.producerMappingFiles",
         "smartmet.tools.grid.query-server.luaFiles",
         "smartmet.tools.grid.query-server.mappingFiles",
         "smartmet.tools.grid.query-server.mappingTargetKeyType",
@@ -643,7 +643,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.checkGeometryStatus",mQueryServerCheckGeometryStatus);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerFile",mProducerFile);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerAliasFiles",mProducerAliasFiles);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerMappingFiles",mProducerMappingFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.processing-log.enabled", mQueryServerProcessingLogEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.processing-log.file", mQueryServerProcessingLogFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.processing-log.maxSize", mQueryServerProcessingLogMaxSize);
@@ -721,7 +721,7 @@ int main(int argc, char *argv[])
     dataServer->init(mDataServerIor);
 
 
-    queryServer->init(contentServer,dataServer,mGridConfigFile,mParameterMappingFiles,mParameterAliasFiles,mProducerFile,mProducerAliasFiles,mQueryServerLuaFiles,mQueryServerCheckGeometryStatus,mDataServerMethodsEnabled);
+    queryServer->init(contentServer,dataServer,mGridConfigFile,mParameterMappingFiles,mParameterAliasFiles,mProducerFile,mProducerMappingFiles,mQueryServerLuaFiles,mQueryServerCheckGeometryStatus,mDataServerMethodsEnabled);
 
     if (mContentServerProcessingLogEnabled &&  mContentServerProcessingLogFile.length() > 0)
     {
@@ -780,7 +780,7 @@ int main(int argc, char *argv[])
       fclose(file);
     }
 
-    mProducerAliasFileCollection.init(mProducerAliasFiles,true);
+    mProducerMappingFileCollection.init(mProducerMappingFiles,true);
 
     startUpdateProcessing();
 
