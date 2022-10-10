@@ -25,54 +25,56 @@ using namespace SmartMet;
 struct ForecastRec
 {
     uint producerId = 0;
+    uint geometryId = 0;
+    int forecastTypeId = 0;
+    int forecastTypeValue = 0;
+    time_t deletionTime = 0;
+    time_t lastUpdated;
     std::string producerName;
     std::string analysisTime;
-    time_t deletionTime = 0;
     std::string generationName;
     std::string forecastTime;
     std::string forecastPeriod;
     std::string tableName;
-    uint geometryId = 0;
-    int forecastTypeId = 0;
-    int forecastTypeValue = 0;
-    time_t lastUpdated;
 };
 
 struct FileRec
 {
+    int producerId;
     int fileId;
-    uchar format;
     uint messageIndex;
+    uint paramId;
     ulonglong filePosition;
     uint messageSize;
-    uint paramId;
-    short levelId;
-    int levelValue;
+    int geometryId;
     time_t analysisTime;
     time_t forecastTime;
+    int levelValue;
+    short levelId;
     short forecastType;
     short forecastNumber;
-    int geometryId;
-    int producerId;
-    std::string producerName;
+    uchar protocol;
+    uchar format;
     time_t lastUpdated;
+    std::string producerName;
+    std::string server;
 };
 
 struct FileRecVec
 {
     time_t updateTime;
-    std::string info;
     uint loadCounter;
+    std::string info;
     std::vector<FileRec> files;
 };
 
 struct GeomRec
 {
     uint producerId = 0;
-    std::string producerName;
-    std::string analysisTime;
     T::GeometryId geometryId = 0;
     T::ParamLevelId levelId = 0;
+    std::string producerName;
+    std::string analysisTime;
 };
 
 typedef std::unordered_map<std::string, FileRecVec> FileRec_map;
@@ -791,7 +793,9 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
     p += sprintf(p, "  forecast_type_value::int,\n");
     p += sprintf(p, "  geometry_id,\n");
     p += sprintf(p, "  producer_id,\n");
-    p += sprintf(p, "  file_format_id\n");
+    p += sprintf(p, "  file_format_id,\n");
+    p += sprintf(p, "  file_protocol_id,\n");
+    p += sprintf(p, "  file_server\n");
     p += sprintf(p, "FROM\n");
     p += sprintf(p, "  %s\n", tableName);
     p += sprintf(p, "WHERE\n");
@@ -835,6 +839,8 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
       rec.producerId = toInt64(PQgetvalue(res, i, 13));
 
       rec.format = toInt32(PQgetvalue(res, i, 14));
+      rec.protocol = toInt32(PQgetvalue(res, i, 15));
+      rec.server = PQgetvalue(res, i, 16);
       rec.producerName = producerName;
       rec.lastUpdated = updateTime;
 
@@ -2185,10 +2191,11 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
           // File does not exists. It should be added.
 
           T::FileAndContent fc;
-
           fc.mFileInfo.mProducerId = generation->mProducerId;
           fc.mFileInfo.mGenerationId = generation->mGenerationId;
           fc.mFileInfo.mFileId = 0;
+          fc.mFileInfo.mProtocol = it->protocol;
+          fc.mFileInfo.mServer = it->server;
           fc.mFileInfo.mFileType = it->format;
           fc.mFileInfo.mName = filename;
           fc.mFileInfo.mFlags = 0;
