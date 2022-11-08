@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 22.10.20
+Version: 22.11.8
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -20,9 +20,9 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
-BuildRequires: smartmet-library-spine-devel >= 22.9.5
-BuildRequires: smartmet-library-grid-files-devel >= 22.10.20
-BuildRequires: smartmet-library-grid-content-devel >= 22.10.20
+BuildRequires: smartmet-library-spine-devel >= 22.10.26
+BuildRequires: smartmet-library-grid-files-devel >= 22.11.8
+BuildRequires: smartmet-library-grid-content-devel >= 22.11.8
 BuildRequires: gdal34-devel
 BuildRequires: postgresql13-devel
 BuildRequires: omniORB-devel
@@ -37,8 +37,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-spine >= 22.6.16
 #Requires: smartmet-server >= 17.11.10
 Requires: %{smartmet_boost}-date-time
-Requires: smartmet-library-grid-files >= 22.10.20
-Requires: smartmet-library-grid-content >= 22.10.20
+Requires: smartmet-library-grid-files >= 22.11.8
+Requires: smartmet-library-grid-content >= 22.11.8
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -276,6 +276,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Tue Nov  8 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.11.8-1.fmi
+- Added file access information for the new memory mapper
+
 * Thu Oct 20 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.10.20-1.fmi
 - Simple http server for receiving and sending http messages
 
