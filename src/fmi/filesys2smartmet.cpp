@@ -26,6 +26,9 @@ using namespace SmartMet;
 ConfigurationFile         mConfigurationFile;
 std::string               mGridConfigFile;
 uint                      mSourceId = 100;
+std::string               mServer = "";     // address:port
+int                       mServerType = 1;  // 1 = filesys, 2 = S3
+int                       mProtocol = 0;    // 0 = None, 1 = HTTP, 2 = HTTPS
 std::string               mProducerDefFile;
 uint                      mMaxMessageSize = 5000;
 std::string               mStorageType;
@@ -124,6 +127,9 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.configFile", mGridConfigFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.maxMessageSize",mMaxMessageSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.source-id",mSourceId);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.server",mServer);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.serverType",mServerType);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.protocol",mProtocol);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.producerDefFile",mProducerDefFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.directories",mContentDirectories);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.patterns",mContentPatterns);
@@ -318,6 +324,10 @@ void readSourceFiles(std::vector<std::pair<std::string,std::string>>& fileList)
                 fileInfo->mFlags = 0;
                 fileInfo->mSourceId = mSourceId;
                 fileInfo->mModificationTime = modificationTime;
+                fileInfo->mServer = mServer;
+                fileInfo->mServerType = mServerType;
+                fileInfo->mProtocol = mProtocol;
+
 
                 mSourceFileList.addFileInfo(fileInfo);
                 //fileInfo->print(std::cout,0,0);

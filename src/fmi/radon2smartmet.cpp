@@ -53,7 +53,7 @@ struct FileRec
     short levelId;
     short forecastType;
     short forecastNumber;
-    uchar protocol;
+    uchar serverType;
     uchar format;
     time_t lastUpdated;
     std::string producerName;
@@ -839,7 +839,7 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
       rec.producerId = toInt64(PQgetvalue(res, i, 13));
 
       rec.format = toInt32(PQgetvalue(res, i, 14));
-      rec.protocol = toInt32(PQgetvalue(res, i, 15));
+      rec.serverType = toInt32(PQgetvalue(res, i, 15));
       rec.server = PQgetvalue(res, i, 16);
       rec.producerName = producerName;
       rec.lastUpdated = updateTime;
@@ -2194,8 +2194,24 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
           fc.mFileInfo.mProducerId = generation->mProducerId;
           fc.mFileInfo.mGenerationId = generation->mGenerationId;
           fc.mFileInfo.mFileId = 0;
-          fc.mFileInfo.mProtocol = it->protocol;
+          fc.mFileInfo.mServerType = it->serverType;
           fc.mFileInfo.mServer = it->server;
+
+          if (strncasecmp(it->server.c_str(),"http://",7) == 0)
+          {
+            fc.mFileInfo.mProtocol = 1;
+            fc.mFileInfo.mServer = it->server.substr(7);
+          }
+
+          if (strncasecmp(it->server.c_str(),"https://",8) == 0)
+          {
+            fc.mFileInfo.mProtocol = 2;
+            fc.mFileInfo.mServer = it->server.substr(8);
+          }
+
+          if (it->serverType > 1  &&  fc.mFileInfo.mProtocol == 0)
+            fc.mFileInfo.mProtocol = 2;
+
           fc.mFileInfo.mFileType = it->format;
           fc.mFileInfo.mName = filename;
           fc.mFileInfo.mFlags = 0;
