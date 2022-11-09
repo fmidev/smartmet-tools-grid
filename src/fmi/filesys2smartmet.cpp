@@ -73,7 +73,7 @@ std::map<std::string,std::string> mProducerAbbrList;
 Lua::LuaFile              mLuaFile;
 std::string               mLuaFilename;
 std::string               mLuaFunction;
-
+std::string               mCacheDir = "/tmp";
 
 
 void readConfigFile(const char* configFile)
@@ -133,6 +133,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.producerDefFile",mProducerDefFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.directories",mContentDirectories);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.patterns",mContentPatterns);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.cacheDir",mCacheDir);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFilename",mLuaFilename);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFunction",mLuaFunction);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.type",mStorageType);
@@ -477,11 +478,98 @@ void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Messag
 
 
 
+void getCacheFileName(const char *filename,char *cacheFilename)
+{
+  try
+  {
+    std::size_t hash = 0;
+    boost::hash_combine(hash,std::string(filename));
+    sprintf(cacheFilename,"%s/F2S_%lu",mCacheDir.c_str(),hash);
+  }
+  catch (...)
+  {
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
+  }
+}
+
+
+
+
+
+bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T::ContentInfoList& contentList)
+{
+  try
+  {
+    FILE *file = fopen(cacheFilename,"r");
+    if (file == NULL)
+      return false;
+
+    char buf[1000];
+    if (fgets(buf,1000,file) != 0  &&  buf[0] == '#')
+    {
+      char *p = strstr(buf,"\n");
+      if (p)
+        *p = '\0';
+
+      time_t modTime = atoll(buf+1);
+      if (modTime != modificationTime)
+      {
+        fclose(file);
+        remove(cacheFilename);
+        return false;
+      }
+    }
+
+    while (!feof(file))
+    {
+      if (fgets(buf,1000,file)  &&  buf[0] != '#')
+      {
+        T::ContentInfo *contentInfo = new T::ContentInfo();
+        contentInfo->setCsv(buf);
+        if (contentInfo->mModificationTime == modificationTime)
+        {
+          contentList.addContentInfo(contentInfo);
+        }
+        else
+        {
+          delete contentInfo;
+        }
+      }
+    }
+    fclose(file);
+    return true;
+  }
+  catch (...)
+  {
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
+  }
+}
+
+
+
+
 void readSourceContent(uint producerId,uint generationId,time_t modificationTime,const char *filename,T::ContentInfoList& contentList)
 {
   try
   {
     contentList.clear();
+
+    char cacheFilename[1000];
+    getCacheFileName(filename,cacheFilename);
+
+    if (readSourceContentCache(cacheFilename,modificationTime,contentList))
+      return;
+
+    FILE *file = fopen(cacheFilename,"w");
+    if (file == NULL)
+    {
+      Fmi::Exception exception(BCP, "Cannot create cached index file!");
+      exception.addParameter("CacheFilename",cacheFilename);
+      throw exception;
+    }
+
+    fprintf(file,"#%lu\n",modificationTime);
+    fprintf(file,"#%s\n",filename);
 
     SmartMet::GRID::PhysicalGridFile gridFile;
     gridFile.read(filename);
@@ -502,8 +590,11 @@ void readSourceContent(uint producerId,uint generationId,time_t modificationTime
         setMessageContent(gridFile,*message,*contentInfo);
         //contentInfo->print(std::cout,0,0);
         contentList.addContentInfo(contentInfo);
+        std::string s = contentInfo->getCsv();
+        fprintf(file,"%s\n",s.c_str());
       }
     }
+    fclose(file);
     //contentList.print(std::cout,0,0);
   }
   catch (...)
@@ -984,6 +1075,31 @@ int main(int argc, char *argv[])
         //std::cout << "GET : " << dir->c_str() << " : " << fileList.size() << "\n";
       }
 
+      // Defining index cache filenames
+      std::set<std::string> cacheFiles;
+      char filename[1000];
+      for (auto it = fileList.begin();it != fileList.end();++it)
+      {
+        sprintf(filename,"%s/%s",it->first.c_str(),it->second.c_str());
+        char cacheFilename[1000];
+        getCacheFileName(filename,cacheFilename);
+        cacheFiles.insert(std::string(cacheFilename));
+      }
+
+      // Finding current index cache filenames
+      std::vector<std::string> cachePatterns;
+      cachePatterns.push_back(std::string("F2S_*"));
+      std::set<std::string> cacheDirList;
+      std::vector<std::pair<std::string,std::string>> cacheFileList;
+      getFileList(mCacheDir.c_str(),cachePatterns,false,cacheDirList,cacheFileList);
+
+      // Removing index cache files that do not have corresponding grid files
+      for (auto it = cacheFileList.begin();it != cacheFileList.end();++it)
+      {
+        sprintf(filename,"%s/%s",it->first.c_str(),it->second.c_str());
+        if (cacheFiles.find(filename) == cacheFiles.end())
+          remove(filename);
+      }
 
       PRINT_DATA(mDebugLogPtr,"* Reading producer information from the target data storage\n");
       readTargetProducers(targetInterface);
