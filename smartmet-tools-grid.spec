@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 22.11.8
+Version: 22.11.10
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -276,6 +276,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu Nov 10 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.11.10-1.fmi
+- Added file cache for scanned grid meta information
+
 * Tue Nov  8 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.11.8-1.fmi
 - Added file access information for the new memory mapper
 
