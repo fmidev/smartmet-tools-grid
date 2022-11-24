@@ -1,10 +1,13 @@
 #include <macgyver/Exception.h>
 #include "grid-files/common/Log.h"
+#include "grid-files/common/MemoryMapper.h"
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/identification/GridDef.h"
 #include "grid-files/grid/PhysicalGridFile.h"
+#include "grid-files/common/DataFetcher_network.h"
+#include "grid-files/common/DataFetcher_filesys.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
@@ -21,14 +24,25 @@
 using namespace SmartMet;
 
 
+
+class Location
+{
+  public:
+    std::string type;
+    std::string url;
+    uint  authenticationMethod = 0;
+    std::string username;
+    std::string password;
+    std::vector<std::string> patterns;
+};
+
+
+
 // Global variables:
 
 ConfigurationFile         mConfigurationFile;
 std::string               mGridConfigFile;
 uint                      mSourceId = 100;
-std::string               mServer = "";     // address:port
-int                       mServerType = 1;  // 1 = filesys, 2 = S3
-int                       mProtocol = 0;    // 0 = None, 1 = HTTP, 2 = HTTPS
 std::string               mProducerDefFile;
 uint                      mMaxMessageSize = 5000;
 std::string               mStorageType;
@@ -66,9 +80,8 @@ T::GenerationInfoList     mTargetGenerationList;
 T::FileInfoList           mTargetFileList;
 T::ContentInfoList        mTargetContentList;
 
-std::vector<std::string>  mContentDirectories;
-std::vector<std::string>  mContentPatterns;
 std::map<std::string,std::string> mProducerAbbrList;
+std::vector<Location>     mLocations;
 
 Lua::LuaFile              mLuaFile;
 std::string               mLuaFilename;
@@ -86,8 +99,7 @@ void readConfigFile(const char* configFile)
       "smartmet.tools.grid.filesys2smartmet.maxMessageSize",
       "smartmet.tools.grid.filesys2smartmet.content-source.source-id",
       "smartmet.tools.grid.filesys2smartmet.content-source.producerDefFile",
-      "smartmet.tools.grid.filesys2smartmet.content-source.directories",
-      "smartmet.tools.grid.filesys2smartmet.content-source.patterns",
+      "smartmet.tools.grid.filesys2smartmet.content-source.locations",
       "smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFilename",
       "smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFunction",
       "smartmet.tools.grid.filesys2smartmet.content-storage.type",
@@ -127,12 +139,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.configFile", mGridConfigFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.maxMessageSize",mMaxMessageSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.source-id",mSourceId);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.server",mServer);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.serverType",mServerType);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.protocol",mProtocol);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.producerDefFile",mProducerDefFile);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.directories",mContentDirectories);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.patterns",mContentPatterns);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.cacheDir",mCacheDir);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFilename",mLuaFilename);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFunction",mLuaFunction);
@@ -153,6 +160,49 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.debug-log.file", mDebugLogFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.debug-log.maxSize", mDebugLogMaxSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.debug-log.truncateSize", mDebugLogTruncateSize);
+
+    bool ind = true;
+    uint c = 0;
+    char tmp[100];
+    while (ind)
+    {
+      Location rec;
+      sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.type",c);
+      if (mConfigurationFile.getAttributeValue(tmp,rec.type))
+      {
+        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.url",c);
+        mConfigurationFile.getAttributeValue(tmp,rec.url);
+
+        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.authentication.method",c);
+        mConfigurationFile.getAttributeValue(tmp,rec.authenticationMethod);
+
+        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.authentication.username",c);
+        mConfigurationFile.getAttributeValue(tmp,rec.username);
+
+        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.authentication.password",c);
+        mConfigurationFile.getAttributeValue(tmp,rec.password);
+
+        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.patterns",c);
+        mConfigurationFile.getAttributeValue(tmp,rec.patterns);
+
+        mLocations.push_back(rec);
+
+        c++;
+      }
+      else
+      {
+        ind = false;
+      }
+    }
+
+    if (mLocations.size() == 0)
+    {
+      Fmi::Exception exception(BCP, "No location defined!");
+      exception.addParameter("File",configFile);
+      exception.addParameter("Attribute","smartmet.tools.grid.filesys2smartmet.content-source.locations.location[0].type");
+      throw exception;
+    }
+
 
     if (mLuaFilename > " ")
      mLuaFile.init(mLuaFilename);
@@ -260,9 +310,39 @@ void readTargetFiles(ContentServer::ServiceInterface *targetInterface)
 
 
 
+void splitFilename(std::string& fullName,std::string& path,std::string& filename)
+{
+  char buf[1000];
+  strcpy(buf,fullName.c_str());
+  char *p = buf;
+  char *pr = buf;
+  while (p != nullptr)
+  {
+    p = strstr(p,"/");
+    if (p)
+    {
+      pr = p;
+      p++;
+    }
+  }
+
+  if (*pr == '/')
+  {
+    *pr = '\0';
+    pr++;
+    path = buf;
+    filename = pr;
+    return;
+  }
+
+  path = "";
+  filename = fullName;
+}
 
 
-void readSourceFiles(std::vector<std::pair<std::string,std::string>>& fileList)
+
+
+void readSourceFiles(std::vector<DataFetcher::FileRec>& fileList)
 {
   FUNCTION_TRACE
   try
@@ -272,15 +352,16 @@ void readSourceFiles(std::vector<std::pair<std::string,std::string>>& fileList)
 
     for (auto it = fileList.begin(); it != fileList.end(); ++it)
     {
-      std::string fn = it->second.c_str();
+      std::string fn;
+      std::string path;
+      splitFilename(it->filename,path,fn);
       if (mLuaFunction > " ")
       {
         std::vector<std::string> params;
         params.push_back(fn);
-        params.push_back(it->first);
+        params.push_back(path);
         fn = mLuaFile.executeFunctionCall6(mLuaFunction,params);
       }
-      //printf("FILE : %s\n",fn.c_str());
 
       std::vector<std::string> partList;
       splitString(fn,'_',partList);
@@ -310,29 +391,23 @@ void readSourceFiles(std::vector<std::pair<std::string,std::string>>& fileList)
             T::GenerationInfo *generation =  mTargetGenerationList.getGenerationInfoByName(str);
             if (generation != nullptr)
             {
-              char filename[1000];
-              sprintf(filename,"%s/%s",it->first.c_str(),it->second.c_str());
-
-              time_t modificationTime = getFileModificationTime(filename);
-              if (modificationTime > 0)
-              {
-                T::FileInfo *fileInfo = new T::FileInfo();
-                fileInfo->mProducerId = producer->mProducerId;
-                fileInfo->mGenerationId = generation->mGenerationId;
-                fileInfo->mFileId = mSourceFileList.getLength() + 1;
-                //fileInfo->mFileType;
-                fileInfo->mName = filename;
-                fileInfo->mFlags = 0;
-                fileInfo->mSourceId = mSourceId;
-                fileInfo->mModificationTime = modificationTime;
-                fileInfo->mServer = mServer;
-                fileInfo->mServerType = mServerType;
-                fileInfo->mProtocol = mProtocol;
+              T::FileInfo *fileInfo = new T::FileInfo();
+              fileInfo->mProducerId = producer->mProducerId;
+              fileInfo->mGenerationId = generation->mGenerationId;
+              fileInfo->mFileId = mSourceFileList.getLength() + 1;
+              //fileInfo->mFileType;
+              fileInfo->mName = it->filename;
+              fileInfo->mFlags = 0;
+              fileInfo->mSourceId = mSourceId;
+              fileInfo->mModificationTime = it->lastModified;
+              fileInfo->mServer = it->server;
+              fileInfo->mServerType = it->serverType;
+              fileInfo->mProtocol = it->protocol;
+              fileInfo->mSize = it->size;
 
 
-                mSourceFileList.addFileInfo(fileInfo);
-                //fileInfo->print(std::cout,0,0);
-              }
+              mSourceFileList.addFileInfo(fileInfo);
+              //fileInfo->print(std::cout,0,0);
             }
             else
             {
@@ -354,7 +429,7 @@ void readSourceFiles(std::vector<std::pair<std::string,std::string>>& fileList)
 
 
 
-void readSourceGenerations(std::vector<std::pair<std::string,std::string>>& fileList)
+void readSourceGenerations(std::vector<DataFetcher::FileRec>& fileList)
 {
   FUNCTION_TRACE
   try
@@ -365,12 +440,15 @@ void readSourceGenerations(std::vector<std::pair<std::string,std::string>>& file
 
     for (auto it = fileList.begin(); it != fileList.end(); ++it)
     {
-      std::string fn = it->second.c_str();
+      std::string fn;
+      std::string path;
+      splitFilename(it->filename,path,fn);
+      //std::string fn = it->second.c_str();
       if (mLuaFunction > " ")
       {
         std::vector<std::string> params;
         params.push_back(fn);
-        params.push_back(it->first);
+        params.push_back(path);
         fn = mLuaFile.executeFunctionCall6(mLuaFunction,params);
       }
 
@@ -454,13 +532,7 @@ void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Messag
     contentInfo.setForecastTime(message.getForecastTime());
     contentInfo.mFmiParameterId = message.getFmiParameterId();
     contentInfo.setFmiParameterName(message.getFmiParameterName());
-    //contentInfo.mGribParameterId = message.getGribParameterId();
-    //contentInfo.mNewbaseParameterId = message.getNewbaseParameterId();
-    //contentInfo.setNewbaseParameterName(message.getNewbaseParameterName());
-    //contentInfo.setNetCdfParameterName(message.getNetCdfParameterName());
     contentInfo.mFmiParameterLevelId = message.getFmiParameterLevelId();
-    //contentInfo.mGrib1ParameterLevelId = message.getGrib1ParameterLevelId();
-    //contentInfo.mGrib2ParameterLevelId = message.getGrib2ParameterLevelId();
     contentInfo.mParameterLevel = message.getGridParameterLevel();
     contentInfo.mForecastType = message.getForecastType();
     contentInfo.mForecastNumber = message.getForecastNumber();
@@ -548,16 +620,19 @@ bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T:
 
 
 
-void readSourceContent(uint producerId,uint generationId,time_t modificationTime,const char *filename,T::ContentInfoList& contentList)
+void readSourceContent(T::FileInfo& fileInfo,T::ContentInfoList& contentList)
 {
   try
   {
     contentList.clear();
 
-    char cacheFilename[1000];
-    getCacheFileName(filename,cacheFilename);
+    char fname[1000];
+    sprintf(fname,"%s:%s",fileInfo.mServer.c_str(),fileInfo.mName.c_str());
 
-    if (readSourceContentCache(cacheFilename,modificationTime,contentList))
+    char cacheFilename[1000];
+    getCacheFileName(fname,cacheFilename);
+
+    if (readSourceContentCache(cacheFilename,fileInfo.mModificationTime,contentList))
       return;
 
     FILE *file = fopen(cacheFilename,"w");
@@ -568,11 +643,15 @@ void readSourceContent(uint producerId,uint generationId,time_t modificationTime
       throw exception;
     }
 
-    fprintf(file,"#%lu\n",modificationTime);
-    fprintf(file,"#%s\n",filename);
+    fprintf(file,"#%lu\n",fileInfo.mModificationTime);
+    fprintf(file,"#%s\n",fname);
 
     SmartMet::GRID::PhysicalGridFile gridFile;
-    gridFile.read(filename);
+    gridFile.setServer(fileInfo.mServer);
+    gridFile.setProtocol(fileInfo.mProtocol);
+    gridFile.setServerType(fileInfo.mServerType);
+    gridFile.setSize(fileInfo.mSize);
+    gridFile.read(fileInfo.mName);
 
     uint messageCount = gridFile.getNumberOfMessages();
     for (uint t=0; t<messageCount; t++)
@@ -583,9 +662,9 @@ void readSourceContent(uint producerId,uint generationId,time_t modificationTime
         T::ContentInfo *contentInfo = new T::ContentInfo();
         contentInfo->mFileId = 0;
         contentInfo->mMessageIndex = t;
-        contentInfo->mProducerId = producerId;
-        contentInfo->mGenerationId = generationId;
-        contentInfo->mModificationTime = modificationTime;
+        contentInfo->mProducerId = fileInfo.mProducerId;
+        contentInfo->mGenerationId = fileInfo.mGenerationId;
+        contentInfo->mModificationTime = fileInfo.mModificationTime;
 
         setMessageContent(gridFile,*message,*contentInfo);
         //contentInfo->print(std::cout,0,0);
@@ -599,7 +678,9 @@ void readSourceContent(uint producerId,uint generationId,time_t modificationTime
   }
   catch (...)
   {
-    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
+    Fmi::Exception exception(BCP, "Operation failed!", nullptr);
+    exception.printError();
+
   }
 }
 
@@ -949,11 +1030,12 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
           T::ContentInfoList contentList;
           try
           {
-            readSourceContent(fileInfo.mProducerId,fileInfo.mGenerationId,fileInfo.mModificationTime,fileInfo.mName.c_str(),contentList);
+            readSourceContent(fileInfo,contentList);
           }
           catch (...)
           {
-            Fmi::Exception exception(BCP,"File read failed!");
+            Fmi::Exception exception(BCP,"File read failed!",nullptr);
+            exception.printError();
             std::string st = exception.getStackTrace();
             PRINT_DATA(mDebugLogPtr,"%s",st.c_str());
           }
@@ -1056,6 +1138,8 @@ int main(int argc, char *argv[])
     }
 
 
+    memoryMapper.setEnabled(true);
+
     bool ind = true;
     while (ind)
     {
@@ -1066,21 +1150,53 @@ int main(int argc, char *argv[])
       PRINT_DATA(mDebugLogPtr,"****************************** UPDATE ******************************\n");
       PRINT_DATA(mDebugLogPtr,"********************************************************************\n");
 
-      std::set<std::string> dirList;
-      std::vector<std::pair<std::string,std::string>> fileList;
+      //std::set<std::string> dirList;
+      //std::vector<std::pair<std::string,std::string>> fileList;
 
-      for (auto dir = mContentDirectories.begin(); dir != mContentDirectories.end(); ++dir)
+      uint serverType = 0;
+      uint protocol = 0;
+      std::string server;
+      std::string dirName;
+
+      DataFetcher_filesys df_filesys;
+      DataFetcher_network df_network;
+      std::vector<DataFetcher::FileRec> fileList;
+
+      for (auto location = mLocations.begin(); location != mLocations.end(); ++location)
       {
-        getFileList(dir->c_str(),mContentPatterns,true,dirList,fileList);
-        //std::cout << "GET : " << dir->c_str() << " : " << fileList.size() << "\n";
+        //printf("LOCATION %s\n",location->url.c_str());
+        if (location->type.empty() ||  strcmp(location->type.c_str(),"FS") == 0)
+        {
+          serverType = DataFetcher::ServerType::Filesys;
+          dirName = location->url;
+          df_filesys.getFileList(serverType,protocol,server.c_str(),dirName.c_str(),location->patterns,fileList);
+        }
+        else
+        if (location->type == "S3" ||  location->type == "s3")
+        {
+          serverType = DataFetcher::ServerType::S3;
+          DataFetcher::splitUrl(location->url.c_str(),protocol,server,dirName);
+
+          if (location->authenticationMethod)
+          {
+            memoryMapper.addAccessInfo(server.c_str(),location->authenticationMethod,location->username.c_str(),location->password.c_str());
+            df_network.addAccessInfo(server.c_str(),location->authenticationMethod,location->username.c_str(),location->password.c_str());
+          }
+
+          df_network.getFileList(serverType,protocol,server.c_str(),dirName.c_str(),location->patterns,fileList);
+          //std::cout << "GET : " << dir->c_str() << " : " << server << " : " <<  protocol << " : " << dirName << " : " << fileList.size() << "\n";
+        }
       }
+
+      //for (auto it = fileList.begin(); it != fileList.end(); ++it)
+      //  std::cout << it->filename << ";" << it->size << ";" << utcTimeFromTimeT(it->lastModified) << "\n";
 
       // Defining index cache filenames
       std::set<std::string> cacheFiles;
       char filename[1000];
       for (auto it = fileList.begin();it != fileList.end();++it)
       {
-        sprintf(filename,"%s/%s",it->first.c_str(),it->second.c_str());
+        sprintf(filename,"%s:%s",it->server.c_str(),it->filename.c_str());
         char cacheFilename[1000];
         getCacheFileName(filename,cacheFilename);
         cacheFiles.insert(std::string(cacheFilename));
@@ -1096,7 +1212,7 @@ int main(int argc, char *argv[])
       // Removing index cache files that do not have corresponding grid files
       for (auto it = cacheFileList.begin();it != cacheFileList.end();++it)
       {
-        sprintf(filename,"%s/%s",it->first.c_str(),it->second.c_str());
+        sprintf(filename,"%s:%s",it->first.c_str(),it->second.c_str());
         if (cacheFiles.find(filename) == cacheFiles.end())
           remove(filename);
       }
