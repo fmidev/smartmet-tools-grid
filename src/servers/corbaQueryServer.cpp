@@ -87,7 +87,6 @@ std::string         mProducerFile;
 string_vec          mProducerMappingFiles;
 bool                mVirtualFilesEnabled = false;
 std::string         mVirtualFileDefinitions;
-bool                mContentPreloadEnabled = false;
 
 string_vec          mParameterAliasFiles;
 string_vec          mParameterMappingFiles;

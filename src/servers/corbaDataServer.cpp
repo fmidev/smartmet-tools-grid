@@ -41,15 +41,11 @@ Log                 mDebugLog;
 std::string         mContentSourceIor;
 bool                mVirtualFilesEnabled = false;
 std::string         mVirtualFileDefinitions;
-bool                mGridPreloadEnabled = false;
-std::string         mGridPreloadFile;
 string_vec          mLuaFiles;
 std::string         mGridDirectory;
 std::string         mGridConfigFile;
 uint                mNumOfCachedGrids = 8000;
 uint                mMaxSizeOfCachedGridsInMegaBytes = 10000;
-bool                mPreloadMemoryLock = false;
-bool                mMemoryMapCheckEnabled = false;
 
 
 
@@ -102,9 +98,6 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.data-server.iorFile",
         "smartmet.tools.grid.data-server.content-source.ior",
         "smartmet.tools.grid.data-server.grid-storage.directory",
-        "smartmet.tools.grid.data-server.grid-storage.memoryMapCheckEnabled",
-        "smartmet.tools.grid.data-server.grid-storage.preloadEnabled",
-        "smartmet.tools.grid.data-server.grid-storage.preloadFile",
         "smartmet.tools.grid.data-server.virtualFiles.enabled",
         "smartmet.tools.grid.data-server.virtualFiles.definitionFile",
         "smartmet.tools.grid.data-server.luaFiles",
@@ -149,10 +142,6 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.content-source.ior", mContentSourceIor);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.directory",mGridDirectory);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.memoryMapCheckEnabled",mMemoryMapCheckEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadEnabled",mGridPreloadEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadFile",mGridPreloadFile);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadMemoryLock",mPreloadMemoryLock);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.enabled",mVirtualFilesEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.definitionFile",mVirtualFileDefinitions);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.luaFiles",mLuaFiles);
@@ -249,9 +238,7 @@ int main(int argc, char *argv[])
 
 
     dataServer->init(0,mServerId,mServerName.c_str(),corbaServer->getServiceIor().c_str(),mGridDirectory.c_str(),&contentServerClient,mLuaFiles);
-    dataServer->setPreload(mGridPreloadEnabled,mPreloadMemoryLock,mGridPreloadFile);
     dataServer->setVirtualContentEnabled(mVirtualFilesEnabled);
-    dataServer->setMemoryMapCheckEnabled(mMemoryMapCheckEnabled);
 
     if (mVirtualFileDefinitions.length() > 0)
     {

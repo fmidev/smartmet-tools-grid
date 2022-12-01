@@ -60,8 +60,6 @@ std::string grid_files_configFile;
 uint grid_files_cache_numOfGrids = 0;
 uint grid_files_cache_maxSizeInMegaBytes;
 bool grid_files_requestCounter_enabled = false;
-std::string grid_files_requestCounter_generatedPreloadFile;
-std::string grid_files_requestCounter_generatedCounterFile;
 std::string corba_server_address;
 std::string corba_server_port;
 std::string content_server_iorFile;
@@ -86,9 +84,6 @@ std::string data_server_iorFile;
 std::string data_server_name;
 uint data_server_id = 0;
 std::string data_server_grid_storage_directory;
-bool data_server_grid_storage_preloadEnabled = false;
-std::string data_server_grid_storage_preloadFile;
-bool data_server_grid_storage_preloadMemoryLock;
 bool data_server_virtualFiles_enabled = false;
 bool data_server_memoryMapCheck_enabled = false;
 std::string data_server_virtualFiles_definitionFile;
@@ -560,8 +555,6 @@ void readConfigFile(const char* configFile)
          "smartmet.library.grid-files.cache.numOfGrids",
          "smartmet.library.grid-files.cache.maxSizeInMegaBytes",
          "smartmet.library.grid-files.requestCounter.enabled",
-         "smartmet.library.grid-files.requestCounter.generatedPreloadFile",
-         "smartmet.library.grid-files.requestCounter.generatedCounterFile",
          "smartmet.tools.grid.corba-server.address",
          "smartmet.tools.grid.corba-server.port",
          "smartmet.tools.grid.content-server.iorFile",
@@ -584,10 +577,6 @@ void readConfigFile(const char* configFile)
          "smartmet.tools.grid.content-server.debug-log.truncateSize",
          "smartmet.tools.grid.data-server.iorFile",
          "smartmet.tools.grid.data-server.grid-storage.directory",
-         "smartmet.tools.grid.data-server.grid-storage.memoryMapCheckEnabled",
-         "smartmet.tools.grid.data-server.grid-storage.preloadEnabled",
-         "smartmet.tools.grid.data-server.grid-storage.preloadFile",
-         "smartmet.tools.grid.data-server.grid-storage.preloadMemoryLock",
          "smartmet.tools.grid.data-server.virtualFiles.enabled",
          "smartmet.tools.grid.data-server.virtualFiles.definitionFile",
          "smartmet.tools.grid.data-server.luaFiles",
@@ -641,8 +630,6 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.numOfGrids",grid_files_cache_numOfGrids);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.maxSizeInMegaBytes",grid_files_cache_maxSizeInMegaBytes);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.requestCounter.enabled",grid_files_requestCounter_enabled);
-    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.requestCounter.generatedPreloadFile",grid_files_requestCounter_generatedPreloadFile);
-    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.requestCounter.generatedCounterFile",grid_files_requestCounter_generatedCounterFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.corba-server.address",corba_server_address);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.corba-server.port",corba_server_port);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.iorFile",content_server_iorFile);
@@ -665,10 +652,6 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.debug-log.truncateSize",content_server_debug_log_truncateSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.iorFile",data_server_iorFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.directory",data_server_grid_storage_directory);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.memoryMapCheckEnabled",data_server_memoryMapCheck_enabled);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadEnabled",data_server_grid_storage_preloadEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadFile",data_server_grid_storage_preloadFile);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.preloadMemoryLock",data_server_grid_storage_preloadMemoryLock);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.enabled",data_server_virtualFiles_enabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.definitionFile",data_server_virtualFiles_definitionFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.luaFiles",data_server_luaFiles);
@@ -840,9 +823,7 @@ int main(int argc, char *argv[])
       dataService->setDebugLog(&mDataServerDebugLog);
     }
 
-    dataService->setPreload(data_server_grid_storage_preloadEnabled,data_server_grid_storage_preloadMemoryLock,data_server_grid_storage_preloadFile);
     dataService->setVirtualContentEnabled(data_server_virtualFiles_enabled);
-    dataService->setMemoryMapCheckEnabled(data_server_memoryMapCheck_enabled);
 
     if (data_server_virtualFiles_definitionFile.length() > 0)
     {
