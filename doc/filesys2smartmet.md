@@ -100,7 +100,8 @@ If the " **filesys2smartmet**" application does not manage to identify all grid 
 
 ### <span id="chapter-1-4-2"></span>1.4.2 Content Source parameters
 
-In this case the Content Source is the file system. The Content Source can be configured like this:
+The content source can actually be a collection of different locations. For example, each grid directory can be seen as a different location. On the other hand a S3 bucket can be seen as a location.
+
 
 <pre>
   content-source : 
@@ -108,26 +109,57 @@ In this case the Content Source is the file system. The Content Source can be co
     source-id = 200 
     producerDefFile = "%(DIR)/producerDef.csv" 
 
-    directories = 
-    [
-      "/smartmet/data/ecmwf/skandinavia/pinta/querydata", 
-      "/smartmet/data/smartmet/grid"
-    ] 
+    locations = 
+    (
+      location :
+      {
+        type    = "FS"
+        url     = "/myLocalDir/Grids"
+        
+        authentication :
+        {
+          method = 0
+          username = ""
+          password = ""
+        }
+        
+        patterns = 
+        [    
+          "*.grib",
+          "*.grib2"
+        ]
+      }
+      ,
+      location :
+      {
+        type    = "S3"
+        url     = "https://mys3server.fmi.fi:9000/demoBucket"
+        
+        authentication :
+        {
+          method = 1
+          username = "test"
+          password = "testpw"
+        }
+        
+        patterns = 
+        [    
+          "*.grib",
+          "*.grib2",
+          "*/FMI_*.grib"
+          "*/FMI_*.grib2"
+        ]
+      }
+    )
 
-    patterns = 
-    [
-      "*.grib", 
-      "*.grib1", 
-      "*.grib2", 
-      "*.nc", 
-      "*.sqd"
-    ] 
+    cacheDir = "/tmp"        
 
     filenameFixer : 
     { 
       luaFilename = "%(DIR)/filenameFixer.lua" 
       luaFunction = "fixFilename" 
     } 
+       
   }
 </pre>
 
@@ -142,9 +174,17 @@ The "producerDefFile" parameter is used for defining a file that contains produc
 
 The producer file contains four fields (separated by &#39;;&#39;). The first field is the abbreviation used in the grid file names. The second field is the name that is used in query. The third field is an "official name" that can be used in documents. The fourth field is a general description of the current producer.
 
-The "directories" parameter contains a list of directories where the grid files are searched. The search is done also in all subdirectories of the given directories.
+The "locations" parameter contains a list of location entries where the grid files are searched. The search is done also in all subdirectories of the given locations.
+
+Usually a content location is a directory in the current file system (=> local or mounted network drives). In this case the location type is "FS" (= filesys) and the location url is just the directory of the grid files.
+
+Grid files can also be located in a S3 server. In this case the location type is "S3" and the location url defines 1) protocol (http,https), 2) the server name/address, 3) the server port and 4) the bucket name where the grid files are located.
+
+If the S3 server requires authentication then all S3 requests are authenticated (also the directory requests). Notice that some S3 servers do not accept requests that contain authentication headers if the authentication is not required. That's very strange, because the only difference is that authenticated requests contains some extra HTTP headers, but the request itself is the same. We are currently supporting only AWS4-HMAC-SHA256 authentication (authentication.method = 1). If no authentication is required then "authentication.method" is "0".
 
 The "patterns" parameter contains a list of file search patterns that are used during the file search. These patterns are simple "wildcard" patterns.
+
+The "cacheDir" parameter is a directory where meta information of scanned grid files is stored. This is very useful cache if the content store must be re-filled for some reason. It is much faster to get scanned information from a cache file that re-scan the whole grid file which size can be several gigabytes.
 
 As was mentioned earlier, all grid files should follow a certain naming format. However, if this is not possible then we can use a LUA function in order to convert the original file name into the required format. The point is that we do not change the original file name. We just need a file name that we can use in order to find a valid producer and generation information.
 
