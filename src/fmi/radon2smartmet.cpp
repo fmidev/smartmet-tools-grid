@@ -120,7 +120,8 @@ std::unordered_map<std::string,GeomRec> mSourceGeometryList;
 std::unordered_map<std::string,std::set<int>> mProducerGeometryList;
 
 std::unordered_map<std::string, std::vector<std::string>> mProducerDependensies;
-
+std::unordered_map<std::string, std::set<std::string>> mAcceptedParameters;
+std::unordered_map<std::string, std::set<std::string>> mIgnoredParameters;
 
 std::set<std::string> mUpdateProducerList;
 T::ProducerInfoList mSourceProducerList;
@@ -302,6 +303,8 @@ void readProducerList(const char *filename)
     mProducerList.clear();
     mProducerFullList.clear();
     mProducerDependensies.clear();
+    mAcceptedParameters.clear();
+    mIgnoredParameters.clear();
 
     char st[1000];
     while (!feof(file))
@@ -331,6 +334,14 @@ void readProducerList(const char *filename)
         if (fields.size() > 4)
           splitString(fields[4],',',geometries);
 
+        std::set<std::string> acceptedParameters;
+        if (fields.size() > 5)
+          splitString(fields[5],',',acceptedParameters);
+
+        std::set<std::string> ignoredParameters;
+        if (fields.size() > 6)
+          splitString(fields[6],',',ignoredParameters);
+
         std::vector<std::string> pList;
         splitString(fields[0],',',pList);
 
@@ -345,6 +356,12 @@ void readProducerList(const char *filename)
 
             if (geometries.size() > 0)
               mProducerGeometryList.insert(std::pair<std::string, std::set<int>>(pname,geometries));
+
+            if (acceptedParameters.size() > 0)
+              mAcceptedParameters.insert(std::pair<std::string, std::set<std::string>>(pname,acceptedParameters));
+
+            if (ignoredParameters.size() > 0)
+              mIgnoredParameters.insert(std::pair<std::string, std::set<std::string>>(pname,ignoredParameters));
 
             if (e == 0)
               mGenerationStatusCheckIgnore.insert(pname);
@@ -847,25 +864,52 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
       if (rec.levelId == 2)
         rec.levelValue = rec.levelValue * 100;
 
-      char key[200];
-      sprintf(key, "%s;%u;%u;%d;%d;%lu;%s", tableName, rec.producerId, rec.geometryId, rec.forecastType, rec.forecastNumber, rec.analysisTime, forecastPeriod.c_str());
 
-      auto pos = mFileRecMap.find(key);
-      if (pos == mFileRecMap.end())
+      bool accepted = true;
+
+      Identification::FmiParameterDef fmiDef;
+      if (Identification::gridDef.getFmiParameterDefById(rec.paramId, fmiDef))
       {
-        FileRecVec vec;
-        vec.updateTime = updateTime;
-        vec.info = info;
-        vec.files.push_back(rec);
-        mFileRecMap.insert(std::pair<std::string, FileRecVec>(key, vec));
+        auto arec = mAcceptedParameters.find(producerName);
+        if (arec != mAcceptedParameters.end()  &&  arec->second.size() > 0)
+        {
+          if (arec->second.find(fmiDef.mParameterName) == arec->second.end())
+            accepted = false;
+        }
+
+        if (accepted)
+        {
+          auto irec = mIgnoredParameters.find(producerName);
+          if (irec != mIgnoredParameters.end()  &&  irec->second.size() > 0)
+          {
+            if (irec->second.find(fmiDef.mParameterName) != irec->second.end())
+              accepted = false;
+          }
+        }
       }
-      else
-      {
-        if (pos->second.info != info)
-          pos->second.files.clear();
 
-        pos->second.info = info;
-        pos->second.files.push_back(rec);
+      if (accepted)
+      {
+        char key[200];
+        sprintf(key, "%s;%u;%u;%d;%d;%lu;%s", tableName, rec.producerId, rec.geometryId, rec.forecastType, rec.forecastNumber, rec.analysisTime, forecastPeriod.c_str());
+
+        auto pos = mFileRecMap.find(key);
+        if (pos == mFileRecMap.end())
+        {
+          FileRecVec vec;
+          vec.updateTime = updateTime;
+          vec.info = info;
+          vec.files.push_back(rec);
+          mFileRecMap.insert(std::pair<std::string, FileRecVec>(key, vec));
+        }
+        else
+        {
+          if (pos->second.info != info)
+            pos->second.files.clear();
+
+          pos->second.info = info;
+          pos->second.files.push_back(rec);
+        }
       }
     }
     PQclear(res);
@@ -2301,20 +2345,6 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
           if (Identification::gridDef.getFmiParameterDefById(it->paramId, fmiDef))
           {
             contentInfo->setFmiParameterName(fmiDef.mParameterName);
-/*
-            Identification::NewbaseParameterDef newbaseDef;
-            if (Identification::gridDef.getNewbaseParameterDefByFmiId(it->paramId, newbaseDef))
-            {
-              contentInfo->mNewbaseParameterId = newbaseDef.mNewbaseParameterId;
-              contentInfo->setNewbaseParameterName(newbaseDef.mParameterName);
-            }
-
-            Identification::NetCdfParameterDef netCdfDef;
-            if (Identification::gridDef.getNetCdfParameterDefByFmiId(it->paramId, netCdfDef))
-            {
-              contentInfo->setNetCdfParameterName(netCdfDef.mParameterName);
-            }
-*/
           }
 
           contentList.addContentInfo(contentInfo);
@@ -2407,20 +2437,6 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
           if (Identification::gridDef.getFmiParameterDefById(it->paramId, fmiDef))
           {
             contentInfo->setFmiParameterName(fmiDef.mParameterName);
-/*
-            Identification::NewbaseParameterDef newbaseDef;
-            if (Identification::gridDef.getNewbaseParameterDefByFmiId(it->paramId, newbaseDef))
-            {
-              contentInfo->mNewbaseParameterId = newbaseDef.mNewbaseParameterId;
-              contentInfo->setNewbaseParameterName(newbaseDef.mParameterName);
-            }
-
-            Identification::NetCdfParameterDef netCdfDef;
-            if (Identification::gridDef.getNetCdfParameterDefByFmiId(it->paramId, netCdfDef))
-            {
-              contentInfo->setNetCdfParameterName(netCdfDef.mParameterName);
-            }
-*/
           }
 
           contentList.addContentInfo(contentInfo);
