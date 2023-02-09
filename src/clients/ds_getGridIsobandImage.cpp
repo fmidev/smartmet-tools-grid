@@ -10,6 +10,41 @@
 using namespace SmartMet;
 
 
+CImage  itsLandSeaMask;
+
+
+bool isLand(double lon,double lat)
+{
+  try
+  {
+    if (itsLandSeaMask.pixel == nullptr)
+      return false;
+
+    if (lon >= 180)
+      lon = lon - 360;
+
+    if (lat >= 90)
+      lat = lat - 90;
+
+    int x = C_INT(round((lon+180)*10));
+    int y = C_INT(round((lat+90)*10));
+
+    if (x >= 0  &&  x < itsLandSeaMask.width  &&  y >= 0  &&  y < itsLandSeaMask.height)
+    {
+      int pos = ((itsLandSeaMask.height-y-1)*itsLandSeaMask.width + x);
+
+      if (pos >= 0  &&  pos < (itsLandSeaMask.height*itsLandSeaMask.width)  &&  itsLandSeaMask.pixel[pos] < 0x808080)
+        return true;
+    }
+    return false;
+  }
+  catch (...)
+  {
+    Fmi::Exception exception(BCP, "Operation failed!", nullptr);
+    throw exception;
+  }
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -28,7 +63,7 @@ int main(int argc, char *argv[])
     {
       fprintf(stdout,"USAGE:\n");
       fprintf(stdout,"  ds_getGridIsobandImage <sessionId> <fileId> <messageIndex> <areaInterpolation>\n");
-      fprintf(stdout,"    <multiplier> <rotateImage> <pngFile> <contourVal1> [<contourVal2>..<contourValN>] \n");
+      fprintf(stdout,"    <multiplier> <rotateImage> <pngFile> [-map <mapfile> <bordercolor> <landcolor> <seacolor>] -contours <contourVal1> [<contourVal2>..<contourValN>] \n");
       return -1;
     }
 
@@ -48,23 +83,45 @@ int main(int argc, char *argv[])
 
     std::vector<uint> colorList;
 
-    for (int t=8; t<(argc-1); t++)
-    {
-      std::vector<std::string> partList1;
-      splitString(argv[t],':',partList1);
-      lowValues.push_back(toDouble(partList1[0].c_str()));
-      if (partList1.size() == 2)
-        colorList.push_back(strtoll(partList1[1].c_str(),nullptr,16));
-      else
-        colorList.push_back(0xFFFFFFFF);
+    uint borderColor = 0xFFFFFFFF;
+    uint landColor = 0xFFFFFFFF;
+    uint seaColor = 0xFFFFFFFF;
+    bool map = false;
 
-      std::vector<std::string> partList2;
-      splitString(argv[t+1],':',partList2);
-      highValues.push_back(toDouble(partList2[0].c_str()));
+    for (int a=8; a<(argc-1); a++)
+    {
+      if (strcmp(argv[a],"-map") == 0  &&  (a+4) < argc)
+      {
+        jpg_load(argv[a+1],itsLandSeaMask);
+        borderColor = strtoll(argv[a+2],nullptr,16);
+        landColor = strtoll(argv[a+3],nullptr,16);
+        seaColor = strtoll(argv[a+4],nullptr,16);
+        map = true;
+      }
+      if (strcmp(argv[a],"-contours") == 0)
+      {
+        for (int t=a+1; t<(argc-1); t++)
+        {
+          std::vector<std::string> partList1;
+          splitString(argv[t],':',partList1);
+          lowValues.push_back(toDouble(partList1[0].c_str()));
+          if (partList1.size() == 2)
+            colorList.push_back(strtoll(partList1[1].c_str(),nullptr,16));
+          else
+            colorList.push_back(0xFFFFFFFF);
+
+          std::vector<std::string> partList2;
+          splitString(argv[t+1],':',partList2);
+          highValues.push_back(toDouble(partList2[0].c_str()));
+        }
+        a = argc;
+      }
     }
 
     attributeList.addAttribute("grid.areaInterpolationMethod",std::to_string(areaInterpolation));
     attributeList.addAttribute("contour.coordinateType",std::to_string(T::CoordinateTypeValue::GRID_COORDINATES));
+
+
 
     // ### Creating a dataServer client:
 
@@ -75,13 +132,24 @@ int main(int argc, char *argv[])
 
     unsigned long long startTime = getTime();
     int result = dataServer.getGridIsobands(sessionId,fileId,messageIndex,lowValues,highValues,attributeList,modificationOperation,modificationParameters,contours);
-    unsigned long long endTime = getTime();
-
     if (result != 0)
     {
       fprintf(stdout,"ERROR (%d) : %s\n",result,DataServer::getResultString(result).c_str());
       return -5;
     }
+
+    T::GridCoordinates coordinates;
+    if (map)
+    {
+      result = dataServer.getGridCoordinates(sessionId,fileId,messageIndex,T::CoordinateTypeValue::LATLON_COORDINATES,coordinates);
+      if (result != 0)
+      {
+        fprintf(stdout,"ERROR (%d) : %s\n",result,DataServer::getResultString(result).c_str());
+        return -5;
+      }
+    }
+
+    unsigned long long endTime = getTime();
 
     // ### Printing the result:
 
@@ -110,10 +178,7 @@ int main(int argc, char *argv[])
 
     ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,0x000000,0xA0A0A0,false,rotate);
 
-    int sz = imageWidth * imageHeight;
-    unsigned long *image = new unsigned long[sz];
-    for (int t=0; t<sz; t++)
-      image[t] = 0xFF0000;
+    unsigned int *image = imagePaint.getImage();
 
     // ### Painting contours into the image:
 
@@ -127,7 +192,7 @@ int main(int argc, char *argv[])
       {
         uint col = colorList[t];
         if (col == 0xFFFFFFFF)
-          col = (c << 16) + (c << 8) + c;
+          col = c ;// (c << 16) + (c << 8) + c;
 
         imagePaint.setFillColor(col);
         imagePaint.paintWkb(mp,mp,0,0,*it);
@@ -138,7 +203,103 @@ int main(int argc, char *argv[])
 
     // ### Saving the image:
 
-    imagePaint.savePngImage(pngFile);
+
+    if (map)
+    {
+      for (int x=0; x<width; x++)
+      {
+        bool land = false;
+        for (int y=0; y<height; y++)
+        {
+          uint idx = y*width + x;
+          T::Coordinate cc = coordinates.mCoordinateList[idx];
+
+          bool ind = isLand(cc.x(),cc.y());
+          if (ind)
+          {
+            if (landColor != 0xFFFFFFFF)
+              image[idx] = landColor;
+
+            if (borderColor != 0xFFFFFFFF)
+            {
+              if (!land)
+              {
+                image[idx] = borderColor;
+                if ((y+1) < height)
+                  image[idx+width] = borderColor;
+              }
+
+              land = true;
+            }
+          }
+          else
+          {
+            if (seaColor != 0xFFFFFFFF)
+              image[idx] = seaColor;
+
+            if (borderColor != 0xFFFFFFFF)
+            {
+              if (land)
+              {
+                if (y > 0)
+                  image[idx-width] = borderColor;
+
+                if (y > 2)
+                  image[idx-2*width] = borderColor;
+              }
+            }
+            land = false;
+          }
+        }
+      }
+
+      if (borderColor != 0xFFFFFFFF)
+      {
+        for (int y=0; y<height; y++)
+        {
+          bool land = false;
+          for (int x=0; x<width; x++)
+          {
+            uint idx = y*width + x;
+            T::Coordinate cc = coordinates.mCoordinateList[idx];
+            bool ind = isLand(cc.x(),cc.y());
+            if (ind)
+            {
+              if (!land)
+              {
+                image[idx] = borderColor;
+                if ((x+1) < width)
+                  image[idx+1] = borderColor;
+
+                //if ((x+2) < width)
+                //  image[idx+2] = landborder;
+
+                land = true;
+              }
+            }
+            else
+            {
+              if (land)
+              {
+                if (x > 0)
+                  image[idx-1] = borderColor;
+
+                if (x > 1)
+                  image[idx-2] = borderColor;
+
+                //if (x > 3)
+                //  image[idx-3] = landborder;
+              }
+              land = false;
+            }
+          }
+        }
+      }
+
+    }
+
+    png_save(pngFile,image,width,height);
+    //imagePaint.savePngImage(pngFile);
 
     return 0;
   }

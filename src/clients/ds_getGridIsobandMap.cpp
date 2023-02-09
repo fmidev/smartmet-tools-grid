@@ -144,6 +144,7 @@ int main(int argc, char *argv[])
 
     //paintWkb(image,imageWidth,imageHeight,false,mp,0,0,contours,0x00);
 
+
     imagePaint.savePngImage(pngFile);
 
     return 0;

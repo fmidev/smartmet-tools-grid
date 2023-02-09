@@ -1060,7 +1060,7 @@ void create_fmi_parameters(PGconn *conn,const char *dir)
       if (unit == "C" || unit == "K" || unit == "m s-1" || unit == "cm" || unit == "mm")
         fprintf(file,"1;\n");
       else
-      if (unit == "m" || unit == "kg")
+      if (unit == "m" || unit == "kg" || unit == "Deg")
         fprintf(file,"2;\n");
       else
         fprintf(file,";\n");
