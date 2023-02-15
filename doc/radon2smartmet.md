@@ -85,14 +85,14 @@ The “source-id” parameter is a random number that is used in the Content Sto
 The “producerFile” parameter is used for defining a file that contains a list of producers that we want to update in the Content Storage. The point is that the Radon database might contain hundreds of different producers and we do not necessary need them all. The current producer file might look like this:
 
 <pre>
-  ECG,ECGMTA;1;2;1
-  HL2;0;3;2
-  SMARTMET,SMARTMETMTA;1;1;1
-  ECGERA5;10;100
-  ECMOS2;0;3;5
+  ECG,ECGMTA;1;2;1;;;
+  HL2;0;3;2;;T-K;U-MS,V-MS;
+  SMARTMET,SMARTMETMTA;1;1;1;;;
+  ECGERA5;10;100;;;
+  ECMOS2;0;3;5;1110;;DD-D,FF-MS
 </pre>
 
-The producer file contains four fields (separated by ‘;’).
+The producer file contains seven fields (separated by ‘;’).
 
 The first field contains one or multiple producer names (separated by ‘,’). Multiple producer names are written on the same line when there is a need to synchronize the publishing of the generations belonging to these producers. The idea is that generations can be published only if all synchronized producers have the same generation available. This might be necessary if the generations have remarkable relationships or dependencies from each other. For example, ECGMTA generations are usually calculated from the ECG generations, which means that these generations are related to each other. 
 
@@ -101,6 +101,12 @@ The second field is used for activating this synchronization (1 = enabled, 0 = d
 The third field indicates the update starting order (= loop index number) of the current producer(s). The point is that there might be a need to update some producers immediately when the “radon2smartmet” application is started. On the other hand, some producers can wait this update a little bit longer.
 
 The fourth field indicates the update interval of the current producer expressed in loop numbers. Value 1 means that the producer must be update every time when the loop is executed, value 2 means that the producer must be updated every second time when the loop is executed, and so on.
+
+The fifth field can contain a list of acceptable geometry identifiers. If the field is empty then all geometries are accepted.
+
+The sixth field can contain a list of acceptable parameters. If the field is empty then all parameters are accepted.
+
+The seventh field can contain a list of ignored parameters. If the field is empty then none on the parameters are ignored.
 
 <hr/>
 
