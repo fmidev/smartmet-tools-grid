@@ -322,52 +322,55 @@ void readProducerList(const char *filename)
         splitString(st,';',fields);
         std::set<int> geometries;
 
-        if (fields.size() > 1)
-          e = toInt32(fields[1]);
-
-        if (fields.size() > 2)
-          f = toInt32(fields[2]);
-
-        if (fields.size() > 3)
-          i = toInt32(fields[3]);
-
-        if (fields.size() > 4)
-          splitString(fields[4],',',geometries);
-
-        std::set<std::string> acceptedParameters;
-        if (fields.size() > 5)
-          splitString(fields[5],',',acceptedParameters);
-
-        std::set<std::string> ignoredParameters;
-        if (fields.size() > 6)
-          splitString(fields[6],',',ignoredParameters);
-
-        std::vector<std::string> pList;
-        splitString(fields[0],',',pList);
-
-        for (auto it = pList.begin(); it != pList.end(); ++it)
+        if (fields.size() > 0)
         {
-          std::string pname = toUpperString(*it);
-          mProducerFullList.insert(pname);
+          if (fields.size() > 1)
+            e = toInt32(fields[1]);
 
-          if (mWaitTime == 0 || mLoopCounter == f || (mLoopCounter > f  &&  ((mLoopCounter-f) % i) == 0))
+          if (fields.size() > 2)
+            f = toInt32(fields[2]);
+
+          if (fields.size() > 3)
+            i = toInt32(fields[3]);
+
+          if (fields.size() > 4)
+            splitString(fields[4],',',geometries);
+
+          std::set<std::string> acceptedParameters;
+          if (fields.size() > 5)
+            splitString(fields[5],',',acceptedParameters);
+
+          std::set<std::string> ignoredParameters;
+          if (fields.size() > 6)
+            splitString(fields[6],',',ignoredParameters);
+
+          std::vector<std::string> pList;
+          splitString(fields[0],',',pList);
+
+          for (auto it = pList.begin(); it != pList.end(); ++it)
           {
-            mProducerList.insert(pname);
+            std::string pname = toUpperString(*it);
+            mProducerFullList.insert(pname);
 
-            if (geometries.size() > 0)
-              mProducerGeometryList.insert(std::pair<std::string, std::set<int>>(pname,geometries));
+            if (mWaitTime == 0 || mLoopCounter == f || (mLoopCounter > f  &&  ((mLoopCounter-f) % i) == 0))
+            {
+              mProducerList.insert(pname);
 
-            if (acceptedParameters.size() > 0)
-              mAcceptedParameters.insert(std::pair<std::string, std::set<std::string>>(pname,acceptedParameters));
+              if (geometries.size() > 0)
+                mProducerGeometryList.insert(std::pair<std::string, std::set<int>>(pname,geometries));
 
-            if (ignoredParameters.size() > 0)
-              mIgnoredParameters.insert(std::pair<std::string, std::set<std::string>>(pname,ignoredParameters));
+              if (acceptedParameters.size() > 0)
+                mAcceptedParameters.insert(std::pair<std::string, std::set<std::string>>(pname,acceptedParameters));
 
-            if (e == 0)
-              mGenerationStatusCheckIgnore.insert(pname);
+              if (ignoredParameters.size() > 0)
+                mIgnoredParameters.insert(std::pair<std::string, std::set<std::string>>(pname,ignoredParameters));
 
-            if (pList.size() > 1)
-              mProducerDependensies.insert(std::pair<std::string, std::vector<std::string>>(pname,pList));
+              if (e == 0)
+                mGenerationStatusCheckIgnore.insert(pname);
+
+              if (pList.size() > 1)
+                mProducerDependensies.insert(std::pair<std::string, std::vector<std::string>>(pname,pList));
+            }
           }
         }
       }
