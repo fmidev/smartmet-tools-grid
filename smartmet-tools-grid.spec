@@ -3,7 +3,7 @@
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
 Version: 23.2.20
-Release: 1%{?dist}.fmi
+Release: 2%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
 URL: https://github.com/fmidev/smartmet-plugin-grid-gui
@@ -276,6 +276,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Mon Feb 20 2023 Mika Heiskanen <mika.heiskanen@fmi.fi> - 23.2.20-2.fmi
+- Bug fix. Empty lines in the producers file caused segmentation fault
+
 * Mon Feb 20 2023 Mika Heiskanen <mika.heiskanen@fmi.fi> - 23.2.20-1.fmi
 - Minor updates
 
