@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 23.1.19
+Version: 23.2.20
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -20,9 +20,9 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
-BuildRequires: smartmet-library-spine-devel >= 23.1.16
-BuildRequires: smartmet-library-grid-files-devel >= 23.1.19
-BuildRequires: smartmet-library-grid-content-devel >= 23.1.19
+BuildRequires: smartmet-library-spine-devel >= 23.2.8
+BuildRequires: smartmet-library-grid-files-devel >= 23.2.20
+BuildRequires: smartmet-library-grid-content-devel >= 23.2.20
 BuildRequires: gdal34-devel
 BuildRequires: postgresql13-devel
 BuildRequires: omniORB-devel
@@ -37,8 +37,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-spine >= 22.6.16
 #Requires: smartmet-server >= 17.11.10
 Requires: %{smartmet_boost}-date-time
-Requires: smartmet-library-grid-files >= 23.1.19
-Requires: smartmet-library-grid-content >= 23.1.19
+Requires: smartmet-library-grid-files >= 23.2.20
+Requires: smartmet-library-grid-content >= 23.2.20
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -276,6 +276,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Mon Feb 20 2023 Mika Heiskanen <mika.heiskanen@fmi.fi> - 23.2.20-1.fmi
+- Minor updates
+
 * Thu Jan 19 2023 Mika Heiskanen <mika.heiskanen@fmi.fi> - 23.1.19-1.fmi
 - Added possibility to accept/ignore parameters when fetching content information from Radon
 
