@@ -88,6 +88,8 @@ std::string               mLuaFilename;
 std::string               mLuaFunction;
 std::string               mCacheDir = "/tmp";
 
+bool                      mMemoryMapperEnabled = false;
+
 
 void readConfigFile(const char* configFile)
 {
@@ -137,6 +139,8 @@ void readConfigFile(const char* configFile)
     }
 
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.configFile", mGridConfigFile);
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.memoryMapper.enabled", mMemoryMapperEnabled);
+
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.maxMessageSize",mMaxMessageSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.source-id",mSourceId);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.producerDefFile",mProducerDefFile);
@@ -1138,7 +1142,7 @@ int main(int argc, char *argv[])
     }
 
 
-    memoryMapper.setEnabled(true);
+    memoryMapper.setEnabled(mMemoryMapperEnabled);
 
     bool ind = true;
     while (ind)
@@ -1172,7 +1176,7 @@ int main(int argc, char *argv[])
           df_filesys.getFileList(serverType,protocol,server.c_str(),dirName.c_str(),location->patterns,fileList);
         }
         else
-        if (location->type == "S3" ||  location->type == "s3")
+        if (mMemoryMapperEnabled  &&  (location->type == "S3" ||  location->type == "s3"))
         {
           serverType = DataFetcher::ServerType::S3;
           DataFetcher::splitUrl(location->url.c_str(),protocol,server,dirName);
