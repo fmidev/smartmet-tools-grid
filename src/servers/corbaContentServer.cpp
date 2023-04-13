@@ -1,5 +1,6 @@
 #include "grid-content/contentServer/cache/CacheImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
+#include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/memory/MemoryImplementation.h"
@@ -19,6 +20,7 @@ ContentServer::HTTP::ClientImplementation *httpClient = nullptr;
 ContentServer::RedisImplementation *redisImplementation = nullptr;
 ContentServer::MemoryImplementation *memoryImplementation = nullptr;
 ContentServer::CacheImplementation *cacheImplementation = nullptr;
+ContentServer::PostgresqlImplementation* postgresImplementation = nullptr;
 
 bool mShutdownRequested = false;
 
@@ -52,6 +54,9 @@ std::string         mRedisTablePrefix;
 std::string         mCorbaIor;
 std::string         mHttpUrl;
 std::string         mGridConfigFile;
+std::string         mPrimaryConnectionString;
+std::string         mSecondaryConnectionString;
+
 
 
 
@@ -153,6 +158,9 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.port", mRedisPort);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.tablePrefix", mRedisTablePrefix);
 
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.postgresql.primaryConnectionString", mPrimaryConnectionString);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.postgresql.secondaryConnectionString", mSecondaryConnectionString);
+
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.corba.ior", mCorbaIor);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.http.url", mHttpUrl);
@@ -229,6 +237,13 @@ int main(int argc, char *argv[])
       redisImplementation = new ContentServer::RedisImplementation();
       redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str());
       contentSource = redisImplementation;
+    }
+    else
+    if (strcasecmp(mContentSourceType.c_str(),"postgresql") == 0)
+    {
+      postgresImplementation = new ContentServer::PostgresqlImplementation();
+      postgresImplementation->init(mPrimaryConnectionString.c_str(),mSecondaryConnectionString.c_str(),false);
+      contentSource = postgresImplementation;
     }
     else
     if (strcasecmp(mContentSourceType.c_str(),"corba") == 0)
@@ -326,6 +341,9 @@ int main(int argc, char *argv[])
 
     if (redisImplementation != nullptr)
       delete redisImplementation;
+
+    if (postgresImplementation != nullptr)
+      delete postgresImplementation;
 
     if (corbaClient != nullptr)
       delete corbaClient;

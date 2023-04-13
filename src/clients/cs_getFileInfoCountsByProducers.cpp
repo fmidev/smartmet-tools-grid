@@ -1,6 +1,6 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
-// #include "grid-content/contentServer/postgres/PostgresImplementation.h"
+#include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include <macgyver/Exception.h>
 #include "grid-files/common/GeneralFunctions.h"

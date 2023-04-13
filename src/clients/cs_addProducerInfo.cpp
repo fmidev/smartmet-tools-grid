@@ -1,6 +1,6 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
-// #include "grid-content/contentServer/postgres/PostgresImplementation.h"
+#include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include <macgyver/Exception.h>
 #include "grid-files/common/GeneralFunctions.h"
@@ -12,9 +12,9 @@ int main(int argc, char *argv[])
 {
   try
   {
-    if (argc < 8)
+    if (argc < 9)
     {
-      fprintf(stdout,"USAGE: cs_addProducerInfo <sessionId> <producerId> <sourceId> <flags> <name> <title> <descr>  [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"USAGE: cs_addProducerInfo <sessionId> <producerId> <sourceId> <flags> <status> <name> <title> <descr>  [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
       return -1;
     }
 
@@ -23,9 +23,10 @@ int main(int argc, char *argv[])
     info.mProducerId = toInt64(argv[2]);
     info.mSourceId = toInt64(argv[3]);
     info.mFlags = toInt64(argv[4]);
-    info.mName = argv[5];
-    info.mTitle = argv[6];
-    info.mDescription = argv[7];
+    info.mStatus = toInt64(argv[5]);
+    info.mName = argv[6];
+    info.mTitle = argv[7];
+    info.mDescription = argv[8];
 
     ContentServer::ServiceInterface *service = nullptr;
 
@@ -41,6 +42,13 @@ int main(int argc, char *argv[])
       ContentServer::RedisImplementation *redis = new ContentServer::RedisImplementation();
       redis->init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
       service = redis;
+    }
+    else
+    if (strcmp(argv[argc-2],"-pg") == 0)
+    {
+      ContentServer::PostgresqlImplementation *pg = new ContentServer::PostgresqlImplementation();
+      pg->init(argv[argc-1],"",false);
+      service = pg;
     }
     else
     {
