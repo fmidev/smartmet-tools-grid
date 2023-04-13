@@ -8,6 +8,7 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include <grid-content/contentServer/cache/CacheImplementation.h>
+#include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
 #include <boost/bimap.hpp>
 
 #include <libpq-fe.h>
@@ -96,6 +97,7 @@ bool mRedisLockEnabled = false;
 std::string mRedisTablePrefix;
 std::string mContentServerIor;
 std::string mContentServerUrl;
+std::string mPostgresqlConnectionString;
 
 bool mProcessingLogEnabled = false;
 std::string mProcessingLogFile;
@@ -224,6 +226,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.lockEnabled", mRedisLockEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.corba.ior", mContentServerIor);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.http.url", mContentServerUrl);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.postgresql.connection-string", mPostgresqlConnectionString);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.processing-log.enabled", mProcessingLogEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.processing-log.file", mProcessingLogFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.processing-log.maxSize", mProcessingLogMaxSize);
@@ -2643,10 +2646,10 @@ int main(int argc, char *argv[])
       mTargetInterface = redisImplementation;
     }
 
-    if (mStorageType == "corba")
+    if (mStorageType == "postgresql")
     {
-      ContentServer::Corba::ClientImplementation *client = new ContentServer::Corba::ClientImplementation();
-      client->init(mContentServerIor.c_str());
+      ContentServer::PostgresqlImplementation *client = new ContentServer::PostgresqlImplementation();
+      client->init(mPostgresqlConnectionString.c_str(),"",true);
       mTargetInterface = client;
     }
 

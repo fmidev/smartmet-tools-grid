@@ -1,6 +1,6 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
-// #include "grid-content/contentServer/postgres/PostgresImplementation.h"
+#include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include <macgyver/Exception.h>
 #include "grid-files/common/GeneralFunctions.h"
@@ -46,6 +46,13 @@ int main(int argc, char *argv[])
     {
       redisClient.init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
       service = &redisClient;
+    }
+    else
+    if (strcmp(argv[argc-2],"-pg") == 0)
+    {
+      ContentServer::PostgresqlImplementation *pg = new ContentServer::PostgresqlImplementation();
+      pg->init(argv[argc-1],"",false);
+      service = pg;
     }
     else
     {

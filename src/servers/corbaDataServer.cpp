@@ -8,6 +8,7 @@
 #include "grid-files/common/Typedefs.h"
 #include "grid-files/grid/ValueCache.h"
 #include "grid-files/identification/GridDef.h"
+#include <grid-files/common/MemoryMapper.h>
 #include <iostream>
 #include <stdexcept>
 #include <string.h>
@@ -46,6 +47,12 @@ std::string         mGridDirectory;
 std::string         mGridConfigFile;
 uint                mNumOfCachedGrids = 8000;
 uint                mMaxSizeOfCachedGridsInMegaBytes = 10000;
+bool                mPremapEnabled = true;
+bool                mMemoryMapperEnabled = false;
+std::string         mAccessFile;
+std::string         mCacheType = "memory";
+std::string         mCacheDir = "/tmp";
+
 
 
 
@@ -130,6 +137,11 @@ void readConfigFile(const char* configFile)
     }
 
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.configFile", mGridConfigFile);
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.memoryMapper.enabled", mMemoryMapperEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.memoryMapper.accessFile", mAccessFile);
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.memoryMapper.premapEnabled", mPremapEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.type", mCacheType);
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.directory", mCacheDir);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.numOfGrids", mNumOfCachedGrids);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.maxSizeInMegaBytes", mMaxSizeOfCachedGridsInMegaBytes);
 
@@ -206,10 +218,25 @@ int main(int argc, char *argv[])
     readConfigFile(argv[1]);
 
     Identification::gridDef.init(mGridConfigFile.c_str());
-    GRID::valueCache.init(mNumOfCachedGrids,mMaxSizeOfCachedGridsInMegaBytes);
+    if (strcasecmp(mCacheType.c_str(),"filesys") == 0)
+    {
+      SmartMet::GRID::valueCache.setCacheDir(mCacheDir.c_str());
+      SmartMet::GRID::valueCache.init(mNumOfCachedGrids, mMaxSizeOfCachedGridsInMegaBytes,true);
+    }
+    else
+    {
+      SmartMet::GRID::valueCache.init(mNumOfCachedGrids, mMaxSizeOfCachedGridsInMegaBytes);
+    }
 
 
     signal(SIGINT, sig_handler);
+
+    if (!mAccessFile.empty())
+      memoryMapper.setAccessFile(mAccessFile.c_str());
+
+    memoryMapper.setPremapEnabled(mPremapEnabled);
+    memoryMapper.setEnabled(mMemoryMapperEnabled);
+
 
     std::string virtualFileDef;
     std::vector<std::string> luaFiles;

@@ -9,6 +9,7 @@
 #include "grid-files/common/DataFetcher_network.h"
 #include "grid-files/common/DataFetcher_filesys.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
+#include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/lua/LuaFile.h"
@@ -52,6 +53,7 @@ std::string               mRedisTablePrefix;
 bool                      mRedisLockEnabled = false;
 std::string               mContentServerIor;
 std::string               mContentServerUrl;
+std::string               mPostgresqlConnectionString;
 
 bool                      mProcessingLogEnabled = false;
 std::string               mProcessingLogFile;
@@ -152,6 +154,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.port",mRedisPort);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.tablePrefix",mRedisTablePrefix);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.lockEnabled",mRedisLockEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.postgresql.connection-string", mPostgresqlConnectionString);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.corba.ior",mContentServerIor);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.http.url",mContentServerUrl);
 
@@ -1107,6 +1110,13 @@ int main(int argc, char *argv[])
       redisImplementation = new ContentServer::RedisImplementation();
       redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str());
       targetInterface = redisImplementation;
+    }
+
+    if (mStorageType == "postgresql")
+    {
+      ContentServer::PostgresqlImplementation *client = new ContentServer::PostgresqlImplementation();
+      client->init(mPostgresqlConnectionString.c_str(),"",true);
+      targetInterface = client;
     }
 
     if (mStorageType =="corba")

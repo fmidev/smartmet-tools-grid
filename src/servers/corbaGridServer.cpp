@@ -1,5 +1,6 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
+#include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
 #include "grid-content/contentServer/cache/CacheImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/corba/server/Server.h"
@@ -35,6 +36,7 @@ ContentServer::Corba::ClientImplementation *corbaContentClient = nullptr;
 ContentServer::HTTP::ClientImplementation *httpContentClient = nullptr;
 ContentServer::RedisImplementation *redisImplementation = nullptr;
 ContentServer::CacheImplementation *cacheImplementation = nullptr;
+ContentServer::PostgresqlImplementation* postgresImplementation = nullptr;
 
 
 QueryServer::Corba::GridServer *corbaServer = nullptr;
@@ -59,7 +61,14 @@ QueryServer::AliasFileCollection mProducerAliasFileCollection;
 std::string grid_files_configFile;
 uint grid_files_cache_numOfGrids = 0;
 uint grid_files_cache_maxSizeInMegaBytes;
-bool grid_files_requestCounter_enabled = false;
+
+bool memoryMapper_enabled = false;
+std::string memoryMapper_accessFile;
+bool memoryMapper_premapEnabled = true;
+std::string grid_files_cache_type = "memory";
+std::string grid_files_cache_dir = "/tmp";
+
+
 std::string corba_server_address;
 std::string corba_server_port;
 std::string content_server_iorFile;
@@ -67,6 +76,8 @@ std::string content_server_content_source_type;
 std::string content_server_content_source_redis_address;
 int content_server_content_source_redis_port = 6379;
 std::string content_server_content_source_redis_tablePrefix;
+std::string content_server_primaryConnectionString;
+std::string content_server_secondaryConnectionString;
 std::string content_server_content_source_corba_ior;
 std::string content_server_content_source_http_url;
 bool content_server_cache_enabled = false;
@@ -554,7 +565,6 @@ void readConfigFile(const char* configFile)
          "smartmet.library.grid-files.configFile",
          "smartmet.library.grid-files.cache.numOfGrids",
          "smartmet.library.grid-files.cache.maxSizeInMegaBytes",
-         "smartmet.library.grid-files.requestCounter.enabled",
          "smartmet.tools.grid.corba-server.address",
          "smartmet.tools.grid.corba-server.port",
          "smartmet.tools.grid.content-server.iorFile",
@@ -627,9 +637,14 @@ void readConfigFile(const char* configFile)
 
 
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.configFile",grid_files_configFile);
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.memoryMapper.enabled", memoryMapper_enabled);
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.memoryMapper.accessFile", memoryMapper_accessFile);
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.memoryMapper.premapEnabled", memoryMapper_premapEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.type", grid_files_cache_type);
+    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.directory", grid_files_cache_dir);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.numOfGrids",grid_files_cache_numOfGrids);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.maxSizeInMegaBytes",grid_files_cache_maxSizeInMegaBytes);
-    mConfigurationFile.getAttributeValue("smartmet.library.grid-files.requestCounter.enabled",grid_files_requestCounter_enabled);
+
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.corba-server.address",corba_server_address);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.corba-server.port",corba_server_port);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.iorFile",content_server_iorFile);
@@ -637,6 +652,8 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.address",content_server_content_source_redis_address);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.port",content_server_content_source_redis_port);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.tablePrefix",content_server_content_source_redis_tablePrefix);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.postgresql.primaryConnectionString", content_server_primaryConnectionString);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.postgresql.secondaryConnectionString",content_server_secondaryConnectionString);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.corba.ior",content_server_content_source_corba_ior);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.http.url",content_server_content_source_http_url);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.enabled",content_server_cache_enabled);
@@ -728,6 +745,11 @@ int main(int argc, char *argv[])
 
     readConfigFile(argv[1]);
 
+    if (!memoryMapper_accessFile.empty())
+      memoryMapper.setAccessFile(memoryMapper_accessFile.c_str());
+
+    memoryMapper.setPremapEnabled(memoryMapper_premapEnabled);
+    memoryMapper.setEnabled(memoryMapper_enabled);
 
 
     if (strcasecmp(content_server_content_source_type.c_str(),"redis") == 0)
@@ -735,6 +757,13 @@ int main(int argc, char *argv[])
       redisImplementation = new ContentServer::RedisImplementation();
       redisImplementation->init(content_server_content_source_redis_address.c_str(),content_server_content_source_redis_port,content_server_content_source_redis_tablePrefix.c_str());
       contentService = redisImplementation;
+    }
+    else
+    if (strcasecmp(content_server_content_source_type.c_str(),"postgresql") == 0)
+    {
+      postgresImplementation = new ContentServer::PostgresqlImplementation();
+      postgresImplementation->init(content_server_primaryConnectionString.c_str(),content_server_secondaryConnectionString.c_str(),false);
+      contentService = postgresImplementation;
     }
     else
     if (strcasecmp(content_server_content_source_type.c_str(),"corba") == 0)
