@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 23.3.13
+Version: 23.4.17
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -20,9 +20,9 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
-BuildRequires: smartmet-library-spine-devel >= 23.3.7
+BuildRequires: smartmet-library-spine-devel >= 23.3.14
 BuildRequires: smartmet-library-grid-files-devel >= 23.3.9
-BuildRequires: smartmet-library-grid-content-devel >= 23.3.9
+BuildRequires: smartmet-library-grid-content-devel >= 23.4.17
 BuildRequires: gdal34-devel
 BuildRequires: postgresql13-devel
 BuildRequires: omniORB-devel
@@ -38,7 +38,7 @@ BuildRequires: krb5-devel
 #Requires: smartmet-server >= 17.11.10
 Requires: %{smartmet_boost}-date-time
 Requires: smartmet-library-grid-files >= 23.3.9
-Requires: smartmet-library-grid-content >= 23.3.9
+Requires: smartmet-library-grid-content >= 23.4.17
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -276,6 +276,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Mon Apr 17 2023 Mika Heiskanen <mika.heiskanen@fmi.fi> - 23.4.17-1.fmi
+- Added PostgreSQL support
+
 * Mon Mar 13 2023 Mika Heiskanen <mika.heiskanen@fmi.fi> - 23.3.13-1.fmi
 - Enabling own memory mapper configuration (was hardcoded)
 
