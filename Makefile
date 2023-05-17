@@ -33,6 +33,7 @@ LIBS += -L$(libdir) \
 	-lsmartmet-spine \
 	-lsmartmet-macgyver \
 	-lsmartmet-newbase \
+	-lsmartmet-gis \
 	-lsmartmet-grid-files \
 	-lsmartmet-grid-content \
 	-lboost_program_options \
@@ -141,11 +142,13 @@ install:
 	mkdir -p $(bindir)/utils
 	mkdir -p $(bindir)/files
 	mkdir -p $(bindir)/clients
+	mkdir -p $(bindir)/clients/python
 	@list='$(PROGS)'; \
 	for prog in $$list; do \
 	  echo $(INSTALL_PROG) $$prog $(bindir)/../$$prog; \
 	  $(INSTALL_PROG) $$prog $(bindir)/../$$prog; \
 	done
+	cp src/python/*.py $(bindir)/clients/python/
 	mkdir -p $(libdir)/../lib/systemd/system
 	$(INSTALL_DATA) systemd/radon2smartmet.service  $(libdir)/../lib/systemd/system
 test:

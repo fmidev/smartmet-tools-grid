@@ -52,6 +52,8 @@ bool                mMemoryMapperEnabled = false;
 std::string         mAccessFile;
 std::string         mCacheType = "memory";
 std::string         mCacheDir = "/tmp";
+std::string         demdir;
+std::string         landcoverdir;
 
 
 
@@ -145,6 +147,9 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.numOfGrids", mNumOfCachedGrids);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.maxSizeInMegaBytes", mMaxSizeOfCachedGridsInMegaBytes);
 
+    mConfigurationFile.getAttributeValue("smartmet.library.gis.demdir",demdir);
+    mConfigurationFile.getAttributeValue("smartmet.library.gis.landcoverdir",landcoverdir);
+
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.name", mServerName);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.id", mServerId);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.address", mServerAddress);
@@ -237,6 +242,13 @@ int main(int argc, char *argv[])
     memoryMapper.setPremapEnabled(mPremapEnabled);
     memoryMapper.setEnabled(mMemoryMapperEnabled);
 
+    boost::shared_ptr<Fmi::DEM> dem;
+    if (demdir > " ")
+      dem.reset(new Fmi::DEM(demdir));
+
+    boost::shared_ptr<Fmi::LandCover> landCover;
+    if (landcoverdir > " ")
+      landCover.reset(new Fmi::LandCover(landcoverdir));
 
     std::string virtualFileDef;
     std::vector<std::string> luaFiles;
@@ -265,6 +277,8 @@ int main(int argc, char *argv[])
 
 
     dataServer->init(0,mServerId,mServerName.c_str(),corbaServer->getServiceIor().c_str(),mGridDirectory.c_str(),&contentServerClient,mLuaFiles);
+    dataServer->setDem(dem);
+    dataServer->setLandCover(landCover);
     dataServer->setVirtualContentEnabled(mVirtualFilesEnabled);
 
     if (mVirtualFileDefinitions.length() > 0)

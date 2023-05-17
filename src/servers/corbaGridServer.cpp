@@ -127,6 +127,8 @@ bool query_server_debug_log_enabled = false;
 std::string query_server_debug_log_file;
 uint query_server_debug_log_maxSize = 0;
 uint query_server_debug_log_truncateSize = 0;
+std::string demdir;
+std::string landcoverdir;
 
 
 
@@ -645,6 +647,9 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.numOfGrids",grid_files_cache_numOfGrids);
     mConfigurationFile.getAttributeValue("smartmet.library.grid-files.cache.maxSizeInMegaBytes",grid_files_cache_maxSizeInMegaBytes);
 
+    mConfigurationFile.getAttributeValue("smartmet.library.gis.demdir",demdir);
+    mConfigurationFile.getAttributeValue("smartmet.library.gis.landcoverdir",landcoverdir);
+
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.corba-server.address",corba_server_address);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.corba-server.port",corba_server_port);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.iorFile",content_server_iorFile);
@@ -752,6 +757,15 @@ int main(int argc, char *argv[])
     memoryMapper.setEnabled(memoryMapper_enabled);
 
 
+    boost::shared_ptr<Fmi::DEM> dem;
+    if (demdir > " ")
+      dem.reset(new Fmi::DEM(demdir));
+
+    boost::shared_ptr<Fmi::LandCover> landCover;
+    if (landcoverdir > " ")
+      landCover.reset(new Fmi::LandCover(landcoverdir));
+
+
     if (strcasecmp(content_server_content_source_type.c_str(),"redis") == 0)
     {
       redisImplementation = new ContentServer::RedisImplementation();
@@ -827,6 +841,8 @@ int main(int argc, char *argv[])
 
 
     dataService = new DataServer::ServiceImplementation();
+    dataService->setDem(dem);
+    dataService->setLandCover(landCover);
     queryService = new QueryServer::ServiceImplementation();
 
     corbaServer = new QueryServer::Corba::GridServer(corba_server_address.c_str(),corba_server_port.c_str());
