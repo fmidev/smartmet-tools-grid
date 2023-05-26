@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 23.4.17
+Version: 23.5.26
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -276,6 +276,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Fri May 26 2023 Andris Pavēnis <andris.pavenis@fmi.fi> 23.5.26-1.fmi
+- Require omniORB >= 4.3.0
+
 * Mon Apr 17 2023 Mika Heiskanen <mika.heiskanen@fmi.fi> - 23.4.17-1.fmi
 - Added PostgreSQL support
 
