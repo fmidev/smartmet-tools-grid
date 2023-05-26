@@ -25,7 +25,7 @@ BuildRequires: smartmet-library-grid-files-devel >= 23.3.9
 BuildRequires: smartmet-library-grid-content-devel >= 23.4.17
 BuildRequires: gdal34-devel
 BuildRequires: postgresql13-devel
-BuildRequires: omniORB-devel
+BuildRequires: omniORB-devel >= 4.3.0
 BuildRequires: libpqxx-devel
 BuildRequires: libmicrohttpd-devel
 BuildRequires: libjpeg-devel
