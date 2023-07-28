@@ -20,7 +20,7 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
-BuildRequires: smartmet-library-spine-devel >= 23.7.10
+BuildRequires: smartmet-library-spine-devel >= 23.7.28
 BuildRequires: smartmet-library-grid-files-devel >= 23.7.10
 BuildRequires: smartmet-library-grid-content-devel >= 23.7.10
 BuildRequires: gdal35-devel
@@ -33,8 +33,8 @@ BuildRequires: libpng-devel
 BuildRequires: openldap-devel
 BuildRequires: openssl-devel
 BuildRequires: krb5-devel
-#Requires: smartmet-library-macgyver >= 22.6.16
-#Requires: smartmet-library-spine >= 23.7.10
+#Requires: smartmet-library-macgyver >= 23.7.28
+#Requires: smartmet-library-spine >= 23.7.28
 #Requires: smartmet-server >= 17.11.10
 Requires: %{smartmet_boost}-date-time
 Requires: smartmet-library-grid-files >= 23.7.10
