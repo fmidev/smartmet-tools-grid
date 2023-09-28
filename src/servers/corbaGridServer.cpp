@@ -672,6 +672,8 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.debug-log.file",content_server_debug_log_file);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.debug-log.maxSize",content_server_debug_log_maxSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.debug-log.truncateSize",content_server_debug_log_truncateSize);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.id",data_server_id);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.name",data_server_name);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.iorFile",data_server_iorFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.directory",data_server_grid_storage_directory);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.enabled",data_server_virtualFiles_enabled);
@@ -803,6 +805,7 @@ int main(int argc, char *argv[])
     if (content_server_cache_enabled)
     {
       cacheImplementation = new ContentServer::CacheImplementation();
+      cacheImplementation->setContentSwapEnabled(false);
       cacheImplementation->setRequestForwardEnabled(content_server_cache_requestForwardEnabled);
 
       if (content_server_processing_log_enabled && content_server_processing_log_file.length() > 0)
