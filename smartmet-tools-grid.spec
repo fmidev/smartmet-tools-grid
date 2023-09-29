@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 23.9.11
+Version: 23.9.29
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -21,8 +21,8 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
 BuildRequires: smartmet-library-spine-devel >= 23.8.31
-BuildRequires: smartmet-library-grid-files-devel >= 23.9.11
-BuildRequires: smartmet-library-grid-content-devel >= 23.9.11
+BuildRequires: smartmet-library-grid-files-devel >= 23.9.29
+BuildRequires: smartmet-library-grid-content-devel >= 23.9.29
 BuildRequires: gdal35-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
@@ -37,8 +37,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-spine >= 23.7.28
 #Requires: smartmet-server >= 17.11.10
 Requires: %{smartmet_boost}-date-time
-Requires: smartmet-library-grid-files >= 23.9.11
-Requires: smartmet-library-grid-content >= 23.9.11
+Requires: smartmet-library-grid-files >= 23.9.29
+Requires: smartmet-library-grid-content >= 23.9.29
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -48,6 +48,7 @@ Provides: corbaContentServer = %{version}
 Provides: corbaDataServer = %{version}
 Provides: corbaGridServer = %{version}
 Provides: corbaQueryServer = %{version}
+Provides: createLandSeaMap = %{version}
 Provides: cs_addContentInfo = %{version}
 Provides: cs_addFileAndContentListFromFile = %{version}
 Provides: cs_addFileInfo = %{version}
@@ -276,6 +277,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Fri Sep 29 2023 Mika Heiskanen <mika.heiskanen@fmi.fi> - 23.9.29-1.fmi
+- Added createLandSeaMap
+
 * Mon Sep 11 2023 Mika Heiskanen <mika.heiskanen@fmi.fi> - 23.9.11-1.fmi
 - Repackaged due to ABI changes in grid-files
 
