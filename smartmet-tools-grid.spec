@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 23.11.17
+Version: 23.12.22
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -20,9 +20,9 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
-BuildRequires: smartmet-library-spine-devel >= 23.8.31
-BuildRequires: smartmet-library-grid-files-devel >= 23.9.29
-BuildRequires: smartmet-library-grid-content-devel >= 23.9.29
+BuildRequires: smartmet-library-spine-devel >= 23.12.5
+BuildRequires: smartmet-library-grid-files-devel >= 23.12.22
+BuildRequires: smartmet-library-grid-content-devel >= 23.12.22
 BuildRequires: gdal35-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
@@ -37,8 +37,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-spine >= 23.7.28
 #Requires: smartmet-server >= 17.11.10
 Requires: %{smartmet_boost}-date-time
-Requires: smartmet-library-grid-files >= 23.9.29
-Requires: smartmet-library-grid-content >= 23.9.29
+Requires: smartmet-library-grid-files >= 23.12.22
+Requires: smartmet-library-grid-content >= 23.12.22
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -277,6 +277,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Fri Dec 22 2023 Mika Heiskanen <mika.heiskanen@fmi.fi> - 23.12.22-1.fmi
+- Repackaged due to ThreadLock ABI changes
+
 * Fri Nov 17 2023 Pertti Kinnia <pertti.kinnia@fmi.fi> - 23.11.17-1.fmi
 - Repackaged due to API changes in grid-files and grid-content
 
