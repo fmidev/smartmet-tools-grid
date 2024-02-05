@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 24.1.4
+Version: 24.2.5
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -277,6 +277,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Mon Feb  5 2024 Mika Heiskanen <mika.heiskanen@fmi.fi> 24.2.5-1.fmi
+- Repackaged due to grid-files ABI changes
+
 * Thu Jan  4 2024 Mika Heiskanen <mika.heiskanen@fmi.fi> - 24.1.4-1.fmi
 - Repackaged due to ABI changes in grid-files
 
