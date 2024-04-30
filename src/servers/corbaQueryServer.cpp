@@ -67,6 +67,7 @@ bool                mDataServerMethodsEnabled = false;
 
 bool                mQueryServerCheckGeometryStatus = false;
 string_vec          mQueryServerLuaFiles;
+std::string         mQueryServerHeightConversionFile;
 bool                mQueryServerProcessingLogEnabled = false;
 std::string         mQueryServerProcessingLogFile;
 int                 mQueryServerProcessingLogMaxSize = 100000000;
@@ -77,6 +78,7 @@ std::string         mQueryServerDebugLogFile;
 int                 mQueryServerDebugLogMaxSize = 100000000;
 int                 mQueryServerDebugLogTruncateSize = 20000000;
 Log                 mQueryServerDebugLog;
+
 
 std::string         mGridConfigFile;
 uint                mNumOfCachedGrids = 50000;
@@ -97,6 +99,8 @@ std::string         mParameterMappingUpdateFile_newbase;
 std::string         mParameterMappingUpdateFile_netCdf;
 time_t              mParameterMappingUpdateTime = 0;
 T::ParamKeyType     mMappingTargetKeyType = T::ParamKeyTypeValue::FMI_NAME;
+std::set<std::int16_t> mParameterMapping_simplifiedLevelIdSet;
+
 
 QueryServer::AliasFileCollection mProducerMappingFileCollection;
 
@@ -281,10 +285,17 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
             m.mGeometryId = toInt32(pl[4].c_str());
             //m.mParameterLevelIdType = toInt16(pl[5].c_str());
             m.mParameterLevelId = toInt16(pl[6].c_str());
-            m.mParameterLevel = toInt32(pl[7].c_str());
+            if (mParameterMapping_simplifiedLevelIdSet.find(m.mParameterLevelId) != mParameterMapping_simplifiedLevelIdSet.end())
+              m.mParameterLevel = 0;
+            else
+              m.mParameterLevel = toInt32(pl[7].c_str());
 
             char key[200];
-            sprintf(key,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),pl[7].c_str());
+            std::string level = pl[7];
+            if (mParameterMapping_simplifiedLevelIdSet.find(m.mParameterLevelId) != mParameterMapping_simplifiedLevelIdSet.end())
+              level = "*";
+
+            sprintf(key,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),level.c_str());
             std::string searchKey = m.mProducerName + ":" + m.mParameterName + std::to_string(m.mGeometryId);
 
             if (mapList.find(std::string(key)) == mapList.end())
@@ -327,7 +338,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
                 char s = 'D';
                 if (!searchEnabled  ||  (m.mParameterLevelId == 6   &&  m.mParameterLevel <= 10) ||  (m.mParameterLevelId == 1  &&  m.mParameterLevel == 0))
                 {
-                  if (m.mParameterLevelId != 2  &&  m.mParameterLevelId != 3  &&  m.mParameterLevelId != 4)
+                  if (mParameterMapping_simplifiedLevelIdSet.find(m.mParameterLevelId) == mParameterMapping_simplifiedLevelIdSet.end())
                     s = 'E';
                 }
 
@@ -337,7 +348,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
                 if (file == nullptr)
                   file = openMappingFile(mappingFile);
 
-                fprintf(file,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),pl[7].c_str());
+                fprintf(file,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),level.c_str());
 
                 Identification::FmiParameterDef paramDef;
 
@@ -642,6 +653,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.checkGeometryStatus",mQueryServerCheckGeometryStatus);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerFile",mProducerFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.heightConversionFile",mQueryServerHeightConversionFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerMappingFiles",mProducerMappingFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.processing-log.enabled", mQueryServerProcessingLogEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.processing-log.file", mQueryServerProcessingLogFile);
@@ -655,6 +667,12 @@ void readConfigFile(const char* configFile)
     int tmp = 0;
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingTargetKeyType",tmp);
     mMappingTargetKeyType = tmp;
+
+    std::vector<std::string> vec;
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingLevelSimplification", vec);
+    for (auto it = vec.begin(); it != vec.end(); it++)
+      mParameterMapping_simplifiedLevelIdSet.insert(atoi(it->c_str()));
+
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.fmi",mParameterMappingUpdateFile_fmi);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.newbase",mParameterMappingUpdateFile_newbase);
@@ -720,7 +738,7 @@ int main(int argc, char *argv[])
     dataServer->init(mDataServerIor);
 
 
-    queryServer->init(contentServer,dataServer,mGridConfigFile,mParameterMappingFiles,mParameterAliasFiles,mProducerFile,mProducerMappingFiles,mQueryServerLuaFiles,mQueryServerCheckGeometryStatus,mDataServerMethodsEnabled);
+    queryServer->init(contentServer,dataServer,mGridConfigFile,mQueryServerHeightConversionFile,mParameterMappingFiles,mParameterAliasFiles,mProducerFile,mProducerMappingFiles,mQueryServerLuaFiles,mQueryServerCheckGeometryStatus,mDataServerMethodsEnabled);
 
     if (mContentServerProcessingLogEnabled &&  mContentServerProcessingLogFile.length() > 0)
     {

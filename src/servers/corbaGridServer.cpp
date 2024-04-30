@@ -113,6 +113,7 @@ std::string query_server_iorFile;
 bool query_server_checkGeometryStatus = false;
 std::vector<std::string> query_server_producerAliasFiles;
 uint query_server_mappingTargetKeyType = 0;
+std::set<std::int16_t> mParameterMapping_simplifiedLevelIdSet;
 std::string query_server_mappingUpdateFile_fmi;
 std::string query_server_mappingUpdateFile_newbase;
 std::string query_server_mappingUpdateFile_netCdf;
@@ -129,7 +130,7 @@ uint query_server_debug_log_maxSize = 0;
 uint query_server_debug_log_truncateSize = 0;
 std::string demdir;
 std::string landcoverdir;
-
+std::string query_server_heightConversionFile;
 
 
 
@@ -311,10 +312,17 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
             m.mGeometryId = toInt32(pl[4].c_str());
             //m.mParameterLevelIdType = toInt16(pl[5].c_str());
             m.mParameterLevelId = toInt16(pl[6].c_str());
-            m.mParameterLevel = toInt32(pl[7].c_str());
+            if (mParameterMapping_simplifiedLevelIdSet.find(m.mParameterLevelId) != mParameterMapping_simplifiedLevelIdSet.end())
+              m.mParameterLevel = 0;
+            else
+              m.mParameterLevel = toInt32(pl[7].c_str());
 
             char key[200];
-            sprintf(key,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),pl[7].c_str());
+            std::string level = pl[7];
+            if (mParameterMapping_simplifiedLevelIdSet.find(m.mParameterLevelId) != mParameterMapping_simplifiedLevelIdSet.end())
+              level = "*";
+
+            sprintf(key,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),level.c_str());
             std::string searchKey = m.mProducerName + ":" + m.mParameterName + std::to_string(m.mGeometryId);
 
             if (mapList.find(std::string(key)) == mapList.end())
@@ -357,7 +365,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
                 char s = 'D';
                 if (!searchEnabled  ||  (m.mParameterLevelId == 6   &&  m.mParameterLevel <= 10) ||  (m.mParameterLevelId == 1  &&  m.mParameterLevel == 0))
                 {
-                  if (m.mParameterLevelId != 2  &&  m.mParameterLevelId != 3  &&  m.mParameterLevelId != 4)
+                  if (mParameterMapping_simplifiedLevelIdSet.find(m.mParameterLevelId) == mParameterMapping_simplifiedLevelIdSet.end())
                     s = 'E';
                 }
 
@@ -367,7 +375,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
                 if (file == nullptr)
                   file = openMappingFile(mappingFile);
 
-                fprintf(file,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),pl[7].c_str());
+                fprintf(file,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),level.c_str());
 
                 Identification::FmiParameterDef paramDef;
 
@@ -689,9 +697,16 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.debug-log.truncateSize",data_server_debug_log_truncateSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.iorFile",query_server_iorFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerFile",query_server_producerFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.heightConversionFile",query_server_heightConversionFile);
     mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.checkGeometryStatus",query_server_checkGeometryStatus);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerAliasFiles",query_server_producerAliasFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingTargetKeyType",query_server_mappingTargetKeyType);
+
+    std::vector<std::string> vec;
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingLevelSimplification", vec);
+    for (auto it = vec.begin(); it != vec.end(); it++)
+      mParameterMapping_simplifiedLevelIdSet.insert(atoi(it->c_str()));
+
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.fmi",query_server_mappingUpdateFile_fmi);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.newbase",query_server_mappingUpdateFile_newbase);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.netCdf",query_server_mappingUpdateFile_netCdf);
@@ -853,10 +868,7 @@ int main(int argc, char *argv[])
 
 
     dataService->init(0,data_server_id,data_server_name.c_str(),corbaServer->getDataServiceIor().c_str(),data_server_grid_storage_directory.c_str(),contentService,data_server_luaFiles);
-    queryService->init(contentService,dataService,grid_files_configFile,query_server_mappingFiles,query_server_aliasFiles,query_server_producerFile,query_server_producerAliasFiles,query_server_luaFiles,query_server_checkGeometryStatus,data_server_methods_enabled);
-
-
-
+    queryService->init(contentService,dataService,grid_files_configFile,query_server_heightConversionFile,query_server_mappingFiles,query_server_aliasFiles,query_server_producerFile,query_server_producerAliasFiles,query_server_luaFiles,query_server_checkGeometryStatus,data_server_methods_enabled);
 
 
     if (data_server_processing_log_enabled && data_server_processing_log_file.length() > 0)
