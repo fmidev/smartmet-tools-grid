@@ -562,7 +562,12 @@ void create_fmi_levels(PGconn *conn,const char *dir)
     fprintf(file,"# FIELDS:\n");
     fprintf(file,"# 1) FmiLevelId\n");
     fprintf(file,"# 2) FmiLevelName\n");
-    fprintf(file,"# 3) Description\n");
+    fprintf(file,"# 3) FmiLevelType\n");
+    fprintf(file,"#      0 Undefined\n");
+    fprintf(file,"#      1 Linear\n");
+    fprintf(file,"#      2 Logarithmic\n");
+    fprintf(file,"#      3 Number\n");
+    fprintf(file,"# 4) Description\n");
     fprintf(file,"#\n");
 
 
@@ -588,11 +593,18 @@ void create_fmi_levels(PGconn *conn,const char *dir)
 
     for (int i = 0; i < rowCount; i++)
     {
-      for (int f=0; f< fieldCount; f++)
-      {
-        fprintf(file,"%s;",PQgetvalue(res,i,f));
-      }
-      fprintf(file,"\n");
+      int id = atoi(PQgetvalue(res,i,0));
+      std::string name = PQgetvalue(res,i,1);
+      std::string descr = PQgetvalue(res,i,2);
+
+      int type = 1;
+      if (id == 2)
+        type = 2;
+      else
+      if (id == 3)
+        type = 3;
+
+      fprintf(file,"%d;%s;%d;%s\n",id,name.c_str(),type,descr.c_str());
     }
 
     fclose(file);
