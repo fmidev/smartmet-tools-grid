@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 24.4.3
+Version: 24.5.3
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -20,9 +20,9 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
-BuildRequires: smartmet-library-spine-devel >= 24.3.15
-BuildRequires: smartmet-library-grid-files-devel >= 24.3.22
-BuildRequires: smartmet-library-grid-content-devel >= 24.3.14
+BuildRequires: smartmet-library-spine-devel >= 24.4.23
+BuildRequires: smartmet-library-grid-files-devel >= 24.5.3
+BuildRequires: smartmet-library-grid-content-devel >= 24.5.3
 BuildRequires: gdal35-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
@@ -37,8 +37,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-spine >= 23.7.28
 #Requires: smartmet-server >= 17.11.10
 Requires: %{smartmet_boost}-date-time
-Requires: smartmet-library-grid-files >= 24.3.22
-Requires: smartmet-library-grid-content >= 24.3.14
+Requires: smartmet-library-grid-files >= 24.5.3
+Requires: smartmet-library-grid-content >= 24.5.3
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -277,6 +277,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Fri May  3 2024 Mika Heiskanen <mika.heiskanen@fmi.fi> - 24.5.3-1.fmi
+- Added level type information
+
 * Wed Apr  3 2024 Mika Heiskanen <mheiskan@rhel8.dev.fmi.fi> - 24.4.3-1.fmi
 - Fixed systemd paths
 
