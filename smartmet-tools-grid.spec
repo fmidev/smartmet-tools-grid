@@ -36,7 +36,6 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-macgyver >= 23.7.28
 #Requires: smartmet-library-spine >= 23.7.28
 #Requires: smartmet-server >= 17.11.10
-Requires: %{smartmet_boost}-date-time
 Requires: smartmet-library-grid-files >= 24.5.3
 Requires: smartmet-library-grid-content >= 24.5.3
 Requires: openldap
