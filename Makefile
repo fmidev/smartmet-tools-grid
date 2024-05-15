@@ -42,7 +42,6 @@ LIBS += -L$(libdir) \
 	-lboost_thread \
 	-lboost_system \
 	-lboost_iostreams \
-	-lboost_date_time \
 	-lpthread \
 	-ljpeg \
 	-lpng \
