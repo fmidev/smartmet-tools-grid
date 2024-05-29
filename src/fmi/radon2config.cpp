@@ -562,12 +562,13 @@ void create_fmi_levels(PGconn *conn,const char *dir)
     fprintf(file,"# FIELDS:\n");
     fprintf(file,"# 1) FmiLevelId\n");
     fprintf(file,"# 2) FmiLevelName\n");
-    fprintf(file,"# 3) FmiLevelType\n");
+    fprintf(file,"# 3) FmiLevelRelationship\n");
     fprintf(file,"#      0 Undefined\n");
     fprintf(file,"#      1 Linear\n");
     fprintf(file,"#      2 Logarithmic\n");
     fprintf(file,"#      3 Number\n");
     fprintf(file,"# 4) Description\n");
+    fprintf(file,"# 5) Units\n");
     fprintf(file,"#\n");
 
 
@@ -575,20 +576,21 @@ void create_fmi_levels(PGconn *conn,const char *dir)
     char *p = sql;
 
     p += sprintf(p,"SELECT \n");
-    p += sprintf(p,"  id,\n");
-    p += sprintf(p,"  name,\n");
-    p += sprintf(p,"  description\n");
+    p += sprintf(p,"  level.id,\n");
+    p += sprintf(p,"  level.name,\n");
+    p += sprintf(p,"  level.description,\n");
+    p += sprintf(p,"  param_unit.name\n");
     p += sprintf(p,"FROM\n");
-    p += sprintf(p,"  level\n");
+    p += sprintf(p,"  level LEFT OUTER JOIN param_unit ON (level.unit_id = param_unit.id)\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  id;\n");
+    p += sprintf(p,"  level.id;\n");
 
 
     PGresult *res = PQexec(conn,sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
       error(PQresultErrorMessage(res));
 
-    int fieldCount = PQnfields(res);
+    //int fieldCount = PQnfields(res);
     int rowCount = PQntuples(res);
 
     for (int i = 0; i < rowCount; i++)
@@ -596,15 +598,23 @@ void create_fmi_levels(PGconn *conn,const char *dir)
       int id = atoi(PQgetvalue(res,i,0));
       std::string name = PQgetvalue(res,i,1);
       std::string descr = PQgetvalue(res,i,2);
+      std::string units = PQgetvalue(res,i,3);
 
-      int type = 1;
-      if (id == 2)
-        type = 2;
-      else
-      if (id == 3)
-        type = 3;
+      int type = 1;     // Default => levels have linear relationship, interpolation possible
 
-      fprintf(file,"%d;%s;%d;%s\n",id,name.c_str(),type,descr.c_str());
+      switch (id)
+      {
+        case 2:         // Pressure => levels have logarithmic relationship, interpolation possilbe
+          type = 2;
+          units = "Pa";  // We convert hehtopascals to pascals when reading level values
+          break;
+
+        case 3:         // Hybrid => levels have no relationship, interpolation not possible
+          type = 3;
+          break;
+      }
+
+      fprintf(file,"%d;%s;%d;%s;%s\n",id,name.c_str(),type,descr.c_str(),units.c_str());
     }
 
     fclose(file);
