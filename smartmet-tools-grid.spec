@@ -23,7 +23,7 @@ BuildRequires: %{smartmet_boost}-devel
 BuildRequires: smartmet-library-spine-devel >= 24.5.27
 BuildRequires: smartmet-library-grid-files-devel >= 24.5.30
 BuildRequires: smartmet-library-grid-content-devel >= 24.6.3
-BuildRequires: gdal35-devel
+BuildRequires: gdal38-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
 BuildRequires: libpqxx-devel
