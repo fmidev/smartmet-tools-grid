@@ -29,7 +29,7 @@ INCLUDES += \
 	$(CORBA_INCLUDE)
 
 # Compile options in detault, debug and profile modes
-LIBS += -L$(libdir) \
+LIBS += $(PREFIX_LDFLAGS) \
 	-lsmartmet-spine \
 	-lsmartmet-macgyver \
 	-lsmartmet-newbase \
