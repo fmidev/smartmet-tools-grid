@@ -242,11 +242,11 @@ int main(int argc, char *argv[])
     memoryMapper.setPremapEnabled(mPremapEnabled);
     memoryMapper.setEnabled(mMemoryMapperEnabled);
 
-    boost::shared_ptr<Fmi::DEM> dem;
+    std::shared_ptr<Fmi::DEM> dem;
     if (demdir > " ")
       dem.reset(new Fmi::DEM(demdir));
 
-    boost::shared_ptr<Fmi::LandCover> landCover;
+    std::shared_ptr<Fmi::LandCover> landCover;
     if (landcoverdir > " ")
       landCover.reset(new Fmi::LandCover(landcoverdir));
 
