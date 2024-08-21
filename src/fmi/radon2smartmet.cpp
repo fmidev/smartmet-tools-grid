@@ -1670,7 +1670,7 @@ void updateGeometries()
             result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
             if (result == 0)
             {
-              PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
+              PRINT_EVENT_LINE(mProcessingLogPtr,"+ GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
             }
             else
             {
@@ -1729,7 +1729,7 @@ void updateGeometries()
           result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
           if (result == 0)
           {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
+            PRINT_EVENT_LINE(mProcessingLogPtr,"* GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
           }
           else
           {
@@ -1899,14 +1899,19 @@ void updateGenerationStatus()
 
       if (targetGeneration->mSourceId == mSourceId)
       {
-        PRINT_DATA(mDebugLogPtr, "  -- Checking generation status : %s (status=%u)\n", targetGeneration->mName.c_str(),targetGeneration->mStatus);
-
         std::vector<std::string> parts;
         splitString(targetGeneration->mName,':',parts);
         std::string pname = toUpperString(parts[0]);
         bool ready = true;
+        bool producerCheckEnabled = false;
 
-        if (mProducerList.size() > 0  &&  mGenerationStatusCheckIgnore.find(pname) == mGenerationStatusCheckIgnore.end())
+        if (mProducerList.size() == 0 || mProducerList.find(pname) != mProducerList.end())
+        {
+          PRINT_DATA(mDebugLogPtr, "  -- Checking generation status : %s (status=%u)\n", targetGeneration->mName.c_str(),targetGeneration->mStatus);
+          producerCheckEnabled = true;
+        }
+
+        if (producerCheckEnabled  &&  mProducerList.size() > 0  &&  mGenerationStatusCheckIgnore.find(pname) == mGenerationStatusCheckIgnore.end())
         {
           std::string key = toUpperString(targetGeneration->mName + ":0:0");
           auto gen = mReadyGenerations.find(key);
@@ -1936,7 +1941,7 @@ void updateGenerationStatus()
         }
 
         int result = 0;
-        if (ready  &&  targetGeneration->mStatus != T::GenerationInfo::Status::Ready)
+        if (producerCheckEnabled &&  ready  &&  targetGeneration->mStatus != T::GenerationInfo::Status::Ready)
         {
           uint gLen = mTargetGeometryList.getLength();
           for (uint g=0; g<gLen; g++)
@@ -1980,7 +1985,7 @@ void updateGenerationStatus()
           }
         }
         else
-        if (!ready  &&  targetGeneration->mStatus == T::GenerationInfo::Status::Ready)
+        if (producerCheckEnabled &&  !ready  &&  targetGeneration->mStatus == T::GenerationInfo::Status::Ready)
         {
           uint gLen = mTargetGeometryList.getLength();
           for (uint g=0; g<gLen; g++)
@@ -2038,7 +2043,7 @@ void updateGenerationStatus()
           result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
           if (result == 0)
           {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
+            PRINT_EVENT_LINE(mProcessingLogPtr,"# GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
           }
           else
           {
@@ -2238,7 +2243,10 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
         std::string filename = getFilename(it->fileId);
         if (mSourceFilenames.find(it->fileId) == mSourceFilenames.end() && targetFileList.getFileInfoByName(filename) == nullptr)
         {
-          // File does not exists. It should be added.
+          // The target data storage does not have the current file information. It should be added.
+
+          PRINT_DATA(mDebugLogPtr, "**** New file : %s\n", filename.c_str());
+
 
           T::FileAndContent fc;
           fc.mFileInfo.mProducerId = generation->mProducerId;
