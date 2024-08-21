@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 24.8.7
+Version: 24.8.21
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -20,8 +20,8 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
-BuildRequires: smartmet-library-spine-devel >= 24.8.7
-BuildRequires: smartmet-library-grid-files-devel >= 24.8.7
+BuildRequires: smartmet-library-spine-devel >= 24.8.12
+BuildRequires: smartmet-library-grid-files-devel >= 24.8.21
 BuildRequires: smartmet-library-grid-content-devel >= 24.8.7
 BuildRequires: gdal38-devel
 BuildRequires: postgresql15-devel
@@ -36,7 +36,7 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-macgyver >= 24.8.7
 #Requires: smartmet-library-spine >= 24.8.7
 #Requires: smartmet-server >= 24.8.7
-Requires: smartmet-library-grid-files >= 24.8.7
+Requires: smartmet-library-grid-files >= 24.8.21
 Requires: smartmet-library-grid-content >= 24.8.7
 Requires: openldap
 Requires: openssl-libs
@@ -276,6 +276,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Aug 21 2024 Mika Heiskanen <mika.heiskanen@fmi.fi> - 24.8.21-1.fmi
+- Fixed radon2smartmet update interval counter bug
+
 * Wed Aug  7 2024 Andris Pavēnis <andris.pavenis@fmi.fi> 24.8.7-1.fmi
 - Update to gdal-3.8, geos-3.12, proj-94 and fmt-11
 
