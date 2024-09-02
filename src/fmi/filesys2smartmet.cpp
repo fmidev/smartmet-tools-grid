@@ -5,7 +5,7 @@
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/identification/GridDef.h"
-#include "grid-files/grid/PhysicalGridFile.h"
+#include "grid-files/grid/GridFile.h"
 #include "grid-files/common/DataFetcher_network.h"
 #include "grid-files/common/DataFetcher_filesys.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
@@ -653,7 +653,7 @@ void readSourceContent(T::FileInfo& fileInfo,T::ContentInfoList& contentList)
     fprintf(file,"#%lu\n",fileInfo.mModificationTime);
     fprintf(file,"#%s\n",fname);
 
-    SmartMet::GRID::PhysicalGridFile gridFile;
+    SmartMet::GRID::GridFile gridFile;
     gridFile.setServer(fileInfo.mServer);
     gridFile.setProtocol(fileInfo.mProtocol);
     gridFile.setServerType(fileInfo.mServerType);

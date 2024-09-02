@@ -2,9 +2,7 @@
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-content/contentServer/cache/CacheImplementation.h"
 #include "grid-content/dataServer/corba/client/ClientImplementation.h"
-#include "grid-content/dataServer/cache/CacheImplementation.h"
 #include "grid-content/dataServer/implementation/ServiceImplementation.h"
-#include "grid-content/dataServer/implementation/VirtualContentFactory_type1.h"
 #include "grid-content/queryServer/corba/server/ServerInterface.h"
 #include "grid-content/queryServer/corba/server/Server.h"
 #include "grid-content/queryServer/implementation/ServiceImplementation.h"
@@ -87,8 +85,6 @@ uint                mMaxUncompressedMegaBytesOfCachedGrids = 10000;
 
 std::string         mProducerFile;
 string_vec          mProducerMappingFiles;
-bool                mVirtualFilesEnabled = false;
-std::string         mVirtualFileDefinitions;
 
 string_vec          mParameterAliasFiles;
 string_vec          mParameterMappingFiles;

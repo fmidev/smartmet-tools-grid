@@ -77,14 +77,15 @@ for t in timeList:
 
       fname_landBorder1 = outputFile.format(outDir,producers[0],geometryId,"landBorder","1") 
       fname_landBorder2 = outputFile.format(outDir,producers[0],geometryId,"landBorder","2") 
-      fname_T_K_isobands = outputFile.format(outDir,producers[0],geometryId,t,"T-K_isobands") 
-      fname_T_K_numbers = outputFile.format(outDir,producers[0],geometryId,t,"T-K_numbers") 
-      fname_P_PA_isolines = outputFile.format(outDir,producers[0],geometryId,t,"P-PA_isolines") 
-      fname_wind_arrows = outputFile.format(outDir,producers[0],geometryId,t,"windArrows") 
         
       print("python3 %s/graph_getCoverBorders.py %s %s 240 \"#FFFFFF\" 1.0 %s %d %d" % (pdir,c.fileId,c.messageIndex,fname_landBorder1,width,height))
       print("python3 %s/graph_getCoverBorders.py %s %s 240 \"#000000\" 0.0 %s %d %d" % (pdir,c.fileId,c.messageIndex,fname_landBorder2,width,height))
       
+    fname_T_K_isobands = outputFile.format(outDir,producers[0],geometryId,t,"T-K_isobands") 
+    fname_T_K_numbers = outputFile.format(outDir,producers[0],geometryId,t,"T-K_numbers") 
+    fname_P_PA_isolines = outputFile.format(outDir,producers[0],geometryId,t,"P-PA_isolines") 
+    fname_wind_arrows = outputFile.format(outDir,producers[0],geometryId,t,"windArrows") 
+
     if t == c.forecastTime  and  c.geometryId == geometryId:
 
       if c.fmiParameterName == "T-K" and c.fmiParameterLevelId == 6 and c.parameterLevel == 2:

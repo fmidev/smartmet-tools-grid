@@ -1,4 +1,4 @@
-#include "grid-files/grid/PhysicalGridFile.h"
+#include "grid-files/grid/GridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GridDef.h"
 #include <macgyver/Exception.h>
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
     bool rotate = (bool)atoi(argv[5]);
     char *pngFile = argv[6];
 
-    SmartMet::GRID::PhysicalGridFile gridFile;
+    SmartMet::GRID::GridFile gridFile;
     gridFile.read(gridFilename);
 
     std::vector<uint> colorList;

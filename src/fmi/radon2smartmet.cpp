@@ -2082,7 +2082,7 @@ void deleteTargetFiles(T::FileInfoList& targetFileList)
     for (uint t = 0; t < len; t++)
     {
       T::FileInfo *fileInfo = targetFileList.getFileInfoByIndex(t);
-      if (fileInfo != nullptr && (fileInfo->mFlags & T::FileInfo::Flags::VirtualContent) == 0)
+      if (fileInfo != nullptr)
       {
         if (fileInfo->mSourceId == mSourceId && mIgnoreGeneration.find(fileInfo->mGenerationId) == mIgnoreGeneration.end()  &&  mSourceFilenames.find(getFileId(fileInfo->mName,false)) == mSourceFilenames.end())
         {
@@ -2115,7 +2115,7 @@ void deleteTargetFiles(uint producerId,T::FileInfoList& targetFileList)
     for (uint t = 0; t < len; t++)
     {
       T::FileInfo *fileInfo = targetFileList.getFileInfoByIndex(t);
-      if (fileInfo != nullptr && fileInfo->mProducerId == producerId  &&  (fileInfo->mFlags & T::FileInfo::Flags::VirtualContent) == 0)
+      if (fileInfo != nullptr && fileInfo->mProducerId == producerId)
       {
         if (fileInfo->mSourceId == mSourceId && mIgnoreGeneration.find(fileInfo->mGenerationId) == mIgnoreGeneration.end()  &&  mSourceFilenames.find(getFileId(fileInfo->mName,false)) == mSourceFilenames.end())
         {
@@ -2666,6 +2666,13 @@ int main(int argc, char *argv[])
       ContentServer::HTTP::ClientImplementation *httpClient = new ContentServer::HTTP::ClientImplementation();
       httpClient->init(mContentServerUrl.c_str());
       mTargetInterface = httpClient;
+    }
+
+    if (mStorageType == "corba")
+    {
+      ContentServer::Corba::ClientImplementation *corbaClient = new ContentServer::Corba::ClientImplementation();
+      corbaClient->init(mContentServerIor);
+      mTargetInterface = corbaClient;
     }
 
     if (mProcessingLogEnabled)

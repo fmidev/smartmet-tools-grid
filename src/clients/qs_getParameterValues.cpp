@@ -46,9 +46,9 @@ int main(int argc, char *argv[])
     }
 
 
-    if (argc < 7)
+    if (argc < 6)
     {
-      fprintf(stdout,"USAGE: qs_getParameterValues <sessionId> <parameter> <startTime> <endTime> [<attrName=attrValue> ... <attrName=attrValue>]\n");
+      fprintf(stdout,"USAGE: qs_getParameterValues <sessionId> <parameter> <startTime> <endTime> <csvFile> [<attrName=attrValue> ... <attrName=attrValue>]\n");
       return -1;
     }
 
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     T::Coordinate_vec coordinates;
     //T::AttributeList attributeList;
 
-    for (int t=5; t<argc; t++)
+    for (int t=6; t<argc; t++)
     {
       std::vector<std::string> partList;
       splitString(argv[t],'=',partList);
@@ -94,6 +94,31 @@ int main(int argc, char *argv[])
     // ### Result:
 
     query.print(std::cout,0,0);
+
+    const char *gridWidthStr = query.mAttributeList.getAttributeValue("grid.width");
+    const char *gridHeightStr = query.mAttributeList.getAttributeValue("grid.height");
+    uint columns = toInt32(gridWidthStr);
+    uint rows = toInt32(gridHeightStr);
+    auto sz = query.mQueryParameterList[0].mValueList[0]->mValueVector.size();
+
+    if (sz == (columns*rows))
+    {
+      FILE *file = fopen(argv[5],"w");
+      if (file)
+      {
+        uint c = 0;
+        for (uint y=0; y<rows; y++)
+        {
+          for (uint x=0; x<columns; x++)
+          {
+            fprintf(file,"%f;",query.mQueryParameterList[0].mValueList[0]->mValueVector[c]);
+            c++;
+          }
+          fprintf(file,"\n");
+        }
+        fclose(file);
+      }
+    }
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 
