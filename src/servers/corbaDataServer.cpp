@@ -1,7 +1,6 @@
 #include "grid-content/contentServer/cache/CacheImplementation.h"
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/dataServer/implementation/ServiceImplementation.h"
-#include "grid-content/dataServer/implementation/VirtualContentFactory_type1.h"
 #include "grid-content/dataServer/corba/server/ServerInterface.h"
 #include "grid-content/dataServer/corba/server/Server.h"
 #include <macgyver/Exception.h>
@@ -40,9 +39,6 @@ int                 mDebugLogMaxSize = 100000000;
 int                 mDebugLogTruncateSize = 20000000;
 Log                 mDebugLog;
 std::string         mContentSourceIor;
-bool                mVirtualFilesEnabled = false;
-std::string         mVirtualFileDefinitions;
-string_vec          mLuaFiles;
 std::string         mGridDirectory;
 std::string         mGridConfigFile;
 uint                mNumOfCachedGrids = 8000;
@@ -107,9 +103,6 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.data-server.iorFile",
         "smartmet.tools.grid.data-server.content-source.ior",
         "smartmet.tools.grid.data-server.grid-storage.directory",
-        "smartmet.tools.grid.data-server.virtualFiles.enabled",
-        "smartmet.tools.grid.data-server.virtualFiles.definitionFile",
-        "smartmet.tools.grid.data-server.luaFiles",
         "smartmet.tools.grid.data-server.processing-log.enabled",
         "smartmet.tools.grid.data-server.processing-log.file",
         "smartmet.tools.grid.data-server.processing-log.maxSize",
@@ -159,9 +152,6 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.content-source.ior", mContentSourceIor);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.directory",mGridDirectory);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.enabled",mVirtualFilesEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.definitionFile",mVirtualFileDefinitions);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.luaFiles",mLuaFiles);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.processing-log.enabled", mProcessingLogEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.processing-log.file", mProcessingLogFile);
@@ -276,19 +266,9 @@ int main(int argc, char *argv[])
     }
 
 
-    dataServer->init(0,mServerId,mServerName.c_str(),corbaServer->getServiceIor().c_str(),mGridDirectory.c_str(),&contentServerClient,mLuaFiles);
+    dataServer->init(0,mServerId,mServerName.c_str(),corbaServer->getServiceIor().c_str(),mGridDirectory.c_str(),&contentServerClient);
     dataServer->setDem(dem);
     dataServer->setLandCover(landCover);
-    dataServer->setVirtualContentEnabled(mVirtualFilesEnabled);
-
-    if (mVirtualFileDefinitions.length() > 0)
-    {
-      DataServer::VirtualContentFactory_type1 *factory = new DataServer::VirtualContentFactory_type1();
-      factory->init(mVirtualFileDefinitions);
-
-      dataServer->addVirtualContentFactory(factory);
-    }
-
     dataServer->startEventProcessing();
 
     // Let's print the service IOR. This is necessary for accessing the service. Usually the best way

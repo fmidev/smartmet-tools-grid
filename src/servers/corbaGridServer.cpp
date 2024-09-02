@@ -5,9 +5,7 @@
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/corba/server/Server.h"
 #include "grid-content/contentServer/corba/server/ServerInterface.h"
-#include "grid-content/dataServer/cache/CacheImplementation.h"
 #include "grid-content/dataServer/implementation/ServiceImplementation.h"
-#include "grid-content/dataServer/implementation/VirtualContentFactory_type1.h"
 #include "grid-content/dataServer/implementation/ServiceImplementation.h"
 #include "grid-content/dataServer/corba/server/ServerInterface.h"
 #include "grid-content/dataServer/corba/server/Server.h"
@@ -95,10 +93,7 @@ std::string data_server_iorFile;
 std::string data_server_name;
 uint data_server_id = 0;
 std::string data_server_grid_storage_directory;
-bool data_server_virtualFiles_enabled = false;
 bool data_server_memoryMapCheck_enabled = false;
-std::string data_server_virtualFiles_definitionFile;
-std::vector<std::string> data_server_luaFiles;
 bool data_server_processing_log_enabled = false;
 std::string data_server_processing_log_file;
 uint data_server_processing_log_maxSize = 0;
@@ -597,9 +592,6 @@ void readConfigFile(const char* configFile)
          "smartmet.tools.grid.content-server.debug-log.truncateSize",
          "smartmet.tools.grid.data-server.iorFile",
          "smartmet.tools.grid.data-server.grid-storage.directory",
-         "smartmet.tools.grid.data-server.virtualFiles.enabled",
-         "smartmet.tools.grid.data-server.virtualFiles.definitionFile",
-         "smartmet.tools.grid.data-server.luaFiles",
          "smartmet.tools.grid.data-server.processing-log.enabled",
          "smartmet.tools.grid.data-server.processing-log.file",
          "smartmet.tools.grid.data-server.processing-log.maxSize",
@@ -660,6 +652,7 @@ void readConfigFile(const char* configFile)
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.corba-server.address",corba_server_address);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.corba-server.port",corba_server_port);
+
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.iorFile",content_server_iorFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.type",content_server_content_source_type);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.address",content_server_content_source_redis_address);
@@ -680,13 +673,11 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.debug-log.file",content_server_debug_log_file);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.debug-log.maxSize",content_server_debug_log_maxSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.debug-log.truncateSize",content_server_debug_log_truncateSize);
+
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.id",data_server_id);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.name",data_server_name);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.iorFile",data_server_iorFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.grid-storage.directory",data_server_grid_storage_directory);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.enabled",data_server_virtualFiles_enabled);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.virtualFiles.definitionFile",data_server_virtualFiles_definitionFile);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.luaFiles",data_server_luaFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.processing-log.enabled",data_server_processing_log_enabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.processing-log.file",data_server_processing_log_file);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.processing-log.maxSize",data_server_processing_log_maxSize);
@@ -695,6 +686,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.debug-log.file",data_server_debug_log_file);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.debug-log.maxSize",data_server_debug_log_maxSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.data-server.debug-log.truncateSize",data_server_debug_log_truncateSize);
+
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.iorFile",query_server_iorFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerFile",query_server_producerFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.heightConversionFile",query_server_heightConversionFile);
@@ -867,7 +859,7 @@ int main(int argc, char *argv[])
     corbaServer->init(contentService,dataService,queryService);
 
 
-    dataService->init(0,data_server_id,data_server_name.c_str(),corbaServer->getDataServiceIor().c_str(),data_server_grid_storage_directory.c_str(),contentService,data_server_luaFiles);
+    dataService->init(0,data_server_id,data_server_name.c_str(),corbaServer->getDataServiceIor().c_str(),data_server_grid_storage_directory.c_str(),contentService);
     queryService->init(contentService,dataService,grid_files_configFile,query_server_heightConversionFile,query_server_mappingFiles,query_server_aliasFiles,query_server_producerFile,query_server_producerAliasFiles,query_server_luaFiles,query_server_checkGeometryStatus,data_server_methods_enabled);
 
 
@@ -881,16 +873,6 @@ int main(int argc, char *argv[])
     {
       mDataServerDebugLog.init(true,data_server_debug_log_file.c_str(),data_server_debug_log_maxSize,data_server_debug_log_truncateSize);
       dataService->setDebugLog(&mDataServerDebugLog);
-    }
-
-    dataService->setVirtualContentEnabled(data_server_virtualFiles_enabled);
-
-    if (data_server_virtualFiles_definitionFile.length() > 0)
-    {
-      DataServer::VirtualContentFactory_type1 *factory = new DataServer::VirtualContentFactory_type1();
-      factory->init(data_server_virtualFiles_definitionFile);
-
-      dataService->addVirtualContentFactory(factory);
     }
 
     dataService->startEventProcessing();

@@ -2,7 +2,7 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
-#include "grid-files/grid/PhysicalGridFile.h"
+#include "grid-files/grid/GridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GridDef.h"
 #include <macgyver/Exception.h>
@@ -391,7 +391,7 @@ int run(int argc, char **argv)
       service = client;
     }
 
-    GRID::PhysicalGridFile gridFile;
+    GRID::GridFile gridFile;
     gridFile.read(filename);
     addFile(gridFile);
 
