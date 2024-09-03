@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 24.8.21
+Version: 24.9.3
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -276,6 +276,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Tue Sep  3 2024 Andris Pavēnis <andris.pavenis@fmi.fi> 24.9.3-1.fmi
+- New version due to smartmet-library-grid-files changes. Also code cleanup and simplification
+
 * Wed Aug 21 2024 Mika Heiskanen <mika.heiskanen@fmi.fi> - 24.8.21-1.fmi
 - Fixed radon2smartmet update interval counter bug
 
