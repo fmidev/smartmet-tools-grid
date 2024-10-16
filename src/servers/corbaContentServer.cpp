@@ -10,6 +10,9 @@
 #include "grid-files/identification/GridDef.h"
 #include <signal.h>
 
+#define CONTENT_SERVER_SESSION_ID 111111111
+#define DATA_SERVER_SESSION_ID 222222222
+
 using namespace SmartMet;
 
 
@@ -291,7 +294,7 @@ int main(int argc, char *argv[])
         cacheImplementation->setDebugLog(&mDebugLog);
       }
 
-      cacheImplementation->init(0,contentSource);
+      cacheImplementation->init(CONTENT_SERVER_SESSION_ID,DATA_SERVER_SESSION_ID,contentSource);
       cacheImplementation->setEventListMaxLength(mEventListMaxSize);
 
       cacheImplementation->startEventProcessing();
