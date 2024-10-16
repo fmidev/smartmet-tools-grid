@@ -26,6 +26,9 @@
 #include <sys/time.h>
 #include <signal.h>
 
+#define CONTENT_SERVER_SESSION_ID 111111111
+#define DATA_SERVER_SESSION_ID 222222222
+
 
 using namespace SmartMet;
 
@@ -812,7 +815,7 @@ int main(int argc, char *argv[])
     if (content_server_cache_enabled)
     {
       cacheImplementation = new ContentServer::CacheImplementation();
-      cacheImplementation->setContentSwapEnabled(false);
+      cacheImplementation->setContentSwap(false,0,0);
       cacheImplementation->setRequestForwardEnabled(content_server_cache_requestForwardEnabled);
 
       if (content_server_processing_log_enabled && content_server_processing_log_file.length() > 0)
@@ -826,8 +829,7 @@ int main(int argc, char *argv[])
         mContentServerDebugLog.init(true,content_server_debug_log_file.c_str(),content_server_debug_log_maxSize,content_server_debug_log_truncateSize);
         cacheImplementation->setDebugLog(&mContentServerDebugLog);
       }
-
-      cacheImplementation->init(0,contentService);
+      cacheImplementation->init(CONTENT_SERVER_SESSION_ID,DATA_SERVER_SESSION_ID,contentService);
       cacheImplementation->setEventListMaxLength(content_server_cache_eventListMaxSize);
 
       cacheImplementation->startEventProcessing();

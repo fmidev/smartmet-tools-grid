@@ -22,6 +22,9 @@ using namespace SmartMet;
 typedef int MHD_Result;
 #endif
 
+#define CONTENT_SERVER_SESSION_ID 111111111
+#define DATA_SERVER_SESSION_ID 222222222
+
 ContentServer::ServiceInterface *contentSource = nullptr;
 ContentServer::Corba::ClientImplementation *corbaClient = nullptr;
 ContentServer::HTTP::ClientImplementation *httpClient = nullptr;
@@ -452,7 +455,7 @@ int main(int argc,char ** argv)
         cacheImplementation->setDebugLog(&mDebugLog);
       }
 
-      cacheImplementation->init(0,contentSource);
+      cacheImplementation->init(CONTENT_SERVER_SESSION_ID,DATA_SERVER_SESSION_ID,contentSource);
       cacheImplementation->startEventProcessing();
       contentSource = cacheImplementation;
     }
