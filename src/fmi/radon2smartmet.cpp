@@ -59,6 +59,7 @@ struct FileRec
     time_t lastUpdated;
     std::string producerName;
     std::string server;
+    bool cachingRequested;
 };
 
 struct FileRecVec
@@ -116,6 +117,8 @@ Log* mDebugLogPtr = nullptr;
 T::SessionId mSessionId = 0;
 
 std::set<std::string> mProducerList;
+std::unordered_map<std::string,std::set<int>> mProducerLevelTypeCacheList;
+
 std::set<std::string> mProducerFullList;
 std::set<uint> mProducerIdList;
 std::unordered_map<std::string,GeomRec> mSourceGeometryList;
@@ -324,6 +327,7 @@ void readProducerList(const char *filename)
         std::vector <std::string> fields;
         splitString(st,';',fields);
         std::set<int> geometries;
+        std::set<int> levelTypes;
 
         if (fields.size() > 0)
         {
@@ -347,6 +351,9 @@ void readProducerList(const char *filename)
           if (fields.size() > 6)
             splitString(fields[6],',',ignoredParameters);
 
+          if (fields.size() > 7)
+            splitString(fields[7],',',levelTypes);
+
           std::vector<std::string> pList;
           splitString(fields[0],',',pList);
 
@@ -361,6 +368,9 @@ void readProducerList(const char *filename)
 
               if (geometries.size() > 0)
                 mProducerGeometryList.insert(std::pair<std::string, std::set<int>>(pname,geometries));
+
+              if (levelTypes.size() > 0)
+                mProducerLevelTypeCacheList.insert(std::pair<std::string, std::set<int>>(pname,levelTypes));
 
               if (acceptedParameters.size() > 0)
                 mAcceptedParameters.insert(std::pair<std::string, std::set<std::string>>(pname,acceptedParameters));
@@ -789,6 +799,9 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
     if (shutdownRequested)
       return;
 
+    auto lt = mProducerLevelTypeCacheList.find(producerName);
+
+
     std::string tbl = std::string(tableName) + ":" + std::to_string(producerId) + ":" + std::to_string(geometryId) + ":" + std::string(analysisTime);
     if (mFileTables.find(tbl) != mFileTables.end())
       return;
@@ -870,6 +883,10 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
       if (rec.levelId == 2)
         rec.levelValue = rec.levelValue * 100;
 
+      if (lt != mProducerLevelTypeCacheList.end()  &&  lt->second.find(rec.levelId) != lt->second.end())
+        rec.cachingRequested = true;
+      else
+        rec.cachingRequested = false;
 
       bool accepted = true;
 
@@ -2272,7 +2289,12 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
 
           fc.mFileInfo.mFileType = it->format;
           fc.mFileInfo.mName = filename;
-          fc.mFileInfo.mFlags = 0;
+
+          if (it->cachingRequested)
+            fc.mFileInfo.mFlags = T::FileInfo::Flags::LocalCacheRecommended;
+          else
+            fc.mFileInfo.mFlags = 0;
+
           fc.mFileInfo.mSourceId = mSourceId;
           fc.mFileInfo.mDeletionTime = forecast.deletionTime;
 
@@ -2726,84 +2748,87 @@ int main(int argc, char *argv[])
           readProducerList(mProducerFile.c_str());
         }
 
-        if (!shutdownRequested)
+        if (mProducerList.size() > 0 ||  mProducerFullList.size() == 0)
         {
-          PRINT_DATA(mDebugLogPtr, "* Reading producer information from the target data storage\n");
-          readTargetProducers(mTargetProducerList);
-        }
+          if (!shutdownRequested)
+          {
+            PRINT_DATA(mDebugLogPtr, "* Reading producer information from the target data storage\n");
+            readTargetProducers(mTargetProducerList);
+          }
 
-        if (!shutdownRequested)
-        {
-          PRINT_DATA(mDebugLogPtr, "* Reading producer information from the source data storage\n");
-          readSourceProducers(conn);
-        }
+          if (!shutdownRequested)
+          {
+            PRINT_DATA(mDebugLogPtr, "* Reading producer information from the source data storage\n");
+            readSourceProducers(conn);
+          }
 
-        if (!shutdownRequested)
-        {
-          PRINT_DATA(mDebugLogPtr, "* Updating producer information into the target data storage\n");
-          updateProducers();
-          readTargetProducers(mTargetProducerList);
-        }
+          if (!shutdownRequested)
+          {
+            PRINT_DATA(mDebugLogPtr, "* Updating producer information into the target data storage\n");
+            updateProducers();
+            readTargetProducers(mTargetProducerList);
+          }
 
-        if (!shutdownRequested)
-        {
-          PRINT_DATA(mDebugLogPtr, "* Reading generation information from the target data storage\n");
-          readTargetGenerations(mTargetGenerationList);
-          mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
-        }
+          if (!shutdownRequested)
+          {
+            PRINT_DATA(mDebugLogPtr, "* Reading generation information from the target data storage\n");
+            readTargetGenerations(mTargetGenerationList);
+            mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
+          }
 
-        if (!shutdownRequested)
-        {
-          PRINT_DATA(mDebugLogPtr, "* Reading generation information from the source data storage\n");
-          readSourceGenerations(conn);
-        }
+          if (!shutdownRequested)
+          {
+            PRINT_DATA(mDebugLogPtr, "* Reading generation information from the source data storage\n");
+            readSourceGenerations(conn);
+          }
 
-        if (!shutdownRequested)
-        {
-          PRINT_DATA(mDebugLogPtr, "* Updating generation information into the target data storage\n");
-          updateGenerations();
-          readTargetGenerations(mTargetGenerationList);
-          mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
-        }
+          if (!shutdownRequested)
+          {
+            PRINT_DATA(mDebugLogPtr, "* Updating generation information into the target data storage\n");
+            updateGenerations();
+            readTargetGenerations(mTargetGenerationList);
+            mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
+          }
 
-        if (!shutdownRequested)
-        {
-          PRINT_DATA(mDebugLogPtr, "* Reading geometry information from the target data storage\n");
-          readTargetGeometries(mTargetGeometryList);
-          mTargetGeometryList.sort(T::GeometryInfo::ComparisonMethod::generationId);
-        }
+          if (!shutdownRequested)
+          {
+            PRINT_DATA(mDebugLogPtr, "* Reading geometry information from the target data storage\n");
+            readTargetGeometries(mTargetGeometryList);
+            mTargetGeometryList.sort(T::GeometryInfo::ComparisonMethod::generationId);
+          }
 
-        if (!shutdownRequested)
-        {
-          PRINT_DATA(mDebugLogPtr, "* Reading geometry information from the source data storage\n");
-          readSourceGeometries(conn,mSourceGeometryList);
-        }
+          if (!shutdownRequested)
+          {
+            PRINT_DATA(mDebugLogPtr, "* Reading geometry information from the source data storage\n");
+            readSourceGeometries(conn,mSourceGeometryList);
+          }
 
-        if (!shutdownRequested)
-        {
-          PRINT_DATA(mDebugLogPtr, "* Updating geometry information into the target data storage\n");
-          updateGeometries();
-          readTargetGeometries(mTargetGeometryList);
-          mTargetGeometryList.sort(T::GeometryInfo::ComparisonMethod::generationId);
-        }
+          if (!shutdownRequested)
+          {
+            PRINT_DATA(mDebugLogPtr, "* Updating geometry information into the target data storage\n");
+            updateGeometries();
+            readTargetGeometries(mTargetGeometryList);
+            mTargetGeometryList.sort(T::GeometryInfo::ComparisonMethod::generationId);
+          }
 
-        if (!shutdownRequested)
-        {
-          PRINT_DATA(mDebugLogPtr, "* Reading content information from the target data storage\n");
-          readTargetContentList(mTargetContentList);
-          mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
-        }
+          if (!shutdownRequested)
+          {
+            PRINT_DATA(mDebugLogPtr, "* Reading content information from the target data storage\n");
+            readTargetContentList(mTargetContentList);
+            mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
+          }
 
-        if (!shutdownRequested)
-        {
-          PRINT_DATA(mDebugLogPtr, "* Updating file and content information into the target data storage\n");
-          updateTargetFiles(conn);
-        }
+          if (!shutdownRequested)
+          {
+            PRINT_DATA(mDebugLogPtr, "* Updating file and content information into the target data storage\n");
+            updateTargetFiles(conn);
+          }
 
-        if (!shutdownRequested && redisImplementation)
-        {
-          PRINT_DATA(mDebugLogPtr, "* Checking filenames \n");
-          redisImplementation->syncFilenames();
+          if (!shutdownRequested && redisImplementation)
+          {
+            PRINT_DATA(mDebugLogPtr, "* Checking filenames \n");
+            redisImplementation->syncFilenames();
+          }
         }
       }
       catch (...)
