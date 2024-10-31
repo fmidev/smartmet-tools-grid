@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 24.10.16
+Version: 24.10.31
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -21,8 +21,8 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
 BuildRequires: smartmet-library-spine-devel >= 24.10.15
-BuildRequires: smartmet-library-grid-files-devel >= 24.10.16
-BuildRequires: smartmet-library-grid-content-devel >= 24.10.16
+BuildRequires: smartmet-library-grid-files-devel >= 24.10.28
+BuildRequires: smartmet-library-grid-content-devel >= 24.10.28
 BuildRequires: gdal38-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
@@ -36,8 +36,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-macgyver >= 24.8.7
 #Requires: smartmet-library-spine >= 24.8.7
 #Requires: smartmet-server >= 24.8.7
-Requires: smartmet-library-grid-files >= 24.10.16
-Requires: smartmet-library-grid-content >= 24.10.16
+Requires: smartmet-library-grid-files >= 24.10.28
+Requires: smartmet-library-grid-content >= 24.10.28
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -276,6 +276,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu Oct 31 2024 Mika Heiskanen <mika.heiskanen@fmi.fi> - 24.10.31-1.fmi
+- Repackaged due to ABI changes
+
 * Wed Oct 16 2024 Mika Heiskanen <mika.heiskanen@fmi.fi> - 24.10.16-1.fmi
 - Added a possiblity to mark grid files as cacheable if they contain given level types
 
