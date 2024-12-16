@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     BitLine bitLine(data,bits);
     bitLine.writeToFile(file);
     fclose(file);
-    delete data;
+    delete [] data;
 
 
     return 0;
