@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 24.10.31
+Version: 25.1.9
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -20,9 +20,9 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
-BuildRequires: smartmet-library-spine-devel >= 24.10.15
-BuildRequires: smartmet-library-grid-files-devel >= 24.10.28
-BuildRequires: smartmet-library-grid-content-devel >= 24.10.28
+BuildRequires: smartmet-library-spine-devel >= 24.11.27
+BuildRequires: smartmet-library-grid-files-devel >= 25.1.9
+BuildRequires: smartmet-library-grid-content-devel >= 25.1.9
 BuildRequires: gdal38-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
@@ -36,12 +36,12 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-macgyver >= 24.8.7
 #Requires: smartmet-library-spine >= 24.8.7
 #Requires: smartmet-server >= 24.8.7
-Requires: smartmet-library-grid-files >= 24.10.28
-Requires: smartmet-library-grid-content >= 24.10.28
+Requires: smartmet-library-grid-files >= 25.1.9
+Requires: smartmet-library-grid-content >= 25.1.9
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
-#TestRequires: smartmet-utils-devel >= 24.9.10
+#TestRequires: smartmet-utils-devel >= 24.12.10
 
 Provides: corbaContentServer = %{version}
 Provides: corbaDataServer = %{version}
@@ -276,6 +276,11 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu Jan  9 2025 Mika Heiskanen <mika.heiskanen@fmi.fi> - 25.1.9-1.fmi
+- Added content info extension for parameter details
+- Reading aggregation and processing information from Radon
+- Fix new[]/delete mismatch
+
 * Thu Oct 31 2024 Mika Heiskanen <mika.heiskanen@fmi.fi> - 24.10.31-1.fmi
 - Repackaged due to ABI changes
 
