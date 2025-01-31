@@ -56,6 +56,11 @@ struct FileRec
     short forecastNumber;
     uchar serverType;
     uchar format;
+    int aggregation_id;
+    int aggregation_period;
+    int processing_type_id;
+    float processing_type_value;
+    float processing_type_value2;
     time_t lastUpdated;
     std::string producerName;
     std::string server;
@@ -831,7 +836,14 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
     p += sprintf(p, "  producer_id,\n");
     p += sprintf(p, "  file_format_id,\n");
     p += sprintf(p, "  file_protocol_id,\n");
-    p += sprintf(p, "  file_server\n");
+    p += sprintf(p, "  file_server,\n");
+
+    p += sprintf(p, "  aggregation_id,\n");
+    p += sprintf(p, "  date_part('epoch',aggregation_period::interval),\n");
+    p += sprintf(p, "  processing_type_id,\n");
+    p += sprintf(p, "  processing_type_value,\n");
+    p += sprintf(p, "  processing_type_value2\n");
+
     p += sprintf(p, "FROM\n");
     p += sprintf(p, "  %s\n", tableName);
     p += sprintf(p, "WHERE\n");
@@ -843,6 +855,7 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
     {
       Fmi::Exception exception(BCP, "Postgresql error!");
       exception.addParameter("ErrorMessage", PQerrorMessage(conn));
+      printf("%s\n",sql);
       throw exception;
     }
 
@@ -866,8 +879,6 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
       rec.levelValue = toInt64(PQgetvalue(res, i, 6));
       rec.analysisTime = utcTimeToTimeT(PQgetvalue(res, i, 7));
       rec.forecastTime = utcTimeToTimeT(PQgetvalue(res, i, 8));
-      //rec.analysisTime = PQgetvalue(res, i, 7);
-      //rec.forecastTime = PQgetvalue(res, i, 8);
       std::string forecastPeriod = PQgetvalue(res, i, 9);
       rec.forecastType = toInt64(PQgetvalue(res, i, 10));
       rec.forecastNumber = toInt64(PQgetvalue(res, i, 11));
@@ -877,6 +888,25 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
       rec.format = toInt32(PQgetvalue(res, i, 14));
       rec.serverType = toInt32(PQgetvalue(res, i, 15));
       rec.server = PQgetvalue(res, i, 16);
+/*
+      rec.aggregation_id = 0;
+      rec.aggregation_period = 0;
+      rec.processing_type_id = 0;
+      rec.processing_type_value = 0;
+      rec.processing_type_value2 = 0;
+*/
+      rec.aggregation_id = toInt32(PQgetvalue(res, i, 17));
+      rec.aggregation_period = toInt64(PQgetvalue(res, i, 18)) / 60;
+      rec.processing_type_id = toInt32(PQgetvalue(res, i, 19));
+
+      rec.processing_type_value = ParamValueMissing;
+      if (!PQgetisnull(res, i, 20))
+        rec.processing_type_value = toFloat(PQgetvalue(res, i, 20));
+
+      rec.processing_type_value2 = ParamValueMissing;
+      if (!PQgetisnull(res, i, 21))
+        rec.processing_type_value2 = toFloat(PQgetvalue(res, i, 21));
+
       rec.producerName = producerName;
       rec.lastUpdated = updateTime;
 
@@ -2371,6 +2401,11 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
           contentInfo->mParameterLevel = it->levelValue;
           contentInfo->mForecastType = it->forecastType;
           contentInfo->mForecastNumber = it->forecastNumber;
+          contentInfo->mAggregationId = it->aggregation_id;
+          contentInfo->mAggregationPeriod = it->aggregation_period;
+          contentInfo->mProcessingTypeId = it->processing_type_id;
+          contentInfo->mProcessingTypeValue1 = it->processing_type_value;
+          contentInfo->mProcessingTypeValue2 = it->processing_type_value2;
           contentInfo->mFlags = 0;
           contentInfo->mSourceId = mSourceId;
           contentInfo->mGeometryId = it->geometryId;
@@ -2463,6 +2498,11 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
           contentInfo->mParameterLevel = it->levelValue;
           contentInfo->mForecastType = it->forecastType;
           contentInfo->mForecastNumber = it->forecastNumber;
+          contentInfo->mAggregationId = it->aggregation_id;
+          contentInfo->mAggregationPeriod = it->aggregation_period;
+          contentInfo->mProcessingTypeId = it->processing_type_id;
+          contentInfo->mProcessingTypeValue1 = it->processing_type_value;
+          contentInfo->mProcessingTypeValue2 = it->processing_type_value2;
           contentInfo->mFlags = 0;
           contentInfo->mSourceId = mSourceId;
           contentInfo->mGeometryId = it->geometryId;
