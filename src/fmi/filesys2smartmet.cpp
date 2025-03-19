@@ -1082,6 +1082,78 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
 
 
 
+void updateLoopStart(ContentServer::ServiceInterface *targetInterface)
+{
+  FUNCTION_TRACE
+  try
+  {
+    T::EventInfo event;
+    event.mType = SmartMet::ContentServer::EventType::UPDATE_LOOP_START;
+    event.mId1 = mSourceId;
+
+    int result = targetInterface->addEventInfo(mSessionId, event);
+    if (result == 0)
+    {
+      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-START;OK;%u;",mSourceId);
+    }
+    else
+    {
+      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-START;FAIL;%u;%d",mSourceId,result);
+    }
+
+    if (result != 0)
+    {
+      Fmi::Exception exception(BCP, "Cannot add the event information into the target data storage!");
+      exception.addParameter("Result", ContentServer::getResultString(result));
+      throw exception;
+    }
+  }
+  catch (...)
+  {
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
+  }
+}
+
+
+
+
+
+void updateLoopEnd(ContentServer::ServiceInterface *targetInterface)
+{
+  FUNCTION_TRACE
+  try
+  {
+    T::EventInfo event;
+    event.mType = ContentServer::EventType::UPDATE_LOOP_END;
+    event.mId1 = mSourceId;
+
+    int result = targetInterface->addEventInfo(mSessionId, event);
+    if (result == 0)
+    {
+      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-END;OK;%u;",mSourceId);
+    }
+    else
+    {
+      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-END;FAIL;%u;%d",mSourceId,result);
+    }
+
+    if (result != 0)
+    {
+      Fmi::Exception exception(BCP, "Cannot add the event information into the target data storage!");
+      exception.addParameter("Result", ContentServer::getResultString(result));
+      throw exception;
+    }
+  }
+  catch (...)
+  {
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
+  }
+}
+
+
+
+
+
 int main(int argc, char *argv[])
 {
   FUNCTION_TRACE
@@ -1163,6 +1235,8 @@ int main(int argc, char *argv[])
       PRINT_DATA(mDebugLogPtr,"********************************************************************\n");
       PRINT_DATA(mDebugLogPtr,"****************************** UPDATE ******************************\n");
       PRINT_DATA(mDebugLogPtr,"********************************************************************\n");
+
+      updateLoopStart(targetInterface);
 
       //std::set<std::string> dirList;
       //std::vector<std::pair<std::string,std::string>> fileList;
@@ -1273,7 +1347,10 @@ int main(int argc, char *argv[])
 
       PRINT_DATA(mDebugLogPtr,"********************************************************************\n\n");
 
+      updateLoopEnd(targetInterface);
+
       PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-END");
+
 
       if (waitTime > 0)
         sleep(waitTime);

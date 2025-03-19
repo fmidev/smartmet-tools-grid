@@ -1560,6 +1560,78 @@ void updateProducers()
 
 
 
+void updateLoopStart()
+{
+  FUNCTION_TRACE
+  try
+  {
+    T::EventInfo event;
+    event.mType = SmartMet::ContentServer::EventType::UPDATE_LOOP_START;
+    event.mId1 = mSourceId;
+
+    int result = mTargetInterface->addEventInfo(mSessionId, event);
+    if (result == 0)
+    {
+      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-START;OK;%u;",mSourceId);
+    }
+    else
+    {
+      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-START;FAIL;%u;%d",mSourceId,result);
+    }
+
+    if (result != 0)
+    {
+      Fmi::Exception exception(BCP, "Cannot add the event information into the target data storage!");
+      exception.addParameter("Result", ContentServer::getResultString(result));
+      throw exception;
+    }
+  }
+  catch (...)
+  {
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
+  }
+}
+
+
+
+
+
+void updateLoopEnd()
+{
+  FUNCTION_TRACE
+  try
+  {
+    T::EventInfo event;
+    event.mType = ContentServer::EventType::UPDATE_LOOP_END;
+    event.mId1 = mSourceId;
+
+    int result = mTargetInterface->addEventInfo(mSessionId, event);
+    if (result == 0)
+    {
+      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-END;OK;%u;",mSourceId);
+    }
+    else
+    {
+      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-END;FAIL;%u;%d",mSourceId,result);
+    }
+
+    if (result != 0)
+    {
+      Fmi::Exception exception(BCP, "Cannot add the event information into the target data storage!");
+      exception.addParameter("Result", ContentServer::getResultString(result));
+      throw exception;
+    }
+  }
+  catch (...)
+  {
+    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
+  }
+}
+
+
+
+
+
 void updateGenerations()
 {
   FUNCTION_TRACE
@@ -2782,6 +2854,8 @@ int main(int argc, char *argv[])
 
       try
       {
+        updateLoopStart();
+
         if (!shutdownRequested)
         {
           PRINT_DATA(mDebugLogPtr, "* Reading producer names that belong to this update\n");
@@ -2870,6 +2944,8 @@ int main(int argc, char *argv[])
             redisImplementation->syncFilenames();
           }
         }
+
+        updateLoopEnd();
       }
       catch (...)
       {
