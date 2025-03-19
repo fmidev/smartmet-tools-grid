@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 25.2.18
+Version: 25.3.19
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -20,9 +20,9 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
-BuildRequires: smartmet-library-spine-devel >= 25.2.18
-BuildRequires: smartmet-library-grid-files-devel >= 25.2.18
-BuildRequires: smartmet-library-grid-content-devel >= 25.2.18
+BuildRequires: smartmet-library-spine-devel >= 25.3.3
+BuildRequires: smartmet-library-grid-files-devel >= 25.3.19
+BuildRequires: smartmet-library-grid-content-devel >= 25.3.19
 BuildRequires: gdal310-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
@@ -36,8 +36,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-macgyver >= 25.2.18
 #Requires: smartmet-library-spine >= 25.2.18
 #Requires: smartmet-server >= 25.2.18
-Requires: smartmet-library-grid-files >= 25.2.18
-Requires: smartmet-library-grid-content >= 25.2.18
+Requires: smartmet-library-grid-files >= 25.3.19
+Requires: smartmet-library-grid-content >= 25.3.19
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -276,6 +276,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Mar 19 2025 Mika Heiskanen <mika.heiskanen@fmi.fi> - 25.3.19-1.fmi
+- Added events to indicate when an update loop starts and ends
+
 * Tue Feb 18 2025 Andris Pavēnis <andris.pavenis@fmi.fi> 25.2.18-1.fmi
 - Update to gdal-3.10, geos-3.13 and proj-9.5
 
