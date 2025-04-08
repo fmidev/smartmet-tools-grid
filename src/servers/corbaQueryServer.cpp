@@ -89,6 +89,9 @@ string_vec          mProducerMappingFiles;
 string_vec          mParameterAliasFiles;
 string_vec          mParameterMappingFiles;
 
+std::string         mUnitConversionFile;
+string_vec          mMappingAliasFiles;
+
 pthread_t           mThread;
 std::string         mParameterMappingUpdateFile_fmi;
 std::string         mParameterMappingUpdateFile_newbase;
@@ -674,6 +677,9 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.newbase",mParameterMappingUpdateFile_newbase);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.netCdf",mParameterMappingUpdateFile_netCdf);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingFiles",mParameterMappingFiles);
+    mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.unitConversionFile", mUnitConversionFile);
+    mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.mappingAliasFiles",mMappingAliasFiles);
+
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.aliasFiles",mParameterAliasFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.luaFiles",mQueryServerLuaFiles);
     mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.dataServerMethodsEnabled",mDataServerMethodsEnabled);
@@ -734,7 +740,9 @@ int main(int argc, char *argv[])
     dataServer->init(mDataServerIor);
 
 
-    queryServer->init(contentServer,dataServer,mGridConfigFile,mQueryServerHeightConversionFile,mParameterMappingFiles,mParameterAliasFiles,mProducerFile,mProducerMappingFiles,mQueryServerLuaFiles,mQueryServerCheckGeometryStatus,mDataServerMethodsEnabled);
+    queryServer->init(contentServer,dataServer,mGridConfigFile,mQueryServerHeightConversionFile,mParameterMappingFiles,
+        mUnitConversionFile,mMappingAliasFiles,mParameterAliasFiles,mProducerFile,mProducerMappingFiles,
+        mQueryServerLuaFiles,mQueryServerCheckGeometryStatus,mDataServerMethodsEnabled);
 
     if (mContentServerProcessingLogEnabled &&  mContentServerProcessingLogFile.length() > 0)
     {

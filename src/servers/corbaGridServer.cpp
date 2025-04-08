@@ -117,6 +117,8 @@ std::string query_server_mappingUpdateFile_newbase;
 std::string query_server_mappingUpdateFile_netCdf;
 std::vector<std::string> query_server_luaFiles;
 std::vector<std::string> query_server_mappingFiles;
+std::string query_server_unitConversionFile;
+std::vector<std::string> query_server_mappingAliasFiles;
 std::vector<std::string> query_server_aliasFiles;
 bool query_server_processing_log_enabled = false;
 std::string query_server_processing_log_file;
@@ -707,6 +709,9 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.netCdf",query_server_mappingUpdateFile_netCdf);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.luaFiles",query_server_luaFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingFiles",query_server_mappingFiles);
+    mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.unitConversionFile", query_server_unitConversionFile);
+    mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.mappingAliasFiles",query_server_mappingAliasFiles);
+
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.aliasFiles",query_server_aliasFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.processing-log.enabled",query_server_processing_log_enabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.processing-log.file",query_server_processing_log_file);
@@ -862,8 +867,10 @@ int main(int argc, char *argv[])
 
 
     dataService->init(0,data_server_id,data_server_name.c_str(),corbaServer->getDataServiceIor().c_str(),data_server_grid_storage_directory.c_str(),contentService);
-    queryService->init(contentService,dataService,grid_files_configFile,query_server_heightConversionFile,query_server_mappingFiles,query_server_aliasFiles,query_server_producerFile,query_server_producerAliasFiles,query_server_luaFiles,query_server_checkGeometryStatus,data_server_methods_enabled);
-
+    queryService->init(contentService,dataService,grid_files_configFile,query_server_heightConversionFile,
+        query_server_mappingFiles,query_server_unitConversionFile,query_server_mappingAliasFiles,
+        query_server_aliasFiles,query_server_producerFile,query_server_producerAliasFiles,query_server_luaFiles,
+        query_server_checkGeometryStatus,data_server_methods_enabled);
 
     if (data_server_processing_log_enabled && data_server_processing_log_file.length() > 0)
     {
