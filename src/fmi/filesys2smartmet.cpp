@@ -1,4 +1,5 @@
 #include <macgyver/Exception.h>
+#include <macgyver/Hash.h>
 #include "grid-files/common/Log.h"
 #include "grid-files/common/MemoryMapper.h"
 #include "grid-files/common/ShowFunction.h"
@@ -562,7 +563,7 @@ void getCacheFileName(const char *filename,char *cacheFilename)
   try
   {
     std::size_t hash = 0;
-    boost::hash_combine(hash,std::string(filename));
+    Fmi::hash_merge(hash,std::string(filename));
     sprintf(cacheFilename,"%s/F2S_%lu",mCacheDir.c_str(),hash);
   }
   catch (...)
