@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 25.4.8
+Version: 25.8.25
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -281,6 +281,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Mon Aug 25 2025 Andris Pavēnis <andris.pavenis@fmi.fi> 25.8.25-1.fmi
+- Repackage due to smartmet-library-grid-files changes
+
 * Tue Apr  8 2025 Mika Heiskanen <mika.heiskanen@fmi.fi> - 25.4.8-1.fmi
 - Improved parameter auto-mappings and added build-in parameter unit conversions
 
