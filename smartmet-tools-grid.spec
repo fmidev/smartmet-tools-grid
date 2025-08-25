@@ -25,8 +25,8 @@ BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
 BuildRequires: smartmet-library-macgyver-devel >= 25.7.28
 BuildRequires: smartmet-library-spine-devel >= 25.3.24
-BuildRequires: smartmet-library-grid-files-devel >= 25.4.8
-BuildRequires: smartmet-library-grid-content-devel >= 25.4.8
+BuildRequires: smartmet-library-grid-files-devel >= 25.8.25
+BuildRequires: smartmet-library-grid-content-devel >= 25.8.25
 BuildRequires: gdal310-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
@@ -41,8 +41,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-spine >= 25.2.18
 #Requires: smartmet-server >= 25.2.18
 Requires: smartmet-library-macgyver >= 25.7.28
-Requires: smartmet-library-grid-files >= 25.4.8
-Requires: smartmet-library-grid-content >= 25.4.8
+Requires: smartmet-library-grid-files >= 25.8.25
+Requires: smartmet-library-grid-content >= 25.8.25
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
