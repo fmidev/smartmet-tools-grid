@@ -261,6 +261,9 @@ make %{_smp_mflags}
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post
+systemctl daemon-reload
+
 %files
 %defattr(0775,root,root,0775)
 %{_bindir}/clients/*
@@ -270,7 +273,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/utils/*
 
 %defattr(0644,root,root,0755)
-%config(noreplace) %{_unitdir}/radon2smartmet.service
+%config %{_unitdir}/radon2smartmet.service
 
 # We do not enable the service by default, it must be done manually
 

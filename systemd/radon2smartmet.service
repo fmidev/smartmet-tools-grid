@@ -11,7 +11,9 @@ Requires=redis.service
 # Not a real daemon
 Type=simple
 
-ExecStart=/usr/bin/fmi/radon2smartmet /smartmet/cnf/smartmetd/clients/radon-to-smartmet.cfg 300
+EnvironmentFile=/etc/smartmet/radon2smartmet.env
+
+ExecStart=/usr/bin/fmi/radon2smartmet ${CONFIG} 300
 
 LimitCORE=infinity
 
