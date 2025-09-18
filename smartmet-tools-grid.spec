@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 25.8.25
+Version: 25.9.18
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -284,6 +284,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Thu Sep 18 2025 Andris Pavēnis <andris.pavenis@fmi.fi> 25.9.18-1.fmi
+- radon2smartmet: use EnvironmentFile to provide location of cnfig file
+
 * Mon Aug 25 2025 Andris Pavēnis <andris.pavenis@fmi.fi> 25.8.25-1.fmi
 - Repackage due to smartmet-library-grid-files changes
 
