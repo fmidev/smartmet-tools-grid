@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 25.9.18
+Version: 25.10.15
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -23,10 +23,10 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
-BuildRequires: smartmet-library-macgyver-devel >= 25.7.28
-BuildRequires: smartmet-library-spine-devel >= 25.3.24
-BuildRequires: smartmet-library-grid-files-devel >= 25.8.25
-BuildRequires: smartmet-library-grid-content-devel >= 25.8.25
+BuildRequires: smartmet-library-macgyver-devel >= 25.9.30
+BuildRequires: smartmet-library-spine-devel >= 25.9.16
+BuildRequires: smartmet-library-grid-files-devel >= 25.10.15
+BuildRequires: smartmet-library-grid-content-devel >= 25.10.15
 BuildRequires: gdal310-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
@@ -40,13 +40,13 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-macgyver >= 25.2.18
 #Requires: smartmet-library-spine >= 25.2.18
 #Requires: smartmet-server >= 25.2.18
-Requires: smartmet-library-macgyver >= 25.7.28
-Requires: smartmet-library-grid-files >= 25.8.25
-Requires: smartmet-library-grid-content >= 25.8.25
+Requires: smartmet-library-macgyver >= 25.9.30
+Requires: smartmet-library-grid-files >= 25.10.15
+Requires: smartmet-library-grid-content >= 25.10.15
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
-#TestRequires: smartmet-utils-devel >= 25.2.18
+#TestRequires: smartmet-utils-devel >= 25.10.10
 
 Provides: corbaContentServer = %{version}
 Provides: corbaDataServer = %{version}
@@ -284,6 +284,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Oct 15 2025 Mika Heiskanen <mika.heiskanen@fmi.fi> - 25.10.15-1.fmi
+- Repackaged due to grid-files API changes
+
 * Thu Sep 18 2025 Andris Pavēnis <andris.pavenis@fmi.fi> 25.9.18-1.fmi
 - radon2smartmet: use EnvironmentFile to provide location of cnfig file
 
