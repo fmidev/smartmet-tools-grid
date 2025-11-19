@@ -39,7 +39,6 @@ LIBS += $(PREFIX_LDFLAGS) \
 	-lboost_program_options \
 	-lboost_regex \
 	-lboost_thread \
-	-lboost_system \
 	-lboost_iostreams \
 	-lpthread \
 	-ljpeg \
