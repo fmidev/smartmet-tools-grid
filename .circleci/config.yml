@@ -37,12 +37,15 @@ jobs:
             aws s3 cp /dist s3://fmi-smartmet-cicd-beta/centos8/ --recursive
   build-rhel10:
     docker:
-      - image: fmidev/smartmet-cibase-10:latest
+      - image: quay.io/fmi/smartmet-cibase-10:latest
     resource_class: xlarge
     environment:
       RPM_BUILD_NCPUS: 8
     steps:
       - checkout
+      - run:
+          name: Output installed fmt packages
+          command: rpm -qa | grep 'fmt*'
       - run:
           name: Install build dependencies
           command: ci-build deps
