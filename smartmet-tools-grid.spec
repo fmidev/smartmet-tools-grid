@@ -27,7 +27,7 @@ BuildRequires: smartmet-library-macgyver-devel >= 25.9.30
 BuildRequires: smartmet-library-spine-devel >= 25.9.16
 BuildRequires: smartmet-library-grid-files-devel >= 25.10.15
 BuildRequires: smartmet-library-grid-content-devel >= 25.10.15
-BuildRequires: gdal310-devel
+BuildRequires: gdal312-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
 BuildRequires: libpqxx-devel
