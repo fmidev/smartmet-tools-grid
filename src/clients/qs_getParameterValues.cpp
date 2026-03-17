@@ -81,9 +81,9 @@ int main(int argc, char *argv[])
     QueryServer::Corba::ClientImplementation service;
     service.init(serviceIor);
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service.executeQuery(sessionId,query);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

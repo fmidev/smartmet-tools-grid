@@ -25,7 +25,7 @@ using namespace SmartMet;
 
 struct ForecastRec
 {
-    uint producerId = 0;
+    T::ProducerId producerId = 0;
     uint geometryId = 0;
     int forecastTypeId = 0;
     int forecastTypeValue = 0;
@@ -41,19 +41,19 @@ struct ForecastRec
 
 struct FileRec
 {
-    int producerId;
-    int fileId;
-    uint messageIndex;
+    T::ProducerId producerId;
+    T::FileId fileId;
+    T::MessageIndex messageIndex;
     uint paramId;
-    ulonglong filePosition;
+    UInt64 filePosition;
     uint messageSize;
-    int geometryId;
+    T::GeometryId geometryId;
     time_t analysisTime;
     time_t forecastTime;
     int levelValue;
     short levelId;
-    short forecastType;
-    short forecastNumber;
+    T::ForecastType forecastType;
+    T::ForecastNumber forecastNumber;
     uchar serverType;
     uchar format;
     int aggregation_id;
@@ -77,7 +77,7 @@ struct FileRecVec
 
 struct GeomRec
 {
-    uint producerId = 0;
+    T::ProducerId producerId = 0;
     T::GeometryId geometryId = 0;
     T::ParamLevelId levelId = 0;
     std::string producerName;
@@ -148,7 +148,7 @@ string_bimap mFilenameMap;
 T::ProducerInfoList mTargetProducerList;
 T::GenerationInfoList mTargetGenerationList;
 T::GeometryInfoList mTargetGeometryList;
-std::set<unsigned long long> mTargetContentList;
+std::set<UInt64> mTargetContentList;
 uint fileReadCount = 0;
 
 FileRec_map mFileRecMap;
@@ -191,11 +191,6 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.radon2smartmet.content-source.producerFile",
         "smartmet.tools.grid.radon2smartmet.content-source.radon.connection-string",
         "smartmet.tools.grid.radon2smartmet.content-storage.type",
-        "smartmet.tools.grid.radon2smartmet.content-storage.redis.address",
-        "smartmet.tools.grid.radon2smartmet.content-storage.redis.port",
-        "smartmet.tools.grid.radon2smartmet.content-storage.redis.tablePrefix",
-        "smartmet.tools.grid.radon2smartmet.content-storage.corba.ior",
-        "smartmet.tools.grid.radon2smartmet.content-storage.http.url",
         "smartmet.tools.grid.radon2smartmet.processing-log.enabled",
         "smartmet.tools.grid.radon2smartmet.processing-log.file",
         "smartmet.tools.grid.radon2smartmet.processing-log.maxSize",
@@ -204,7 +199,16 @@ void readConfigFile(const char* configFile)
         "smartmet.tools.grid.radon2smartmet.debug-log.file",
         "smartmet.tools.grid.radon2smartmet.debug-log.maxSize",
         "smartmet.tools.grid.radon2smartmet.debug-log.truncateSize",
-        nullptr };
+        nullptr
+    };
+
+    const char *configAttribute_redis[] =
+    {
+        "smartmet.tools.grid.radon2smartmet.content-storage.redis.address",
+        "smartmet.tools.grid.radon2smartmet.content-storage.redis.port",
+        "smartmet.tools.grid.radon2smartmet.content-storage.redis.tablePrefix",
+        nullptr
+    };
 
     mConfigurationFile.readFile(configFile);
     //mConfigurationFile.print(std::cout,0,0);
@@ -228,13 +232,34 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-source.producerFile", mProducerFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-source.radon.connection-string", mRadonConnectionString);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.type", mStorageType);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.address", mRedisAddress);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.port", mRedisPort);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.tablePrefix", mRedisTablePrefix);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.lockEnabled", mRedisLockEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.corba.ior", mContentServerIor);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.http.url", mContentServerUrl);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.postgresql.connection-string", mPostgresqlConnectionString);
+
+    if (mStorageType == "redis")
+    {
+      uint t = 0;
+      while (configAttribute_redis[t] != nullptr)
+      {
+        if (!mConfigurationFile.findAttribute(configAttribute_redis[t]))
+        {
+          Fmi::Exception exception(BCP, "Missing configuration attribute!");
+          exception.addParameter("File", configFile);
+          exception.addParameter("Attribute", configAttribute_redis[t]);
+          throw exception;
+        }
+        t++;
+      }
+
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.address", mRedisAddress);
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.port", mRedisPort);
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.tablePrefix", mRedisTablePrefix);
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.redis.lockEnabled", mRedisLockEnabled);
+    }
+    else
+    {
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.corba.ior", mContentServerIor);
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.http.url", mContentServerUrl);
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.content-storage.postgresql.connection-string", mPostgresqlConnectionString);
+    }
+
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.processing-log.enabled", mProcessingLogEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.processing-log.file", mProcessingLogFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.radon2smartmet.processing-log.maxSize", mProcessingLogMaxSize);
@@ -484,7 +509,7 @@ void readTargetFileList(T::FileInfoList& targetFileList)
   {
     targetFileList.clear();
     targetFileList.setComparisonMethod(T::FileInfo::ComparisonMethod::none);
-    uint startFileId = 0;
+    T::FileId startFileId = 0;
     uint len = 50000;
     while (len > 0)
     {
@@ -514,14 +539,14 @@ void readTargetFileList(T::FileInfoList& targetFileList)
 
 
 
-void readTargetFileList(uint producerId, T::FileInfoList& targetFileList)
+void readTargetFileList(T::ProducerId producerId, T::FileInfoList& targetFileList)
 {
   FUNCTION_TRACE
   try
   {
     targetFileList.clear();
     targetFileList.setComparisonMethod(T::FileInfo::ComparisonMethod::none);
-    uint startFileId = 0;
+    T::FileId startFileId = 0;
     uint len = 50000;
     while (len > 0)
     {
@@ -553,14 +578,14 @@ void readTargetFileList(uint producerId, T::FileInfoList& targetFileList)
 
 
 
-void readTargetContentList(uint producerId, T::ContentInfoList& targetContentList)
+void readTargetContentList(T::ProducerId producerId, T::ContentInfoList& targetContentList)
 {
   FUNCTION_TRACE
   try
   {
     targetContentList.clear();
 
-    uint startFileId = 0;
+    T::FileId startFileId = 0;
     uint startMessageIndex = 0;
     uint len = 50000;
     while (len > 0)
@@ -601,7 +626,7 @@ void readTargetContentList(T::ContentInfoList& targetContentList)
   {
     targetContentList.clear();
 
-    uint startFileId = 0;
+    T::FileId startFileId = 0;
     uint startMessageIndex = 0;
     uint len = 50000;
     while (len > 0)
@@ -636,14 +661,14 @@ void readTargetContentList(T::ContentInfoList& targetContentList)
 
 
 
-void readTargetContentList(std::set<unsigned long long>& targetContentList)
+void readTargetContentList(std::set<UInt64>& targetContentList)
 {
   FUNCTION_TRACE
   try
   {
     targetContentList.clear();
 
-    uint startFileId = 0;
+    T::FileId startFileId = 0;
     uint startMessageIndex = 0;
     uint len = 50000;
     while (len > 0)
@@ -662,7 +687,7 @@ void readTargetContentList(std::set<unsigned long long>& targetContentList)
             startFileId = contentInfo->mFileId;
             startMessageIndex = contentInfo->mMessageIndex + 1;
 
-            unsigned long long id = contentInfo->mFileId;
+            UInt64 id = contentInfo->mFileId;
             id = (id << 32) + contentInfo->mMessageIndex;
 
             targetContentList.insert(id);
@@ -681,14 +706,14 @@ void readTargetContentList(std::set<unsigned long long>& targetContentList)
 
 
 
-void readTargetContentList(uint producerId,std::set<unsigned long long>& targetContentList)
+void readTargetContentList(T::ProducerId producerId,std::set<UInt64>& targetContentList)
 {
   FUNCTION_TRACE
   try
   {
     targetContentList.clear();
 
-    uint startFileId = 0;
+    T::FileId startFileId = 0;
     uint startMessageIndex = 0;
     uint len = 50000;
     while (len > 0)
@@ -707,7 +732,7 @@ void readTargetContentList(uint producerId,std::set<unsigned long long>& targetC
             startFileId = contentInfo->mFileId;
             startMessageIndex = contentInfo->mMessageIndex + 1;
 
-            unsigned long long id = contentInfo->mFileId;
+            UInt64 id = contentInfo->mFileId;
             id = (id << 32) + contentInfo->mMessageIndex;
 
             targetContentList.insert(id);
@@ -726,7 +751,7 @@ void readTargetContentList(uint producerId,std::set<unsigned long long>& targetC
 
 
 
-std::string getTableInfo(PGconn *conn, const char *tableName, uint producerId, uint geometryId, const char *analysisTime,time_t& lastUpdate,uint& count)
+std::string getTableInfo(PGconn *conn, const char *tableName, T::ProducerId producerId, uint geometryId, const char *analysisTime,time_t& lastUpdate,uint& count)
 {
   FUNCTION_TRACE
   try
@@ -796,7 +821,7 @@ std::string getTableInfo(PGconn *conn, const char *tableName, uint producerId, u
 
 
 
-void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std::string& producerName,uint geometryId,const char *analysisTime, time_t updateTime, std::string& info)
+void readTableRecords(PGconn *conn, const char *tableName, T::ProducerId producerId, std::string& producerName,uint geometryId,const char *analysisTime, time_t updateTime, std::string& info)
 {
   FUNCTION_TRACE
   try
@@ -982,7 +1007,7 @@ void readTableRecords(PGconn *conn, const char *tableName, uint producerId, std:
 std::vector<FileRec>& readSourceFilesAndContent(
     PGconn *conn,
     const char *tableName,
-    uint producerId,
+    T::ProducerId producerId,
     std::string& producerName,
     uint geometryId,
     int forecastTypeId,
@@ -1097,7 +1122,7 @@ void readSourceForecastTimes(PGconn *conn, uint fmiProducerId, std::vector<Forec
       if (shutdownRequested)
         return;
 
-      uint producerId = toInt64(PQgetvalue(res, i, 0));
+      T::ProducerId producerId = toInt64(PQgetvalue(res, i, 0));
       std::string analysisTime = PQgetvalue(res, i, 2);
       int geometryId = toInt64(PQgetvalue(res, i, 6));
 
@@ -1184,7 +1209,7 @@ void readSourceGenerations(PGconn *conn)
 
       char st[1000];
 
-      uint producerId = toInt64(PQgetvalue(res, i, 0));
+      T::ProducerId producerId = toInt64(PQgetvalue(res, i, 0));
       std::string analysisTime = PQgetvalue(res, i, 2);
 
       T::ProducerInfo *producer = mSourceProducerList.getProducerInfoById(producerId);
@@ -1349,7 +1374,7 @@ void readReadyGenerations(PGconn *conn,std::unordered_map<std::string,time_t>& r
 
       char st[1000];
 
-      uint producerId = toInt64(PQgetvalue(res, i, 0));
+      T::ProducerId producerId = toInt64(PQgetvalue(res, i, 0));
       int geometryId = toInt64(PQgetvalue(res, i, 2));
       int levelId = toInt64(PQgetvalue(res, i, 3));
       std::string analysisTime = PQgetvalue(res, i, 4);
@@ -1637,7 +1662,7 @@ void updateGenerations()
   FUNCTION_TRACE
   try
   {
-    std::set < uint > generationIdList;
+    std::set <T::GenerationId> generationIdList;
     uint len = mTargetGenerationList.getLength();
     for (uint t = 0; t < len; t++)
     {
@@ -1757,7 +1782,6 @@ void updateGeometries()
   FUNCTION_TRACE
   try
   {
-    std::set<uint> generationIdList;
     uint len = mTargetGeometryList.getLength();
     for (uint t = 0; t < len; t++)
     {
@@ -1773,7 +1797,7 @@ void updateGeometries()
           std::string key = toUpperString(st);
           if (mSourceGeometryList.find(key) == mSourceGeometryList.end())
           {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-DELETE;OK;%u;%d;%d",targetGeometry->mGenerationId,targetGeometry->mGeometryId,targetGeometry->mLevelId);
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-DELETE;OK;%lu;%d;%d",targetGeometry->mGenerationId,targetGeometry->mGeometryId,targetGeometry->mLevelId);
             PRINT_DATA(mDebugLogPtr, "  -- Remove geometry : %s\n",key.c_str());
 
             int result = mTargetInterface->deleteGeometryInfoById(mSessionId,targetGeometry->mGenerationId,targetGeometry->mGeometryId,targetGeometry->mLevelId);
@@ -1827,11 +1851,11 @@ void updateGeometries()
           int result = mTargetInterface->addGeometryInfo(mSessionId,geomInfo);
           if (result == 0)
           {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-ADD;OK;%u;%d;%d;",geomInfo.mGenerationId,geomInfo.mGeometryId,geomInfo.mLevelId);
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-ADD;OK;%lu;%d;%d;",geomInfo.mGenerationId,geomInfo.mGeometryId,geomInfo.mLevelId);
           }
           else
           {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;FAIL;%u;%d;%d",geomInfo.mGenerationId,geomInfo.mGeometryId,geomInfo.mLevelId);
+            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;FAIL;%lu;%d;%d",geomInfo.mGenerationId,geomInfo.mGeometryId,geomInfo.mLevelId);
           }
           if (result != 0)
           {
@@ -2196,7 +2220,7 @@ void deleteTargetFiles(T::FileInfoList& targetFileList)
   {
     PRINT_DATA(mDebugLogPtr, "* Deleting old files from the target data storage\n");
 
-    std::set < uint > deleteList;
+    std::set<T::FileId> deleteList;
     uint len = targetFileList.getLength();
     for (uint t = 0; t < len; t++)
     {
@@ -2222,14 +2246,14 @@ void deleteTargetFiles(T::FileInfoList& targetFileList)
 
 
 
-void deleteTargetFiles(uint producerId,T::FileInfoList& targetFileList)
+void deleteTargetFiles(T::ProducerId producerId,T::FileInfoList& targetFileList)
 {
   FUNCTION_TRACE
   try
   {
     PRINT_DATA(mDebugLogPtr, "* Deleting old files from the target data storage\n");
 
-    std::set < uint > deleteList;
+    std::set <T::FileId> deleteList;
     uint len = targetFileList.getLength();
     for (uint t = 0; t < len; t++)
     {
@@ -2260,7 +2284,7 @@ void deleteOldFileRecords(uint loadCounter)
   FUNCTION_TRACE
   try
   {
-    std::set < std::string > entriesToRemove;
+    std::set<std::string> entriesToRemove;
 
     for (auto it = mFileRecMap.begin(); it != mFileRecMap.end(); ++it)
     {
@@ -2428,7 +2452,7 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
 
 
 
-void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
+void saveTargetContent(T::ProducerId producerId,std::vector<FileRec>& fileRecList)
 {
   try
   {
@@ -2439,7 +2463,7 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
     readTargetFileList(producerId,targetFileList);
     targetFileList.sort(T::FileInfo::ComparisonMethod::fileName);
 
-    //std::set<unsigned long long> targetContentList;
+    //std::set<UInt64> targetContentList;
     //if (fileRecList.size() > 0)
     //  readTargetContentList(producerId,targetContentList);
 
@@ -2451,7 +2475,7 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
       T::FileInfo *fileInfo = targetFileList.getFileInfoByName(filename);
       if (fileInfo != nullptr)
       {
-        unsigned long long id = fileInfo->mFileId;
+        UInt64 id = fileInfo->mFileId;
         id = (id << 32) + it->messageIndex;
         auto pos = mTargetContentList.find(id);
         if (pos == mTargetContentList.end())
@@ -2513,7 +2537,7 @@ void saveTargetContent(uint producerId,std::vector<FileRec>& fileRecList)
     if (contentList.getLength() > 0)
       mTargetInterface->addContentList(mSessionId, contentList);
 
-    //std::set<unsigned long long> tcList;
+    //std::set<UInt64> tcList;
     //targetContentList.clear();
     //targetContentList.swap(tcList);
 
@@ -2537,7 +2561,7 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
     readTargetFileList(targetFileList);
     targetFileList.sort(T::FileInfo::ComparisonMethod::fileName);
 
-    std::set<unsigned long long> targetContentList;
+    std::set<UInt64> targetContentList;
     readTargetContentList(targetContentList);
 
     T::ContentInfoList contentList;
@@ -2548,7 +2572,7 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
       T::FileInfo *fileInfo = targetFileList.getFileInfoByName(filename);
       if (fileInfo != nullptr)
       {
-        unsigned long long id = fileInfo->mFileId;
+        UInt64 id = fileInfo->mFileId;
         id = (id << 32) + it->messageIndex;
         auto pos = targetContentList.find(id);
         if (pos == targetContentList.end())
@@ -2608,7 +2632,7 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
     if (contentList.getLength() > 0)
       mTargetInterface->addContentList(mSessionId, contentList);
 
-    std::set<unsigned long long> tcList;
+    std::set<UInt64> tcList;
     targetContentList.clear();
     targetContentList.swap(tcList);
 
@@ -2976,7 +3000,7 @@ int main(int argc, char *argv[])
         mSourceFilenames.clear();
         mSourceFilenames.swap(sourceFilenames);
 
-        std::set<unsigned long long> tcList;
+        std::set<UInt64> tcList;
         mTargetContentList.clear();
         mTargetContentList.swap(tcList);
 

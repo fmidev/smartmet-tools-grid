@@ -35,10 +35,10 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint fileId1 = toInt64(argv[2]);
-    uint messageIndex1 = toInt64(argv[3]);
-    uint fileId2 = toInt64(argv[4]);
-    uint messageIndex2 = toInt64(argv[5]);
+    T::FileId fileId1 = toInt64(argv[2]);
+    T::MessageIndex messageIndex1 = toInt64(argv[3]);
+    T::FileId fileId2 = toInt64(argv[4]);
+    T::MessageIndex messageIndex2 = toInt64(argv[5]);
     int level = toInt64(argv[6]);
     T::CoordinateType coordinateType = toInt64(argv[7]);
     double x = toDouble(argv[8]);
@@ -49,9 +49,9 @@ int main(int argc, char *argv[])
     uint modificationOperation = 0;
     double_vec modificationParameters;
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = dataServer.getGridValueByLevelAndPoint(sessionId,fileId1,messageIndex1,-1,fileId2,messageIndex2,-1,level,coordinateType,x,y,areaInterpolationMethod,levelInterpolationMethod,modificationOperation,modificationParameters,value);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
 
     if (result != 0)

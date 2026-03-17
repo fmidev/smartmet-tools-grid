@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint fileId = toInt64(argv[2]);
-    uint messageIndex = toInt64(argv[3]);
+    T::FileId fileId = toInt64(argv[2]);
+    T::MessageIndex messageIndex = toInt64(argv[3]);
     T::CoordinateType coordinateType = toInt64(argv[4]);
     double origoX = toDouble(argv[5]);
     double origoY = toDouble(argv[6]);
@@ -46,9 +46,9 @@ int main(int argc, char *argv[])
     uint modificationOperation = 0;
     double_vec modificationParameters;
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = dataServer.getGridValueListByCircle(sessionId,fileId,messageIndex,coordinateType,origoX,origoY,radius,modificationOperation,modificationParameters,valueList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
 
     if (result != 0)

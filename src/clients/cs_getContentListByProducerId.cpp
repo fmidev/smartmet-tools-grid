@@ -20,8 +20,8 @@ int main(int argc, char *argv[])
 
     T::SessionId sessionId = toInt64(argv[1]);
     T::ContentInfoList infoList;
-    uint producerId = toInt64(argv[2]);
-    uint startFileId = toInt64(argv[3]);
+    T::ProducerId producerId = toInt64(argv[2]);
+    T::FileId startFileId = toInt64(argv[3]);
     uint startMessageIndex = toInt64(argv[4]);
     uint maxRecords = toInt64(argv[5]);
 
@@ -72,9 +72,9 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service->getContentListByProducerId(sessionId,producerId,startFileId,startMessageIndex,maxRecords,infoList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

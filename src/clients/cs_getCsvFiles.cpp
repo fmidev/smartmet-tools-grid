@@ -115,7 +115,7 @@ void writeFiles(T::SessionId sessionId,ContentServer::ServiceInterface *serviceI
     }
 
     uint len = 1;
-    uint startFileId = 0;
+    T::FileId startFileId = 0;
     uint maxRecords = 10000;
     while (len > 0)
     {
@@ -167,7 +167,7 @@ void writeContent(T::SessionId sessionId,ContentServer::ServiceInterface *servic
     }
 
     uint len = 1;
-    uint startFileId = 0;
+    T::FileId startFileId = 0;
     uint startMessageIndex = 0;
     uint maxRecords = 10000;
 
@@ -222,8 +222,8 @@ int main(int argc, char *argv[])
     T::SessionId sessionId = toInt64(argv[1]);
     char *dir = argv[2];
 
-    unsigned long long startTime = 0;
-    unsigned long long endTime = 0;
+    UInt64 startTime = 0;
+    UInt64 endTime = 0;
 
     if (argc == 5  &&  strcmp(argv[3],"-http") == 0)
     {

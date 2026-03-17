@@ -330,7 +330,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     PQclear(res);
 
 
-    fprintf(file,"\n# TRANSVERSE MERCATOR : projection,id,name,ni,nj,first_lon,first_lat,di,dj,scanning_mode,orientation,latin,earthSemiMajor,earthSemiMinor,description\n");
+    fprintf(file,"\n# TRANSVERSE MERCATOR : projection,id,name,ni,nj,first_lon,first_lat,di,dj,scanning_mode,orientation,latin,false_easting,false_northing,earthSemiMajor,earthSemiMinor,description\n");
 
     p = sql;
 
@@ -364,7 +364,7 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
 
     for (int i = 0; i < rowCount; i++)
     {
-      fprintf(file,"%d;%s;%s;%d;%d;%.6f;%.6f;%.6f;%.6f;%s;%.6f;%.6f;%.6f;%.6f;%s;\n",
+      fprintf(file,"%d;%s;%s;%d;%d;%.6f;%.6f;%.6f;%.6f;%s;%.6f;%.6f;500000.000000;0.000000;%.6f;%.6f;%s;\n",
         T::GridProjectionValue::TransverseMercator,
         PQgetvalue(res,i,0),
         PQgetvalue(res,i,1),

@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
     }
 
     T::SessionId sessionId = toInt64(argv[1]);
-    uint fileId = toInt64(argv[2]);
-    uint messageIndex = toInt64(argv[3]);
+    T::FileId fileId = toInt64(argv[2]);
+    T::MessageIndex messageIndex = toInt64(argv[3]);
 
     ContentServer::ServiceInterface *service = nullptr;
 
@@ -69,9 +69,9 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service->deleteContentInfo(sessionId,fileId,messageIndex);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

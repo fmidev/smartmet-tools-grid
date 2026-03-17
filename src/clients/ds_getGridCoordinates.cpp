@@ -36,14 +36,14 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint fileId = toInt64(argv[2]);
-    uint messageIndex = toInt64(argv[3]);
+    T::FileId fileId = toInt64(argv[2]);
+    T::MessageIndex messageIndex = toInt64(argv[3]);
     T::CoordinateType coordinateType = toInt64(argv[4]);
     T::GridCoordinates gridCoordinates;
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = dataServer.getGridCoordinates(sessionId,fileId,messageIndex,coordinateType,gridCoordinates);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
 
     if (result != 0)

@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
     T::SessionId sessionId = toInt64(argv[1]);
     string_vec producerList;
     int result = 0;
-    unsigned long long startTime = 0;
-    unsigned long long endTime = 0;
+    UInt64 startTime = 0;
+    UInt64 endTime = 0;
 
     char *serviceIor = getenv("SMARTMET_QS_IOR");
 

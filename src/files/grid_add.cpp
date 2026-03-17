@@ -60,10 +60,10 @@ void addMessage(GRID::GridFile& gridFile,const GRID::Message& message)
 {
   try
   {
-    uint producerId = gridFile.getProducerId();
-    uint generationId = gridFile.getGenerationId();
-    uint fileId = gridFile.getFileId();
-    uint messageIndex = message.getMessageIndex();
+    T::ProducerId producerId = gridFile.getProducerId();
+    T::GenerationId generationId = gridFile.getGenerationId();
+    T::FileId fileId = gridFile.getFileId();
+    T::MessageIndex messageIndex = message.getMessageIndex();
     std::string generationName;
     std::string filename = gridFile.getFileName();
     T::TimeString referenceTime = message.getReferenceTime();

@@ -20,12 +20,12 @@ int main(int argc, char *argv[])
 
     T::SessionId sessionId = toInt64(argv[1]);
     T::ContentInfoList infoList;
-    std::vector<uint> fileIdList;
+    std::vector<T::FileId> fileIdList;
 
     int c = 2;
     while (c < argc)
     {
-      uint fileId = toInt64(argv[c]);
+      T::FileId fileId = toInt64(argv[c]);
       if (fileId > 0)
         fileIdList.push_back(fileId);
       else
@@ -81,9 +81,9 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service->getContentListByFileIdList(sessionId,fileIdList,infoList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

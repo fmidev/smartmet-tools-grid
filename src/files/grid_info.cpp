@@ -82,7 +82,7 @@ void showInfo(SmartMet::GRID::GridFile& gridFile)
             level,
             startTime.c_str(),
             endTime.c_str(),
-            (unsigned long long)messages,
+            (UInt64)messages,
             paramDef->mParameterName.c_str(),
             paramDef->mParameterDescription.c_str(),
             paramDef->mParameterUnits.c_str()
@@ -147,7 +147,7 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
         printf(" - Projection                    : %s\n",msg->getGridProjectionString().c_str());
         printf(" - Grid type                     : %s\n",T::get_gridProjectionString(msg->getGridProjection()).c_str());
         printf(" - Grid layout                   : %s\n",T::get_gridLayoutString(msg->getGridLayout()).c_str());
-        printf(" - Grid hash                     : %llu\n",(unsigned long long)hash);
+        printf(" - Grid hash                     : %llu\n",(UInt64)hash);
         printf(" - Grid geometry id              : %d\n",msg->getGridGeometryId());
 
         if (d)
@@ -159,7 +159,7 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
         printf(" - Grid columns                  : %u\n",msg->getGridColumnCount());
         printf(" - Units                         : %s\n",paramDef->mParameterUnits.c_str());
         printf(" - Time range                    : %s - %s\n",startTime.c_str(),endTime.c_str());
-        printf(" - Number of messages            : %llu\n",(unsigned long long)messages);
+        printf(" - Number of messages            : %llu\n",(UInt64)messages);
         printf("------------------------------------------------------------------------------------------------------\n");
       }
     }
@@ -222,29 +222,29 @@ int run(int argc, char **argv)
 
     init();
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     uint fileIndex = 0;
 
     for (const auto &file : files)
     {
       fileIndex++;
-      unsigned long long readStartTime = getTime();
+      UInt64 readStartTime = getTime();
       SmartMet::GRID::GridFile gridFile;
       gridFile.read(file);
-      unsigned long long readEndTime = getTime();
+      UInt64 readEndTime = getTime();
 
       if (fullInfo)
         showFullInfo(gridFile);
       else
         showInfo(gridFile);
 
-      unsigned long long commandEndTime = getTime();
+      UInt64 commandEndTime = getTime();
 
       printf("\nFile read time  : %f sec\n",C_DOUBLE(readEndTime-readStartTime)/1000000);
       printf("Processing time : %f sec\n",C_DOUBLE(commandEndTime-readEndTime)/1000000);
     }
 
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
     printf("Total time      : %f sec\n",C_DOUBLE(endTime-startTime)/1000000);
 
     return 0;

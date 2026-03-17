@@ -33,9 +33,9 @@ int main(int argc, char *argv[])
     double lon = toDouble(argv[2]);
     std::set<T::GeometryId> geometryIdList;
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     Identification::gridDef.getGeometryIdListByLatLon(lat,lon,geometryIdList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     for (auto it = geometryIdList.begin(); it != geometryIdList.end(); ++it)
     {

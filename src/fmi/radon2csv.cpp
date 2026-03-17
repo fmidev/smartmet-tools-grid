@@ -21,9 +21,9 @@ FILE *generationFile = nullptr;
 FILE *fileFile = nullptr;
 FILE *contentFile = nullptr;
 
-uint globalGenerationId = 1;
-uint globalFileId = 1;
-uint sourceId = 200;
+T::GenerationId globalGenerationId = 1;
+T::FileId globalFileId = 1;
+T::SourceId sourceId = 200;
 std::vector<std::string> producerList;
 
 
@@ -102,7 +102,7 @@ bool producerEnabled(const char *producerName)
 
 
 
-void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uint fileType,char *geometryId,char *forecastTime,char *fmiParameterId,char *fmiLevelId,char *parameterLevel,char *forecastType,char *pertubationNumber)
+void readContent(PGconn *conn,char *producerId,T::GenerationId generationId,T::FileId fileId,uint fileType,char *geometryId,char *forecastTime,char *fmiParameterId,char *fmiLevelId,char *parameterLevel,char *forecastType,char *pertubationNumber)
 {
   FUNCTION_TRACE
   try
@@ -143,7 +143,7 @@ void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uin
     }
 
 
-    fprintf(contentFile,"%u;%u;%u;%s;%u;%u;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%u;%u;%u;%s;\n",
+    fprintf(contentFile,"%lu;%u;%u;%s;%lu;%u;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%u;%u;%u;%s;\n",
            fileId,
            0, // messageIndex
            fileType,
@@ -182,7 +182,7 @@ void readContent(PGconn *conn,char *producerId,uint generationId,uint fileId,uin
 
 
 
-uint readFiles(PGconn *conn,char *producerId,uint generationId,char *schemaName, char *partitionName,char *analysisTime)
+uint readFiles(PGconn *conn,char *producerId,T::GenerationId generationId,char *schemaName, char *partitionName,char *analysisTime)
 {
   FUNCTION_TRACE
   try
@@ -202,7 +202,7 @@ uint readFiles(PGconn *conn,char *producerId,uint generationId,char *schemaName,
     {
       if (strstr(PQgetvalue(res, i, 0),"masala") != nullptr)
       {
-        fprintf(fileFile,"%u;%u;%s;%s;%u;%u;%u;%u\n",
+        fprintf(fileFile,"%lu;%u;%s;%s;%lu;%u;%u;%u\n",
                globalFileId,
                0,   // Type
                PQgetvalue(res, i, 0),  // fileName
@@ -253,7 +253,7 @@ uint readGenerations(PGconn *conn,char *producerId,char *producerName)
     for (int i = 0; i < rowCount; i++)
     {
       char st[1000];
-      sprintf(st,"%u;%u;%s;%s:%s;Producer %s generation %s;%s;%u;%u;%u;",
+      sprintf(st,"%lu;%u;%s;%s:%s;Producer %s generation %s;%s;%u;%u;%u;",
               globalGenerationId,
               0,  // type
               producerId,

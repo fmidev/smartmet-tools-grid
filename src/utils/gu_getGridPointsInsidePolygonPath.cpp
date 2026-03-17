@@ -52,9 +52,9 @@ int main(int argc, char *argv[])
       polygonPath.push_back(polygonPoints);
 
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     getPointsInsidePolygonPath(width,height,polygonPath,gridPoints);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     for (auto it = gridPoints.begin(); it != gridPoints.end(); ++it)
     {

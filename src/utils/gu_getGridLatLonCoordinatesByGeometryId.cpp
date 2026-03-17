@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     uint geometryId = toInt64(argv[1]);
     T::Coordinate_svec coordinates;
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
 
     if (!Identification::gridDef.getGridLatLonCoordinatesByGeometryId(geometryId,coordinates))
     {
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     for (auto it = coordinates->begin(); it != coordinates->end(); ++it)
     {

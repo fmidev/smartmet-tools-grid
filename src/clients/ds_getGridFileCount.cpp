@@ -37,9 +37,9 @@ int main(int argc, char *argv[])
 
     uint count = 0;
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = dataServer.getGridFileCount(sessionId,count);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
 
     if (result != 0)

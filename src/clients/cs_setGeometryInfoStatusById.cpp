@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     }
 
     T::SessionId sessionId = toInt64(argv[1]);
-    uint generationId = toInt64(argv[2]);
+    T::GenerationId generationId = toInt64(argv[2]);
     int geometryId = toUInt32(argv[3]);
     short levelId = toInt16(argv[4]);
     uchar status = toInt16(argv[5]);
@@ -72,9 +72,9 @@ int main(int argc, char *argv[])
     }
 
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service->setGeometryInfoStatusById(sessionId,generationId,geometryId,levelId,status);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

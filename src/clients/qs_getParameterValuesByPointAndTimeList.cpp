@@ -44,9 +44,9 @@ int main(int argc, char *argv[])
     QueryServer::Corba::ClientImplementation service;
     service.init(serviceIor);
 
-    ulonglong startTime = getTime();
+    UInt64 startTime = getTime();
     result = service.getParameterValuesByPointAndTimeList(sessionId,producer,parameter,T::CoordinateTypeValue::LATLON_COORDINATES,x,y,tList,1,1,1,values);
-    ulonglong endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

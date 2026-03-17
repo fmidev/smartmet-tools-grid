@@ -71,9 +71,9 @@ int main(int argc, char *argv[])
     }
 
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service->getProducerInfoList(sessionId,infoList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

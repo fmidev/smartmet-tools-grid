@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     }
 
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
 
     char st[1000];
     while (!feof(file))
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 
     fclose(file);
 
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);

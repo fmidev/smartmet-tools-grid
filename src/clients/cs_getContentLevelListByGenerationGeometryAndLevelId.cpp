@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     }
 
     T::SessionId sessionId = toInt64(argv[1]);
-    uint generationId = toInt64(argv[2]);
+    T::GenerationId generationId = toInt64(argv[2]);
     uint geometryId = toInt64(argv[3]);
     short levelId = toInt64(argv[4]);
     std::set<T::ParamLevel> levelList;
@@ -73,9 +73,9 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service->getContentLevelListByGenerationGeometryAndLevelId(sessionId,generationId,geometryId,levelId,levelList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

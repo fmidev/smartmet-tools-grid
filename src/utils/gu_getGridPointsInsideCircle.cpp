@@ -27,9 +27,9 @@ int main(int argc, char *argv[])
     std::vector<T::Point> gridPoints;
 
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     getPointsInsideCircle(width,height,origoX,origoY,radius,gridPoints);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     for (auto it = gridPoints.begin(); it != gridPoints.end(); ++it)
     {

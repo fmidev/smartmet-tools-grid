@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
     T::SessionId sessionId = toInt64(argv[1]);
     T::ProducerInfoList infoList;
     int result = 0;
-    unsigned long long startTime = 0;
-    unsigned long long endTime = 0;
+    UInt64 startTime = 0;
+    UInt64 endTime = 0;
 
     if (strcmp(argv[argc-2],"-http") == 0)
     {

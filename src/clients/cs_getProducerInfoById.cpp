@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
     T::SessionId sessionId = toInt64(argv[1]);
     T::ProducerInfo info;
-    uint producerId = toInt64(argv[2]);
+    T::ProducerId producerId = toInt64(argv[2]);
 
     ContentServer::ServiceInterface *service = nullptr;
 
@@ -69,9 +69,9 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service->getProducerInfoById(sessionId,producerId,info);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {
