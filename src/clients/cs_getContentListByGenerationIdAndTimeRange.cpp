@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
     T::SessionId sessionId = toInt64(argv[1]);
     T::ContentInfoList infoList;
-    uint generationId = toInt64(argv[2]);
+    T::GenerationId generationId = toInt64(argv[2]);
     std::string startT = argv[3];
     std::string endT = argv[4];
 
@@ -71,9 +71,9 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service->getContentListByGenerationIdAndTimeRange(sessionId,generationId,startT,endT,infoList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

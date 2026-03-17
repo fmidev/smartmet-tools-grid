@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     }
 
     T::SessionId sessionId = toInt64(argv[1]);
-    uint generationId = toInt64(argv[2]);
+    T::GenerationId generationId = toInt64(argv[2]);
     T::ParamKeyType paramKeyType = toInt64(argv[3]);
     std::set<std::string> paramKeyList;
 
@@ -72,9 +72,9 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service->getContentParamKeyListByGenerationId(sessionId,generationId,paramKeyType,paramKeyList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

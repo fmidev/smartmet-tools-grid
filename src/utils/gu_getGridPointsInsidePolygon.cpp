@@ -40,9 +40,9 @@ int main(int argc, char *argv[])
       }
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     getPointsInsidePolygon(width,height,polygonPoints,gridPoints);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     for (auto it = gridPoints.begin(); it != gridPoints.end(); ++it)
     {

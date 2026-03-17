@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 
     query.mQueryParameterList.push_back(param);
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
 
     time_t s = query.mStartTime;
     for (uint t=0; t<timesteps; t++)
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
       }
     }
 
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 
     return 0;

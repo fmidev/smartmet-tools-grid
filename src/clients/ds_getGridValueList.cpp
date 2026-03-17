@@ -35,16 +35,16 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint startFileId = toInt64(argv[2]);
+    T::FileId startFileId = toInt64(argv[2]);
     uint endFileId = toInt64(argv[3]);
-    uint messageIndex = toInt64(argv[4]);
+    T::MessageIndex messageIndex = toInt64(argv[4]);
     double lon = toDouble(argv[5]);
     double lat = toDouble(argv[6]);
     T::ValueRecordList valueRecordList;
     uint modificationOperation = 0;
     double_vec modificationParameters;
 
-    for (uint t=startFileId;t<=endFileId;t++)
+    for (T::FileId t=startFileId;t<=endFileId;t++)
     {
       T::ValueRecord *rec = new T::ValueRecord();
       rec->mFileId = t;
@@ -56,9 +56,9 @@ int main(int argc, char *argv[])
       valueRecordList.addValueRecord(rec);
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = dataServer.getMultipleGridValues(sessionId,modificationOperation,modificationParameters,valueRecordList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
 
     if (result != 0)

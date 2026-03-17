@@ -40,8 +40,8 @@ int main(int argc, char *argv[])
     T::ByteData_vec contours;
     T::AttributeList attributeList;
     T::ParamValue_vec values;
-    uint fileId = toInt64(argv[2]);
-    uint messageIndex = toInt64(argv[3]);
+    T::FileId fileId = toInt64(argv[2]);
+    T::MessageIndex messageIndex = toInt64(argv[3]);
     uint areaInterpolation = toInt64(argv[4]);
     double mp = toDouble(argv[5]);
     bool rotate = (bool)toInt64(argv[6]);
@@ -73,9 +73,9 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = dataServer.getGridIsolines(sessionId,fileId,messageIndex,values,attributeList,modificationOperation,modificationParameters,contours);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
 
     if (result != 0)

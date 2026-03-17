@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
           fileInfo.mFileId = 0;
           fileInfo.mFileType = toInt64(field[0]);
           fileInfo.mProducerId = toInt64(field[1]);
-          fileInfo.mGenerationId = toInt64(field[2]);
+          fileInfo.mGenerationId = toUInt64(field[2]);
           fileInfo.mName = field[3];
           fileInfo.mFlags = toInt64(field[4]);
 

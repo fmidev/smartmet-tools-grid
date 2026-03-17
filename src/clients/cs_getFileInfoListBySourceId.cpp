@@ -20,8 +20,8 @@ int main(int argc, char *argv[])
 
     T::SessionId sessionId = toInt64(argv[1]);
     T::FileInfoList infoList;
-    uint sourceId = toInt64(argv[2]);
-    uint startFileId = toInt64(argv[3]);
+    T::SourceId sourceId = toInt64(argv[2]);
+    T::FileId startFileId = toInt64(argv[3]);
     uint maxRecords = toInt64(argv[4]);
 
     ContentServer::ServiceInterface *service = nullptr;
@@ -71,9 +71,9 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service->getFileInfoListBySourceId(sessionId,sourceId,startFileId,maxRecords,infoList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

@@ -190,7 +190,7 @@ void saveImagesByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T
           message->getGridMinAndMaxValues(minValue,maxValue);
 
         char imageFile[300];
-        sprintf(imageFile,"%s/image-%04u-%u-%09u-%s-%04llu.jpg",imageDir,fileIndex,parameterId,level,toString(message->getForecastTime()).c_str(),(unsigned long long)m);
+        sprintf(imageFile,"%s/image-%04u-%u-%09u-%s-%04lu.jpg",imageDir,fileIndex,parameterId,level,toString(message->getForecastTime()).c_str(),(UInt64)m);
         saveMessageImage(imageFile,message,minValue,maxValue,interpolationMethod,scaleFactor,valueLevels,flags);
       }
     }
@@ -317,29 +317,29 @@ int run(int argc, char **argv)
 
     init();
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     uint fileIndex = 0;
 
     for (const auto &file : files)
     {
       fileIndex++;
-      unsigned long long readStartTime = getTime();
+      UInt64 readStartTime = getTime();
       SmartMet::GRID::GridFile gridFile;
       gridFile.read(file);
-      unsigned long long readEndTime = getTime();
+      UInt64 readEndTime = getTime();
 
       if (parameterId != 0)
         saveImagesByParameterId(fileIndex,gridFile,parameterId,imageDir.c_str(),scaleFactor,valueLevels,flags);
       else
         saveAllImages(fileIndex,gridFile,imageDir.c_str(),scaleFactor,valueLevels,flags);
 
-      unsigned long long commandEndTime = getTime();
+      UInt64 commandEndTime = getTime();
 
       printf("\nFile read time  : %f sec\n",C_DOUBLE(readEndTime-readStartTime)/1000000);
       printf("Processing time : %f sec\n",C_DOUBLE(commandEndTime-readEndTime)/1000000);
     }
 
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
     printf("Total time      : %f sec\n",C_DOUBLE(endTime-startTime)/1000000);
 
     return 0;

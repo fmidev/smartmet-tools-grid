@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint fileId = toInt64(argv[2]);
-    uint messageIndex = toInt64(argv[3]);
+    T::FileId fileId = toInt64(argv[2]);
+    T::MessageIndex messageIndex = toInt64(argv[3]);
     T::CoordinateType coordinateType = toInt64(argv[4]);
     std::vector<T::Coordinate> polygonPoints;
     T::GridValueList valueList;
@@ -60,9 +60,9 @@ int main(int argc, char *argv[])
       }
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = dataServer.getGridValueListByPolygon(sessionId,fileId,messageIndex,coordinateType,polygonPoints,modificationOperation,modificationParameters,valueList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
 
     if (result != 0)

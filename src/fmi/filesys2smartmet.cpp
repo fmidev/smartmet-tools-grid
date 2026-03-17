@@ -94,6 +94,68 @@ std::string               mCacheDir = "/tmp";
 bool                      mMemoryMapperEnabled = false;
 
 
+void readLocations(const char* configFile)
+{
+  try
+  {
+    ConfigurationFile configurationFile;
+    configurationFile.readFile(configFile);
+
+    mLocations.clear();
+
+    bool ind = true;
+    uint c = 0;
+    char tmp[100];
+    while (ind)
+    {
+      Location rec;
+      sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.type",c);
+      if (configurationFile.getAttributeValue(tmp,rec.type))
+      {
+        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.url",c);
+        configurationFile.getAttributeValue(tmp,rec.url);
+
+        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.authentication.method",c);
+        configurationFile.getAttributeValue(tmp,rec.authenticationMethod);
+
+        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.authentication.username",c);
+        configurationFile.getAttributeValue(tmp,rec.username);
+
+        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.authentication.password",c);
+        configurationFile.getAttributeValue(tmp,rec.password);
+
+        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.patterns",c);
+        configurationFile.getAttributeValue(tmp,rec.patterns);
+
+        mLocations.push_back(rec);
+
+        c++;
+      }
+      else
+      {
+        ind = false;
+      }
+    }
+
+    if (mLocations.size() == 0)
+    {
+      Fmi::Exception exception(BCP, "No location defined!");
+      exception.addParameter("File",configFile);
+      exception.addParameter("Attribute","smartmet.tools.grid.filesys2smartmet.content-source.locations.location[0].type");
+      throw exception;
+    }
+
+    if (mLuaFilename > " ")
+      mLuaFile.checkUpdates();
+  }
+  catch (...)
+  {
+    throw Fmi::Exception(BCP, "Constructor failed!", nullptr);
+  }
+}
+
+
+
 void readConfigFile(const char* configFile)
 {
   try
@@ -108,11 +170,6 @@ void readConfigFile(const char* configFile)
       "smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFilename",
       "smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFunction",
       "smartmet.tools.grid.filesys2smartmet.content-storage.type",
-      "smartmet.tools.grid.filesys2smartmet.content-storage.redis.address",
-      "smartmet.tools.grid.filesys2smartmet.content-storage.redis.port",
-      "smartmet.tools.grid.filesys2smartmet.content-storage.redis.tablePrefix",
-      "smartmet.tools.grid.filesys2smartmet.content-storage.corba.ior",
-      "smartmet.tools.grid.filesys2smartmet.content-storage.http.url",
       "smartmet.tools.grid.filesys2smartmet.debug-log.enabled",
       "smartmet.tools.grid.filesys2smartmet.debug-log.file",
       "smartmet.tools.grid.filesys2smartmet.debug-log.maxSize",
@@ -124,6 +181,14 @@ void readConfigFile(const char* configFile)
       nullptr
     };
 
+    const char *configAttribute_redis[] =
+    {
+      "smartmet.library.grid-files.configFile",
+      "smartmet.tools.grid.filesys2smartmet.content-storage.redis.address",
+      "smartmet.tools.grid.filesys2smartmet.content-storage.redis.port",
+      "smartmet.tools.grid.filesys2smartmet.content-storage.redis.tablePrefix",
+      nullptr
+    };
 
     mConfigurationFile.readFile(configFile);
     //mConfigurationFile.print(std::cout,0,0);
@@ -151,13 +216,33 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFilename",mLuaFilename);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-source.filenameFixer.luaFunction",mLuaFunction);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.type",mStorageType);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.address",mRedisAddress);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.port",mRedisPort);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.tablePrefix",mRedisTablePrefix);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.lockEnabled",mRedisLockEnabled);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.postgresql.connection-string", mPostgresqlConnectionString);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.corba.ior",mContentServerIor);
-    mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.http.url",mContentServerUrl);
+
+    if (mStorageType == "redis")
+    {
+      uint t=0;
+      while (configAttribute_redis[t] != nullptr)
+      {
+        if (!mConfigurationFile.findAttribute(configAttribute_redis[t]))
+        {
+          Fmi::Exception exception(BCP, "Missing configuration attribute!");
+          exception.addParameter("File",configFile);
+          exception.addParameter("Attribute",configAttribute_redis[t]);
+          throw exception;
+        }
+        t++;
+      }
+
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.address",mRedisAddress);
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.port",mRedisPort);
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.tablePrefix",mRedisTablePrefix);
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.lockEnabled",mRedisLockEnabled);
+    }
+    else
+    {
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.postgresql.connection-string", mPostgresqlConnectionString);
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.corba.ior",mContentServerIor);
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.http.url",mContentServerUrl);
+    }
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.processing-log.enabled", mProcessingLogEnabled);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.processing-log.file", mProcessingLogFile);
@@ -168,49 +253,6 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.debug-log.file", mDebugLogFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.debug-log.maxSize", mDebugLogMaxSize);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.debug-log.truncateSize", mDebugLogTruncateSize);
-
-    bool ind = true;
-    uint c = 0;
-    char tmp[100];
-    while (ind)
-    {
-      Location rec;
-      sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.type",c);
-      if (mConfigurationFile.getAttributeValue(tmp,rec.type))
-      {
-        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.url",c);
-        mConfigurationFile.getAttributeValue(tmp,rec.url);
-
-        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.authentication.method",c);
-        mConfigurationFile.getAttributeValue(tmp,rec.authenticationMethod);
-
-        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.authentication.username",c);
-        mConfigurationFile.getAttributeValue(tmp,rec.username);
-
-        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.authentication.password",c);
-        mConfigurationFile.getAttributeValue(tmp,rec.password);
-
-        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.patterns",c);
-        mConfigurationFile.getAttributeValue(tmp,rec.patterns);
-
-        mLocations.push_back(rec);
-
-        c++;
-      }
-      else
-      {
-        ind = false;
-      }
-    }
-
-    if (mLocations.size() == 0)
-    {
-      Fmi::Exception exception(BCP, "No location defined!");
-      exception.addParameter("File",configFile);
-      exception.addParameter("Attribute","smartmet.tools.grid.filesys2smartmet.content-source.locations.location[0].type");
-      throw exception;
-    }
-
 
     if (mLuaFilename > " ")
      mLuaFile.init(mLuaFilename);
@@ -280,7 +322,7 @@ void readTargetFiles(ContentServer::ServiceInterface *targetInterface)
   {
     mTargetFileList.clear();
     uint len = 1;
-    uint startFileId = 0;
+    T::FileId startFileId = 0;
     uint maxRecords = 10000;
 
     while (len > 0)
@@ -576,10 +618,12 @@ void getCacheFileName(const char *filename,char *cacheFilename)
 
 
 
-bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T::ContentInfoList& contentList)
+bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T::ContentInfoList& contentList,bool& missingInformation)
 {
   try
   {
+    missingInformation = false;
+
     FILE *file = fopen(cacheFilename,"r");
     if (file == NULL)
       return false;
@@ -608,6 +652,14 @@ bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T:
         contentInfo->setCsv(buf);
         if (contentInfo->mModificationTime == modificationTime)
         {
+          if (contentInfo->mGeometryId <= 0 || contentInfo->mFmiParameterId == 0)
+          {
+            missingInformation = true;
+            delete contentInfo;
+            remove(cacheFilename);
+            return false;
+          }
+
           contentList.addContentInfo(contentInfo);
         }
         else
@@ -628,10 +680,11 @@ bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T:
 
 
 
-void readSourceContent(T::FileInfo& fileInfo,T::ContentInfoList& contentList)
+void readSourceContent(T::FileInfo& fileInfo,T::ContentInfoList& contentList,bool& missingInformation)
 {
   try
   {
+    missingInformation = false;
     contentList.clear();
 
     char fname[1000];
@@ -640,7 +693,7 @@ void readSourceContent(T::FileInfo& fileInfo,T::ContentInfoList& contentList)
     char cacheFilename[1000];
     getCacheFileName(fname,cacheFilename);
 
-    if (readSourceContentCache(cacheFilename,fileInfo.mModificationTime,contentList))
+    if (readSourceContentCache(cacheFilename,fileInfo.mModificationTime,contentList,missingInformation))
       return;
 
     FILE *file = fopen(cacheFilename,"w");
@@ -673,6 +726,9 @@ void readSourceContent(T::FileInfo& fileInfo,T::ContentInfoList& contentList)
         contentInfo->mProducerId = fileInfo.mProducerId;
         contentInfo->mGenerationId = fileInfo.mGenerationId;
         contentInfo->mModificationTime = fileInfo.mModificationTime;
+
+        if (contentInfo->mGeometryId <= 0 || contentInfo->mFmiParameterId == 0)
+          missingInformation = true;
 
         setMessageContent(gridFile,*message,*contentInfo);
         //contentInfo->print(std::cout,0,0);
@@ -859,7 +915,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
   FUNCTION_TRACE
   try
   {
-    std::set<uint> generationIdList;
+    std::set<T::GenerationId> generationIdList;
     std::vector<std::string> generationNameList;
     uint len = mTargetGenerationList.getLength();
     for (uint t=0; t<len; t++)
@@ -955,7 +1011,7 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
   FUNCTION_TRACE
   try
   {
-    std::set<uint> fileIdList;
+    std::set<T::FileId> fileIdList;
     std::vector<std::string> fileNameList;
     uint len = mTargetFileList.getLength();
     for (uint t=0; t<len; t++)
@@ -1035,10 +1091,11 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
 
           PRINT_DATA(mDebugLogPtr,"  -- Add file: %s\n",fileInfo.mName.c_str());
 
+          bool missingInformation = false;
           T::ContentInfoList contentList;
           try
           {
-            readSourceContent(fileInfo,contentList);
+            readSourceContent(fileInfo,contentList,missingInformation);
           }
           catch (...)
           {
@@ -1050,6 +1107,9 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
 
           if (contentList.getLength() > 0)
           {
+            if (missingInformation)
+              fileInfo.mModificationTime = fileInfo.mModificationTime - 1;
+
             int result = targetInterface->addFileInfoWithContentList(mSessionId,fileInfo,contentList);
             if (result != 0)
             {
@@ -1236,6 +1296,8 @@ int main(int argc, char *argv[])
       PRINT_DATA(mDebugLogPtr,"********************************************************************\n");
       PRINT_DATA(mDebugLogPtr,"****************************** UPDATE ******************************\n");
       PRINT_DATA(mDebugLogPtr,"********************************************************************\n");
+
+      readLocations(argv[1]);
 
       updateLoopStart(targetInterface);
 

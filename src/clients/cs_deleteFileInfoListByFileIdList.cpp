@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     }
 
     T::SessionId sessionId = toInt64(argv[1]);
-    std::set<uint> fileIdList;
+    std::set<T::FileId> fileIdList;
 
     for (int t=2; t<argc; t++)
     {
@@ -77,9 +77,9 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service->deleteFileInfoListByFileIdList(sessionId,fileIdList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

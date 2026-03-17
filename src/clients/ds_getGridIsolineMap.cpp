@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint fileId = toInt64(argv[2]);
-    uint messageIndex = toInt64(argv[3]);
+    T::FileId fileId = toInt64(argv[2]);
+    T::MessageIndex messageIndex = toInt64(argv[3]);
     double startLon = toDouble(argv[4]);
     double startLat = toDouble(argv[5]);
     int width = toInt64(argv[6]);
@@ -93,9 +93,9 @@ int main(int argc, char *argv[])
     attributeList.addAttribute("grid.areaInterpolationMethod",std::to_string(areaInterpolation));
     attributeList.addAttribute("contour.coordinateType",std::to_string(T::CoordinateTypeValue::LATLON_COORDINATES));
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = dataServer.getGridIsolinesByGrid(sessionId,fileId,messageIndex,values,width,height,coordinates,attributeList,modificationOperation,modificationParameters,contours);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
 
     if (result != 0)

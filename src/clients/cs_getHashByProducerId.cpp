@@ -20,8 +20,8 @@ int main(int argc, char *argv[])
 
     T::SessionId sessionId = toInt64(argv[1]);
     T::ContentInfoList infoList;
-    uint producerId = toInt64(argv[2]);
-    ulonglong hash = 0;
+    T::ProducerId producerId = toInt64(argv[2]);
+    UInt64 hash = 0;
 
     ContentServer::ServiceInterface *service = nullptr;
 
@@ -70,9 +70,9 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service->getHashByProducerId(sessionId,producerId,hash);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     }
 
     // ### Result:
-    printf("HASH : %llu\n",hash);
+    printf("HASH : %lu\n",hash);
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

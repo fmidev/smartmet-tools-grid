@@ -72,8 +72,8 @@ int main(int argc, char *argv[])
     T::ParamValue_vec lowValues;
     T::ParamValue_vec highValues;
     T::SessionId sessionId = toInt64(argv[1]);
-    uint fileId = toInt64(argv[2]);
-    uint messageIndex = toInt64(argv[3]);
+    T::FileId fileId = toInt64(argv[2]);
+    T::MessageIndex messageIndex = toInt64(argv[3]);
     uint areaInterpolation = toInt64(argv[4]);
     double mp = toDouble(argv[5]);
     bool rotate = (bool)toInt64(argv[6]);
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = dataServer.getGridIsobands(sessionId,fileId,messageIndex,lowValues,highValues,attributeList,modificationOperation,modificationParameters,contours);
     if (result != 0)
     {
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
       }
     }
 
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     // ### Printing the result:
 

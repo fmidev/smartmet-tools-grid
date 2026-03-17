@@ -205,26 +205,26 @@ int run(int argc, char **argv)
 
     init();
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     uint fileIndex = 0;
 
     for (const auto &file : files)
     {
       fileIndex++;
-      unsigned long long readStartTime = getTime();
+      UInt64 readStartTime = getTime();
       SmartMet::GRID::GridFile gridFile;
       gridFile.read(file);
-      unsigned long long readEndTime = getTime();
+      UInt64 readEndTime = getTime();
 
       executeQuery(gridFile,lat,lon,parameterIdList);
 
-      unsigned long long commandEndTime = getTime();
+      UInt64 commandEndTime = getTime();
 
       printf("\nFile read time  : %f sec\n",C_DOUBLE(readEndTime-readStartTime)/1000000);
       printf("Processing time : %f sec\n",C_DOUBLE(commandEndTime-readEndTime)/1000000);
     }
 
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
     printf("Total time      : %f sec\n",C_DOUBLE(endTime-startTime)/1000000);
 
     return 0;

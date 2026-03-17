@@ -37,14 +37,14 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint fileId1 = toInt64(argv[2]);
-    uint messageIndex1 = toInt64(argv[3]);
-    uint fileId2 = toInt64(argv[4]);
-    uint messageIndex2 = toInt64(argv[5]);
-    uint fileId3 = toInt64(argv[6]);
-    uint messageIndex3 = toInt64(argv[7]);
-    uint fileId4 = toInt64(argv[8]);
-    uint messageIndex4 = toInt64(argv[9]);
+    T::FileId fileId1 = toInt64(argv[2]);
+    T::MessageIndex messageIndex1 = toInt64(argv[3]);
+    T::FileId fileId2 = toInt64(argv[4]);
+    T::MessageIndex messageIndex2 = toInt64(argv[5]);
+    T::FileId fileId3 = toInt64(argv[6]);
+    T::MessageIndex messageIndex3 = toInt64(argv[7]);
+    T::FileId fileId4 = toInt64(argv[8]);
+    T::MessageIndex messageIndex4 = toInt64(argv[9]);
     std::string timestamp = argv[10];
     int level = toInt64(argv[11]);
     T::CoordinateType coordinateType = toInt64(argv[12]);
@@ -57,10 +57,10 @@ int main(int argc, char *argv[])
     uint modificationOperation = 0;
     double_vec modificationParameters;
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = dataServer.getGridValueByTimeLevelAndPoint(sessionId,fileId1,messageIndex1,-1,fileId2,messageIndex2,-1,fileId3,messageIndex3,-1,fileId4,messageIndex4,-1,
         timestamp,level,coordinateType,x,y,areaInterpolationMethod,timeInterpolationMethod,levelInterpolationMethod,modificationOperation,modificationParameters,value);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
 
     if (result != 0)

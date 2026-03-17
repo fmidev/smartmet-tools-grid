@@ -39,9 +39,9 @@ int main(int argc, char *argv[])
       }
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     std::vector<T::Coordinate> newCoordinates = getEnlargedPolygon(polygonPoints,xAddition,yAddition);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
 
 

@@ -35,8 +35,8 @@ int main(int argc, char *argv[])
     T::ParamValue_vec lowValues;
     T::ParamValue_vec highValues;
     T::SessionId sessionId = toInt64(argv[1]);
-    uint fileId = toInt64(argv[2]);
-    uint messageIndex = toInt64(argv[3]);
+    T::FileId fileId = toInt64(argv[2]);
+    T::MessageIndex messageIndex = toInt64(argv[3]);
     char *attributes = argv[4];
     uint areaInterpolation = toInt64(argv[5]);
     double mp = toDouble(argv[6]);
@@ -82,9 +82,9 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = dataServer.getGridIsobandsByGeometry(sessionId,fileId,messageIndex,lowValues,highValues,attributeList,modificationOperation,modificationParameters,contours);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     }
 
     T::SessionId sessionId = toInt64(argv[1]);
-    uint producerId = toUInt32(argv[2]);
+    T::ProducerId producerId = toUInt32(argv[2]);
     T::GeometryInfoList infoList;
 
     ContentServer::ServiceInterface *service = nullptr;
@@ -69,9 +69,9 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service->getGeometryInfoListByProducerId(sessionId,producerId,infoList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

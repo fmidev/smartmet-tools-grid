@@ -35,17 +35,17 @@ int main(int argc, char *argv[])
 
     // ### Calling the dataServer:
 
-    uint fileId = toInt64(argv[2]);
-    uint messageIndex = toInt64(argv[3]);
+    T::FileId fileId = toInt64(argv[2]);
+    T::MessageIndex messageIndex = toInt64(argv[3]);
     T::ParamValue_vec values;
     uint modificationOperation = 0;
     double_vec modificationParameters;
     if (argc == 5)
       splitString(argv[4],',',modificationParameters);
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = dataServer.getGridValueVector(sessionId,fileId,messageIndex,modificationOperation,modificationParameters,values);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
 
     if (result != 0)

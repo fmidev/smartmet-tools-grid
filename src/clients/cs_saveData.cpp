@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     }
 
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
 
 
     // Reading producer information
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     // Reading file information
 
     bool ind = true;
-    uint startFileId = 0;
+    T::FileId startFileId = 0;
     while (ind)
     {
       T::FileInfoList fileInfoList;
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
       }
     }
 
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

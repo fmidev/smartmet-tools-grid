@@ -63,9 +63,9 @@ int main(int argc, char *argv[])
     }
 
     // ### Service call
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service.addFileInfoWithContentList(sessionId,info,contentList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

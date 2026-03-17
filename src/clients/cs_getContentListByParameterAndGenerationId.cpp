@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     T::SessionId sessionId = toInt64(argv[1]);
 
     // ### Service parameters:
-    uint generationId = toInt64(argv[2]);
+    T::GenerationId generationId = toInt64(argv[2]);
 
     T::ParamKeyType paramKeyType = T::ParamKeyTypeValue::FMI_ID;
     if (strcmp(argv[3],"fmi-id") == 0)
@@ -131,9 +131,9 @@ int main(int argc, char *argv[])
       return -3;
     }
 
-    unsigned long long startTime = getTime();
+    UInt64 startTime = getTime();
     int result = service->getContentListByParameterAndGenerationId(sessionId,generationId,paramKeyType,parameterKey,parameterLevelId,minLevel,maxLevel,forecastType,forecastNumber,geometryId,start,end,requestFlags,infoList);
-    unsigned long long endTime = getTime();
+    UInt64 endTime = getTime();
 
     if (result != 0)
     {

@@ -523,7 +523,7 @@ void setMessage_LatLon_v2(GRID::Message *message,GRID::Message *dataMessage)
 
     // ### INDICATOR SECTION ###
 
-    message->setProperty(Property::IndicatorSection::Discipline,0LL);
+    message->setProperty(Property::IndicatorSection::Discipline,0L);
 
     // ### IDENTFICATION SECTION ###
 
@@ -535,49 +535,49 @@ void setMessage_LatLon_v2(GRID::Message *message,GRID::Message *dataMessage)
     message->setProperty(Property::IdentificationSection::Year,2018);
     message->setProperty(Property::IdentificationSection::Month,8);
     message->setProperty(Property::IdentificationSection::Day,20);
-    message->setProperty(Property::IdentificationSection::Hour,0LL);
-    message->setProperty(Property::IdentificationSection::Minute,0LL);
-    message->setProperty(Property::IdentificationSection::Second,0LL);
-    message->setProperty(Property::IdentificationSection::ProductionStatusOfProcessedData,0LL);
+    message->setProperty(Property::IdentificationSection::Hour,0L);
+    message->setProperty(Property::IdentificationSection::Minute,0L);
+    message->setProperty(Property::IdentificationSection::Second,0L);
+    message->setProperty(Property::IdentificationSection::ProductionStatusOfProcessedData,0L);
     message->setProperty(Property::IdentificationSection::TypeOfProcessedData,1);
 
     // ### PRODUCT SECTION ###
 
     message->setProperty(Property::ProductSection::ProductDefinitionTemplateNumber,ProductSection::Template::NormalProduct);
-    message->setProperty(Property::ProductSection::NV,0LL);
+    message->setProperty(Property::ProductSection::NV,0L);
 
     message->setProperty(Property::ProductSection::ParameterSettings::ParameterCategory,1);
     message->setProperty(Property::ProductSection::ParameterSettings::ParameterNumber,1);
     message->setProperty(Property::ProductSection::ParameterSettings::TypeOfGeneratingProcess,2);
-    message->setProperty(Property::ProductSection::ParameterSettings::BackgroundProcess,0LL);
+    message->setProperty(Property::ProductSection::ParameterSettings::BackgroundProcess,0L);
     message->setProperty(Property::ProductSection::ParameterSettings::GeneratingProcessIdentifier,181);
-    message->setProperty(Property::ProductSection::ParameterSettings::HoursAfterDataCutoff,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::MinutesAfterDataCutoff,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::IndicatorOfUnitOfTimeRange,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::ForecastTime,0LL);
+    message->setProperty(Property::ProductSection::ParameterSettings::HoursAfterDataCutoff,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::MinutesAfterDataCutoff,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::IndicatorOfUnitOfTimeRange,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::ForecastTime,0L);
 
     message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfFirstFixedSurface,levelType);
-    message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfFirstFixedSurface,0LL);
+    message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfFirstFixedSurface,0L);
     message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfFirstFixedSurface,level);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfSecondFixedSurface,0LL);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfSecondFixedSurface,0LL);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfSecondFixedSurface,0LL);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfSecondFixedSurface,0L);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfSecondFixedSurface,0L);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfSecondFixedSurface,0L);
 
     /*
     message->setProperty(Property::ProductSection::StatisticalSettings::YearOfEndOfOverallTimeInterval,2018);
     message->setProperty(Property::ProductSection::StatisticalSettings::MonthOfEndOfOverallTimeInterval,8);
     message->setProperty(Property::ProductSection::StatisticalSettings::DayOfEndOfOverallTimeInterval,20);
     message->setProperty(Property::ProductSection::StatisticalSettings::HourOfEndOfOverallTimeInterval,1);
-    message->setProperty(Property::ProductSection::StatisticalSettings::MinuteOfEndOfOverallTimeInterval,0LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::SecondOfEndOfOverallTimeInterval,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::MinuteOfEndOfOverallTimeInterval,0L);
+    message->setProperty(Property::ProductSection::StatisticalSettings::SecondOfEndOfOverallTimeInterval,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfTimeRange,1LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfMissingInStatisticalProcess,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfMissingInStatisticalProcess,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::TypeOfStatisticalProcessing,2);
     message->setProperty(Property::ProductSection::StatisticalSettings::TypeOfTimeIncrement,2);
-    message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeRange,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeRange,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::LengthOfTimeRange,60);
-    //message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeIncrement,0LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::TimeIncrement,0LL);
+    //message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeIncrement,0L);
+    message->setProperty(Property::ProductSection::StatisticalSettings::TimeIncrement,0L);
      */
 
 
@@ -585,10 +585,10 @@ void setMessage_LatLon_v2(GRID::Message *message,GRID::Message *dataMessage)
 
     message->setProperty(Property::GridSection::GridDefinitionTemplateNumber,GridSection::Template::LatLon);
 
-    message->setProperty(Property::GridSection::SourceOfGridDefinition,0LL);
+    message->setProperty(Property::GridSection::SourceOfGridDefinition,0L);
     message->setProperty(Property::GridSection::NumberOfGridPoints,sz);
-    message->setProperty(Property::GridSection::NumberOfOctetsForNumberOfPoints,0LL);
-    message->setProperty(Property::GridSection::InterpretationOfNumberOfPoints,0LL);
+    message->setProperty(Property::GridSection::NumberOfOctetsForNumberOfPoints,0L);
+    message->setProperty(Property::GridSection::InterpretationOfNumberOfPoints,0L);
 
     message->setProperty(Property::GridSection::EarthShape::ShapeOfTheEarth,6);
 
@@ -598,8 +598,8 @@ void setMessage_LatLon_v2(GRID::Message *message,GRID::Message *dataMessage)
 
     message->setProperty(Property::GridSection::Grid::Ni,width);
     message->setProperty(Property::GridSection::Grid::Nj,height);
-    message->setProperty(Property::GridSection::Grid::BasicAngleOfTheInitialProductionDomain,0LL);
-    //message->setProperty(Property::GridSection::Grid::SubdivisionsOfBasicAngle,0LL);
+    message->setProperty(Property::GridSection::Grid::BasicAngleOfTheInitialProductionDomain,0L);
+    //message->setProperty(Property::GridSection::Grid::SubdivisionsOfBasicAngle,0L);
     message->setProperty(Property::GridSection::Grid::LatitudeOfFirstGridPoint,40000000);
     message->setProperty(Property::GridSection::Grid::LongitudeOfFirstGridPoint,5000000);
     message->setProperty(Property::GridSection::Grid::LatitudeOfLastGridPoint,78000000);
@@ -609,11 +609,11 @@ void setMessage_LatLon_v2(GRID::Message *message,GRID::Message *dataMessage)
 
     // ### REPRESENTATION SECTION ####
 
-    message->setProperty(Property::RepresentationSection::OriginalValues::TypeOfOriginalFieldValues,0LL);
+    message->setProperty(Property::RepresentationSection::OriginalValues::TypeOfOriginalFieldValues,0L);
 
     message->setProperty(Property::RepresentationSection::RepresentationTemplateNumber,RepresentationSection::Template::GridDataRepresentation);
     message->setProperty(Property::RepresentationSection::Packing::BinaryScaleFactor,-11);
-    message->setProperty(Property::RepresentationSection::Packing::DecimalScaleFactor,0LL);
+    message->setProperty(Property::RepresentationSection::Packing::DecimalScaleFactor,0L);
     message->setProperty(Property::RepresentationSection::Packing::BitsPerValue,16);
 
 
@@ -652,7 +652,7 @@ void setMessage_RotatedLatLon_v2(GRID::Message *message,GRID::Message *dataMessa
 
     // ### INDICATOR SECTION ###
 
-    message->setProperty(Property::IndicatorSection::Discipline,0LL);
+    message->setProperty(Property::IndicatorSection::Discipline,0L);
 
 
     // ### IDENTIFICATION SECTION ###
@@ -665,69 +665,69 @@ void setMessage_RotatedLatLon_v2(GRID::Message *message,GRID::Message *dataMessa
     message->setProperty(Property::IdentificationSection::Year,2018);
     message->setProperty(Property::IdentificationSection::Month,8);
     message->setProperty(Property::IdentificationSection::Day,20);
-    message->setProperty(Property::IdentificationSection::Hour,0LL);
-    message->setProperty(Property::IdentificationSection::Minute,0LL);
-    message->setProperty(Property::IdentificationSection::Second,0LL);
-    message->setProperty(Property::IdentificationSection::ProductionStatusOfProcessedData,0LL);
+    message->setProperty(Property::IdentificationSection::Hour,0L);
+    message->setProperty(Property::IdentificationSection::Minute,0L);
+    message->setProperty(Property::IdentificationSection::Second,0L);
+    message->setProperty(Property::IdentificationSection::ProductionStatusOfProcessedData,0L);
     message->setProperty(Property::IdentificationSection::TypeOfProcessedData,1);
 
 
     // ### PRODUCT SECTION ###
 
     message->setProperty(Property::ProductSection::ProductDefinitionTemplateNumber,ProductSection::Template::EnsembleDerivedForecast);
-    message->setProperty(Property::ProductSection::NV,0LL);
+    message->setProperty(Property::ProductSection::NV,0L);
 
     message->setProperty(Property::ProductSection::ParameterSettings::ParameterCategory,0);
     message->setProperty(Property::ProductSection::ParameterSettings::ParameterNumber,0);
     message->setProperty(Property::ProductSection::ParameterSettings::TypeOfGeneratingProcess,2);
-    message->setProperty(Property::ProductSection::ParameterSettings::BackgroundProcess,0LL);
+    message->setProperty(Property::ProductSection::ParameterSettings::BackgroundProcess,0L);
     message->setProperty(Property::ProductSection::ParameterSettings::GeneratingProcessIdentifier,181);
-    message->setProperty(Property::ProductSection::ParameterSettings::HoursAfterDataCutoff,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::MinutesAfterDataCutoff,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::IndicatorOfUnitOfTimeRange,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::ForecastTime,0LL);
+    message->setProperty(Property::ProductSection::ParameterSettings::HoursAfterDataCutoff,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::MinutesAfterDataCutoff,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::IndicatorOfUnitOfTimeRange,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::ForecastTime,0L);
 
     message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfFirstFixedSurface,levelType);
-    message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfFirstFixedSurface,0LL);
+    message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfFirstFixedSurface,0L);
     message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfFirstFixedSurface,level);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfSecondFixedSurface,0LL);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfSecondFixedSurface,0LL);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfSecondFixedSurface,0LL);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfSecondFixedSurface,0L);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfSecondFixedSurface,0L);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfSecondFixedSurface,0L);
 
     /*
     message->setProperty(Property::ProductSection::StatisticalSettings::YearOfEndOfOverallTimeInterval,2018);
     message->setProperty(Property::ProductSection::StatisticalSettings::MonthOfEndOfOverallTimeInterval,8);
     message->setProperty(Property::ProductSection::StatisticalSettings::DayOfEndOfOverallTimeInterval,20);
     message->setProperty(Property::ProductSection::StatisticalSettings::HourOfEndOfOverallTimeInterval,1);
-    message->setProperty(Property::ProductSection::StatisticalSettings::MinuteOfEndOfOverallTimeInterval,0LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::SecondOfEndOfOverallTimeInterval,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::MinuteOfEndOfOverallTimeInterval,0L);
+    message->setProperty(Property::ProductSection::StatisticalSettings::SecondOfEndOfOverallTimeInterval,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfTimeRange,1LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfMissingInStatisticalProcess,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfMissingInStatisticalProcess,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::TypeOfStatisticalProcessing,2);
     message->setProperty(Property::ProductSection::StatisticalSettings::TypeOfTimeIncrement,2);
-    message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeRange,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeRange,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::LengthOfTimeRange,60);
-    //message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeIncrement,0LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::TimeIncrement,0LL);
+    //message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeIncrement,0L);
+    message->setProperty(Property::ProductSection::StatisticalSettings::TimeIncrement,0L);
      */
 
 
     message->setProperty(Property::ProductSection::EpsSettings::TypeOfEnsembleForecast,3);
     message->setProperty(Property::ProductSection::EpsSettings::PerturbationNumber,1);
-    message->setProperty(Property::ProductSection::EpsSettings::NumberOfForecastsInEnsemble,0LL);
+    message->setProperty(Property::ProductSection::EpsSettings::NumberOfForecastsInEnsemble,0L);
 
-    message->setProperty(Property::ProductSection::DerivedSettings::DerivedForecast,0LL);
-    message->setProperty(Property::ProductSection::DerivedSettings::NumberOfForecastsInEnsemble,0LL);
+    message->setProperty(Property::ProductSection::DerivedSettings::DerivedForecast,0L);
+    message->setProperty(Property::ProductSection::DerivedSettings::NumberOfForecastsInEnsemble,0L);
 
 
     // ### GRID SECTION ###
 
     message->setProperty(Property::GridSection::GridDefinitionTemplateNumber,GridSection::Template::RotatedLatLon);
 
-    message->setProperty(Property::GridSection::SourceOfGridDefinition,0LL);
+    message->setProperty(Property::GridSection::SourceOfGridDefinition,0L);
     message->setProperty(Property::GridSection::NumberOfGridPoints,sz);
-    message->setProperty(Property::GridSection::NumberOfOctetsForNumberOfPoints,0LL);
-    message->setProperty(Property::GridSection::InterpretationOfNumberOfPoints,0LL);
+    message->setProperty(Property::GridSection::NumberOfOctetsForNumberOfPoints,0L);
+    message->setProperty(Property::GridSection::InterpretationOfNumberOfPoints,0L);
 
     message->setProperty(Property::GridSection::EarthShape::ShapeOfTheEarth,6);
 
@@ -737,8 +737,8 @@ void setMessage_RotatedLatLon_v2(GRID::Message *message,GRID::Message *dataMessa
 
     message->setProperty(Property::GridSection::Grid::Ni,width);
     message->setProperty(Property::GridSection::Grid::Nj,height);
-    message->setProperty(Property::GridSection::Grid::BasicAngleOfTheInitialProductionDomain,0LL);
-    //message->setProperty(Property::GridSection::Grid::SubdivisionsOfBasicAngle,0LL);
+    message->setProperty(Property::GridSection::Grid::BasicAngleOfTheInitialProductionDomain,0L);
+    //message->setProperty(Property::GridSection::Grid::SubdivisionsOfBasicAngle,0L);
     message->setProperty(Property::GridSection::Grid::LatitudeOfFirstGridPoint,-24000000);
     message->setProperty(Property::GridSection::Grid::LongitudeOfFirstGridPoint,335000000);
     message->setProperty(Property::GridSection::Grid::LatitudeOfLastGridPoint,31420000);
@@ -746,16 +746,16 @@ void setMessage_RotatedLatLon_v2(GRID::Message *message,GRID::Message *dataMessa
     message->setProperty(Property::GridSection::Grid::ResolutionAndComponentFlags,136);
 
     message->setProperty(Property::GridSection::Rotation::LatitudeOfSouthernPole,-30000000);
-    message->setProperty(Property::GridSection::Rotation::LongitudeOfSouthernPole,0LL);
-    message->setProperty(Property::GridSection::Rotation::AngleOfRotation,0LL);
+    message->setProperty(Property::GridSection::Rotation::LongitudeOfSouthernPole,0L);
+    message->setProperty(Property::GridSection::Rotation::AngleOfRotation,0L);
 
 
     message->setProperty(Property::RepresentationSection::RepresentationTemplateNumber,RepresentationSection::Template::GridDataRepresentation);
     message->setProperty(Property::RepresentationSection::Packing::BinaryScaleFactor,-11);
-    message->setProperty(Property::RepresentationSection::Packing::DecimalScaleFactor,0LL);
+    message->setProperty(Property::RepresentationSection::Packing::DecimalScaleFactor,0L);
     message->setProperty(Property::RepresentationSection::Packing::BitsPerValue,16);
 
-    message->setProperty(Property::RepresentationSection::OriginalValues::TypeOfOriginalFieldValues,0LL);
+    message->setProperty(Property::RepresentationSection::OriginalValues::TypeOfOriginalFieldValues,0L);
 
     message->initSpatialReference();
     T::Coordinate_svec coordinates = message->getGridLatLonCoordinates();
@@ -790,7 +790,7 @@ void setMessage_PolarStereographic_v2(GRID::Message *message,GRID::Message *data
 
     // ### INDICATOR SECTION ###
 
-    message->setProperty(Property::IndicatorSection::Discipline,0LL);
+    message->setProperty(Property::IndicatorSection::Discipline,0L);
 
 
     // ### IDENTIFICATION SECTION ###
@@ -803,60 +803,60 @@ void setMessage_PolarStereographic_v2(GRID::Message *message,GRID::Message *data
     message->setProperty(Property::IdentificationSection::Year,2018);
     message->setProperty(Property::IdentificationSection::Month,8);
     message->setProperty(Property::IdentificationSection::Day,20);
-    message->setProperty(Property::IdentificationSection::Hour,0LL);
-    message->setProperty(Property::IdentificationSection::Minute,0LL);
-    message->setProperty(Property::IdentificationSection::Second,0LL);
-    message->setProperty(Property::IdentificationSection::ProductionStatusOfProcessedData,0LL);
+    message->setProperty(Property::IdentificationSection::Hour,0L);
+    message->setProperty(Property::IdentificationSection::Minute,0L);
+    message->setProperty(Property::IdentificationSection::Second,0L);
+    message->setProperty(Property::IdentificationSection::ProductionStatusOfProcessedData,0L);
     message->setProperty(Property::IdentificationSection::TypeOfProcessedData,1);
 
 
     // ### PRODUCT SECTION ###
 
     message->setProperty(Property::ProductSection::ProductDefinitionTemplateNumber,ProductSection::Template::NormalProduct);
-    message->setProperty(Property::ProductSection::NV,0LL);
+    message->setProperty(Property::ProductSection::NV,0L);
 
     message->setProperty(Property::ProductSection::ParameterSettings::ParameterCategory,2);
     message->setProperty(Property::ProductSection::ParameterSettings::ParameterNumber,0);
     message->setProperty(Property::ProductSection::ParameterSettings::TypeOfGeneratingProcess,2);
-    message->setProperty(Property::ProductSection::ParameterSettings::BackgroundProcess,0LL);
+    message->setProperty(Property::ProductSection::ParameterSettings::BackgroundProcess,0L);
     message->setProperty(Property::ProductSection::ParameterSettings::GeneratingProcessIdentifier,181);
-    message->setProperty(Property::ProductSection::ParameterSettings::HoursAfterDataCutoff,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::MinutesAfterDataCutoff,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::IndicatorOfUnitOfTimeRange,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::ForecastTime,0LL);
+    message->setProperty(Property::ProductSection::ParameterSettings::HoursAfterDataCutoff,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::MinutesAfterDataCutoff,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::IndicatorOfUnitOfTimeRange,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::ForecastTime,0L);
 
     message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfFirstFixedSurface,levelType);
-    message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfFirstFixedSurface,0LL);
+    message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfFirstFixedSurface,0L);
     message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfFirstFixedSurface,level);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfSecondFixedSurface,0LL);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfSecondFixedSurface,0LL);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfSecondFixedSurface,0LL);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfSecondFixedSurface,0L);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfSecondFixedSurface,0L);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfSecondFixedSurface,0L);
 
 /*
     message->setProperty(Property::ProductSection::StatisticalSettings::YearOfEndOfOverallTimeInterval,2018);
     message->setProperty(Property::ProductSection::StatisticalSettings::MonthOfEndOfOverallTimeInterval,8);
     message->setProperty(Property::ProductSection::StatisticalSettings::DayOfEndOfOverallTimeInterval,20);
     message->setProperty(Property::ProductSection::StatisticalSettings::HourOfEndOfOverallTimeInterval,1);
-    message->setProperty(Property::ProductSection::StatisticalSettings::MinuteOfEndOfOverallTimeInterval,0LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::SecondOfEndOfOverallTimeInterval,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::MinuteOfEndOfOverallTimeInterval,0L);
+    message->setProperty(Property::ProductSection::StatisticalSettings::SecondOfEndOfOverallTimeInterval,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfTimeRange,1LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfMissingInStatisticalProcess,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfMissingInStatisticalProcess,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::TypeOfStatisticalProcessing,2);
     message->setProperty(Property::ProductSection::StatisticalSettings::TypeOfTimeIncrement,2);
-    message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeRange,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeRange,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::LengthOfTimeRange,60);
-    //message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeIncrement,0LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::TimeIncrement,0LL);
+    //message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeIncrement,0L);
+    message->setProperty(Property::ProductSection::StatisticalSettings::TimeIncrement,0L);
 */
 
     // ### GRID SECTION ###
 
     message->setProperty(Property::GridSection::GridDefinitionTemplateNumber,GridSection::Template::PolarStereographic);
 
-    message->setProperty(Property::GridSection::SourceOfGridDefinition,0LL);
+    message->setProperty(Property::GridSection::SourceOfGridDefinition,0L);
     message->setProperty(Property::GridSection::NumberOfGridPoints,sz);
-    message->setProperty(Property::GridSection::NumberOfOctetsForNumberOfPoints,0LL);
-    message->setProperty(Property::GridSection::InterpretationOfNumberOfPoints,0LL);
+    message->setProperty(Property::GridSection::NumberOfOctetsForNumberOfPoints,0L);
+    message->setProperty(Property::GridSection::InterpretationOfNumberOfPoints,0L);
 
     message->setProperty(Property::GridSection::EarthShape::ShapeOfTheEarth,6);
 
@@ -869,7 +869,7 @@ void setMessage_PolarStereographic_v2(GRID::Message *message,GRID::Message *data
     message->setProperty(Property::GridSection::PolarStereographic::OrientationOfTheGrid,249000000);
     message->setProperty(Property::GridSection::PolarStereographic::Dx,10000000);
     message->setProperty(Property::GridSection::PolarStereographic::Dy,10000000);
-    message->setProperty(Property::GridSection::PolarStereographic::ProjectionCentreFlag,0LL);
+    message->setProperty(Property::GridSection::PolarStereographic::ProjectionCentreFlag,0L);
     message->setProperty(Property::GridSection::PolarStereographic::ScanningMode,64);
 
 
@@ -878,10 +878,10 @@ void setMessage_PolarStereographic_v2(GRID::Message *message,GRID::Message *data
     message->setProperty(Property::RepresentationSection::RepresentationTemplateNumber,RepresentationSection::Template::GridDataRepresentation);
 
     message->setProperty(Property::RepresentationSection::Packing::BinaryScaleFactor,-11);
-    message->setProperty(Property::RepresentationSection::Packing::DecimalScaleFactor,0LL);
+    message->setProperty(Property::RepresentationSection::Packing::DecimalScaleFactor,0L);
     message->setProperty(Property::RepresentationSection::Packing::BitsPerValue,16);
 
-    message->setProperty(Property::RepresentationSection::OriginalValues::TypeOfOriginalFieldValues,0LL);
+    message->setProperty(Property::RepresentationSection::OriginalValues::TypeOfOriginalFieldValues,0L);
 
 
     // ### DATA SECTION ###
@@ -919,7 +919,7 @@ void setMessage_LambertConformal_v2(GRID::Message *message,GRID::Message *dataMe
 
     // ### INDICATOR SECTION ###
 
-    message->setProperty(Property::IndicatorSection::Discipline,0LL);
+    message->setProperty(Property::IndicatorSection::Discipline,0L);
 
 
     // ### IDENTIFICATION SECTION ###
@@ -932,49 +932,49 @@ void setMessage_LambertConformal_v2(GRID::Message *message,GRID::Message *dataMe
     message->setProperty(Property::IdentificationSection::Year,2018);
     message->setProperty(Property::IdentificationSection::Month,8);
     message->setProperty(Property::IdentificationSection::Day,20);
-    message->setProperty(Property::IdentificationSection::Hour,0LL);
-    message->setProperty(Property::IdentificationSection::Minute,0LL);
-    message->setProperty(Property::IdentificationSection::Second,0LL);
-    message->setProperty(Property::IdentificationSection::ProductionStatusOfProcessedData,0LL);
+    message->setProperty(Property::IdentificationSection::Hour,0L);
+    message->setProperty(Property::IdentificationSection::Minute,0L);
+    message->setProperty(Property::IdentificationSection::Second,0L);
+    message->setProperty(Property::IdentificationSection::ProductionStatusOfProcessedData,0L);
     message->setProperty(Property::IdentificationSection::TypeOfProcessedData,1);
 
     // ### PRODUCT SECTION ###
 
     message->setProperty(Property::ProductSection::ProductDefinitionTemplateNumber,ProductSection::Template::NormalProduct);
-    message->setProperty(Property::ProductSection::NV,0LL);
+    message->setProperty(Property::ProductSection::NV,0L);
 
     message->setProperty(Property::ProductSection::ParameterSettings::ParameterCategory,2);
     message->setProperty(Property::ProductSection::ParameterSettings::ParameterNumber,22);
     message->setProperty(Property::ProductSection::ParameterSettings::TypeOfGeneratingProcess,2);
-    message->setProperty(Property::ProductSection::ParameterSettings::BackgroundProcess,0LL);
+    message->setProperty(Property::ProductSection::ParameterSettings::BackgroundProcess,0L);
     message->setProperty(Property::ProductSection::ParameterSettings::GeneratingProcessIdentifier,2);
-    message->setProperty(Property::ProductSection::ParameterSettings::HoursAfterDataCutoff,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::MinutesAfterDataCutoff,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::IndicatorOfUnitOfTimeRange,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::ForecastTime,0LL);
+    message->setProperty(Property::ProductSection::ParameterSettings::HoursAfterDataCutoff,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::MinutesAfterDataCutoff,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::IndicatorOfUnitOfTimeRange,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::ForecastTime,0L);
 
     message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfFirstFixedSurface,levelType);
-    message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfFirstFixedSurface,0LL);
+    message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfFirstFixedSurface,0L);
     message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfFirstFixedSurface,level);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfSecondFixedSurface,0LL);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfSecondFixedSurface,0LL);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfSecondFixedSurface,0LL);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfSecondFixedSurface,0L);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfSecondFixedSurface,0L);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfSecondFixedSurface,0L);
 
 /*
     message->setProperty(Property::ProductSection::StatisticalSettings::YearOfEndOfOverallTimeInterval,2018);
     message->setProperty(Property::ProductSection::StatisticalSettings::MonthOfEndOfOverallTimeInterval,8);
     message->setProperty(Property::ProductSection::StatisticalSettings::DayOfEndOfOverallTimeInterval,20);
     message->setProperty(Property::ProductSection::StatisticalSettings::HourOfEndOfOverallTimeInterval,1);
-    message->setProperty(Property::ProductSection::StatisticalSettings::MinuteOfEndOfOverallTimeInterval,0LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::SecondOfEndOfOverallTimeInterval,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::MinuteOfEndOfOverallTimeInterval,0L);
+    message->setProperty(Property::ProductSection::StatisticalSettings::SecondOfEndOfOverallTimeInterval,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfTimeRange,1LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfMissingInStatisticalProcess,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfMissingInStatisticalProcess,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::TypeOfStatisticalProcessing,2);
     message->setProperty(Property::ProductSection::StatisticalSettings::TypeOfTimeIncrement,2);
-    message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeRange,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeRange,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::LengthOfTimeRange,60);
-    //message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeIncrement,0LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::TimeIncrement,0LL);
+    //message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeIncrement,0L);
+    message->setProperty(Property::ProductSection::StatisticalSettings::TimeIncrement,0L);
 */
 
     //message->setProperty(Property::ProductSection::LevelId,103);
@@ -983,10 +983,10 @@ void setMessage_LambertConformal_v2(GRID::Message *message,GRID::Message *dataMe
     //message->setGridGeometry(401);  // 1097 x 657
     //message->setGribParameter(std::string("132"));
 
-    message->setProperty(Property::GridSection::SourceOfGridDefinition,0LL);
+    message->setProperty(Property::GridSection::SourceOfGridDefinition,0L);
     message->setProperty(Property::GridSection::NumberOfGridPoints,sz);
-    message->setProperty(Property::GridSection::NumberOfOctetsForNumberOfPoints,0LL);
-    message->setProperty(Property::GridSection::InterpretationOfNumberOfPoints,0LL);
+    message->setProperty(Property::GridSection::NumberOfOctetsForNumberOfPoints,0L);
+    message->setProperty(Property::GridSection::InterpretationOfNumberOfPoints,0L);
     message->setProperty(Property::GridSection::GridDefinitionTemplateNumber,GridSection::Template::LambertConformal);
     //message->setProperty(Property::GridSection::GridDefinitionTemplateNumber,GridSection::Template::PolarStereographic);
     //message->setProperty(Property::GridSection::GridDefinitionTemplateNumber,GridSection::Template::RotatedLatLon);
@@ -1001,7 +1001,7 @@ void setMessage_LambertConformal_v2(GRID::Message *message,GRID::Message *dataMe
     message->setProperty(Property::GridSection::PolarStereographic::OrientationOfTheGrid,249000000);
     message->setProperty(Property::GridSection::PolarStereographic::Dx,10000000);
     message->setProperty(Property::GridSection::PolarStereographic::Dy,10000000);
-    message->setProperty(Property::GridSection::PolarStereographic::ProjectionCentreFlag,0LL);
+    message->setProperty(Property::GridSection::PolarStereographic::ProjectionCentreFlag,0L);
     message->setProperty(Property::GridSection::PolarStereographic::ScanningMode,64);
 */
 
@@ -1014,12 +1014,12 @@ void setMessage_LambertConformal_v2(GRID::Message *message,GRID::Message *dataMe
     message->setProperty(Property::GridSection::LambertConformal::LoV,253000000);
     message->setProperty(Property::GridSection::LambertConformal::Dx,32463000);
     message->setProperty(Property::GridSection::LambertConformal::Dy,32463000);
-    message->setProperty(Property::GridSection::LambertConformal::ProjectionCentreFlag,0LL);
+    message->setProperty(Property::GridSection::LambertConformal::ProjectionCentreFlag,0L);
     message->setProperty(Property::GridSection::LambertConformal::ScanningMode,64);
     message->setProperty(Property::GridSection::LambertConformal::Latin1,50000000);
     message->setProperty(Property::GridSection::LambertConformal::Latin2,50000000);
-    message->setProperty(Property::GridSection::LambertConformal::LatitudeOfSouthernPole,0LL);
-    message->setProperty(Property::GridSection::LambertConformal::LongitudeOfSouthernPole,0LL);
+    message->setProperty(Property::GridSection::LambertConformal::LatitudeOfSouthernPole,0L);
+    message->setProperty(Property::GridSection::LambertConformal::LongitudeOfSouthernPole,0L);
 
 
     /*
@@ -1027,14 +1027,14 @@ void setMessage_LambertConformal_v2(GRID::Message *message,GRID::Message *dataMe
  *
     message->setProperty(Property::GridSection::LatLon::IDirectionIncrement,125000);
     message->setProperty(Property::GridSection::LatLon::JDirectionIncrement,125000);
-    message->setProperty(Property::GridSection::LatLon::ScanningMode,0LL);
+    message->setProperty(Property::GridSection::LatLon::ScanningMode,0L);
   */
     message->setProperty(Property::GridSection::EarthShape::ShapeOfTheEarth,6);
 /*
     message->setProperty(Property::GridSection::Grid::Ni,width);
     message->setProperty(Property::GridSection::Grid::Nj,height);
-    message->setProperty(Property::GridSection::Grid::BasicAngleOfTheInitialProductionDomain,0LL);
-    //message->setProperty(Property::GridSection::Grid::SubdivisionsOfBasicAngle,0LL);
+    message->setProperty(Property::GridSection::Grid::BasicAngleOfTheInitialProductionDomain,0L);
+    //message->setProperty(Property::GridSection::Grid::SubdivisionsOfBasicAngle,0L);
     message->setProperty(Property::GridSection::Grid::LatitudeOfFirstGridPoint,-22500000);
     message->setProperty(Property::GridSection::Grid::LongitudeOfFirstGridPoint,-26000000);
     message->setProperty(Property::GridSection::Grid::LatitudeOfLastGridPoint,35000000);
@@ -1042,16 +1042,16 @@ void setMessage_LambertConformal_v2(GRID::Message *message,GRID::Message *dataMe
     message->setProperty(Property::GridSection::Grid::ResolutionAndComponentFlags,48);
 
     message->setProperty(Property::GridSection::Rotation::LatitudeOfSouthernPole,-30000000);
-    message->setProperty(Property::GridSection::Rotation::LongitudeOfSouthernPole,0LL);
-    message->setProperty(Property::GridSection::Rotation::AngleOfRotation,0LL);
+    message->setProperty(Property::GridSection::Rotation::LongitudeOfSouthernPole,0L);
+    message->setProperty(Property::GridSection::Rotation::AngleOfRotation,0L);
 */
 
     message->setProperty(Property::RepresentationSection::RepresentationTemplateNumber,RepresentationSection::Template::GridDataRepresentation);
     message->setProperty(Property::RepresentationSection::Packing::BinaryScaleFactor,-11);
-    message->setProperty(Property::RepresentationSection::Packing::DecimalScaleFactor,0LL);
+    message->setProperty(Property::RepresentationSection::Packing::DecimalScaleFactor,0L);
     message->setProperty(Property::RepresentationSection::Packing::BitsPerValue,16);
 
-    message->setProperty(Property::RepresentationSection::OriginalValues::TypeOfOriginalFieldValues,0LL);
+    message->setProperty(Property::RepresentationSection::OriginalValues::TypeOfOriginalFieldValues,0L);
 
     message->initSpatialReference();
     T::Coordinate_svec coordinates = message->getGridLatLonCoordinates();
@@ -1087,7 +1087,7 @@ void setMessage_Mercator_v2(GRID::Message *message,GRID::Message *dataMessage)
 
     // ### INDICATOR SECTION ###
 
-    message->setProperty(Property::IndicatorSection::Discipline,0LL);
+    message->setProperty(Property::IndicatorSection::Discipline,0L);
 
 
     // ### IDENTIFICATION SECTION ###
@@ -1100,49 +1100,49 @@ void setMessage_Mercator_v2(GRID::Message *message,GRID::Message *dataMessage)
     message->setProperty(Property::IdentificationSection::Year,2018);
     message->setProperty(Property::IdentificationSection::Month,8);
     message->setProperty(Property::IdentificationSection::Day,20);
-    message->setProperty(Property::IdentificationSection::Hour,0LL);
-    message->setProperty(Property::IdentificationSection::Minute,0LL);
-    message->setProperty(Property::IdentificationSection::Second,0LL);
-    message->setProperty(Property::IdentificationSection::ProductionStatusOfProcessedData,0LL);
+    message->setProperty(Property::IdentificationSection::Hour,0L);
+    message->setProperty(Property::IdentificationSection::Minute,0L);
+    message->setProperty(Property::IdentificationSection::Second,0L);
+    message->setProperty(Property::IdentificationSection::ProductionStatusOfProcessedData,0L);
     message->setProperty(Property::IdentificationSection::TypeOfProcessedData,1);
 
     // ### PRODUCT SECTION ###
 
     message->setProperty(Property::ProductSection::ProductDefinitionTemplateNumber,ProductSection::Template::NormalProduct);
-    message->setProperty(Property::ProductSection::NV,0LL);
+    message->setProperty(Property::ProductSection::NV,0L);
 
     message->setProperty(Property::ProductSection::ParameterSettings::ParameterCategory,2);
     message->setProperty(Property::ProductSection::ParameterSettings::ParameterNumber,22);
     message->setProperty(Property::ProductSection::ParameterSettings::TypeOfGeneratingProcess,2);
-    message->setProperty(Property::ProductSection::ParameterSettings::BackgroundProcess,0LL);
+    message->setProperty(Property::ProductSection::ParameterSettings::BackgroundProcess,0L);
     message->setProperty(Property::ProductSection::ParameterSettings::GeneratingProcessIdentifier,2);
-    message->setProperty(Property::ProductSection::ParameterSettings::HoursAfterDataCutoff,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::MinutesAfterDataCutoff,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::IndicatorOfUnitOfTimeRange,0LL);
-    message->setProperty(Property::ProductSection::ParameterSettings::ForecastTime,0LL);
+    message->setProperty(Property::ProductSection::ParameterSettings::HoursAfterDataCutoff,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::MinutesAfterDataCutoff,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::IndicatorOfUnitOfTimeRange,0L);
+    message->setProperty(Property::ProductSection::ParameterSettings::ForecastTime,0L);
 
     message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfFirstFixedSurface,levelType);
-    message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfFirstFixedSurface,0LL);
+    message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfFirstFixedSurface,0L);
     message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfFirstFixedSurface,level);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfSecondFixedSurface,0LL);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfSecondFixedSurface,0LL);
-    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfSecondFixedSurface,0LL);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::TypeOfSecondFixedSurface,0L);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaleFactorOfSecondFixedSurface,0L);
+    //message->setProperty(Property::ProductSection::HorizontalSettings::ScaledValueOfSecondFixedSurface,0L);
 
 /*
     message->setProperty(Property::ProductSection::StatisticalSettings::YearOfEndOfOverallTimeInterval,2018);
     message->setProperty(Property::ProductSection::StatisticalSettings::MonthOfEndOfOverallTimeInterval,8);
     message->setProperty(Property::ProductSection::StatisticalSettings::DayOfEndOfOverallTimeInterval,20);
     message->setProperty(Property::ProductSection::StatisticalSettings::HourOfEndOfOverallTimeInterval,1);
-    message->setProperty(Property::ProductSection::StatisticalSettings::MinuteOfEndOfOverallTimeInterval,0LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::SecondOfEndOfOverallTimeInterval,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::MinuteOfEndOfOverallTimeInterval,0L);
+    message->setProperty(Property::ProductSection::StatisticalSettings::SecondOfEndOfOverallTimeInterval,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfTimeRange,1LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfMissingInStatisticalProcess,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::NumberOfMissingInStatisticalProcess,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::TypeOfStatisticalProcessing,2);
     message->setProperty(Property::ProductSection::StatisticalSettings::TypeOfTimeIncrement,2);
-    message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeRange,0LL);
+    message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeRange,0L);
     message->setProperty(Property::ProductSection::StatisticalSettings::LengthOfTimeRange,60);
-    //message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeIncrement,0LL);
-    message->setProperty(Property::ProductSection::StatisticalSettings::TimeIncrement,0LL);
+    //message->setProperty(Property::ProductSection::StatisticalSettings::IndicatorOfUnitForTimeIncrement,0L);
+    message->setProperty(Property::ProductSection::StatisticalSettings::TimeIncrement,0L);
 */
 
     //message->setProperty(Property::ProductSection::LevelId,103);
@@ -1151,10 +1151,10 @@ void setMessage_Mercator_v2(GRID::Message *message,GRID::Message *dataMessage)
     //message->setGridGeometry(401);  // 1097 x 657
     //message->setGribParameter(std::string("132"));
 
-    message->setProperty(Property::GridSection::SourceOfGridDefinition,0LL);
+    message->setProperty(Property::GridSection::SourceOfGridDefinition,0L);
     message->setProperty(Property::GridSection::NumberOfGridPoints,sz);
-    message->setProperty(Property::GridSection::NumberOfOctetsForNumberOfPoints,0LL);
-    message->setProperty(Property::GridSection::InterpretationOfNumberOfPoints,0LL);
+    message->setProperty(Property::GridSection::NumberOfOctetsForNumberOfPoints,0L);
+    message->setProperty(Property::GridSection::InterpretationOfNumberOfPoints,0L);
     message->setProperty(Property::GridSection::GridDefinitionTemplateNumber,GridSection::Template::Mercator);
     //message->setProperty(Property::GridSection::GridDefinitionTemplateNumber,GridSection::Template::PolarStereographic);
     //message->setProperty(Property::GridSection::GridDefinitionTemplateNumber,GridSection::Template::RotatedLatLon);
@@ -1177,10 +1177,10 @@ void setMessage_Mercator_v2(GRID::Message *message,GRID::Message *dataMessage)
 
     message->setProperty(Property::RepresentationSection::RepresentationTemplateNumber,RepresentationSection::Template::GridDataRepresentation);
     message->setProperty(Property::RepresentationSection::Packing::BinaryScaleFactor,0);
-    message->setProperty(Property::RepresentationSection::Packing::DecimalScaleFactor,0LL);
+    message->setProperty(Property::RepresentationSection::Packing::DecimalScaleFactor,0L);
     message->setProperty(Property::RepresentationSection::Packing::BitsPerValue,32);
 
-    message->setProperty(Property::RepresentationSection::OriginalValues::TypeOfOriginalFieldValues,0LL);
+    message->setProperty(Property::RepresentationSection::OriginalValues::TypeOfOriginalFieldValues,0L);
 
     message->initSpatialReference();
     T::Coordinate_svec coordinates = message->getGridLatLonCoordinates();
@@ -1275,7 +1275,7 @@ int main(int argc, char *argv[])
 
         if (version == dataMessage->getGribVersion())
         {
-          long long v = 0;
+          Int64 v = 0;
 
           auto properties = gribProperty.getPropertyVector();
 
@@ -1396,7 +1396,7 @@ int main(int argc, char *argv[])
 
         newMessage = targetGridFile.newMessage(T::FileTypeValue::Grib2);
 
-        long long v = 0;
+        Int64 v = 0;
 
         auto properties = gribProperty.getPropertyVector();
 
