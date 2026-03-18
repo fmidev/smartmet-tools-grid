@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 26.2.4
+Version: 26.3.18
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -24,9 +24,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
 BuildRequires: smartmet-library-macgyver-devel >= 26.2.4
-BuildRequires: smartmet-library-spine-devel >= 26.2.4
-BuildRequires: smartmet-library-grid-files-devel >= 26.2.4
-BuildRequires: smartmet-library-grid-content-devel >= 26.2.4
+BuildRequires: smartmet-library-spine-devel >= 26.3.13
+BuildRequires: smartmet-library-grid-files-devel >= 26.3.18
+BuildRequires: smartmet-library-grid-content-devel >= 26.3.18
 BuildRequires: gdal312-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
@@ -41,8 +41,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-spine >= 26.2.4
 #Requires: smartmet-server >= 26.2.4
 Requires: smartmet-library-macgyver >= 26.2.4
-Requires: smartmet-library-grid-files >= 26.2.4
-Requires: smartmet-library-grid-content >= 26.2.4
+Requires: smartmet-library-grid-files >= 26.3.18
+Requires: smartmet-library-grid-content >= 26.3.18
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -284,6 +284,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Mar 18 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.3.18-1.fmi
+- Added support for multiple data sources
+
 * Wed Feb  4 2026 Andris Pavēnis <andris.pavenis@fmi.fi> 26.2.4-1.fmi
 - Update to proj-9.7, gdal-3.12, fmt-12
 
