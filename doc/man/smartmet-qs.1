@@ -1,0 +1,111 @@
+.TH SMARTMET-QS 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+smartmet-qs \- QueryServer command-line clients (qs_*)
+.SH SYNOPSIS
+.B qs_<operation>
+.I sessionId
+.RI [ "operation arguments" ...]
+.RI [ -ior " <ior>" ]
+.SH DESCRIPTION
+.B smartmet-qs
+is the umbrella name for the six command\(hyline binaries shipped by
+.B smartmet-tools-grid
+whose names begin with
+.BR qs_ .
+Each binary is a thin wrapper around a single method of the SmartMet
+.B QueryServer
+service interface.
+.PP
+The QueryServer is the high\(hylevel face of the GRID stack: instead of
+addressing a particular grid file and message index it accepts a
+.I parameter
+name (e.g.\& Temperature, Pressure) and a producer or geometry, looks up
+the matching grid messages from the
+.BR ContentServer ,
+asks the
+.B DataServer
+for values, applies area / time / level interpolation as configured, and
+returns the result. The QueryServer itself is run by
+.BR corbaQueryServer (1)
+or as part of
+.BR corbaGridServer (1).
+.SH ENVIRONMENT VARIABLES
+.TP
+.B SMARTMET_QS_IOR
+CORBA International Object Reference of a running QueryServer. Set it once
+to the IOR printed by
+.BR corbaQueryServer (1).
+The clients fall back to a
+.B \-ior
+trailer if the variable is not set.
+.TP
+.B SMARTMET_GRID_CONFIG_FILE
+Path to the
+.B grid-files
+library configuration file. Required by
+.B qs_getParameterIsobands ,
+.B qs_getParameterIsolines
+and
+.B qs_getParameterValues
+to identify parameter names and projections.
+.SH COMMON ARGUMENTS
+Every
+.B qs_*
+client takes a numeric
+.I sessionId
+as its first positional argument. The QueryServer is reached over CORBA
+and the IOR is taken from
+.B SMARTMET_QS_IOR
+unless overridden:
+.TP
+.BI \-ior " ior"
+Use this CORBA IOR instead of
+.BR SMARTMET_QS_IOR .
+.PP
+The remaining arguments depend on the call. The exact argument list of
+each binary is printed when it is run without parameters.
+.SH BINARIES
+.TP
+.B qs_getProducerList
+List the producer names known to the QueryServer.
+.TP
+.B qs_getParameterValueByPointAndTime
+Look up a single
+.I parameter
+value at a given
+.IR x , y
+location and a single
+.IR time .
+.TP
+.B qs_getParameterValuesByPointAndTimeList
+Look up a parameter at a single point but a comma\(hyseparated list of
+times, returning a time series.
+.TP
+.B qs_getParameterValues
+General time\(hyseries query: parameter, start time, end time and an
+arbitrary list of attribute=value pairs (producer, geometryId,
+levelId, level, interpolation methods, ...). Output is written as
+CSV.
+.TP
+.B qs_getParameterIsolines
+Generate isoline (contour line) data for a parameter on a given
+geometry, between a start time and a number of time steps; one PNG per
+time step is produced.
+.TP
+.B qs_getParameterIsobands
+Generate isoband (filled contour) data analogous to
+.B qs_getParameterIsolines .
+.SH FILES
+.TP
+.I /usr/bin/qs_*
+The installed client binaries.
+.SH SEE ALSO
+.BR smartmet-cs (1),
+.BR smartmet-ds (1),
+.BR smartmet-gu (1),
+.BR corbaQueryServer (1),
+.BR corbaGridServer (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.

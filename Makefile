@@ -133,6 +133,8 @@ clean-install:
 format:
 	clang-format -i -style=file $(SUBNAME)/*.h $(SUBNAME)/*.cpp test/*.cpp
 
+mandir ?= $(PREFIX)/share/man
+
 install:
 	mkdir -p $(bindir)/fmi
 	mkdir -p $(bindir)/servers
@@ -148,6 +150,13 @@ install:
 	cp src/python/*.py $(bindir)/clients/python/
 	mkdir -p $(libdir)/../lib/systemd/system
 	$(INSTALL_DATA) systemd/radon2smartmet.service  $(libdir)/../lib/systemd/system
+	mkdir -p $(mandir)/man1
+	@for page in doc/man/*.1; do \
+	  base=`basename $$page`; \
+	  echo $(INSTALL_DATA) $$page $(mandir)/man1/$$base; \
+	  $(INSTALL_DATA) $$page $(mandir)/man1/$$base; \
+	  gzip -nf $(mandir)/man1/$$base; \
+	done
 test:
 	+cd test && make test
 

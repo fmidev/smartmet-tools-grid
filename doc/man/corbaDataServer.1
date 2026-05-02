@@ -1,0 +1,76 @@
+.TH CORBADATASERVER 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+corbaDataServer \- CORBA daemon serving SmartMet GRID file data
+.SH SYNOPSIS
+.B corbaDataServer
+.I configFile
+.SH DESCRIPTION
+.B corbaDataServer
+is a daemon that exposes the SmartMet
+.B DataServer
+service interface over CORBA. The DataServer reads grid files
+(GRIB1, GRIB2, NetCDF, QueryData) from a local storage directory and
+serves their contents to clients: raw values, point/area
+interpolations, vector wind components, isolines, isobands and
+ready\(hyrendered map images.
+.PP
+The DataServer needs continuous access to a
+.BR ContentServer .
+On startup it registers itself with the configured ContentServer
+(\fIcontent-source.ior\fR) and then polls its event log: when new file
+information is added to the ContentServer the DataServer reads the new
+grid file, registers its detailed content, and announces the file's
+availability so that other clients of the same ContentServer know they
+can request its data here. When the daemon is stopped the
+registrations made for this server are cleaned up automatically.
+.PP
+Grids are kept in an in\(hymemory or filesystem\(hybacked value cache; the
+cache size is configurable. Optional memory mapping
+(\fImemoryMapper.enabled\fR) keeps the grid file pages mapped between
+requests for faster repeat access.
+.PP
+On startup
+.B corbaDataServer
+prints its IOR on standard output, or writes it to the file named by
+.B iorFile
+in the configuration. Set
+.B SMARTMET_DS_IOR
+to that IOR so that
+.BR ds_* (1)
+clients can find the server.
+.SH ARGUMENTS
+.TP
+.I configFile
+Libconfig\(hystyle configuration file. Required attributes include the
+grid\(hyfiles configuration path, server address/port/iorFile,
+.BR smartmet.tools.grid.data-server.content-source.ior
+(IOR of the ContentServer to attach to),
+.BR smartmet.tools.grid.data-server.grid-storage.directory
+(local grid file directory), value\(hycache sizing
+.RB ( smartmet.library.grid-files.cache.* ),
+and processing/debug logging knobs.
+.SH SIGNALS
+.TP
+.B SIGINT
+Initiates a clean shutdown of both the data server and its CORBA
+listener.
+.SH SYSTEMD
+There is no bundled systemd unit for
+.B corbaDataServer
+itself; deployments typically run it from a site\(hylocal supervisord or
+systemd unit file together with
+.BR corbaContentServer (1)
+and
+.BR corbaQueryServer (1),
+or use the combined
+.BR corbaGridServer (1)
+instead.
+.SH SEE ALSO
+.BR corbaContentServer (1),
+.BR corbaQueryServer (1),
+.BR corbaGridServer (1),
+.BR smartmet-ds (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.

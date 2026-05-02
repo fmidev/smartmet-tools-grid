@@ -1,0 +1,76 @@
+.TH FILESYS2SMARTMET 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+filesys2smartmet \- populate the SmartMet Content Storage from a filesystem of grid files
+.SH SYNOPSIS
+.B filesys2smartmet
+.I configFile
+.I loopWaitTime
+.SH DESCRIPTION
+The Content Storage is a database that records which producers,
+generations, files and grids are available to the SmartMet Server.
+.B filesys2smartmet
+populates and maintains this storage by scanning a tree of grid files
+on disk (or in an S3 bucket).
+.PP
+On every loop iteration
+.B filesys2smartmet
+walks the configured locations, looks for valid grid files
+(GRIB1, GRIB2, NetCDF, QueryData), reads the relevant metadata and
+registers it into the Content Storage. Files that have been removed
+from disk are deregistered.
+.PP
+By default the program assumes that file names follow the pattern
+.IR PROD_YYYYMMDDTHHMMSS_XXXXX.grib*
+where the first underscore\(hydelimited part identifies the producer and
+the second is the generation timestamp. For files that cannot be
+renamed,
+.B filesys2smartmet
+can call a Lua function (\fBfilenameFixer\fR) to derive a synthetic
+producer/generation name from the original.
+.PP
+.B filesys2smartmet
+is normally run as a long\(hyrunning loop driven by
+.IR loopWaitTime .
+If
+.I loopWaitTime
+is zero, the loop executes once and exits.
+.SH ARGUMENTS
+.TP
+.I configFile
+Path to the
+.B filesys2smartmet
+JSON\(hystyle configuration file. The file has three main sections:
+initialisation of the
+.B grid-files
+library, a
+.B content-source
+section listing the locations to scan, and a
+.B content-storage
+section selecting the Content Storage backend (Redis, CORBA or HTTP).
+.TP
+.I loopWaitTime
+Wait time in seconds between scan loops. Pass
+.B 0
+to scan once and exit.
+.SH ENVIRONMENT VARIABLES
+The configuration file may itself reference environment variables and
+import other files. Typical deployments set
+.B SMARTMET_CONF
+to point at the SmartMet configuration root used by the imported
+sub\(hyconfigurations.
+.SH FILES
+.TP
+.I doc/filesys2smartmet.md
+Full prose documentation including configuration examples for both
+filesystem and S3 location types and a sample
+.B filenameFixer
+Lua script.
+.SH SEE ALSO
+.BR radon2smartmet (1),
+.BR corbaContentServer (1),
+.BR smartmet-cs (1),
+.BR smartmet-gu (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.
