@@ -1,0 +1,56 @@
+.TH RADON2CSV 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+radon2csv \- export producer, generation, file and content lists from Radon to CSV
+.SH SYNOPSIS
+.B radon2csv
+.I outputDir
+.I sourceId
+.I producerListFile
+.I dbConnectionString
+.SH DESCRIPTION
+.B radon2csv
+reads the FMI internal
+.B Radon
+PostgreSQL database and writes plain CSV dumps of the producers,
+generations, files and grid messages it finds, restricted to the
+producers listed in
+.IR producerListFile .
+The CSV files are written to
+.IR outputDir .
+.PP
+The output is the same format the
+.B ContentServer
+expects to read with
+.BR cs_addFileAndContentListFromFile (1),
+which makes
+.B radon2csv
+useful both as an ad\(hyhoc reporting tool and as a way to bulk\(hyload a
+content storage.
+.PP
+.B radon2csv
+is FMI\(hyspecific in that it requires a populated Radon database.
+.SH ARGUMENTS
+.TP
+.I outputDir
+Output directory; the four CSV files are written here.
+.TP
+.I sourceId
+Numeric source identifier to record in the CSV files. Source ids are
+used by the Content Storage to separate data coming from different
+mirroring tools.
+.TP
+.I producerListFile
+A text file naming the producers to export. The format follows the
+producer file used by
+.BR radon2smartmet (1).
+.TP
+.I dbConnectionString
+A libpq\(hystyle connection string for the Radon database.
+.SH SEE ALSO
+.BR radon2smartmet (1),
+.BR radon2config (1),
+.BR smartmet-cs (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.

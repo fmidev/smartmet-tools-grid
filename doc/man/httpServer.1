@@ -1,0 +1,51 @@
+.TH HTTPSERVER 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+httpServer \- minimal static\(hyfile HTTP server with byte\(hyrange support
+.SH SYNOPSIS
+.B httpServer
+.I port
+.I rootDir
+.SH DESCRIPTION
+.B httpServer
+is a small standalone HTTP server that serves files from a single
+directory tree, primarily intended for development and for serving
+grid files to a remote
+.B DataServer
+that fetches them by URL.
+.PP
+The server implements only HTTP GET. It honours the
+.B Range
+request header (\fIbytes=N-M\fR), which is what the SmartMet
+.B grid-files
+network data fetcher uses to read selected GRIB messages without
+downloading the whole file. Open file handles are pooled and aged out
+after one hour of inactivity.
+.PP
+.B httpServer
+is unrelated to
+.BR httpContentServer (1):
+it serves arbitrary static files, not the ContentServer protocol.
+.SH ARGUMENTS
+.TP
+.I port
+TCP port to listen on.
+.TP
+.I rootDir
+Directory tree to serve. The request URL path is appended to this
+directory; no symlink protection or authentication is performed, so
+.B httpServer
+should not be exposed on untrusted networks.
+.SH SYSTEMD
+There is no bundled systemd unit for
+.B httpServer ;
+it is normally run interactively or from a site\(hylocal unit file.
+Pressing
+.B Enter
+on the daemon's standard input stops the server.
+.SH SEE ALSO
+.BR httpContentServer (1),
+.BR corbaDataServer (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.

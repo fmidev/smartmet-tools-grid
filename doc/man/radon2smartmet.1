@@ -1,0 +1,78 @@
+.TH RADON2SMARTMET 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+radon2smartmet \- populate the SmartMet Content Storage from the FMI Radon database
+.SH SYNOPSIS
+.B radon2smartmet
+.I configFile
+.RI [ loopWaitTime ]
+.SH DESCRIPTION
+The Content Storage is a database that records which producers,
+generations, files and grids are available to the SmartMet Server. The
+SmartMet Server uses this information in order to find the correct data
+for incoming requests.
+.PP
+.B radon2smartmet
+is the FMI\(hyspecific application that keeps the Content Storage up to
+date by mirroring the contents of the institute's internal
+.B Radon
+database (a PostgreSQL database). It is intended for use only at sites
+that have access to Radon; for everyone else the more generic
+.BR filesys2smartmet (1)
+applies.
+.PP
+.B radon2smartmet
+is normally executed as a long\(hyrunning loop. Each iteration queries
+Radon for changes and applies them to the Content Storage. The
+.I loopWaitTime
+argument is the wait time between iterations, in seconds. If
+.I loopWaitTime
+is zero or omitted, the loop is executed only once.
+.SH ARGUMENTS
+.TP
+.I configFile
+Path to the
+.B radon2smartmet
+JSON\(hystyle configuration file. The configuration declares the Radon
+database connection (\fBcontent-source\fR section), the producer list
+file selecting which producers to mirror, and the Content Storage
+backend (\fBcontent-storage\fR section: Redis, CORBA or HTTP).
+.TP
+.I loopWaitTime
+Optional wait time in seconds between update loops. Default: run once
+and exit.
+.SH ENVIRONMENT VARIABLES
+The configuration file may itself reference environment variables and
+import files; see the
+.B grid-engine
+configuration documentation for the supported syntax. Typical
+deployments set
+.B SMARTMET_CONF
+and
+.B CONFIG
+in the systemd unit's environment file.
+.SH FILES
+.TP
+.I /etc/smartmet/radon2smartmet.env
+Default environment file used by the
+.I radon2smartmet.service
+unit, providing
+.B CONFIG
+to the daemon.
+.TP
+.I /usr/lib/systemd/system/radon2smartmet.service
+Bundled systemd unit that runs
+.B radon2smartmet
+with a 300\(hysecond loop wait time.
+.TP
+.I doc/radon2smartmet.md
+Full prose documentation of the configuration file format.
+.SH SEE ALSO
+.BR filesys2smartmet (1),
+.BR radon2config (1),
+.BR radon2csv (1),
+.BR corbaContentServer (1),
+.BR smartmet-cs (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.

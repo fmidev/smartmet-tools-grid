@@ -1,0 +1,61 @@
+.TH HTTPCONTENTSERVER 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+httpContentServer \- HTTP front\(hyend for the SmartMet GRID ContentServer
+.SH SYNOPSIS
+.B httpContentServer
+.I configFile
+.SH DESCRIPTION
+.B httpContentServer
+is a daemon that exposes the SmartMet
+.B ContentServer
+service interface over HTTP, as an alternative to
+.BR corbaContentServer (1).
+Like the CORBA front\(hyend it is a thin protocol adapter; the actual
+content storage backend is configurable
+(\fIredis\fR, \fIcorba\fR, \fIhttp\fR or in\(hymemory) and may be cached
+locally.
+.PP
+The daemon is implemented with
+.B libmicrohttpd
+and accepts both GET and POST requests. The accepted URLs and
+parameters mirror the C++ service interface; a simple help page is
+served from the file named by
+.B helpFile
+in the configuration when the request URL is empty.
+.PP
+.B httpContentServer
+is the natural target for the
+.B \-http
+trailer accepted by most
+.BR cs_* (1)
+clients.
+.SH ARGUMENTS
+.TP
+.I configFile
+Libconfig\(hystyle configuration file. Required attributes include the
+listening
+.B address
+and
+.BR port ,
+.BR helpFile ,
+the cache toggle and the same
+.B content-source
+sub\(hytree as
+.BR corbaContentServer (1).
+.SH SYSTEMD
+There is no bundled systemd unit for
+.B httpContentServer ;
+deployments typically run it from a site\(hylocal supervisord or systemd
+unit file. Pressing
+.B Enter
+on the daemon's standard input or sending
+.B SIGINT
+stops the server.
+.SH SEE ALSO
+.BR corbaContentServer (1),
+.BR httpServer (1),
+.BR smartmet-cs (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.

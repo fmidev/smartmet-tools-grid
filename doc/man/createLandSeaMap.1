@@ -1,0 +1,52 @@
+.TH CREATELANDSEAMAP 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+createLandSeaMap \- generate a land/sea bitmap from GlobCover land\(hycover data
+.SH SYNOPSIS
+.B createLandSeaMap
+.I coverDir
+.I width
+.I height
+.I mapFile
+.SH DESCRIPTION
+.B createLandSeaMap
+generates a packed bitmap that marks every pixel of an equirectangular
+world map as land or sea, using the GlobCover land\(hycover dataset as the
+source.
+.PP
+The bitmap covers the full globe (longitude
+.RB \(lq \-180 \(rq..\(lq +180 \(rq,
+latitude
+.RB \(lq \-90 \(rq..\(lq +90 \(rq)
+at a resolution of
+.IR width " x " height
+pixels. Each pixel is one bit; bits are packed eight per byte. Sea,
+Caspian Sea and lake pixels are stored as zero, everything else as one.
+The result is written to
+.IR mapFile .
+.PP
+The generated bitmap is consumed at runtime by
+.BR corbaDataServer (1)
+and other components that need a fast land/sea lookup, for example to
+implement landscape interpolation.
+.SH ARGUMENTS
+.TP
+.I coverDir
+Path to a directory of GlobCover land\(hycover tiles, in the layout
+expected by
+.BR Fmi::LandCover .
+.TP
+.I width
+Bitmap width in pixels.
+.TP
+.I height
+Bitmap height in pixels.
+.TP
+.I mapFile
+Output filename for the packed bitmap.
+.SH SEE ALSO
+.BR corbaDataServer (1),
+.BR corbaGridServer (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.

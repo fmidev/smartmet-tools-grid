@@ -1,0 +1,73 @@
+.TH CORBAQUERYSERVER 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+corbaQueryServer \- CORBA daemon serving high\(hylevel SmartMet GRID queries
+.SH SYNOPSIS
+.B corbaQueryServer
+.I configFile
+.SH DESCRIPTION
+.B corbaQueryServer
+is a daemon that exposes the SmartMet
+.B QueryServer
+service interface over CORBA. The QueryServer is the high\(hylevel face of
+the GRID stack: instead of addressing grid files by id it accepts a
+parameter name (\fITemperature\fR, \fIPressure\fR, ...) plus a producer,
+geometry, level and time, looks up the matching messages in the
+.BR ContentServer ,
+asks the
+.B DataServer
+for values, and applies area / time / level interpolation as
+configured.
+.PP
+The QueryServer needs CORBA clients to a running
+.BR corbaContentServer (1)
+and
+.BR corbaDataServer (1).
+Their IORs are read from
+.BR smartmet.tools.grid.content-server.ior
+and
+.B smartmet.tools.grid.data-server.ior
+in the configuration file.
+.PP
+The QueryServer uses extensive parameter\(hymapping configuration:
+producer alias files, parameter mapping files (FMI / GRIB / Newbase /
+NetCDF naming) and Lua hook files. A background thread periodically
+generates updated mapping files from whatever parameters the
+ContentServer currently knows about.
+.PP
+On startup
+.B corbaQueryServer
+prints its IOR on standard output, or writes it to the file named by
+.B iorFile
+in the configuration. Set
+.B SMARTMET_QS_IOR
+to that IOR so that
+.BR qs_* (1)
+clients can find the server.
+.SH ARGUMENTS
+.TP
+.I configFile
+Libconfig\(hystyle configuration file. Required attributes include the
+grid\(hyfiles configuration path, query\(hyserver address/port/iorFile, the
+content\(hyserver and data\(hyserver IORs, the producer file, parameter
+mapping files, alias files, Lua files and processing/debug logging
+knobs.
+.SH SYSTEMD
+There is no bundled systemd unit for
+.B corbaQueryServer
+itself; deployments typically run it from a site\(hylocal supervisord or
+systemd unit file together with
+.BR corbaContentServer (1)
+and
+.BR corbaDataServer (1),
+or use the combined
+.BR corbaGridServer (1)
+instead.
+.SH SEE ALSO
+.BR corbaContentServer (1),
+.BR corbaDataServer (1),
+.BR corbaGridServer (1),
+.BR smartmet-qs (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.

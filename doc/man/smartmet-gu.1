@@ -1,0 +1,122 @@
+.TH SMARTMET-GU 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+smartmet-gu \- GRID utility helpers (gu_*)
+.SH SYNOPSIS
+.B gu_<utility>
+.RI [ "utility arguments" ...]
+.SH DESCRIPTION
+.B smartmet-gu
+is the umbrella name for the 14 standalone helper binaries shipped by
+.B smartmet-tools-grid
+whose names begin with
+.BR gu_ .
+Unlike the
+.BR cs_* ,
+.BR ds_*
+and
+.BR qs_*
+families, these utilities do not talk to a running server. They operate
+on local data: grid geometry definitions, polygon and circle geometry,
+PNG files, configuration files and Lua scripts.
+.PP
+The utilities are useful when developing producer or parameter
+configuration, when testing geometry definitions, or when inspecting
+data offline outside the SmartMet Server.
+.SH ENVIRONMENT VARIABLES
+.TP
+.B SMARTMET_GRID_CONFIG_FILE
+Path to the
+.B grid-files
+library configuration file. Required by the geometry helpers
+.RB ( gu_getGridGeometryIdListByLatLon ,
+.BR gu_getGridLatLonCoordinatesByGeometryId )
+to load the projection and geometry table.
+.SH BINARIES
+.SS Geometry lookup
+.TP
+.BI gu_getGridGeometryIdListByLatLon " latitude longitude"
+Print all geometry ids whose grid contains the given lat/lon point.
+.TP
+.BI gu_getGridLatLonCoordinatesByGeometryId " geometryId"
+Print the latitude/longitude of every grid point of the given
+geometry.
+.TP
+.BI gu_getLatLonDistance " lat1 lon1 lat2 lon2"
+Print the great\(hycircle distance between two lat/lon points.
+.SS Polygon and circle geometry
+.TP
+.B gu_getEnlargedPolygon
+Enlarge an arbitrary polygon by a constant
+.I xAddition
+and
+.I yAddition
+(useful for buffering bounding regions).
+.TP
+.B gu_getGridPointsInsideCircle
+Print the grid points falling inside a circle of given centre and
+radius.
+.TP
+.B gu_getGridPointsInsidePolygon
+Print the grid points falling inside a polygon defined by a list of
+.IR x , y
+vertices.
+.TP
+.B gu_getGridPointsInsidePolygonPath
+As
+.B gu_getGridPointsInsidePolygon ,
+but accepts a multi\(hypolygon path (vertices separated by
+.RB \(lq / \(rq).
+.SS PNG image manipulation
+.TP
+.B gu_mergePngFiles
+Composite an ordered list of PNG layers into a single PNG, with a
+configurable background colour for transparent pixels.
+.TP
+.B gu_mergePngFilesSeq
+Composite a sequence of PNG files (the count is given explicitly) into
+a single PNG. Used together with
+.BR ds_getGridIsobandImage* / ds_getGridIsolineImage*
+output.
+.SS Lua scripting
+.TP
+.B gu_executeLuaFunction
+Run a function from a Lua file with parameters passed on the command
+line. Used to validate Lua filename\(hyfixers and parameter mappers used
+by
+.BR filesys2smartmet (1)
+and the QueryServer.
+.TP
+.B gu_getLuaFunctions
+List the function names registered in a Lua file's
+.B getFunctionNames
+hook.
+.SS Configuration
+.TP
+.B gu_replaceConfigurationAttributes
+Read a configuration file, perform attribute substitution against an
+input file and write the result. Used to expand
+.B $(VAR)
+references and includes in libconfig\(hystyle GRID configuration.
+.TP
+.B gu_showConfigurationAttributes
+Print the attribute tree of a configuration file. With
+.B \-val
+also print the resolved values.
+.SS Newbase / FMI parameter conversion
+.TP
+.B gu_newbase2fmi
+Generate FMI parameter mappings from newbase parameter definitions
+under a
+.B grid-config-dir
+tree. With
+.B \-rev
+generates the reverse mapping.
+.SH SEE ALSO
+.BR smartmet-cs (1),
+.BR smartmet-ds (1),
+.BR smartmet-qs (1),
+.BR filesys2smartmet (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.

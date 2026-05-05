@@ -274,6 +274,7 @@ systemctl daemon-reload
 
 %defattr(0644,root,root,0755)
 %config %{_unitdir}/radon2smartmet.service
+%{_mandir}/man1/*.1.gz
 
 # We do not enable the service by default, it must be done manually
 

@@ -1,0 +1,74 @@
+.TH CORBAGRIDSERVER 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+corbaGridServer \- combined CORBA daemon for ContentServer, DataServer and QueryServer
+.SH SYNOPSIS
+.B corbaGridServer
+.I configFile
+.SH DESCRIPTION
+.B corbaGridServer
+is a single daemon that runs the
+.BR ContentServer ,
+.B DataServer
+and
+.B QueryServer
+in one process and exposes all three of their service interfaces over
+CORBA. It is functionally equivalent to running
+.BR corbaContentServer (1),
+.BR corbaDataServer (1)
+and
+.BR corbaQueryServer (1)
+side by side, but cheaper and easier to deploy when a single host is
+sufficient.
+.PP
+The combined process supports the same content\(hysource backends as
+.BR corbaContentServer (1)
+(\fIredis\fR, \fIpostgresql\fR, \fIcorba\fR, \fIhttp\fR), the same value
+cache and grid storage as
+.BR corbaDataServer (1),
+and the same parameter mapping and Lua hook system as
+.BR corbaQueryServer (1).
+A background thread refreshes parameter mapping files from the live
+ContentServer state.
+.PP
+On startup
+.B corbaGridServer
+prints (or writes to the configured
+.IR iorFile s)
+three IORs labelled \fIContentServer\fR, \fIDataServer\fR and
+\fIQueryServer\fR. Set
+.BR SMARTMET_CS_IOR ,
+.B SMARTMET_DS_IOR
+and
+.B SMARTMET_QS_IOR
+respectively so that the
+.BR cs_* ,
+.BR ds_*
+and
+.BR qs_*
+clients can find them.
+.SH ARGUMENTS
+.TP
+.I configFile
+Libconfig\(hystyle configuration file. The expected attribute tree is the
+union of the
+.BR corbaContentServer (1),
+.BR corbaDataServer (1)
+and
+.BR corbaQueryServer (1)
+configuration trees.
+.SH SYSTEMD
+There is no bundled systemd unit for
+.B corbaGridServer ;
+deployments typically run it from a site\(hylocal supervisord or systemd
+unit file.
+.SH SEE ALSO
+.BR corbaContentServer (1),
+.BR corbaDataServer (1),
+.BR corbaQueryServer (1),
+.BR smartmet-cs (1),
+.BR smartmet-ds (1),
+.BR smartmet-qs (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.

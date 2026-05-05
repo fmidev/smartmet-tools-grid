@@ -1,0 +1,119 @@
+.TH SMARTMET-DS 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+smartmet-ds \- DataServer command-line clients (ds_*)
+.SH SYNOPSIS
+.B ds_<operation>
+.I sessionId
+.RI [ "operation arguments" ...]
+.SH DESCRIPTION
+.B smartmet-ds
+is the umbrella name for the 31 small command\(hyline binaries shipped by
+.B smartmet-tools-grid
+whose names begin with
+.BR ds_ .
+Each binary is a thin wrapper around a single method of the SmartMet
+.B DataServer
+service interface.
+.PP
+The DataServer keeps a working set of grid files (GRIB, NetCDF, QueryData)
+locally and serves their contents to clients on request: raw values,
+interpolated values at points, polygons or rectangles, vector wind
+components, isolines, isobands and ready\(hyrendered map images. The DataServer
+itself is run by
+.BR corbaDataServer (1)
+or as part of
+.BR corbaGridServer (1).
+.SH ENVIRONMENT VARIABLES
+.TP
+.B SMARTMET_DS_IOR
+CORBA International Object Reference of a running DataServer. The
+.B ds_*
+clients require this variable; they print
+.RI \(lq SMARTMET_DS_IOR " not defined!"\(rq
+and exit if it is missing. Set it once to the IOR printed by
+.BR corbaDataServer (1).
+.TP
+.B SMARTMET_GRID_CONFIG_FILE
+Path to the
+.B grid-files
+library configuration file. Required by the imaging clients
+.RB ( ds_getGridImage* ,
+.BR ds_getGridIsobandImage* ,
+.BR ds_getGridIsolineImage* )
+that need to identify projections and parameters.
+.SH COMMON ARGUMENTS
+Every
+.B ds_*
+client takes a numeric
+.I sessionId
+as its first positional argument. The DataServer is always reached over
+CORBA and the IOR is taken from
+.BR SMARTMET_DS_IOR ;
+unlike the
+.BR cs_*
+family, no
+.BR \-http ,
+.B \-redis
+or
+.B \-ior
+trailer is accepted.
+.PP
+Most clients additionally take a
+.I fileId
+and a
+.I messageIndex
+identifying the grid message to read. Imaging and interpolation clients
+take further arguments such as
+.IR coordinateType ,
+grid bounds, an interpolation method or a list of contour values; the
+exact argument list is printed by every binary when run without
+parameters.
+.SH BINARIES
+.SS Plain attributes and metadata
+.TP
+.B ds_getGridFileCount
+Number of grid files currently registered to this DataServer.
+.TP
+.B ds_getGridAttributeList
+Per\(hymessage attribute list (parameter id, level, geometry, etc.).
+.TP
+.B ds_getGridCoordinates
+Latitude/longitude coordinates of every grid point of a message.
+.SS Raw and interpolated values
+.TP
+.B ds_getGridData
+Read all values of a single message and write them as CSV.
+.TP
+.B ds_getGridValueByPoint, ds_getGridValueByTimeAndPoint, ds_getGridValueByLevelAndPoint, ds_getGridValueByTimeLevelAndPoint
+Single\(hypoint values, optionally with time and/or level interpolation.
+.TP
+.B ds_getGridValueList, ds_getGridValueListByCircle, ds_getGridValueListByPolygon, ds_getGridValueListByRectangle, ds_getGridValueListByTimeAndCircle, ds_getGridValueListByTimeAndPolygon
+Values of all grid points falling inside a geometric region.
+.TP
+.B ds_getGridValueVector, ds_getGridValueVectorByPoint, ds_getGridValueVectorByRectangle, ds_getGridValueVectorByTime
+Vector\(hyvalued reads (e.g.\& wind u/v components or full grids in vector form).
+.SS Map and image rendering
+.TP
+.B ds_getGridMap, ds_getGridImage, ds_getGridImageByArea
+Render a single message to an image (JPEG/PNG).
+.TP
+.B ds_getGridIsolineImage, ds_getGridIsolineImageByGeometry, ds_getGridIsolineImageByTime, ds_getGridIsolineImageByTimeAndGeometry, ds_getGridIsolineMap
+Render isoline (contour\(hyline) PNGs at given contour values, with optional
+projection and time interpolation.
+.TP
+.B ds_getGridIsobandImage, ds_getGridIsobandImageByGeometry, ds_getGridIsobandImageByTime, ds_getGridIsobandImageByTimeAndGeometry, ds_getGridIsobandMap
+Render isoband (filled contour) PNGs at given contour values.
+.SH FILES
+.TP
+.I /usr/bin/ds_*
+The installed client binaries.
+.SH SEE ALSO
+.BR smartmet-cs (1),
+.BR smartmet-qs (1),
+.BR smartmet-gu (1),
+.BR corbaDataServer (1),
+.BR corbaGridServer (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.

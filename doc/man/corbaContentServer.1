@@ -1,0 +1,77 @@
+.TH CORBACONTENTSERVER 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+corbaContentServer \- CORBA daemon serving SmartMet GRID content information
+.SH SYNOPSIS
+.B corbaContentServer
+.I configFile
+.SH DESCRIPTION
+.B corbaContentServer
+is a daemon that exposes the SmartMet
+.B ContentServer
+service interface over CORBA. The ContentServer keeps track of which
+producers, generations, files and grid messages are available; it does
+not store the grid data itself, only the metadata and indexing.
+.PP
+The actual content storage backend is configurable in the
+configuration file:
+.IR redis ,
+.IR postgresql ,
+.IR memory ,
+or
+.I corba / http
+chaining (forwarding requests to another ContentServer). When
+.B cache.enabled
+is true a local in\(hymemory cache layer is added on top of the chosen
+backend; the cache replays the change\(hyevent log so that downstream
+clients always see consistent state.
+.PP
+On startup
+.B corbaContentServer
+prints its IOR (International Object Reference) on standard output, or
+writes it to the file named by
+.B iorFile
+in the configuration. The IOR does not change as long as the bound
+address and port do not change. Storing it in
+.B SMARTMET_CS_IOR
+in the operator's shell startup is the recommended way to make
+.BR cs_* (1)
+clients find the server.
+.SH ARGUMENTS
+.TP
+.I configFile
+Libconfig\(hystyle configuration file. The expected attribute tree is
+documented inline in the source and includes
+.BR smartmet.tools.grid.content-server.address ,
+.BR smartmet.tools.grid.content-server.port ,
+.BR smartmet.tools.grid.content-server.iorFile ,
+.BR smartmet.tools.grid.content-server.cache.* ,
+.BR smartmet.tools.grid.content-server.content-source.type
+and the matching
+.B redis / postgresql / corba / http / memory
+sub\(hytrees.
+.SH SIGNALS
+.TP
+.B SIGINT
+Initiates a clean shutdown of the CORBA server.
+.SH SYSTEMD
+There is no bundled systemd unit for
+.B corbaContentServer
+itself; deployments typically run it from a site\(hylocal supervisord or
+systemd unit file together with
+.BR corbaDataServer (1)
+and
+.BR corbaQueryServer (1)
+or as the combined
+.BR corbaGridServer (1).
+.SH SEE ALSO
+.BR corbaDataServer (1),
+.BR corbaQueryServer (1),
+.BR corbaGridServer (1),
+.BR httpContentServer (1),
+.BR smartmet-cs (1),
+.BR radon2smartmet (1),
+.BR filesys2smartmet (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.

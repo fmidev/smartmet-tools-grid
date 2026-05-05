@@ -1,0 +1,41 @@
+.TH RADON2CONFIG 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+radon2config \- generate SmartMet GRID configuration files from a Radon database snapshot
+.SH SYNOPSIS
+.B radon2config
+.I configDir
+.I dbConnectionString
+.SH DESCRIPTION
+.B radon2config
+reads geometry, producer and parameter definitions from FMI's internal
+.B Radon
+PostgreSQL database and writes the corresponding SmartMet GRID
+configuration files into
+.IR configDir .
+The output files map FMI geometry identifiers to the geometries
+recognised in GRIB and NetCDF files (\fIfmi_geometries.csv\fR and
+related files).
+.PP
+The generated files are normally regenerated whenever the Radon
+schema or contents change; they are not intended to be hand\(hyedited and
+include a header that warns about this.
+.PP
+.B radon2config
+is FMI\(hyspecific in that it requires a populated Radon database; sites
+without Radon do not need it.
+.SH ARGUMENTS
+.TP
+.I configDir
+Output directory for the generated configuration files. The directory
+must already exist.
+.TP
+.I dbConnectionString
+A libpq\(hystyle connection string for the Radon database, for example
+.RI \(lq host=radon.fmi.fi " " dbname=radon " " user=u " " password=p \(rq.
+.SH SEE ALSO
+.BR radon2smartmet (1),
+.BR radon2csv (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.

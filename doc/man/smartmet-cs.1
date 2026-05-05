@@ -1,0 +1,207 @@
+.TH SMARTMET-CS 1 "2026-05-02" "smartmet-tools-grid" "SmartMet GRID Tools"
+.SH NAME
+smartmet-cs \- ContentServer command-line clients (cs_*)
+.SH SYNOPSIS
+.B cs_<operation>
+.I sessionId
+.RI [ "operation arguments" ...]
+.RI [ "-ior <ior>" "\ |\ "
+.BI -http " <url>"
+.RI |\ \fB-redis\fR\ < address > " <port>" " <tablePrefix>"
+.RI |\ \fB-pg\fR\ < connectionString >]
+.SH DESCRIPTION
+.B smartmet-cs
+is the umbrella name for the ~116 small command\(hyline binaries shipped by
+.B smartmet-tools-grid
+whose names begin with
+.BR cs_ .
+Each binary is a thin wrapper around a single method of the SmartMet
+.B ContentServer
+service interface, offering a quick way to read or modify the content
+information storage from the shell or from scripts.
+.PP
+The Content Storage is a database that records which producers, generations,
+files and grid messages are available to the SmartMet Server. The actual
+backend may be Redis, PostgreSQL, an in\(hymemory file or another
+.B ContentServer
+instance reached over CORBA or HTTP. The
+.B cs_*
+clients can reach the storage either directly (Redis, PostgreSQL) or through
+a running
+.BR corbaContentServer (1)
+or
+.BR httpContentServer (1)
+front\(hyend.
+.SH ENVIRONMENT VARIABLES
+.TP
+.B SMARTMET_CS_IOR
+CORBA International Object Reference of a running ContentServer. Set once,
+typically in
+.IR ~/.bashrc ,
+to the IOR printed by
+.BR corbaContentServer (1)
+so that every
+.B cs_*
+client can find the server without further configuration.
+.TP
+.B SMARTMET_GRID_CONFIG_FILE
+Path to the
+.B grid-files
+library configuration file. Required by clients that need to identify
+parameters, geometries or levels (for example
+.BR cs_getProducerParameterList ,
+.BR cs_getProducerNameAndGeometryList ).
+.SH COMMON ARGUMENTS
+Every
+.B cs_*
+client takes a numeric
+.I sessionId
+as its first positional argument. Tools that need to talk to the server
+optionally accept a connection trailer at the end of the argument list:
+.TP
+.BI \-ior " ior"
+Use this CORBA IOR instead of
+.BR SMARTMET_CS_IOR .
+.TP
+.BI \-http " url"
+Open a HTTP connection to a
+.BR httpContentServer (1)
+listening at
+.IR url .
+.TP
+.B \-redis " " \fIaddress\fR " " \fIport\fR " " \fItablePrefix\fR
+Talk directly to a Redis content storage at
+.I address:port
+using the given table prefix.
+.TP
+.BI \-pg " connectionString"
+Talk directly to a PostgreSQL content storage. Only the clients that
+explicitly accept
+.B \-pg
+support this trailer.
+.PP
+If no trailer is given, the client falls back to
+.BR SMARTMET_CS_IOR .
+The exact argument list of each binary can be inspected by running it
+without parameters; every binary prints its own
+.I USAGE
+banner.
+.SH BINARIES
+The full set is exposed by
+.B Provides:
+lines in
+.IR smartmet-tools-grid.spec .
+The members fall into the following operation groups.
+.SS Producer information
+.TP
+.B cs_addProducerInfo
+Register a new producer.
+.TP
+.B cs_deleteProducerInfoById, cs_deleteProducerInfoByName, cs_deleteProducerInfoListBySourceId
+Remove producer records by id, by name or by content source id.
+.TP
+.B cs_getProducerInfoById, cs_getProducerInfoByName
+Fetch a single producer record.
+.TP
+.B cs_getProducerInfoCount, cs_getProducerInfoList, cs_getProducerInfoListBySourceId, cs_getProducerInfoListByParameter
+Enumerate producers, optionally filtered by source or by available parameter.
+.TP
+.B cs_getProducerNameAndGeometryList, cs_getProducerParameterList, cs_getProducerParameterListByProducerId
+Auxiliary listings used by the query stack.
+.SS Generation information
+.TP
+.B cs_addGenerationInfo
+Register a new generation (analysis time / forecast set).
+.TP
+.B cs_deleteGenerationInfoById, cs_deleteGenerationInfoByName, cs_deleteGenerationInfoListByProducerId, cs_deleteGenerationInfoListByProducerName, cs_deleteGenerationInfoListBySourceId
+Remove generations by id, by name, by producer or by content source.
+.TP
+.B cs_getGenerationInfoById, cs_getGenerationInfoByName
+Fetch a single generation record.
+.TP
+.B cs_getGenerationInfoCount, cs_getGenerationInfoList, cs_getGenerationInfoListByGeometryId, cs_getGenerationInfoListByProducerId, cs_getGenerationInfoListByProducerName, cs_getGenerationInfoListBySourceId
+Enumerate generations.
+.TP
+.B cs_getLastGenerationInfoByProducerIdAndStatus, cs_getLastGenerationInfoByProducerNameAndStatus, cs_getGenerationIdGeometryIdAndForecastTimeList
+Lookups used to find the newest published generation.
+.TP
+.B cs_setGenerationInfoStatusById, cs_setGenerationInfoStatusByName
+Change the publication status of a generation.
+.SS Geometry information
+.TP
+.B cs_deleteGeometryInfoById, cs_deleteGeometryInfoListByGenerationId, cs_deleteGeometryInfoListByProducerId, cs_deleteGeometryInfoListBySourceId
+Remove geometry records.
+.TP
+.B cs_getGeometryInfoById, cs_getGeometryInfoList, cs_getGeometryInfoListByGenerationId, cs_getGeometryInfoListByProducerId, cs_getGeometryInfoListBySourceId
+Fetch or enumerate geometry records.
+.TP
+.B cs_setGeometryInfoStatusById
+Change the status flag of a geometry.
+.SS File information
+.TP
+.B cs_addFileInfo, cs_addFileInfoListFromFile, cs_addFileInfoWithContentList, cs_addFileAndContentListFromFile
+Register grid files (optionally together with the messages they contain).
+.TP
+.B cs_deleteFileInfoById, cs_deleteFileInfoByName, cs_deleteFileInfoListByFileIdList, cs_deleteFileInfoListByGenerationId, cs_deleteFileInfoListByGenerationIdAndForecastTime, cs_deleteFileInfoListByGenerationName, cs_deleteFileInfoListByProducerId, cs_deleteFileInfoListByProducerName, cs_deleteFileInfoListBySourceId
+Remove file records by various keys.
+.TP
+.B cs_getFileInfoById, cs_getFileInfoByName
+Fetch a single file record.
+.TP
+.B cs_getFileInfoCount, cs_getFileInfoCountByGenerationId, cs_getFileInfoCountByProducerId, cs_getFileInfoCountBySourceId, cs_getFileInfoCountsByGenerations, cs_getFileInfoCountsByProducers, cs_getFileInfoList, cs_getFileInfoListByFileIdList, cs_getFileInfoListByGenerationId, cs_getFileInfoListByGenerationName, cs_getFileInfoListByProducerId, cs_getFileInfoListByProducerName, cs_getFileInfoListBySourceId
+Enumerate files or count them by grouping key.
+.SS Content (grid message) information
+.TP
+.B cs_addContentInfo
+Register a single grid message.
+.TP
+.B cs_deleteContentInfo, cs_deleteContentListByFileId, cs_deleteContentListByFileName, cs_deleteContentListByGenerationId, cs_deleteContentListByGenerationName, cs_deleteContentListByProducerId, cs_deleteContentListByProducerName, cs_deleteContentListBySourceId
+Remove grid messages by file, generation, producer or source.
+.TP
+.B cs_getContentInfo, cs_getContentCount
+Fetch a single message record or the global count.
+.TP
+.B cs_getContentList, cs_getContentListByFileId, cs_getContentListByFileIdList, cs_getContentListByFileName, cs_getContentListByGenerationId, cs_getContentListByGenerationIdAndTimeRange, cs_getContentListByGenerationName, cs_getContentListByParameter, cs_getContentListByParameterAndGenerationId, cs_getContentListByParameterAndProducerId, cs_getContentListByParameterGenerationIdAndForecastTime, cs_getContentListByProducerId, cs_getContentListByProducerName, cs_getContentListBySourceId, cs_getContentListOfInvalidIntegrity
+Enumerate messages with various filters.
+.TP
+.B cs_getContentGeometryIdListByGenerationId, cs_getContentLevelListByGenerationGeometryAndLevelId, cs_getContentParamKeyListByGenerationAndGeometryId, cs_getContentParamKeyListByGenerationGeometryAndLevelId, cs_getContentParamKeyListByGenerationId, cs_getContentParamListByGenerationId, cs_getContentTimeListByGenerationAndGeometryId, cs_getContentTimeListByGenerationGeometryAndLevelId, cs_getContentTimeListByGenerationId, cs_getContentTimeListByProducerId, cs_getLevelInfoList, cs_getParameterPreloadList
+Aggregated listings used by the query stack.
+.SS Events
+.TP
+.B cs_getEventInfoCount, cs_getEventInfoList, cs_getLastEventInfo
+Inspect the change\(hyevent log used by DataServer/QueryServer to follow updates.
+.SS Maintenance
+.TP
+.B cs_clear
+Wipe the storage.
+.TP
+.B cs_reload
+Force a reload of in\(hymemory caches.
+.TP
+.B cs_saveData
+Dump the in\(hymemory storage to a directory.
+.TP
+.B cs_getCsvFiles
+Export selected listings as CSV.
+.TP
+.B cs_getHashByProducerId
+Return the storage hash for a given producer (used for cache validation).
+.SH FILES
+.TP
+.I /usr/bin/cs_*
+The installed client binaries.
+.TP
+.I doc/grid-support.md
+Higher\(hylevel description of the GRID stack and how clients fit in.
+.SH SEE ALSO
+.BR smartmet-ds (1),
+.BR smartmet-qs (1),
+.BR smartmet-gu (1),
+.BR corbaContentServer (1),
+.BR httpContentServer (1),
+.BR radon2smartmet (1),
+.BR filesys2smartmet (1)
+.SH AUTHOR
+Finnish Meteorological Institute
+.PP
+Report issues at <https://github.com/fmidev/smartmet-tools-grid/issues>.
