@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
       if (serviceIor == nullptr)
       {
         fprintf(stdout,"Service IOR not defined!\n");
+        fclose(file);
         return -2;
       }
 

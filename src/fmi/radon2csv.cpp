@@ -356,37 +356,37 @@ int main(int argc, char *argv[])
     if (PQstatus(conn) != CONNECTION_OK)
       error(PQerrorMessage(conn));
 
-    char filename[200];
+    std::string filename;
 
-    sprintf(filename,"%s/producers.csv",dir);
-    producerFile = fopen(filename,"we");
+    filename = std::string(dir) + "/producers.csv";
+    producerFile = fopen(filename.c_str(),"we");
     if (producerFile == nullptr)
     {
-      fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename);
+      fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename.c_str());
       return -3;
     }
 
-    sprintf(filename,"%s/generations.csv",dir);
-    generationFile = fopen(filename,"we");
+    filename = std::string(dir) + "/generations.csv";
+    generationFile = fopen(filename.c_str(),"we");
     if (generationFile == nullptr)
     {
-      fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename);
+      fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename.c_str());
       return -4;
     }
 
-    sprintf(filename,"%s/files.csv",dir);
-    fileFile = fopen(filename,"we");
+    filename = std::string(dir) + "/files.csv";
+    fileFile = fopen(filename.c_str(),"we");
     if (fileFile == nullptr)
     {
-      fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename);
+      fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename.c_str());
       return -5;
     }
 
-    sprintf(filename,"%s/content.csv",dir);
-    contentFile = fopen(filename,"we");
+    filename = std::string(dir) + "/content.csv";
+    contentFile = fopen(filename.c_str(),"we");
     if (contentFile == nullptr)
     {
-      fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename);
+      fprintf(stderr,"ERROR: Cannot create the file (%s)!\n",filename.c_str());
       return -6;
     }
 

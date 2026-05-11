@@ -14,9 +14,8 @@ void writeProducers(T::SessionId sessionId,ContentServer::ServiceInterface *serv
   {
     printf("Reading producer information from the data storage\n");
 
-    char filename[300];
-    sprintf(filename,"%s/producers.csv",dir);
-    FILE *file = fopen(filename,"we");
+    std::string filename = std::string(dir) + "/producers.csv";
+    FILE *file = fopen(filename.c_str(),"we");
     if (file == nullptr)
     {
       Fmi::Exception exception(BCP,"Cannot create file!");
@@ -59,9 +58,8 @@ void writeGenerations(T::SessionId sessionId,ContentServer::ServiceInterface *se
   {
     printf("Reading generation information from the data storage\n");
 
-    char filename[300];
-    sprintf(filename,"%s/generations.csv",dir);
-    FILE *file = fopen(filename,"we");
+    std::string filename = std::string(dir) + "/generations.csv";
+    FILE *file = fopen(filename.c_str(),"we");
     if (file == nullptr)
     {
       Fmi::Exception exception(BCP,"Cannot create file!");
@@ -104,9 +102,8 @@ void writeFiles(T::SessionId sessionId,ContentServer::ServiceInterface *serviceI
   {
     printf("Reading file information from the data storage\n");
 
-    char filename[300];
-    sprintf(filename,"%s/files.csv",dir);
-    FILE *file = fopen(filename,"we");
+    std::string filename = std::string(dir) + "/files.csv";
+    FILE *file = fopen(filename.c_str(),"we");
     if (file == nullptr)
     {
       Fmi::Exception exception(BCP,"Cannot create file!");
@@ -156,9 +153,8 @@ void writeContent(T::SessionId sessionId,ContentServer::ServiceInterface *servic
   {
     printf("Reading content information from the data storage\n");
 
-    char filename[300];
-    sprintf(filename,"%s/content.csv",dir);
-    FILE *file = fopen(filename,"we");
+    std::string filename = std::string(dir) + "/content.csv";
+    FILE *file = fopen(filename.c_str(),"we");
     if (file == nullptr)
     {
       Fmi::Exception exception(BCP,"Cannot create file!");

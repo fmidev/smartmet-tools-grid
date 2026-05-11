@@ -105,27 +105,29 @@ void readLocations(const char* configFile)
 
     bool ind = true;
     uint c = 0;
-    char tmp[100];
+    std::string tmp;
+    std::string base = "smartmet.tools.grid.filesys2smartmet.content-source.locations.location.";
     while (ind)
     {
       Location rec;
-      sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.type",c);
-      if (configurationFile.getAttributeValue(tmp,rec.type))
+      std::string pfx = base + std::to_string(c) + ".";
+      tmp = pfx + "type";
+      if (configurationFile.getAttributeValue(tmp.c_str(),rec.type))
       {
-        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.url",c);
-        configurationFile.getAttributeValue(tmp,rec.url);
+        tmp = pfx + "url";
+        configurationFile.getAttributeValue(tmp.c_str(),rec.url);
 
-        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.authentication.method",c);
-        configurationFile.getAttributeValue(tmp,rec.authenticationMethod);
+        tmp = pfx + "authentication.method";
+        configurationFile.getAttributeValue(tmp.c_str(),rec.authenticationMethod);
 
-        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.authentication.username",c);
-        configurationFile.getAttributeValue(tmp,rec.username);
+        tmp = pfx + "authentication.username";
+        configurationFile.getAttributeValue(tmp.c_str(),rec.username);
 
-        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.authentication.password",c);
-        configurationFile.getAttributeValue(tmp,rec.password);
+        tmp = pfx + "authentication.password";
+        configurationFile.getAttributeValue(tmp.c_str(),rec.password);
 
-        sprintf(tmp,"smartmet.tools.grid.filesys2smartmet.content-source.locations.location.%u.patterns",c);
-        configurationFile.getAttributeValue(tmp,rec.patterns);
+        tmp = pfx + "patterns";
+        configurationFile.getAttributeValue(tmp.c_str(),rec.patterns);
 
         mLocations.push_back(rec);
 
@@ -434,9 +436,7 @@ void readSourceFiles(std::vector<DataFetcher::FileRec>& fileList)
           }
           else
           {
-            char st[1000];
-            sprintf(st,"%s:%s",producer->mName.c_str(),generationTime.c_str());
-            std::string str = st;
+            std::string str = producer->mName + ":" + generationTime;
             T::GenerationInfo *generation =  mTargetGenerationList.getGenerationInfoByName(str);
             if (generation != nullptr)
             {
@@ -525,24 +525,21 @@ void readSourceGenerations(std::vector<DataFetcher::FileRec>& fileList)
           }
           else
           {
-            char st[1000];
-            sprintf(st,"%s:%s",producer->mName.c_str(),generationTime.c_str());
+            std::string genName = producer->mName + ":" + generationTime;
 
-            if (processedGenerations.find(st) == processedGenerations.end())
+            if (processedGenerations.find(genName) == processedGenerations.end())
             {
-              processedGenerations.insert(st);
+              processedGenerations.insert(genName);
 
-              std::string str = st;
-              T::GenerationInfo *generation =  mSourceGenerationList.getGenerationInfoByName(str);
+              T::GenerationInfo *generation =  mSourceGenerationList.getGenerationInfoByName(genName);
               if (generation == nullptr)
               {
                 generation = new T::GenerationInfo();
                 generation->mGenerationId = mSourceGenerationList.getLength() + 1;
                 generation->mGenerationType = 0;
                 generation->mProducerId = producer->mProducerId;
-                generation->mName = st;
-                sprintf(st,"Producer %s generation %s",producer->mName.c_str(),generationTime.c_str());
-                generation->mDescription = st;
+                generation->mName = genName;
+                generation->mDescription = "Producer " + producer->mName + " generation " + generationTime;
                 generation->mAnalysisTime = generationTime;
                 generation->mStatus = T::GenerationInfo::Status::Ready;
                 generation->mFlags = 0;
@@ -655,6 +652,7 @@ bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T:
           {
             missingInformation = true;
             delete contentInfo;
+            fclose(file);
             remove(cacheFilename);
             return false;
           }
