@@ -156,19 +156,18 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
     return MHD_NO; /* unexpected method */
   }
 
-  char filename[1000];
+  std::string filename;
   if (!rootDir.empty() &&  rootDir != "/")
-    sprintf(filename,"%s/%s",rootDir.c_str(),request->url.c_str());
+    filename = rootDir + "/" + request->url;
   else
-    strcpy(filename,request->url.c_str());
+    filename = request->url;
 
   char *content = NULL;
   std::size_t contentSize = 0;
   auto range = request->headers.find("Range");
   if (range != request->headers.end())
   {
-    char buf[1000];
-    strcpy(buf,range->second.c_str());
+    std::string bufStr(range->second);  char *buf = bufStr.data();
     if (strncasecmp(buf,"bytes=",6) == 0)
     {
       char *p1 = buf+6;
@@ -186,7 +185,7 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
           contentSize = filePosition2 - filePosition1 + 1;
           content = new char[contentSize];
 
-          auto fh = getFileHandle(filename);
+          auto fh = getFileHandle(filename.c_str());
           if (fh != NULL)
           {
             SmartMet::AutoThreadLock lock(&fh->threadLock);

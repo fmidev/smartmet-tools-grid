@@ -76,11 +76,9 @@ int main(int argc, char *argv[])
     uint count = 0;
 
     char st[1000];
-    while (!feof(file))
+    while (fgets(st,1000,file) != nullptr)
     {
-      if (fgets(st,1000,file) != nullptr)
-      {
-        count++;
+      count++;
         if ((count % 1000) == 0)
           printf("%u\n",count);
 
@@ -153,7 +151,6 @@ int main(int argc, char *argv[])
             contentList.addContentInfo(contentInfo);
           }
         }
-      }
     }
 
     fclose(file);

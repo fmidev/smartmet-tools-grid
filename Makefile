@@ -45,6 +45,7 @@ LIBS += $(PREFIX_LDFLAGS) \
 	-lpng \
 	-lhiredis \
 	-lmicrohttpd \
+	-lwebpdemux \
 	-lcurl \
 	$(CORBA_LIBS) \
 	$(REQUIRED_LIBS) \

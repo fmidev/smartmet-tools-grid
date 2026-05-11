@@ -50,12 +50,10 @@ void readProducerList(const char *filename)
     }
 
     char st[1000];
-    while (!feof(file))
+    while (fgets(st,1000,file) != nullptr)
     {
-      if (fgets(st,1000,file) != nullptr)
+      if (st[0] != '#')
       {
-        if (st[0] != '#')
-        {
           char *p = st;
           while (*p != '\0')
           {
@@ -66,7 +64,6 @@ void readProducerList(const char *filename)
           }
           //printf("Add producer [%s]\n",st);
           producerList.push_back(std::string(st));
-        }
       }
     }
     fclose(file);
@@ -187,10 +184,9 @@ uint readFiles(PGconn *conn,char *producerId,T::GenerationId generationId,char *
   FUNCTION_TRACE
   try
   {
-    char sql[1000];
-    sprintf(sql,"SELECT file_location,param_id,level_id,level_value::int,to_char((analysis_time+forecast_period) at time zone 'utc','yyyymmddThh24MISS'),forecast_type_id,forecast_type_value::int,geometry_id FROM %s.%s WHERE to_char(analysis_time, 'yyyymmddThh24MISS') = '%s' AND producer_id = %s",schemaName,partitionName,analysisTime,producerId);
+    std::string sql = std::string("SELECT file_location,param_id,level_id,level_value::int,to_char((analysis_time+forecast_period) at time zone 'utc','yyyymmddThh24MISS'),forecast_type_id,forecast_type_value::int,geometry_id FROM ") + schemaName + "." + partitionName + " WHERE to_char(analysis_time, 'yyyymmddThh24MISS') = '" + analysisTime + "' AND producer_id = " + producerId;
 
-    PGresult *res = PQexec(conn,sql);
+    PGresult *res = PQexec(conn,sql.c_str());
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
       error(PQresultErrorMessage(res));
 
@@ -237,41 +233,28 @@ uint readGenerations(PGconn *conn,char *producerId,char *producerName)
   FUNCTION_TRACE
   try
   {
-    char sql[1000];
-    sprintf(sql,"SELECT producer_id, to_char(analysis_time, 'yyyymmddThh24MISS'),to_char(analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),schema_name, partition_name FROM as_grid_v WHERE producer_id = %s ORDER BY analysis_time desc",producerId);
-    PGresult *res = PQexec(conn, sql);
+    std::string sql = std::string("SELECT producer_id, to_char(analysis_time, 'yyyymmddThh24MISS'),to_char(analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),schema_name, partition_name FROM as_grid_v WHERE producer_id = ") + producerId + " ORDER BY analysis_time desc";
+    PGresult *res = PQexec(conn, sql.c_str());
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
       error(PQresultErrorMessage(res));
 
     //int fieldCount = PQnfields(res);
     int rowCount = PQntuples(res);
 
-    char prev[1000];
-    prev[0] = '\0';
+    std::string prev;
     uint generationCount = 0;
 
     for (int i = 0; i < rowCount; i++)
     {
-      char st[1000];
-      sprintf(st,"%lu;%u;%s;%s:%s;Producer %s generation %s;%s;%u;%u;%u;",
-              globalGenerationId,
-              0,  // type
-              producerId,
-              producerName,PQgetvalue(res, i, 2),  // Name,
-              producerName,PQgetvalue(res, i, 2),  // Description,
-              PQgetvalue(res, i, 2),
-              1,  // status,
-              0,  // flags
-              sourceId
-             );
+      std::string st = std::to_string(globalGenerationId) + ";0;" + producerId + ";" + producerName + ":" + PQgetvalue(res, i, 2) + ";Producer " + producerName + " generation " + PQgetvalue(res, i, 2) + ";" + PQgetvalue(res, i, 2) + ";1;0;" + std::to_string(sourceId) + ";";
 
-      if (/*toInt64(producerId) == 1  &&*/  strcmp(PQgetvalue(res, i, 1),prev) != 0)
+      if (/*toInt64(producerId) == 1  &&*/  strcmp(PQgetvalue(res, i, 1),prev.c_str()) != 0)
       {
         uint fCount = readFiles(conn,producerId,globalGenerationId,PQgetvalue(res, i, 3), PQgetvalue(res, i, 4),PQgetvalue(res, i, 1));
         if (fCount > 0)
         {
-          fprintf(generationFile,"%s\n",st);
-          strcpy(prev,PQgetvalue(res, i, 1));
+          fprintf(generationFile,"%s\n",st.c_str());
+          prev = PQgetvalue(res, i, 1);
           globalGenerationId++;
           generationCount++;
           if (generationCount == 1)

@@ -81,11 +81,9 @@ int main(int argc, char *argv[])
     UInt64 startTime = getTime();
 
     char st[1000];
-    while (!feof(file))
+    while (fgets(st,1000,file) != nullptr)
     {
-      if (fgets(st,1000,file) != nullptr)
-      {
-        char *p = strstr(st,"\n");
+      char *p = strstr(st,"\n");
         if (p != nullptr)
           *p = '\0';
 
@@ -97,7 +95,6 @@ int main(int argc, char *argv[])
           delete service;
           return -4;
         }
-      }
     }
 
     fclose(file);

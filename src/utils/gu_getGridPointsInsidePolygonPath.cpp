@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
     std::vector<T::Coordinate> polygonPoints;
     std::vector<T::Point> gridPoints;
 
-    char buf[100];
     for (int t=3; t<argc; t++)
     {
       if (strcmp(argv[t],"/") == 0  &&  polygonPoints.size() > 0)
@@ -35,7 +34,7 @@ int main(int argc, char *argv[])
         printf("\n");
       }
 
-      strcpy(buf,argv[t]);
+      std::string bufStr(argv[t]);  char *buf = bufStr.data();
       char *p = strstr(buf,",");
       if (p != nullptr)
       {
