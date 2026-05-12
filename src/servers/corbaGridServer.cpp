@@ -317,17 +317,16 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
             else
               m.mParameterLevel = toInt32(pl[7].c_str());
 
-            char key[200];
             std::string level = pl[7];
             if (mParameterMapping_simplifiedLevelIdSet.find(m.mParameterLevelId) != mParameterMapping_simplifiedLevelIdSet.end())
               level = "*";
 
-            sprintf(key,"%s;%s;%s;%s;%s;%s;%s;%s;",pl[0].c_str(),pl[1].c_str(),pl[2].c_str(),pl[3].c_str(),pl[4].c_str(),pl[5].c_str(),pl[6].c_str(),level.c_str());
+            std::string key = pl[0]+";"+pl[1]+";"+pl[2]+";"+pl[3]+";"+pl[4]+";"+pl[5]+";"+pl[6]+";"+level+";";
             std::string searchKey = m.mProducerName + ":" + m.mParameterName + std::to_string(m.mGeometryId);
 
-            if (mapList.find(std::string(key)) == mapList.end())
+            if (mapList.find(key) == mapList.end())
             {
-              mapList.insert(std::string(key));
+              mapList.insert(key);
 
               bool found = false;
               bool searchEnabled = false;

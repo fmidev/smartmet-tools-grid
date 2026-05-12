@@ -44,10 +44,9 @@ int main(int argc, char *argv[])
     uint modificationOperation = 0;
     double_vec modificationParameters;
 
-    char buf[100];
     for (int t=5; t<argc; t++)
     {
-      strcpy(buf,argv[t]);
+      std::string bufStr(argv[t]);  char *buf = bufStr.data();
       char *p = strstr(buf,",");
       if (p != nullptr)
       {

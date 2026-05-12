@@ -1,5 +1,6 @@
 #include <macgyver/Exception.h>
 #include "grid-files/common/ImageFunctions.h"
+#include <string>
 
 using namespace SmartMet;
 
@@ -17,11 +18,10 @@ int main(int argc, char *argv[])
     }
 
     uint numOfFiles = atoi(argv[1]);
-    char filename[200];
 
     for (uint a=0; a<numOfFiles; a++)
     {
-      strcpy(filename,argv[3]);
+      std::string filenameStr(argv[3]);  char *filename = filenameStr.data();
       char *p = strstr(filename,"@");
       if (p != nullptr)
         sprintf(p,"%04u.png",a);
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
       for (int t = 4; t < argc; t++)
       {
-        strcpy(filename,argv[t]);
+        filenameStr = argv[t];  filename = filenameStr.data();
         char *p = strstr(filename,"@");
         if (p != nullptr)
           sprintf(p,"%04u.png",a);
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 
       // The function writes an image data to the PNG file.
 
-      strcpy(filename,argv[2]);
+      filenameStr = argv[2];  filename = filenameStr.data();
       p = strstr(filename,"@");
       if (p != nullptr)
         sprintf(p,"%04u.png",a);

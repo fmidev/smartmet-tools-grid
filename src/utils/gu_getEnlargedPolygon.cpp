@@ -23,10 +23,9 @@ int main(int argc, char *argv[])
     double yAddition = toDouble(argv[2]);
     std::vector<T::Coordinate> polygonPoints;
 
-    char buf[100];
     for (int t=3; t<argc; t++)
     {
-      strcpy(buf,argv[t]);
+      std::string bufStr(argv[t]);  char *buf = bufStr.data();
       char *p = strstr(buf,",");
       if (p != nullptr)
       {

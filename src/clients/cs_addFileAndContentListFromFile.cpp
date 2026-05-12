@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
       if (serviceIor == nullptr)
       {
         fprintf(stdout,"Service IOR not defined!\n");
+        fclose(file);
         return -2;
       }
 
@@ -76,11 +77,9 @@ int main(int argc, char *argv[])
     uint count = 0;
 
     char st[1000];
-    while (!feof(file))
+    while (fgets(st,1000,file) != nullptr)
     {
-      if (fgets(st,1000,file) != nullptr)
-      {
-        count++;
+      count++;
         if ((count % 1000) == 0)
           printf("%u\n",count);
 
@@ -153,7 +152,6 @@ int main(int argc, char *argv[])
             contentList.addContentInfo(contentInfo);
           }
         }
-      }
     }
 
     fclose(file);

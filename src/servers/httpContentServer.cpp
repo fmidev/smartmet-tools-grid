@@ -166,17 +166,14 @@ void getMainPage(SmartMet::T::ResponseMessage& response)
     {
       char st[10000];
 
-      while (!feof(file))
+      while (fgets(st,10000,file) != nullptr)
       {
-        if (fgets(st,10000,file) != nullptr)
-        {
-          char *p = strstr(st,"\r");
-          if (p == nullptr)
-            p = strstr(st,"\n");
-          if (p != nullptr)
-            *p = '\0';
-          response.addLine(st);
-        }
+        char *p = strstr(st,"\r");
+        if (p == nullptr)
+          p = strstr(st,"\n");
+        if (p != nullptr)
+          *p = '\0';
+        response.addLine(st);
       }
       fclose(file);
     }
