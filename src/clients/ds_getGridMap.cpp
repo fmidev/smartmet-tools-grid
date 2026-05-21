@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Data Server client: retrieve a grid message and save it as a colour-mapped image.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/dataServer/corba/client/ClientImplementation.h"
 #include <macgyver/Exception.h>
@@ -8,6 +12,8 @@ using namespace SmartMet;
 
 
 
+
+/*! \brief Save image. */
 
 void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  values)
 {
@@ -82,6 +88,8 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief CLI tool that registers a grid file's content information into the Content Server.
+ */
+
 #if 0
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"

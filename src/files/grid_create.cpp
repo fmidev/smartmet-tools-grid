@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief CLI tool that creates a new grid file by projecting data from a source grid file into a template-defined target grid.
+ */
+
 #include "grid-files/grid/GridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GridDef.h"
@@ -19,6 +23,8 @@
 using namespace SmartMet;
 
 
+
+/*! \brief Init. */
 
 void init()
 {
@@ -46,6 +52,8 @@ void init()
 
 
 
+/*! \brief Print usage. */
+
 void print_usage()
 {
   printf("-------------------------------------------------------------------------------- \n");
@@ -69,6 +77,8 @@ void print_usage()
 }
 
 
+
+/*! \brief Set message lat lon v1. */
 
 void setMessage_LatLon_v1(GRID::Message *message,GRID::Message *dataMessage)
 {
@@ -155,6 +165,8 @@ void setMessage_LatLon_v1(GRID::Message *message,GRID::Message *dataMessage)
 
 
 
+
+/*! \brief Set message rotated lat lon v1. */
 
 void setMessage_RotatedLatLon_v1(GRID::Message *message,GRID::Message *dataMessage)
 {
@@ -248,6 +260,8 @@ void setMessage_RotatedLatLon_v1(GRID::Message *message,GRID::Message *dataMessa
 
 
 
+/*! \brief Set message polar stereographic v1. */
+
 void setMessage_PolarStereographic_v1(GRID::Message *message,GRID::Message *dataMessage)
 {
   try
@@ -332,6 +346,8 @@ void setMessage_PolarStereographic_v1(GRID::Message *message,GRID::Message *data
 
 
 
+
+/*! \brief Set message lambert conformal v1. */
 
 void setMessage_LambertConformal_v1(GRID::Message *message,GRID::Message *dataMessage)
 {
@@ -422,6 +438,8 @@ void setMessage_LambertConformal_v1(GRID::Message *message,GRID::Message *dataMe
 
 
 
+/*! \brief Set message mercator v1. */
+
 void setMessage_Mercator_v1(GRID::Message *message,GRID::Message *dataMessage)
 {
   try
@@ -508,6 +526,8 @@ void setMessage_Mercator_v1(GRID::Message *message,GRID::Message *dataMessage)
 
 
 
+
+/*! \brief Set message lat lon v2. */
 
 void setMessage_LatLon_v2(GRID::Message *message,GRID::Message *dataMessage)
 {
@@ -637,6 +657,8 @@ void setMessage_LatLon_v2(GRID::Message *message,GRID::Message *dataMessage)
 
 
 
+
+/*! \brief Set message rotated lat lon v2. */
 
 void setMessage_RotatedLatLon_v2(GRID::Message *message,GRID::Message *dataMessage)
 {
@@ -776,6 +798,8 @@ void setMessage_RotatedLatLon_v2(GRID::Message *message,GRID::Message *dataMessa
 
 
 
+/*! \brief Set message polar stereographic v2. */
+
 void setMessage_PolarStereographic_v2(GRID::Message *message,GRID::Message *dataMessage)
 {
   try
@@ -904,6 +928,8 @@ void setMessage_PolarStereographic_v2(GRID::Message *message,GRID::Message *data
 
 
 
+
+/*! \brief Set message lambert conformal v2. */
 
 void setMessage_LambertConformal_v2(GRID::Message *message,GRID::Message *dataMessage)
 {
@@ -1073,6 +1099,8 @@ void setMessage_LambertConformal_v2(GRID::Message *message,GRID::Message *dataMe
 
 
 
+/*! \brief Set message mercator v2. */
+
 void setMessage_Mercator_v2(GRID::Message *message,GRID::Message *dataMessage)
 {
   try
@@ -1199,6 +1227,8 @@ void setMessage_Mercator_v2(GRID::Message *message,GRID::Message *dataMessage)
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

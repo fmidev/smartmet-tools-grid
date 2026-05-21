@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief CLI tool that generates JPG images from grid data messages and saves them into a specified directory.
+ */
+
 #include "grid-files/grid/GridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GridDef.h"
@@ -26,6 +30,8 @@ enum ImageFlags
 };
 
 
+
+/*! \brief Get grid min and max values. */
 
 void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::GribParamId parameterId,T::ParamValue& minValue,T::ParamValue& maxValue)
 {
@@ -63,6 +69,8 @@ void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::GribParamId parameterId,
 
 
 
+/*! \brief Init. */
+
 void init()
 {
   try
@@ -87,6 +95,8 @@ void init()
 
 
 
+
+/*! \brief Save message image. */
 
 void saveMessageImage(const char *imageFile,const GRID::Message *message,T::ParamValue minValue,T::ParamValue maxValue,short interpolationMethod,double scaleFactor,uint valueLevels,uint flags)
 {
@@ -166,6 +176,8 @@ void saveMessageImage(const char *imageFile,const GRID::Message *message,T::Para
 
 
 
+/*! \brief Save images by parameter id. */
+
 void saveImagesByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::GribParamId parameterId,const char *imageDir,double scaleFactor,uint valueLevels,uint flags)
 {
   try
@@ -203,6 +215,8 @@ void saveImagesByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T
 
 
 
+/*! \brief Save all images. */
+
 void saveAllImages(uint fileIndex,SmartMet::GRID::GridFile& gridFile,const char *imageDir,double scaleFactor,uint valueLevels,uint flags)
 {
   try
@@ -233,6 +247,8 @@ void saveAllImages(uint fileIndex,SmartMet::GRID::GridFile& gridFile,const char 
 
 
 
+/*! \brief Print usage. */
+
 void print_usage()
 {
   printf("-------------------------------------------------------------------------------- \n");
@@ -260,6 +276,8 @@ void print_usage()
   printf("\n");
 }
 
+
+/*! \brief Run. */
 
 int run(int argc, char **argv)
 {

@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Tool that exports producer, generation, file, and content records from the FMI Radon database into CSV files for import into a SmartMet Content Server.
+ */
+
 #include <macgyver/Exception.h>
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/common/GeneralFunctions.h"
@@ -29,6 +33,8 @@ std::vector<std::string> producerList;
 
 
 
+/*! \brief Error. */
+
 void error(char *mess)
 {
   fprintf(stderr, "### %s\n", mess);
@@ -36,6 +42,8 @@ void error(char *mess)
 }
 
 
+
+/*! \brief Read producer list. */
 
 void readProducerList(const char *filename)
 {
@@ -78,6 +86,8 @@ void readProducerList(const char *filename)
 
 
 
+/*! \brief Producer enabled. */
+
 bool producerEnabled(const char *producerName)
 {
   try
@@ -98,6 +108,8 @@ bool producerEnabled(const char *producerName)
 
 
 
+
+/*! \brief Read content. */
 
 void readContent(PGconn *conn,char *producerId,T::GenerationId generationId,T::FileId fileId,uint fileType,char *geometryId,char *forecastTime,char *fmiParameterId,char *fmiLevelId,char *parameterLevel,char *forecastType,char *pertubationNumber)
 {
@@ -179,6 +191,8 @@ void readContent(PGconn *conn,char *producerId,T::GenerationId generationId,T::F
 
 
 
+/*! \brief Read files. */
+
 uint readFiles(PGconn *conn,char *producerId,T::GenerationId generationId,char *schemaName, char *partitionName,char *analysisTime)
 {
   FUNCTION_TRACE
@@ -227,6 +241,8 @@ uint readFiles(PGconn *conn,char *producerId,T::GenerationId generationId,char *
 
 
 
+
+/*! \brief Read generations. */
 
 uint readGenerations(PGconn *conn,char *producerId,char *producerName)
 {
@@ -279,6 +295,8 @@ uint readGenerations(PGconn *conn,char *producerId,char *producerName)
 
 
 
+/*! \brief Read producers. */
+
 void readProducers(PGconn *conn)
 {
   FUNCTION_TRACE
@@ -323,6 +341,8 @@ void readProducers(PGconn *conn)
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

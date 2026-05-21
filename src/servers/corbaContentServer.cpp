@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Standalone CORBA server daemon that exposes the Content Server API over CORBA.
+ */
+
 #include "grid-content/contentServer/cache/CacheImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
@@ -64,6 +68,8 @@ std::string         mSecondaryConnectionString;
 
 
 
+/*! \brief Sig handler. */
+
 void sig_handler(int signum)
 {
   {
@@ -91,6 +97,8 @@ void sig_handler(int signum)
 
 
 
+
+/*! \brief Read config file. */
 
 void readConfigFile(const char* configFile)
 {
@@ -194,6 +202,8 @@ void readConfigFile(const char* configFile)
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

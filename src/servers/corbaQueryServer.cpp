@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Standalone CORBA server daemon that exposes the Query Server API for parameterized grid queries over CORBA.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-content/contentServer/cache/CacheImplementation.h"
@@ -108,6 +112,8 @@ QueryServer::AliasFileCollection mProducerMappingFileCollection;
 
 
 
+/*! \brief Load mappings. */
+
 void loadMappings(QueryServer::ParamMappingFile_vec& parameterMappings)
 {
   try
@@ -132,6 +138,8 @@ void loadMappings(QueryServer::ParamMappingFile_vec& parameterMappings)
 
 
 
+
+/*! \brief Open mapping file. */
 
 FILE* openMappingFile(std::string mappingFile)
 {
@@ -241,6 +249,8 @@ FILE* openMappingFile(std::string mappingFile)
 
 
 
+
+/*! \brief Update mappings. */
 
 void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targetParameterKeyType,std::string mappingFile,QueryServer::ParamMappingFile_vec& parameterMappings)
 {
@@ -454,6 +464,8 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
 
 
 
+/*! \brief Update mappings. */
+
 void updateMappings()
 {
   try
@@ -497,6 +509,8 @@ void updateMappings()
 
 
 
+/*! \brief Update processing. */
+
 void updateProcessing()
 {
   try
@@ -516,6 +530,8 @@ void updateProcessing()
 
 
 
+
+/*! \brief Corba query server update thread. */
 
 static void* corbaQueryServer_updateThread(void *arg)
 {
@@ -538,6 +554,8 @@ static void* corbaQueryServer_updateThread(void *arg)
 
 
 
+/*! \brief Start update processing. */
+
 void startUpdateProcessing()
 {
   try
@@ -553,6 +571,8 @@ void startUpdateProcessing()
 
 
 
+
+/*! \brief Read config file. */
 
 void readConfigFile(const char* configFile)
 {
@@ -701,6 +721,8 @@ void readConfigFile(const char* configFile)
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

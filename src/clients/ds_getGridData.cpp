@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Data Server client: retrieve raw grid data values and write them to a CSV file.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/dataServer/corba/client/ClientImplementation.h"
 #include <macgyver/Exception.h>
@@ -7,6 +11,8 @@ using namespace SmartMet;
 
 std::set<T::ParamValue> values;
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

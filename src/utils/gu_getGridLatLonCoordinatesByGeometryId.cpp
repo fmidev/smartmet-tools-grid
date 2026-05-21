@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Utility program that prints all lat/lon grid point coordinates for a given geometry ID.
+ */
+
 #include <macgyver/Exception.h>
 #include "grid-files/identification/GridDef.h"
 #include "grid-files/common/GeneralFunctions.h"
@@ -6,6 +10,8 @@
 using namespace SmartMet;
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Daemon that scans filesystem directories for grid files and registers their content metadata with a SmartMet Content Server.
+ */
+
 #include <macgyver/Exception.h>
 #include <macgyver/Hash.h>
 #include "grid-files/common/Log.h"
@@ -94,6 +98,8 @@ std::string               mCacheDir = "/tmp";
 bool                      mMemoryMapperEnabled = false;
 
 
+/*! \brief Read locations. */
+
 void readLocations(const char* configFile)
 {
   try
@@ -157,6 +163,8 @@ void readLocations(const char* configFile)
 }
 
 
+
+/*! \brief Read config file. */
 
 void readConfigFile(const char* configFile)
 {
@@ -269,6 +277,8 @@ void readConfigFile(const char* configFile)
 
 
 
+/*! \brief Read target producers. */
+
 void readTargetProducers(ContentServer::ServiceInterface *targetInterface)
 {
   FUNCTION_TRACE
@@ -293,6 +303,8 @@ void readTargetProducers(ContentServer::ServiceInterface *targetInterface)
 
 
 
+/*! \brief Read target generations. */
+
 void readTargetGenerations(ContentServer::ServiceInterface *targetInterface)
 {
   FUNCTION_TRACE
@@ -316,6 +328,8 @@ void readTargetGenerations(ContentServer::ServiceInterface *targetInterface)
 
 
 
+
+/*! \brief Read target files. */
 
 void readTargetFiles(ContentServer::ServiceInterface *targetInterface)
 {
@@ -362,6 +376,8 @@ void readTargetFiles(ContentServer::ServiceInterface *targetInterface)
 
 
 
+/*! \brief Split filename. */
+
 void splitFilename(std::string& fullName,std::string& path,std::string& filename)
 {
   std::string bufStr(fullName);  char *buf = bufStr.data();
@@ -392,6 +408,8 @@ void splitFilename(std::string& fullName,std::string& path,std::string& filename
 
 
 
+
+/*! \brief Read source files. */
 
 void readSourceFiles(std::vector<DataFetcher::FileRec>& fileList)
 {
@@ -477,6 +495,8 @@ void readSourceFiles(std::vector<DataFetcher::FileRec>& fileList)
 
 
 
+
+/*! \brief Read source generations. */
 
 void readSourceGenerations(std::vector<DataFetcher::FileRec>& fileList)
 {
@@ -568,6 +588,8 @@ void readSourceGenerations(std::vector<DataFetcher::FileRec>& fileList)
 
 
 
+/*! \brief Set message content. */
+
 void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Message& message,T::ContentInfo& contentInfo)
 {
   try
@@ -596,6 +618,8 @@ void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Messag
 
 
 
+/*! \brief Get cache file name. */
+
 void getCacheFileName(const char *filename,char *cacheFilename)
 {
   try
@@ -613,6 +637,8 @@ void getCacheFileName(const char *filename,char *cacheFilename)
 
 
 
+
+/*! \brief Read source content cache. */
 
 bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T::ContentInfoList& contentList,bool& missingInformation)
 {
@@ -676,6 +702,8 @@ bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T:
 
 
 
+
+/*! \brief Read source content. */
 
 void readSourceContent(T::FileInfo& fileInfo,T::ContentInfoList& contentList,bool& missingInformation)
 {
@@ -749,6 +777,8 @@ void readSourceContent(T::FileInfo& fileInfo,T::ContentInfoList& contentList,boo
 
 
 
+/*! \brief Read source producers. */
+
 void readSourceProducers()
 {
   FUNCTION_TRACE
@@ -821,6 +851,8 @@ void readSourceProducers()
 
 
 
+
+/*! \brief Update producers. */
 
 void updateProducers(ContentServer::ServiceInterface *targetInterface)
 {
@@ -906,6 +938,8 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
 
 
 
+
+/*! \brief Update generations. */
 
 void updateGenerations(ContentServer::ServiceInterface *targetInterface)
 {
@@ -1002,6 +1036,8 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
 
 
 
+
+/*! \brief Update files. */
 
 void updateFiles(ContentServer::ServiceInterface *targetInterface)
 {
@@ -1140,6 +1176,8 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
 
 
 
+/*! \brief Update loop start. */
+
 void updateLoopStart(ContentServer::ServiceInterface *targetInterface)
 {
   FUNCTION_TRACE
@@ -1176,6 +1214,8 @@ void updateLoopStart(ContentServer::ServiceInterface *targetInterface)
 
 
 
+/*! \brief Update loop end. */
+
 void updateLoopEnd(ContentServer::ServiceInterface *targetInterface)
 {
   FUNCTION_TRACE
@@ -1211,6 +1251,8 @@ void updateLoopEnd(ContentServer::ServiceInterface *targetInterface)
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

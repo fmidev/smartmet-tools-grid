@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Utility program that replaces attribute name placeholders in a text file with their values from a configuration file.
+ */
+
 #include <macgyver/Exception.h>
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ConfigurationFile.h"
@@ -8,6 +12,8 @@ using namespace SmartMet;
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

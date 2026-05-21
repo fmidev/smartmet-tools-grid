@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Data Server client: render isolines for a grid message onto a lat/lon area map.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/dataServer/corba/client/ClientImplementation.h"
 #include <macgyver/Exception.h>
@@ -10,6 +14,8 @@ using namespace SmartMet;
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

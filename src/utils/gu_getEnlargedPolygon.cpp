@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Utility program that computes an outward-expanded version of a polygon by adding fixed offsets to each vertex.
+ */
+
 #include <macgyver/Exception.h>
 #include "grid-files/identification/GridDef.h"
 #include "grid-files/common/GeneralFunctions.h"
@@ -7,6 +11,8 @@
 using namespace SmartMet;
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

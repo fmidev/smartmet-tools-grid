@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Utility program that parses a configuration file and prints its attribute names and optionally their values.
+ */
+
 #include <macgyver/Exception.h>
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ConfigurationFile.h"
@@ -8,6 +12,8 @@ using namespace SmartMet;
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

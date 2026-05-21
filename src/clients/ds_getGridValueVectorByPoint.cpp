@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Data Server client: retrieve a vector quantity (e.g. wind) at a given grid point.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/dataServer/corba/client/ClientImplementation.h"
 #include <macgyver/Exception.h>
@@ -5,6 +9,8 @@
 
 using namespace SmartMet;
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

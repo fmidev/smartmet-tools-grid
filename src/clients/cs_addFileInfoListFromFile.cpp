@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Content Server client: reads a list of grid file names from a local file and bulk-registers them (producerId, generationId, fileType, sourceId, flags) in the Content Server.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
@@ -8,6 +12,8 @@
 
 using namespace SmartMet;
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

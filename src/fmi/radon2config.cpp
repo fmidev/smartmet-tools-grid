@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Tool that reads geometry and parameter definitions from the FMI Radon database and generates SmartMet grid configuration CSV files.
+ */
+
 #include <macgyver/Exception.h>
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/common/GeneralFunctions.h"
@@ -16,6 +20,8 @@ using namespace SmartMet;
 
 
 
+/*! \brief Error. */
+
 void error(char *mess)
 {
   fprintf(stderr, "### %s\n", mess);
@@ -24,6 +30,8 @@ void error(char *mess)
 
 
 
+
+/*! \brief Create fmi geometries. */
 
 void create_fmi_geometries(PGconn *conn,const char *dir)
 {
@@ -447,6 +455,8 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
 
 
 
+/*! \brief Create fmi level id grib2. */
+
 void create_fmi_levelId_grib2(PGconn *conn,const char *dir)
 {
   FUNCTION_TRACE
@@ -539,6 +549,8 @@ void create_fmi_levelId_grib2(PGconn *conn,const char *dir)
 
 
 
+/*! \brief Create fmi levels. */
+
 void create_fmi_levels(PGconn *conn,const char *dir)
 {
   FUNCTION_TRACE
@@ -629,6 +641,8 @@ void create_fmi_levels(PGconn *conn,const char *dir)
 
 
 
+
+/*! \brief Create fmi level id grib1. */
 
 void create_fmi_levelId_grib1(PGconn *conn,const char *dir)
 {
@@ -721,6 +735,8 @@ void create_fmi_levelId_grib1(PGconn *conn,const char *dir)
 
 
 
+/*! \brief Create fmi parameter id grib2. */
+
 void create_fmi_parameterId_grib2(PGconn *conn,const char *dir)
 {
   FUNCTION_TRACE
@@ -803,6 +819,8 @@ void create_fmi_parameterId_grib2(PGconn *conn,const char *dir)
 
 
 
+
+/*! \brief Create fmi parameter id grib1. */
 
 void create_fmi_parameterId_grib1(PGconn *conn,const char *dir)
 {
@@ -887,6 +905,8 @@ void create_fmi_parameterId_grib1(PGconn *conn,const char *dir)
 
 
 
+
+/*! \brief Create fmi parameter id newbase. */
 
 void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
 {
@@ -1013,6 +1033,8 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
 
 
 
+/*! \brief Create fmi parameters. */
+
 void create_fmi_parameters(PGconn *conn,const char *dir)
 {
   FUNCTION_TRACE
@@ -1100,6 +1122,8 @@ void create_fmi_parameters(PGconn *conn,const char *dir)
 
 
 
+/*! \brief Create fmi producer id grib. */
+
 void create_fmi_producerId_grib(PGconn *conn,const char *dir)
 {
   FUNCTION_TRACE
@@ -1176,6 +1200,8 @@ void create_fmi_producerId_grib(PGconn *conn,const char *dir)
 
 
 
+/*! \brief Create fmi forecast types. */
+
 void create_fmi_forecastTypes(PGconn *conn,const char *dir)
 {
   FUNCTION_TRACE
@@ -1242,6 +1268,8 @@ void create_fmi_forecastTypes(PGconn *conn,const char *dir)
 
 
 
+/*! \brief Create fmi aggregations. */
+
 void create_fmi_aggregations(PGconn *conn,const char *dir)
 {
   FUNCTION_TRACE
@@ -1307,6 +1335,8 @@ void create_fmi_aggregations(PGconn *conn,const char *dir)
 }
 
 
+
+/*! \brief Create fmi processing types. */
 
 void create_fmi_processingTypes(PGconn *conn,const char *dir)
 {
@@ -1377,6 +1407,8 @@ void create_fmi_processingTypes(PGconn *conn,const char *dir)
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {
