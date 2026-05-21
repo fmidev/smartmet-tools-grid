@@ -1,9 +1,15 @@
+/*! \file
+ *  \brief Utility program that composites multiple PNG images into a single output PNG by alpha-blending them in order.
+ */
+
 #include <macgyver/Exception.h>
 #include "grid-files/common/ImageFunctions.h"
 
 using namespace SmartMet;
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

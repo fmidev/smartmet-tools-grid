@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Utility program that lists all grid geometry IDs whose bounding area contains a given lat/lon coordinate.
+ */
+
 #include <macgyver/Exception.h>
 #include "grid-files/identification/GridDef.h"
 #include "grid-files/common/GeneralFunctions.h"
@@ -6,6 +10,8 @@
 using namespace SmartMet;
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

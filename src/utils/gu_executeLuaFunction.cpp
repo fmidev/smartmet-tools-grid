@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Utility program that loads a Lua file and executes a named function with the given numeric parameters.
+ */
+
 #include <macgyver/Exception.h>
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-content/lua/LuaFile.h"
@@ -7,6 +11,8 @@ using namespace SmartMet;
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Standalone HTTP server daemon that exposes the Content Server API over HTTP using libmicrohttpd.
+ */
+
 #include "grid-content/contentServer/http/server/ServerInterface.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-content/contentServer/cache/CacheImplementation.h"
@@ -63,6 +67,8 @@ std::string         mRedisTablePrefix;
 std::string         mCorbaIor;
 std::string         mHttpUrl;
 
+
+/*! \brief Read config file. */
 
 void readConfigFile(const char* configFile)
 {
@@ -157,6 +163,8 @@ void readConfigFile(const char* configFile)
 
 
 
+/*! \brief Get main page. */
+
 void getMainPage(SmartMet::T::ResponseMessage& response)
 {
   try
@@ -192,6 +200,8 @@ void getMainPage(SmartMet::T::ResponseMessage& response)
 
 
 
+/*! \brief Add parameter. */
+
 static MHD_Result addParameter(void *cls, enum MHD_ValueKind kind, const char *key,const char *value)
 {
   try
@@ -223,6 +233,8 @@ static MHD_Result addParameter(void *cls, enum MHD_ValueKind kind, const char *k
 
 
 
+/*! \brief Request completed. */
+
 static void requestCompleted (void *cls, struct MHD_Connection *connection,void **ptr, enum MHD_RequestTerminationCode toe)
 {
   try
@@ -240,6 +252,8 @@ static void requestCompleted (void *cls, struct MHD_Connection *connection,void 
 
 
 
+
+/*! \brief Process request. */
 
 static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,const char *url,const char *method,const char *version,
         const char *upload_data,size_t *upload_data_size,void **ptr)
@@ -373,6 +387,8 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc,char ** argv)
 {

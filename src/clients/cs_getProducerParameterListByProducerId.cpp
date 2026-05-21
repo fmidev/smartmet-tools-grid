@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Content Server client: retrieves the parameter list for a given producer ID, converting between source and target parameter key types.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
@@ -10,6 +14,8 @@ using namespace SmartMet;
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

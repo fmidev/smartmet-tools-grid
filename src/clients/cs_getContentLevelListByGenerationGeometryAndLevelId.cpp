@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Content Server client: queries and prints the list of parameter levels for a given generationId, geometryId, and levelId from the Content Server.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
@@ -9,6 +13,8 @@
 
 using namespace SmartMet;
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

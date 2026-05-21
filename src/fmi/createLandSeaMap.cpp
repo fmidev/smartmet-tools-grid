@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Utility program that generates a binary land/sea mask bitmap file from a land-cover dataset at a given grid resolution.
+ */
+
 #include <macgyver/Exception.h>
 #include <grid-files/common/GeneralFunctions.h>
 #include <grid-files/common/BitLine.h>
@@ -6,6 +10,8 @@
 
 using namespace SmartMet;
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

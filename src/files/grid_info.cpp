@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief CLI tool that lists the data content summary of one or more grid files, with an optional detailed view.
+ */
+
 #include "grid-files/grid/GridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GridDef.h"
@@ -17,6 +21,8 @@
 
 using namespace SmartMet;
 
+
+/*! \brief Init. */
 
 void init()
 {
@@ -43,6 +49,8 @@ void init()
 
 
 
+
+/*! \brief Show info. */
 
 void showInfo(SmartMet::GRID::GridFile& gridFile)
 {
@@ -101,6 +109,8 @@ void showInfo(SmartMet::GRID::GridFile& gridFile)
 
 
 
+
+/*! \brief Show full info. */
 
 void showFullInfo(SmartMet::GRID::GridFile& gridFile)
 {
@@ -176,6 +186,8 @@ void showFullInfo(SmartMet::GRID::GridFile& gridFile)
 
 
 
+/*! \brief Print usage. */
+
 void print_usage()
 {
   printf("-------------------------------------------------------------------------------- \n");
@@ -198,6 +210,8 @@ void print_usage()
 
 
 
+
+/*! \brief Run. */
 
 int run(int argc, char **argv)
 {

@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Minimal HTTP file server daemon that serves files from a root directory over HTTP using libmicrohttpd.
+ */
+
 #include <microhttpd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,6 +43,8 @@ struct Request
     std::map<std::string,std::string> parameters;
 };
 
+
+/*! \brief Get file handle. */
 
 FileHandle* getFileHandle(const char *filename)
 {
@@ -93,6 +99,8 @@ FileHandle* getFileHandle(const char *filename)
 
 
 
+/*! \brief Add parameter. */
+
 static MHD_Result addParameter(void *cls, enum MHD_ValueKind kind, const char *key,const char *value)
 {
   //printf("%s: %s\n",key,value);
@@ -110,6 +118,8 @@ static MHD_Result addParameter(void *cls, enum MHD_ValueKind kind, const char *k
 
 
 
+/*! \brief Request completed. */
+
 static void requestCompleted (void *cls, struct MHD_Connection *connection,void **ptr, enum MHD_RequestTerminationCode toe)
 {
   Request *request = (Request*)*ptr;
@@ -120,6 +130,8 @@ static void requestCompleted (void *cls, struct MHD_Connection *connection,void 
 
 
 
+
+/*! \brief Process request. */
 
 static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,const char *url,const char *method,const char *version,
         const char *upload_data,size_t *upload_data_size,void **ptr)
@@ -216,6 +228,8 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc,char ** argv)
 {

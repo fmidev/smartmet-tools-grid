@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Utility program that merges sequences of numbered PNG files into a corresponding sequence of composited output PNGs.
+ */
+
 #include <macgyver/Exception.h>
 #include "grid-files/common/ImageFunctions.h"
 #include <string>
@@ -5,6 +9,8 @@
 using namespace SmartMet;
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Query Server client: retrieve a parameter value at a given point and time.
+ */
+
 #include "grid-content/queryServer/corba/client/ClientImplementation.h"
 #include <macgyver/Exception.h>
 #include "grid-files/common/GeneralFunctions.h"
@@ -5,6 +9,8 @@
 using namespace SmartMet;
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

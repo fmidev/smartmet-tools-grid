@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Data Server client: retrieve a grid message resampled to a specified area and save it as an image.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/dataServer/corba/client/ClientImplementation.h"
 #include <macgyver/Exception.h>
@@ -9,6 +13,8 @@ using namespace SmartMet;
 bool rotate = false;
 
 
+
+/*! \brief Save image. */
 
 void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  values)
 {
@@ -96,6 +102,8 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

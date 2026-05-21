@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief CLI tool that maps grid data into lat/lon sub-area JPG images and saves them into a specified directory.
+ */
+
 #include "grid-files/grid/GridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GridDef.h"
@@ -27,6 +31,8 @@ enum ImageFlags
 
 
 
+
+/*! \brief Get grid min and max values. */
 
 void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::GribParamId parameterId,T::ParamValue& minValue,T::ParamValue& maxValue)
 {
@@ -65,6 +71,8 @@ void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::GribParamId parameterId,
 
 
 
+/*! \brief Get parameter identifiers. */
+
 void getParameterIdentifiers(GRID::GridFile& gridFile,std::set<T::GribParamId>& parameterIdList)
 {
   try
@@ -88,6 +96,8 @@ void getParameterIdentifiers(GRID::GridFile& gridFile,std::set<T::GribParamId>& 
 }
 
 
+
+/*! \brief Init. */
 
 void init()
 {
@@ -113,6 +123,8 @@ void init()
 
 
 
+
+/*! \brief Save message submap. */
 
 void saveMessageSubmap(const char *imageFile,const GRID::Message *message,double startLat,double startLon,uint width,uint height,double step,T::ParamValue minValue,T::ParamValue maxValue,short interpolationMethod,uint valueLevels,uint flags)
 {
@@ -179,6 +191,8 @@ void saveMessageSubmap(const char *imageFile,const GRID::Message *message,double
 
 
 
+/*! \brief Save submaps by parameter id. */
+
 void saveSubmapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::GribParamId parameterId,double lat,double lon,uint width,uint height,double step,const char *imageDir,uint valueLevels,uint flags)
 {
   try
@@ -217,6 +231,8 @@ void saveSubmapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,
 
 
 
+/*! \brief Save all submaps. */
+
 void saveAllSubmaps(uint fileIndex,SmartMet::GRID::GridFile& gridFile,double lat,double lon,uint width,uint height,double step,const char *imageDir,uint valueLevels,uint flags)
 {
   try
@@ -237,6 +253,8 @@ void saveAllSubmaps(uint fileIndex,SmartMet::GRID::GridFile& gridFile,double lat
 
 
 
+
+/*! \brief Print usage. */
 
 void print_usage()
 {
@@ -268,6 +286,8 @@ void print_usage()
   printf("\n");
 }
 
+
+/*! \brief Run. */
 
 int run(int argc, char **argv)
 {

@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Utility program that prints the mapping between Newbase and FMI parameter names, optionally in reverse order.
+ */
+
 #include <macgyver/Exception.h>
 #include "grid-files/identification/GridDef.h"
 #include "grid-files/common/GeneralFunctions.h"
@@ -6,6 +10,8 @@
 using namespace SmartMet;
 
 
+
+/*! \brief Load newbase parameter defs. */
 
 void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_vec& parameters)
 {
@@ -77,6 +83,8 @@ void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_ve
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

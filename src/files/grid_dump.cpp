@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief CLI tool that prints the detailed internal structure and optionally the data and coordinate values of one or more grid files.
+ */
+
 #include "grid-files/grid/GridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GridDef.h"
@@ -18,6 +22,8 @@
 using namespace SmartMet;
 
 
+
+/*! \brief Init. */
 
 void init()
 {
@@ -43,6 +49,8 @@ void init()
 
 
 
+
+/*! \brief Dump. */
 
 void dump(SmartMet::GRID::GridFile& gridFile,uint optionFlags)
 {
@@ -75,6 +83,8 @@ void dump(SmartMet::GRID::GridFile& gridFile,uint optionFlags)
 
 
 
+/*! \brief Print usage. */
+
 void print_usage()
 {
   printf("-------------------------------------------------------------------------------- \n");
@@ -96,6 +106,8 @@ void print_usage()
   printf("\n");
 }
 
+
+/*! \brief Run. */
 
 int run(int argc, char **argv)
 {

@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Standalone CORBA server daemon that exposes the Data Server API for retrieving grid data values over CORBA.
+ */
+
 #include "grid-content/contentServer/cache/CacheImplementation.h"
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/dataServer/implementation/ServiceImplementation.h"
@@ -58,6 +62,8 @@ bool mShutdownRequested = false;
 
 
 
+/*! \brief Sig handler. */
+
 void sig_handler(int signum)
 {
   {
@@ -86,6 +92,8 @@ void sig_handler(int signum)
 
 
 
+
+/*! \brief Read config file. */
 
 void readConfigFile(const char* configFile)
 {
@@ -172,6 +180,8 @@ void readConfigFile(const char* configFile)
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

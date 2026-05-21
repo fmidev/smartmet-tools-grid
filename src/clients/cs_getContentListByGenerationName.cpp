@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Content Server client: queries and prints a paginated list of content records for the generation identified by name, starting at a specified fileId and messageIndex.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
@@ -7,6 +11,8 @@
 
 using namespace SmartMet;
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

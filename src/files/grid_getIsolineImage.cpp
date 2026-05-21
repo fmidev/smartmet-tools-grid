@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief CLI tool that renders and saves an isoline (contour line) image of a selected grid message to a PNG file.
+ */
+
 #include "grid-files/grid/GridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GridDef.h"
@@ -20,6 +24,8 @@
 
 using namespace SmartMet;
 
+
+/*! \brief Init. */
 
 void init()
 {
@@ -47,6 +53,8 @@ void init()
 
 
 
+/*! \brief Print usage. */
+
 void print_usage()
 {
   printf("-------------------------------------------------------------------------------- \n");
@@ -63,6 +71,8 @@ void print_usage()
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char **argv)
 {

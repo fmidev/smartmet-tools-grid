@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Content Server client: retrieve content list filtered by parameter, generation ID, and forecast time.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
@@ -7,6 +11,8 @@
 
 using namespace SmartMet;
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

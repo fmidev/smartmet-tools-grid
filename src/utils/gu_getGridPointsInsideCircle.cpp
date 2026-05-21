@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Utility program that lists all grid point coordinates falling within a circle defined by a centre and radius.
+ */
+
 #include <macgyver/Exception.h>
 #include "grid-files/identification/GridDef.h"
 #include "grid-files/common/GeneralFunctions.h"
@@ -7,6 +11,8 @@
 using namespace SmartMet;
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

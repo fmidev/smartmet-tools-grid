@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Data Server client: retrieve a grid message and save it as a greyscale image.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/dataServer/corba/client/ClientImplementation.h"
 #include <macgyver/Exception.h>
@@ -9,6 +13,8 @@ using namespace SmartMet;
 bool rotate = false;
 
 
+
+/*! \brief Save image. */
 
 void saveImage(const char *imageFile,T::GridData&  gridData)
 {
@@ -99,6 +105,8 @@ void saveImage(const char *imageFile,T::GridData&  gridData)
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

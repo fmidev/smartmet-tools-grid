@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Query Server client: retrieve parameter isobands and render them as image files.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/queryServer/corba/client/ClientImplementation.h"
 #include <macgyver/Exception.h>
@@ -21,6 +25,8 @@ using namespace SmartMet;
 
 
 
+
+/*! \brief Init. */
 
 void init()
 {
@@ -47,6 +53,8 @@ void init()
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

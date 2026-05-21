@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Daemon that continuously synchronises meteorological forecast file metadata from the FMI Radon database into a SmartMet Content Server.
+ */
+
 #include <macgyver/Exception.h>
 #include "grid-files/common/Log.h"
 #include "grid-files/common/ShowFunction.h"
@@ -171,6 +175,8 @@ std::unordered_map<std::string,time_t> mReadyGenerations;
 
 
 
+/*! \brief Sig handler. */
+
 void sig_handler(int signum)
 {
   printf("##### SHUTDOWN REQUESTED #####\n");
@@ -178,6 +184,8 @@ void sig_handler(int signum)
 }
 
 
+
+/*! \brief Read config file. */
 
 void readConfigFile(const char* configFile)
 {
@@ -279,6 +287,8 @@ void readConfigFile(const char* configFile)
 
 
 
+/*! \brief Get file id. */
+
 int getFileId(std::string filename,bool create)
 {
   try
@@ -304,6 +314,8 @@ int getFileId(std::string filename,bool create)
 
 
 
+/*! \brief Get filename. */
+
 std::string getFilename(int fileId)
 {
   try
@@ -323,6 +335,8 @@ std::string getFilename(int fileId)
 
 
 
+
+/*! \brief Read producer list. */
 
 void readProducerList(const char *filename)
 {
@@ -431,6 +445,8 @@ void readProducerList(const char *filename)
 
 
 
+/*! \brief Read target producers. */
+
 void readTargetProducers(T::ProducerInfoList& targetProducerList)
 {
   FUNCTION_TRACE
@@ -453,6 +469,8 @@ void readTargetProducers(T::ProducerInfoList& targetProducerList)
 
 
 
+
+/*! \brief Read target generations. */
 
 void readTargetGenerations(T::GenerationInfoList& targetGenerationList)
 {
@@ -478,6 +496,8 @@ void readTargetGenerations(T::GenerationInfoList& targetGenerationList)
 
 
 
+/*! \brief Read target geometries. */
+
 void readTargetGeometries(T::GeometryInfoList& targetGeometryList)
 {
   FUNCTION_TRACE
@@ -501,6 +521,8 @@ void readTargetGeometries(T::GeometryInfoList& targetGeometryList)
 
 
 
+
+/*! \brief Read target file list. */
 
 void readTargetFileList(T::FileInfoList& targetFileList)
 {
@@ -538,6 +560,8 @@ void readTargetFileList(T::FileInfoList& targetFileList)
 
 
 
+
+/*! \brief Read target file list. */
 
 void readTargetFileList(T::ProducerId producerId, T::FileInfoList& targetFileList)
 {
@@ -577,6 +601,8 @@ void readTargetFileList(T::ProducerId producerId, T::FileInfoList& targetFileLis
 
 
 
+
+/*! \brief Read target content list. */
 
 void readTargetContentList(T::ProducerId producerId, T::ContentInfoList& targetContentList)
 {
@@ -619,6 +645,8 @@ void readTargetContentList(T::ProducerId producerId, T::ContentInfoList& targetC
 
 
 
+/*! \brief Read target content list. */
+
 void readTargetContentList(T::ContentInfoList& targetContentList)
 {
   FUNCTION_TRACE
@@ -660,6 +688,8 @@ void readTargetContentList(T::ContentInfoList& targetContentList)
 
 
 
+
+/*! \brief Read target content list. */
 
 void readTargetContentList(std::set<UInt64>& targetContentList)
 {
@@ -706,6 +736,8 @@ void readTargetContentList(std::set<UInt64>& targetContentList)
 
 
 
+/*! \brief Read target content list. */
+
 void readTargetContentList(T::ProducerId producerId,std::set<UInt64>& targetContentList)
 {
   FUNCTION_TRACE
@@ -750,6 +782,8 @@ void readTargetContentList(T::ProducerId producerId,std::set<UInt64>& targetCont
 
 
 
+
+/*! \brief Get table info. */
 
 std::string getTableInfo(PGconn *conn, const char *tableName, T::ProducerId producerId, uint geometryId, const char *analysisTime,time_t& lastUpdate,uint& count)
 {
@@ -820,6 +854,8 @@ std::string getTableInfo(PGconn *conn, const char *tableName, T::ProducerId prod
 
 
 
+
+/*! \brief Read table records. */
 
 void readTableRecords(PGconn *conn, const char *tableName, T::ProducerId producerId, std::string& producerName,uint geometryId,const char *analysisTime, time_t updateTime, std::string& info)
 {
@@ -1004,6 +1040,8 @@ void readTableRecords(PGconn *conn, const char *tableName, T::ProducerId produce
 
 
 
+/*! \brief Read source files and content. */
+
 std::vector<FileRec>& readSourceFilesAndContent(
     PGconn *conn,
     const char *tableName,
@@ -1072,6 +1110,8 @@ std::vector<FileRec>& readSourceFilesAndContent(
 
 
 
+
+/*! \brief Read source forecast times. */
 
 void readSourceForecastTimes(PGconn *conn, uint fmiProducerId, std::vector<ForecastRec>& sourceForecastList)
 {
@@ -1163,6 +1203,8 @@ void readSourceForecastTimes(PGconn *conn, uint fmiProducerId, std::vector<Forec
 
 
 
+/*! \brief Read source generations. */
+
 void readSourceGenerations(PGconn *conn)
 {
   FUNCTION_TRACE
@@ -1251,6 +1293,8 @@ void readSourceGenerations(PGconn *conn)
 
 
 
+/*! \brief Read source geometries. */
+
 void readSourceGeometries(PGconn *conn,std::unordered_map<std::string,GeomRec>& geometries)
 {
   FUNCTION_TRACE
@@ -1321,6 +1365,8 @@ void readSourceGeometries(PGconn *conn,std::unordered_map<std::string,GeomRec>& 
 
 
 
+
+/*! \brief Read ready generations. */
 
 void readReadyGenerations(PGconn *conn,std::unordered_map<std::string,time_t>& readyGenerations)
 {
@@ -1415,6 +1461,8 @@ void readReadyGenerations(PGconn *conn,std::unordered_map<std::string,time_t>& r
 
 
 
+/*! \brief Read source producers. */
+
 void readSourceProducers(PGconn *conn)
 {
   FUNCTION_TRACE
@@ -1476,6 +1524,8 @@ void readSourceProducers(PGconn *conn)
 
 
 
+
+/*! \brief Update producers. */
 
 void updateProducers()
 {
@@ -1585,6 +1635,8 @@ void updateProducers()
 
 
 
+/*! \brief Update loop start. */
+
 void updateLoopStart()
 {
   FUNCTION_TRACE
@@ -1621,6 +1673,8 @@ void updateLoopStart()
 
 
 
+/*! \brief Update loop end. */
+
 void updateLoopEnd()
 {
   FUNCTION_TRACE
@@ -1656,6 +1710,8 @@ void updateLoopEnd()
 
 
 
+
+/*! \brief Update generations. */
 
 void updateGenerations()
 {
@@ -1777,6 +1833,8 @@ void updateGenerations()
 
 
 
+/*! \brief Update geometries. */
+
 void updateGeometries()
 {
   FUNCTION_TRACE
@@ -1891,6 +1949,8 @@ void updateGeometries()
 
 
 
+
+/*! \brief Update generation status. */
 
 void updateGenerationStatus(T::ProducerInfo& targetProducer)
 {
@@ -2028,6 +2088,8 @@ void updateGenerationStatus(T::ProducerInfo& targetProducer)
 
 
 
+
+/*! \brief Update generation status. */
 
 void updateGenerationStatus()
 {
@@ -2213,6 +2275,8 @@ void updateGenerationStatus()
 
 
 
+/*! \brief Delete target files. */
+
 void deleteTargetFiles(T::FileInfoList& targetFileList)
 {
   FUNCTION_TRACE
@@ -2246,6 +2310,8 @@ void deleteTargetFiles(T::FileInfoList& targetFileList)
 
 
 
+/*! \brief Delete target files. */
+
 void deleteTargetFiles(T::ProducerId producerId,T::FileInfoList& targetFileList)
 {
   FUNCTION_TRACE
@@ -2278,6 +2344,8 @@ void deleteTargetFiles(T::ProducerId producerId,T::FileInfoList& targetFileList)
 
 
 
+
+/*! \brief Delete old file records. */
 
 void deleteOldFileRecords(uint loadCounter)
 {
@@ -2315,6 +2383,8 @@ void deleteOldFileRecords(uint loadCounter)
 
 
 
+/*! \brief Count file records. */
+
 uint countFileRecords()
 {
   FUNCTION_TRACE
@@ -2336,6 +2406,8 @@ uint countFileRecords()
 
 
 
+
+/*! \brief Read source files by forecast time. */
 
 void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loadCounter, uint targetProducerId,T::FileInfoList& targetFileList, std::string& producerName,std::vector<T::FileAndContent>& fileAndContentList, std::vector<FileRec>& fileRecList)
 {
@@ -2452,6 +2524,8 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
 
 
 
+/*! \brief Save target content. */
+
 void saveTargetContent(T::ProducerId producerId,std::vector<FileRec>& fileRecList)
 {
   try
@@ -2553,6 +2627,8 @@ void saveTargetContent(T::ProducerId producerId,std::vector<FileRec>& fileRecLis
 
 
 
+/*! \brief Save target content. */
+
 void saveTargetContent(std::vector<FileRec>& fileRecList)
 {
   try
@@ -2647,6 +2723,8 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
 
 
 
+
+/*! \brief Update target files. */
 
 void updateTargetFiles(PGconn *conn)
 {
@@ -2770,6 +2848,8 @@ void updateTargetFiles(PGconn *conn)
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

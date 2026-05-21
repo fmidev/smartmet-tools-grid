@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Content Server client: exports all producer, generation, file, and content metadata to CSV files in a given directory.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
@@ -7,6 +11,8 @@
 using namespace SmartMet;
 
 
+
+/*! \brief Write producers. */
 
 void writeProducers(T::SessionId sessionId,ContentServer::ServiceInterface *serviceInterface,const char *dir)
 {
@@ -52,6 +58,8 @@ void writeProducers(T::SessionId sessionId,ContentServer::ServiceInterface *serv
 
 
 
+/*! \brief Write generations. */
+
 void writeGenerations(T::SessionId sessionId,ContentServer::ServiceInterface *serviceInterface,const char *dir)
 {
   try
@@ -95,6 +103,8 @@ void writeGenerations(T::SessionId sessionId,ContentServer::ServiceInterface *se
 
 
 
+
+/*! \brief Write files. */
 
 void writeFiles(T::SessionId sessionId,ContentServer::ServiceInterface *serviceInterface,const char *dir)
 {
@@ -146,6 +156,8 @@ void writeFiles(T::SessionId sessionId,ContentServer::ServiceInterface *serviceI
 
 
 
+
+/*! \brief Write content. */
 
 void writeContent(T::SessionId sessionId,ContentServer::ServiceInterface *serviceInterface,const char *dir)
 {
@@ -204,6 +216,8 @@ void writeContent(T::SessionId sessionId,ContentServer::ServiceInterface *servic
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {

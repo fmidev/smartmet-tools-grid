@@ -1,3 +1,7 @@
+/*! \file
+ *  \brief Query Server client: retrieve parameter values for a time range and write them to a CSV file.
+ */
+
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/queryServer/corba/client/ClientImplementation.h"
 #include <macgyver/Exception.h>
@@ -8,6 +12,8 @@
 
 using namespace SmartMet;
 
+
+/*! \brief Init. */
 
 void init()
 {
@@ -33,6 +39,8 @@ void init()
 
 
 
+
+/*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
 {
