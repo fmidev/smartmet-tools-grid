@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 26.4.17
+Version: 26.5.23
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -34,6 +34,7 @@ BuildRequires: libpqxx-devel
 BuildRequires: libmicrohttpd-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
+BuildRequires: libwebp13-devel >= 1.3.2
 BuildRequires: openldap-devel
 BuildRequires: openssl-devel
 BuildRequires: krb5-devel
@@ -46,6 +47,8 @@ Requires: smartmet-library-grid-content >= 26.4.17
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
+Requires: libwebp13 >= 1.3.2
+
 #TestRequires: smartmet-utils-devel >= 26.2.4
 
 Provides: corbaContentServer = %{version}
@@ -285,6 +288,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Sat May 23 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.5.23-1.fmi
+- Added missing webp dependencies
+
 * Fri Apr 17 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.4.17-1.fmi
 - Repackaged due to grid-files API changes
 
