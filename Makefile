@@ -7,7 +7,7 @@ INCDIR = smartmet/$(SUBNAME)
 
 CORBA = enabled
 
-REQUIRES = libpq gdal icu-i18n
+REQUIRES = libpq gdal webp icu-i18n
 
 include $(shell echo $${PREFIX-/usr})/share/smartmet/devel/makefile.inc
 
@@ -45,7 +45,6 @@ LIBS += $(PREFIX_LDFLAGS) \
 	-lpng \
 	-lhiredis \
 	-lmicrohttpd \
-	-lwebpdemux \
 	-lcurl \
 	$(CORBA_LIBS) \
 	$(REQUIRED_LIBS) \
