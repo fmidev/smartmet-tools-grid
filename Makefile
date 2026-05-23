@@ -57,16 +57,6 @@ LIBS += $(PREFIX_LDFLAGS) \
 
 LIBFILE = libsmartmet-$(SUBNAME).so
 
-# Compile option overrides
-
-ifneq (,$(findstring debug,$(MAKECMDGOALS)))
-  CFLAGS = $(CFLAGS_DEBUG)
-endif
-
-ifneq (,$(findstring profile,$(MAKECMDGOALS)))
-  CFLAGS = $(CFLAGS_PROFILE)
-endif
-
 # Compilation directories
 
 vpath %.cpp src \
