@@ -18,6 +18,7 @@
 #include "grid-content/queryServer/corba/server/GridServer.h"
 #include "grid-content/queryServer/implementation/ServiceImplementation.h"
 #include <macgyver/Exception.h>
+#include <macgyver/ThreadName.h>
 #include "grid-files/identification/GridDef.h"
 #include "grid-files/common/Typedefs.h"
 #include "grid-files/common/GeneralFunctions.h"
@@ -548,6 +549,7 @@ static void* corbaQueryServer_updateThread(void *arg)
 {
   try
   {
+    Fmi::set_thread_name("upd-cgs");
     updateProcessing();
     pthread_exit(nullptr);
     return nullptr;
