@@ -2,9 +2,21 @@
 
 Description=Smartmet RADON to REDIS daemon
 
-# Requires redis, and should be started after it
-After=redis.service
-Requires=redis.service
+# Order after a local key-value store if one is installed. Both names are
+# listed so that either Redis or Valkey works; ordering dependencies on
+# units that do not exist are silently ignored by systemd.
+#
+# This is deliberately *not* a Requires=: the content server backend is
+# selected in the configuration file (redis / postgresql / http / corba) and
+# may well be on another host. Restart=always below takes care of the case
+# where the backend is not yet accepting connections at startup.
+#
+# If your site does want a hard dependency, add a drop-in instead of editing
+# this file, e.g. /etc/systemd/system/radon2smartmet.service.d/kvstore.conf:
+#     [Unit]
+#     Requires=valkey.service
+#     After=valkey.service
+After=redis.service valkey.service
  
 [Service]
 
