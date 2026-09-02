@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 26.8.25
+Version: 26.9.2
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -23,10 +23,10 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
-BuildRequires: smartmet-library-macgyver-devel >= 26.6.26
-BuildRequires: smartmet-library-spine-devel >= 26.6.24
-BuildRequires: smartmet-library-grid-files-devel >= 26.6.24
-BuildRequires: smartmet-library-grid-content-devel >= 26.6.24
+BuildRequires: smartmet-library-macgyver-devel >= 26.8.19
+BuildRequires: smartmet-library-spine-devel >= 26.8.24
+BuildRequires: smartmet-library-grid-files-devel >= 26.8.27
+BuildRequires: smartmet-library-grid-content-devel >= 26.9.2
 BuildRequires: gdal312-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
@@ -38,18 +38,18 @@ BuildRequires: libwebp13-devel >= 1.3.2
 BuildRequires: openldap-devel
 BuildRequires: openssl-devel
 BuildRequires: krb5-devel
-#Requires: smartmet-library-macgyver >= 26.6.26
+#Requires: smartmet-library-macgyver >= 26.8.19
 #Requires: smartmet-library-spine >= 26.2.4
 #Requires: smartmet-server >= 26.2.4
-Requires: smartmet-library-macgyver >= 26.6.26
-Requires: smartmet-library-grid-files >= 26.6.24
-Requires: smartmet-library-grid-content >= 26.6.24
+Requires: smartmet-library-macgyver >= 26.8.19
+Requires: smartmet-library-grid-files >= 26.8.27
+Requires: smartmet-library-grid-content >= 26.9.2
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
 Requires: libwebp13 >= 1.3.2
 
-#TestRequires: smartmet-utils-devel >= 26.6.17
+#TestRequires: smartmet-utils-devel >= 26.7.14
 
 Provides: corbaContentServer = %{version}
 Provides: corbaDataServer = %{version}
@@ -288,6 +288,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Sep  2 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.9.2-1.fmi
+- redis security improvements
+
 * Tue Aug 25 2026 Andris Pavēnis <andris.pavenis@fmi.fi> 26.8.25-1.fmi
 - radon2smartmet.service: support both Valkey and Redis
 
