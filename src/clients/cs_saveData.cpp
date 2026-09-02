@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     if (argc < 3)
     {
       fprintf(stdout,"USAGE: cs_saveData <sessionId> <directory>\n");
-      fprintf(stdout,"  [[-http <url>]|[-redis <address> <port> <tablePrefix>]|[-ior <ior>]]\n");
+      fprintf(stdout,"  [[-http <url>]|[-redis <address> <port> <tablePrefix> <password>]|[-ior <ior>]]\n");
       return -1;
     }
 
@@ -48,9 +48,9 @@ int main(int argc, char *argv[])
       service = &httpClient;
     }
     else
-    if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
+    if (argc > 5  &&  strcmp(argv[argc-5],"-redis") == 0)
     {
-      redisClient.init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
+      redisClient.init(argv[argc-4],toInt64(argv[argc-3]),argv[argc-2],argv[argc-1]);
       service = &redisClient;
     }
     else

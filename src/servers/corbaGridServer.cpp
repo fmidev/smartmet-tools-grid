@@ -82,6 +82,7 @@ std::string content_server_content_source_type;
 std::string content_server_content_source_redis_address;
 int content_server_content_source_redis_port = 6379;
 std::string content_server_content_source_redis_tablePrefix;
+std::string content_server_content_source_redis_password;
 std::string content_server_primaryConnectionString;
 std::string content_server_secondaryConnectionString;
 std::string content_server_content_source_corba_ior;
@@ -684,6 +685,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.address",content_server_content_source_redis_address);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.port",content_server_content_source_redis_port);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.tablePrefix",content_server_content_source_redis_tablePrefix);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.password",content_server_content_source_redis_password);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.postgresql.primaryConnectionString", content_server_primaryConnectionString);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.postgresql.secondaryConnectionString",content_server_secondaryConnectionString);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.corba.ior",content_server_content_source_corba_ior);
@@ -809,7 +811,7 @@ int main(int argc, char *argv[])
     if (strcasecmp(content_server_content_source_type.c_str(),"redis") == 0)
     {
       redisImplementation = new ContentServer::RedisImplementation();
-      redisImplementation->init(content_server_content_source_redis_address.c_str(),content_server_content_source_redis_port,content_server_content_source_redis_tablePrefix.c_str());
+      redisImplementation->init(content_server_content_source_redis_address.c_str(),content_server_content_source_redis_port,content_server_content_source_redis_tablePrefix.c_str(),content_server_content_source_redis_password.c_str());
       contentService = redisImplementation;
     }
     else

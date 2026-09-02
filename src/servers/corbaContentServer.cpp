@@ -58,6 +58,7 @@ Log                 mDebugLog;
 std::string         mRedisAddress;
 int                 mRedisPort;
 std::string         mRedisTablePrefix;
+std::string         mRedisPassword;
 std::string         mCorbaIor;
 std::string         mHttpUrl;
 std::string         mGridConfigFile;
@@ -168,6 +169,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.address", mRedisAddress);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.port", mRedisPort);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.tablePrefix", mRedisTablePrefix);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.password", mRedisPassword);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.postgresql.primaryConnectionString", mPrimaryConnectionString);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.postgresql.secondaryConnectionString", mSecondaryConnectionString);
@@ -248,7 +250,7 @@ int main(int argc, char *argv[])
     if (strcasecmp(mContentSourceType.c_str(),"redis") == 0)
     {
       redisImplementation = new ContentServer::RedisImplementation();
-      redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str());
+      redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str(),mRedisPassword.c_str());
       contentSource = redisImplementation;
     }
     else

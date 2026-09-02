@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
   {
     if (argc < 2)
     {
-      fprintf(stdout,"USAGE: cs_getFileInfoCountsByProducers <sessionId> [[-http <url>]|[-redis <address> <port> <tablePrefix>]]\n");
+      fprintf(stdout,"USAGE: cs_getFileInfoCountsByProducers <sessionId> [[-http <url>]|[-redis <address> <port> <tablePrefix> <password>]]\n");
       return -1;
     }
 
@@ -52,10 +52,10 @@ int main(int argc, char *argv[])
       endTime = getTime();
     }
     else
-    if (argc == 6  &&  strcmp(argv[argc-4],"-redis") == 0)
+    if (argc > 5  &&  strcmp(argv[argc-5],"-redis") == 0)
     {
       ContentServer::RedisImplementation service;
-      service.init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
+      service.init(argv[argc-4],toInt64(argv[argc-3]),argv[argc-2],argv[argc-1]);
 
       startTime = getTime();
       result = service.getProducerInfoList(sessionId,infoList);
