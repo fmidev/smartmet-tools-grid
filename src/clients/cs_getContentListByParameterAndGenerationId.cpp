@@ -99,10 +99,10 @@ int main(int argc, char *argv[])
       service = httpClient;
     }
     else
-    if (argc > 4  &&  strcmp(argv[argc-4],"-redis") == 0)
+    if (argc > 5  &&  strcmp(argv[argc-5],"-redis") == 0)
     {
       ContentServer::RedisImplementation *redis = new ContentServer::RedisImplementation();
-      redis->init(argv[argc-3],toInt64(argv[argc-2]),argv[argc-1]);
+      redis->init(argv[argc-4],toInt64(argv[argc-3]),argv[argc-2],argv[argc-1]);
       service = redis;
     }
     else

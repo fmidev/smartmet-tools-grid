@@ -43,6 +43,8 @@ ConfigurationFile   mConfigurationFile;
 std::string         mServerAddress;
 std::string         mServerPort;
 std::string         mHelpFile;
+bool                mReadMethodsEnabled = true;
+bool                mWriteMethodsEnabled = false;
 bool                mCacheEnabled = false;
 std::string         mContentSourceType;
 bool                mDataLoadEnabled = false;
@@ -64,6 +66,7 @@ Log                 mDebugLog;
 std::string         mRedisAddress;
 int                 mRedisPort;
 std::string         mRedisTablePrefix;
+std::string         mRedisPassword;
 std::string         mCorbaIor;
 std::string         mHttpUrl;
 
@@ -123,6 +126,8 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.address", mServerAddress);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.port", mServerPort);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.helpFile", mHelpFile);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.readMethodsEnable", mReadMethodsEnabled);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.writeMethodsEnabled", mWriteMethodsEnabled);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.cache.enabled", mCacheEnabled);
 
@@ -131,6 +136,7 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.address", mRedisAddress);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.port", mRedisPort);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.tablePrefix", mRedisTablePrefix);
+    mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.redis.password", mRedisPassword);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.content-server.content-source.corba.ior", mCorbaIor);
 
@@ -420,7 +426,7 @@ int main(int argc,char ** argv)
     if (strcasecmp(mContentSourceType.c_str(),"redis") == 0)
     {
       redisImplementation = new ContentServer::RedisImplementation();
-      redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str());
+      redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str(),mRedisPassword.c_str());
       contentSource = redisImplementation;
     }
     else
@@ -489,7 +495,7 @@ int main(int argc,char ** argv)
 
 
     httpServer = new SmartMet::ContentServer::HTTP::ServerInterface();
-    httpServer->init(contentSource);
+    httpServer->init(contentSource,mReadMethodsEnabled,mWriteMethodsEnabled);
 
 
     struct MHD_Daemon *daemon = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY, toInt64(mServerPort.c_str()), nullptr, nullptr,&processRequest, nullptr,

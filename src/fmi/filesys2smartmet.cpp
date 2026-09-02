@@ -55,6 +55,7 @@ std::string               mStorageType;
 std::string               mRedisAddress;
 int                       mRedisPort = 6379;
 std::string               mRedisTablePrefix;
+std::string               mRedisPassword;
 bool                      mRedisLockEnabled = false;
 std::string               mContentServerIor;
 std::string               mContentServerUrl;
@@ -246,6 +247,7 @@ void readConfigFile(const char* configFile)
       mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.port",mRedisPort);
       mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.tablePrefix",mRedisTablePrefix);
       mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.lockEnabled",mRedisLockEnabled);
+      mConfigurationFile.getAttributeValue("smartmet.tools.grid.filesys2smartmet.content-storage.redis.password",mRedisPassword);
     }
     else
     {
@@ -1280,7 +1282,7 @@ int main(int argc, char *argv[])
     if (mStorageType =="redis")
     {
       redisImplementation = new ContentServer::RedisImplementation();
-      redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str());
+      redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str(),mRedisPassword.c_str());
       targetInterface = redisImplementation;
     }
 
