@@ -148,7 +148,7 @@ install:
 	  gzip -nf $(mandir)/man1/$$base; \
 	done
 test:
-	+cd test && make test
+	@if test -f test/Makefile; then cd test && make test; else echo "No tests available."; fi
 
 objdir:
 	@mkdir -p obj/bin/clients
