@@ -230,7 +230,7 @@ cs_getContentListByFileId 0 12345                       # CORBA, SMARTMET_CS_IOR
 ds_getGridValueByPoint 0 12345 3 1 24.9 60.2 1          # CORBA, SMARTMET_DS_IOR
 ```
 
-The first argument is always the session id (0 is fine; sessions are not enforced). The
+The first argument is always the session id (0 is fine). The
 backend is chosen by the **trailing** arguments:
 
 | Trailing arguments | Backend | Available in |
