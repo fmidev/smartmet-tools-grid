@@ -8,6 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Part of the SmartMet Server ecosystem. See the [parent workspace CLAUDE.md](../CLAUDE.md) for full ecosystem context.
 
+Full developer documentation: `docs/developer-guide.md`.
+
 ## Build commands
 
 ```bash
@@ -86,7 +88,7 @@ Each API has CORBA, HTTP, Redis (CS only), and PostgreSQL (CS only) implementati
 
 All client programs accept backend selection via trailing command-line flags:
 - `-http <url>` — HTTP client
-- `-redis <address> <port> <tablePrefix>` — direct Redis access
+- `-redis <address> <port> <tablePrefix> <password>` — direct Redis access (`cs_*` only; `ds_*`/`qs_*` are CORBA-only)
 - `-pg <connectionString>` — PostgreSQL
 - `-ior <ior>` — CORBA IOR string
 - Default: reads `SMARTMET_CS_IOR` environment variable for CORBA
@@ -104,7 +106,7 @@ using namespace SmartMet;
 int main(int argc, char *argv[]) {
   ContentServer::ServiceInterface *service = nullptr;
   if (strcmp(argv[argc-2], "-http") == 0) { /* httpClient->init(...) */ }
-  else if (strcmp(argv[argc-4], "-redis") == 0) { /* redis->init(...) */ }
+  else if (argc > 5 && strcmp(argv[argc-5], "-redis") == 0) { /* redis->init(addr,port,prefix,password) */ }
   // ... pg, ior, default CORBA from env
   service->someMethod(...);
 }
@@ -136,7 +138,7 @@ Grid file identification requires `SMARTMET_GRID_CONFIG_FILE` environment variab
 
 `filesys2smartmet` is configured via three complementary files:
 - Main libconfig file (e.g., `cfg/filesys-to-smartmet.cfg`) — storage backend, polling interval, scan paths
-- `producerDef.csv` — maps filename patterns (regex) to producer IDs and metadata
+- `producerDef.csv` — `abbr;name;title;description`: the first `_`-separated part of a file name is the producer abbreviation, the second is the analysis time
 - `filenameFixer.lua` (optional) — Lua script for transforming filenames before pattern matching
 
 ## Key programs

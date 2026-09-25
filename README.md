@@ -42,6 +42,8 @@ CLA is required in order to contribute. Please contact us for more information!
 
 <a href="https://github.com/fmidev/smartmet-tools-grid/blob/master/doc/quick-setup.md">Quick setup</a>
 
+<a href="docs/developer-guide.md">Developer guide</a>
+
 <a href="https://github.com/fmidev/smartmet-library-grid-files/blob/master/doc/grid-files.md">Grid files</a>
 
 <a href="https://github.com/fmidev/smartmet-engine-grid/blob/master/doc/grid-engine.md">Grid Engine</a>
