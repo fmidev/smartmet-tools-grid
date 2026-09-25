@@ -754,10 +754,14 @@ void readSourceContent(T::FileInfo& fileInfo,T::ContentInfoList& contentList,boo
         contentInfo->mGenerationId = fileInfo.mGenerationId;
         contentInfo->mModificationTime = fileInfo.mModificationTime;
 
+        setMessageContent(gridFile,*message,*contentInfo);
+
+        // Check the identification only after setMessageContent() has filled it in.
+        // Checking the freshly created record flagged every newly parsed file as
+        // incomplete, so each new file was stored with a modification time one second
+        // off, then deleted and re-added on the next pass.
         if (contentInfo->mGeometryId <= 0 || contentInfo->mFmiParameterId == 0)
           missingInformation = true;
-
-        setMessageContent(gridFile,*message,*contentInfo);
         //contentInfo->print(std::cout,0,0);
         contentList.addContentInfo(contentInfo);
         std::string s = contentInfo->getCsv();

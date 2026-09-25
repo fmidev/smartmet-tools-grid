@@ -320,14 +320,6 @@ is meant for users.
 
 ## 12. Known pitfalls
 
-* **filesys2smartmet registers every new file twice.** In `readSourceContent()`, the
-  "missing geometry or parameter id" check runs **before** `setMessageContent()` fills in
-  those ids, so it is always true on a fresh parse. Every newly found file is therefore
-  stored with the "minus one second" modification time
-  ([§4](#4-filesys2smartmet)). On the next pass, it is deleted and added again (this
-  time from the content cache, with the correct time). Each new file thus generates a
-  `FILE_ADDED`, a `FILE_DELETED` and another `FILE_ADDED` event. It also disappears
-  briefly from the registry one pass after it appeared.
 * **File names decide producer and generation** in filesys2smartmet. A file that does
   not follow `ABBR_ANALYSISTIME_…` (after the Lua fixer) is skipped without any message.
 * **S3 locations need the memory mapper.** filesys2smartmet only lists `type = "S3"`

@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 26.9.23
+Version: 26.9.25
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -288,6 +288,11 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Fri Sep 25 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.9.25-1.fmi
+- filesys2smartmet: check parameter/geometry identification after the content record
+  is filled in; every new file was registered twice (added, deleted and re-added on
+  the next pass)
+
 * Wed Sep 23 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.9.23-1.fmi
 - Repackaged due to base library ABI changes
 
