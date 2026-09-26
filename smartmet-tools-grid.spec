@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 26.9.25
+Version: 26.9.26
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -25,7 +25,7 @@ BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
 BuildRequires: smartmet-library-macgyver-devel >= 26.9.23
 BuildRequires: smartmet-library-spine-devel >= 26.9.23
-BuildRequires: smartmet-library-grid-files-devel >= 26.9.23
+BuildRequires: smartmet-library-grid-files-devel >= 26.9.26
 BuildRequires: smartmet-library-grid-content-devel >= 26.9.23
 BuildRequires: gdal312-devel
 BuildRequires: postgresql15-devel
@@ -42,7 +42,7 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-spine >= 26.2.4
 #Requires: smartmet-server >= 26.2.4
 Requires: smartmet-library-macgyver >= 26.9.23
-Requires: smartmet-library-grid-files >= 26.9.23
+Requires: smartmet-library-grid-files >= 26.9.26
 Requires: smartmet-library-grid-content >= 26.9.23
 Requires: openldap
 Requires: openssl-libs
@@ -288,6 +288,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Sat Sep 26 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.9.26-1.fmi
+- Repackaged due to grid-files ABI changes
+
 * Fri Sep 25 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.9.25-1.fmi
 - filesys2smartmet: check parameter/geometry identification after the content record
   is filled in; every new file was registered twice (added, deleted and re-added on
