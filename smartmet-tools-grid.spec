@@ -23,10 +23,10 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
-BuildRequires: smartmet-library-macgyver-devel >= 26.9.23
-BuildRequires: smartmet-library-spine-devel >= 26.9.23
+BuildRequires: smartmet-library-macgyver-devel >= 26.9.26-2
+BuildRequires: smartmet-library-spine-devel >= 26.9.26
 BuildRequires: smartmet-library-grid-files-devel >= 26.9.26
-BuildRequires: smartmet-library-grid-content-devel >= 26.9.23
+BuildRequires: smartmet-library-grid-content-devel >= 26.9.26
 BuildRequires: gdal312-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
@@ -41,9 +41,9 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-macgyver >= 26.9.23
 #Requires: smartmet-library-spine >= 26.2.4
 #Requires: smartmet-server >= 26.2.4
-Requires: smartmet-library-macgyver >= 26.9.23
+Requires: smartmet-library-macgyver >= 26.9.26-2
 Requires: smartmet-library-grid-files >= 26.9.26
-Requires: smartmet-library-grid-content >= 26.9.23
+Requires: smartmet-library-grid-content >= 26.9.26
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -290,6 +290,7 @@ fi
 %changelog
 * Sat Sep 26 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.9.26-1.fmi
 - Repackaged due to grid-files ABI changes
+- Require the 26.9.26 releases of the SmartMet dependencies
 
 * Fri Sep 25 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.9.25-1.fmi
 - filesys2smartmet: check parameter/geometry identification after the content record
