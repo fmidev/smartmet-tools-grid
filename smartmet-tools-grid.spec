@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 26.9.26
+Version: 26.10.2
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -26,7 +26,7 @@ BuildRequires: %{smartmet_boost}-devel
 BuildRequires: smartmet-library-macgyver-devel >= 26.9.26-2
 BuildRequires: smartmet-library-spine-devel >= 26.9.26
 BuildRequires: smartmet-library-grid-files-devel >= 26.9.26
-BuildRequires: smartmet-library-grid-content-devel >= 26.9.26
+BuildRequires: smartmet-library-grid-content-devel >= 26.10.2-4
 BuildRequires: gdal312-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
@@ -43,7 +43,7 @@ BuildRequires: krb5-devel
 #Requires: smartmet-server >= 26.2.4
 Requires: smartmet-library-macgyver >= 26.9.26-2
 Requires: smartmet-library-grid-files >= 26.9.26
-Requires: smartmet-library-grid-content >= 26.9.26
+Requires: smartmet-library-grid-content >= 26.10.2-4
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -288,6 +288,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Fri Oct 02 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.2-1.fmi
+- Repackaged due to grid-content ABI changes (CacheImplementation and MergeImplementation size)
+
 * Sat Sep 26 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.9.26-1.fmi
 - Repackaged due to grid-files ABI changes
 - Require the 26.9.26 releases of the SmartMet dependencies
