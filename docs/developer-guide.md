@@ -281,7 +281,7 @@ cs_getContentCount 0 -redis 127.0.0.1 6380 a. ""  # check
 redis-cli -p 6380 SAVE                             # writes /tmp/gridredis/dump.rdb
 ```
 
-The grid engine's test package (`smartmet-engine-grid-test`) ships such a dump
+The grid test package (`smartmet-library-grid-files-test`, from grid-files) ships such a dump
 (`testdata/grid/redis/redis-server.rdb`) for the GRIB files in `smartmet-test-data`.
 Its history does not record how it was produced; the procedure above is the natural way
 to regenerate it. The file names in the registry must then match the paths the tests use.
