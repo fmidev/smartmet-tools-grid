@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
     uint bits = w*h;
     uint bytes = bits/8 + 1;
-    uchar *data = new uchar[bytes];
+    auto *data = new uchar[bytes];
 
     memset(data,0,bytes);
 

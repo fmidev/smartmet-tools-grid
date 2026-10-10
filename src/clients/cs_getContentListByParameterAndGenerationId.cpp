@@ -79,11 +79,11 @@ int main(int argc, char *argv[])
 
     T::ParamId parameterKey = argv[4];
     T::ParamLevelId parameterLevelId = toInt64(argv[5]);
-    T::ParamLevel minLevel = (T::ParamLevel)toInt64(argv[6]);
-    T::ParamLevel maxLevel = (T::ParamLevel)toInt64(argv[7]);
-    T::ForecastType forecastType = (T::ForecastType)toInt64(argv[8]);
-    T::ForecastNumber forecastNumber = (T::ForecastNumber)toInt64(argv[9]);
-    T::GeometryId geometryId = (T::GeometryId)toInt64(argv[10]);
+    auto minLevel = (T::ParamLevel)toInt64(argv[6]);
+    auto maxLevel = (T::ParamLevel)toInt64(argv[7]);
+    auto forecastType = (T::ForecastType)toInt64(argv[8]);
+    auto forecastNumber = (T::ForecastNumber)toInt64(argv[9]);
+    auto geometryId = (T::GeometryId)toInt64(argv[10]);
     std::string start = argv[11];
     std::string end = argv[12];
     uint requestFlags = toInt64(argv[13]);
@@ -94,21 +94,21 @@ int main(int argc, char *argv[])
 
     if (strcmp(argv[argc-2],"-http") == 0)
     {
-      ContentServer::HTTP::ClientImplementation *httpClient = new ContentServer::HTTP::ClientImplementation();
+      auto *httpClient = new ContentServer::HTTP::ClientImplementation();
       httpClient->init(argv[argc-1]);
       service = httpClient;
     }
     else
     if (argc > 5  &&  strcmp(argv[argc-5],"-redis") == 0)
     {
-      ContentServer::RedisImplementation *redis = new ContentServer::RedisImplementation();
+      auto *redis = new ContentServer::RedisImplementation();
       redis->init(argv[argc-4],toInt64(argv[argc-3]),argv[argc-2],argv[argc-1]);
       service = redis;
     }
     else
     if (strcmp(argv[argc-2],"-pg") == 0)
     {
-      ContentServer::PostgresqlImplementation *pg = new ContentServer::PostgresqlImplementation();
+      auto *pg = new ContentServer::PostgresqlImplementation();
       pg->init(argv[argc-1],"",false);
       service = pg;
     }
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
         return -2;
       }
 
-      ContentServer::Corba::ClientImplementation *corbaClient = new ContentServer::Corba::ClientImplementation();
+      auto *corbaClient = new ContentServer::Corba::ClientImplementation();
       corbaClient->init(serviceIor);
       service = corbaClient;
     }

@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 
     for (T::FileId t=startFileId;t<=endFileId;t++)
     {
-      T::ValueRecord *rec = new T::ValueRecord();
+      auto *rec = new T::ValueRecord();
       rec->mFileId = t;
       rec->mMessageIndex = messageIndex;
       rec->mCoordinateType = T::CoordinateTypeValue::LATLON_COORDINATES;

@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     {
       if (strcmp(argv[t],"-m") == 0  &&  (t + 4) < argc)
       {
-        T::ContentInfo *cinfo = new T::ContentInfo();
+        auto *cinfo = new T::ContentInfo();
         cinfo->mFileId = info.mFileId;
         cinfo->mFileType = info.mFileType;
         cinfo->mGenerationId = info.mGenerationId;

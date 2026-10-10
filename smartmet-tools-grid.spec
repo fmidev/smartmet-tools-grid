@@ -291,6 +291,7 @@ fi
 * Sat Oct 10 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.10-1.fmi
 - grid_create: reject GRIB editions other than 1 and 2
 - createLandSeaMap: check that the output file could be created
+- Use auto and return {} where clang-tidy suggests it, no functional changes
 
 * Sat Oct 03 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.3-1.fmi
 - Repackaged due to grid-content ABI changes (CacheImplementation and MergeImplementation size)

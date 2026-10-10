@@ -26,27 +26,27 @@ int main(int argc, char *argv[])
 
     T::SessionId sessionId = toInt64(argv[1]);
     std::string generationName = argv[2];
-    uchar status = (uchar)toInt64(argv[3]);
+    auto status = (uchar)toInt64(argv[3]);
 
     ContentServer::ServiceInterface *service = nullptr;
 
     if (strcmp(argv[argc-2],"-http") == 0)
     {
-      ContentServer::HTTP::ClientImplementation *httpClient = new ContentServer::HTTP::ClientImplementation();
+      auto *httpClient = new ContentServer::HTTP::ClientImplementation();
       httpClient->init(argv[argc-1]);
       service = httpClient;
     }
     else
     if (argc > 5  &&  strcmp(argv[argc-5],"-redis") == 0)
     {
-      ContentServer::RedisImplementation *redis = new ContentServer::RedisImplementation();
+      auto *redis = new ContentServer::RedisImplementation();
       redis->init(argv[argc-4],toInt64(argv[argc-3]),argv[argc-2],argv[argc-1]);
       service = redis;
     }
     else
     if (strcmp(argv[argc-2],"-pg") == 0)
     {
-      ContentServer::PostgresqlImplementation *pg = new ContentServer::PostgresqlImplementation();
+      auto *pg = new ContentServer::PostgresqlImplementation();
       pg->init(argv[argc-1],"",false);
       service = pg;
     }
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
         return -2;
       }
 
-      ContentServer::Corba::ClientImplementation *corbaClient = new ContentServer::Corba::ClientImplementation();
+      auto *corbaClient = new ContentServer::Corba::ClientImplementation();
       corbaClient->init(serviceIor);
       service = corbaClient;
     }

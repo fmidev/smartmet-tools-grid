@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     double y = toDouble(argv[8]);
     double xStep = toDouble(argv[9]);
     double yStep = toDouble(argv[10]);
-    short interpolationMethod = (short)toInt64(argv[11]);
+    auto interpolationMethod = (short)toInt64(argv[11]);
     T::ParamValue_vec values;
     uint modificationOperation = 0;
     double_vec modificationParameters;

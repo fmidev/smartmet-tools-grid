@@ -1261,7 +1261,7 @@ void readSourceGenerations(PGconn *conn)
       {
         if (producerId != prevProducerId || analysisTime != prevAnalysisTime)
         {
-          T::GenerationInfo *generation = new T::GenerationInfo();
+          auto *generation = new T::GenerationInfo();
           generation->mGenerationId = i + 1;
           generation->mGenerationType = 0;
           generation->mProducerId = producerId;
@@ -1504,7 +1504,7 @@ void readSourceProducers(PGconn *conn)
       std::string searchStr = toUpperString(std::string(PQgetvalue(res, i, 1)));
       if (mProducerList.size() == 0 || mProducerList.find(searchStr) != mProducerList.end())
       {
-        T::ProducerInfo *producer = new T::ProducerInfo();
+        auto *producer = new T::ProducerInfo();
         producer->mProducerId = toInt64(PQgetvalue(res, i, 0));
         producer->mName = PQgetvalue(res, i, 1);
         producer->mTitle = PQgetvalue(res, i, 1);
@@ -1991,7 +1991,9 @@ void updateGenerationStatus(T::ProducerInfo& targetProducer)
           uint gLen = mTargetGeometryList.getLength();
           for (uint g=0; g<gLen; g++)
           {
-            T::GeometryInfo *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
+            auto *geomInfo =
+                (T::GeometryInfo *)mTargetGeometryList.getGeometryInfoByIndex(
+                    g);
             if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
             {
               std::string gkey = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
@@ -2050,7 +2052,9 @@ void updateGenerationStatus(T::ProducerInfo& targetProducer)
           uint gLen = mTargetGeometryList.getLength();
           for (uint g=0; g<gLen; g++)
           {
-            T::GeometryInfo *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
+            auto *geomInfo =
+                (T::GeometryInfo *)mTargetGeometryList.getGeometryInfoByIndex(
+                    g);
             if (geomInfo->mGenerationId == targetGeneration->mGenerationId  &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
             {
               std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
@@ -2153,7 +2157,9 @@ void updateGenerationStatus()
           uint gLen = mTargetGeometryList.getLength();
           for (uint g=0; g<gLen; g++)
           {
-            T::GeometryInfo *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
+            auto *geomInfo =
+                (T::GeometryInfo *)mTargetGeometryList.getGeometryInfoByIndex(
+                    g);
             if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
             {
               std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
@@ -2198,7 +2204,9 @@ void updateGenerationStatus()
           for (uint g=0; g<gLen; g++)
           {
             bool geom_ready = true;
-            T::GeometryInfo *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
+            auto *geomInfo =
+                (T::GeometryInfo *)mTargetGeometryList.getGeometryInfoByIndex(
+                    g);
             if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
             {
               std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId));
@@ -2558,7 +2566,7 @@ void saveTargetContent(T::ProducerId producerId,std::vector<FileRec>& fileRecLis
         {
           // The content does not exists. It should be added.
 
-          T::ContentInfo *contentInfo = new T::ContentInfo();
+          auto *contentInfo = new T::ContentInfo();
 
           contentInfo->mFileId = fileInfo->mFileId;
           contentInfo->mFileType = fileInfo->mFileType;
@@ -2657,7 +2665,7 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
         {
           // The content does not exists. It should be added.
 
-          T::ContentInfo *contentInfo = new T::ContentInfo();
+          auto *contentInfo = new T::ContentInfo();
 
           contentInfo->mFileId = fileInfo->mFileId;
           contentInfo->mFileType = T::FileTypeValue::Unknown;
@@ -2896,21 +2904,21 @@ int main(int argc, char *argv[])
 
     if (mStorageType == "postgresql")
     {
-      ContentServer::PostgresqlImplementation *client = new ContentServer::PostgresqlImplementation();
+      auto *client = new ContentServer::PostgresqlImplementation();
       client->init(mPostgresqlConnectionString.c_str(),"",true);
       mTargetInterface = client;
     }
 
     if (mStorageType == "http")
     {
-      ContentServer::HTTP::ClientImplementation *httpClient = new ContentServer::HTTP::ClientImplementation();
+      auto *httpClient = new ContentServer::HTTP::ClientImplementation();
       httpClient->init(mContentServerUrl.c_str());
       mTargetInterface = httpClient;
     }
 
     if (mStorageType == "corba")
     {
-      ContentServer::Corba::ClientImplementation *corbaClient = new ContentServer::Corba::ClientImplementation();
+      auto *corbaClient = new ContentServer::Corba::ClientImplementation();
       corbaClient->init(mContentServerIor);
       mTargetInterface = corbaClient;
     }

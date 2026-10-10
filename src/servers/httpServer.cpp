@@ -85,7 +85,7 @@ FileHandle* getFileHandle(const char *filename)
     return fh->second;
   }
 
-  FileHandle *f = new FileHandle;
+  auto *f = new FileHandle;
   f->fileHandle = fopen(filename,"r");
   if (f->fileHandle != NULL)
   {
@@ -107,7 +107,7 @@ static MHD_Result addParameter(void *cls, enum MHD_ValueKind kind, const char *k
 
   if (cls != nullptr)
   {
-    std::map<std::string,std::string> *list = (std::map<std::string,std::string>*)cls;
+    auto *list = (std::map<std::string, std::string> *)cls;
     list->insert(std::pair<std::string,std::string>(key,value));
   }
 
@@ -122,7 +122,7 @@ static MHD_Result addParameter(void *cls, enum MHD_ValueKind kind, const char *k
 
 static void requestCompleted (void *cls, struct MHD_Connection *connection,void **ptr, enum MHD_RequestTerminationCode toe)
 {
-  Request *request = (Request*)*ptr;
+  auto *request = (Request *)*ptr;
   if (request != nullptr)
     delete request;
 }
@@ -141,7 +141,7 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
   {
     // This is the first call. Let's initialize the request structure.
 
-    Request *request = new Request;
+    auto *request = new Request;
 
     request->url = url;
 
@@ -154,7 +154,7 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
   // This is the second or N:th call. Let's pick up the request structure.
   //SmartMet::T::RequestMessage *requestMessage = (SmartMet::T::RequestMessage*)*ptr;
 
-  Request *request = (Request*)*ptr;
+  auto *request = (Request *)*ptr;
 
   if (strcmp(method, "GET") == 0)
   {

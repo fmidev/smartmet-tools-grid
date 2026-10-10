@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     else
     if (strcmp(argv[argc-2],"-pg") == 0)
     {
-      ContentServer::PostgresqlImplementation *pg = new ContentServer::PostgresqlImplementation();
+      auto *pg = new ContentServer::PostgresqlImplementation();
       pg->init(argv[argc-1],"",false);
       service = pg;
     }
@@ -138,7 +138,8 @@ int main(int argc, char *argv[])
       }
       else
       {
-        T::FileInfo *fileInfo = (T::FileInfo*)fileInfoList.getFileInfoByIndex(len-1);
+        auto *fileInfo =
+            (T::FileInfo *)fileInfoList.getFileInfoByIndex(len - 1);
         startFileId = fileInfo->mFileId + 1;
       }
     }
@@ -171,7 +172,8 @@ int main(int argc, char *argv[])
       }
       else
       {
-        T::ContentInfo *contentInfo = (T::ContentInfo*)contentInfoList.getContentInfoByIndex(len-1);
+        auto *contentInfo =
+            (T::ContentInfo *)contentInfoList.getContentInfoByIndex(len - 1);
         startFileId = contentInfo->mFileId;
         startMessageIndex = contentInfo->mMessageIndex + 1;
       }

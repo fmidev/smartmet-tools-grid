@@ -460,7 +460,7 @@ void readSourceFiles(std::vector<DataFetcher::FileRec>& fileList)
             T::GenerationInfo *generation =  mTargetGenerationList.getGenerationInfoByName(str);
             if (generation != nullptr)
             {
-              T::FileInfo *fileInfo = new T::FileInfo();
+              auto *fileInfo = new T::FileInfo();
               fileInfo->mProducerId = producer->mProducerId;
               fileInfo->mGenerationId = generation->mGenerationId;
               fileInfo->mFileId = mSourceFileList.getLength() + 1;
@@ -672,7 +672,7 @@ bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T:
     {
       if (buf[0] != '#')
       {
-        T::ContentInfo *contentInfo = new T::ContentInfo();
+        auto *contentInfo = new T::ContentInfo();
         contentInfo->setCsv(buf);
         if (contentInfo->mModificationTime == modificationTime)
         {
@@ -747,7 +747,7 @@ void readSourceContent(T::FileInfo& fileInfo,T::ContentInfoList& contentList,boo
       SmartMet::GRID::Message *message = gridFile.getMessageByIndex(t);
       if (message != nullptr)
       {
-        T::ContentInfo *contentInfo = new T::ContentInfo();
+        auto *contentInfo = new T::ContentInfo();
         contentInfo->mFileId = 0;
         contentInfo->mMessageIndex = t;
         contentInfo->mProducerId = fileInfo.mProducerId;
@@ -831,7 +831,7 @@ void readSourceProducers()
 
         if (c > 3)
         {
-          T::ProducerInfo *producer = new T::ProducerInfo();
+          auto *producer = new T::ProducerInfo();
           producer->mProducerId = mSourceProducerList.getLength() + 1;
           producer->mName = field[1];
           producer->mTitle = field[2];
@@ -1292,21 +1292,21 @@ int main(int argc, char *argv[])
 
     if (mStorageType == "postgresql")
     {
-      ContentServer::PostgresqlImplementation *client = new ContentServer::PostgresqlImplementation();
+      auto *client = new ContentServer::PostgresqlImplementation();
       client->init(mPostgresqlConnectionString.c_str(),"",true);
       targetInterface = client;
     }
 
     if (mStorageType =="corba")
     {
-      ContentServer::Corba::ClientImplementation *client = new ContentServer::Corba::ClientImplementation();
+      auto *client = new ContentServer::Corba::ClientImplementation();
       client->init(mContentServerIor.c_str());
       targetInterface = client;
     }
 
     if (mStorageType =="http")
     {
-      ContentServer::HTTP::ClientImplementation *httpClient = new ContentServer::HTTP::ClientImplementation();
+      auto *httpClient = new ContentServer::HTTP::ClientImplementation();
       httpClient->init(mContentServerUrl.c_str());
       targetInterface = httpClient;
     }

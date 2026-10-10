@@ -216,7 +216,7 @@ static MHD_Result addParameter(void *cls, enum MHD_ValueKind kind, const char *k
 
     if (cls != nullptr)
     {
-      SmartMet::T::RequestMessage *httpRequest = (SmartMet::T::RequestMessage*)cls;
+      auto *httpRequest = (SmartMet::T::RequestMessage *)cls;
       if (key != nullptr  &&  value != nullptr)
         httpRequest->addLine(key,value);
 
@@ -245,7 +245,7 @@ static void requestCompleted (void *cls, struct MHD_Connection *connection,void 
 {
   try
   {
-    SmartMet::T::RequestMessage *request = (SmartMet::T::RequestMessage*)*ptr;
+    auto *request = (SmartMet::T::RequestMessage *)*ptr;
     if (request != nullptr)
       delete request;
   }
@@ -277,8 +277,7 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
 
 
     // This is the second or N:th call. Let's pick up the request structure.
-    SmartMet::T::RequestMessage *requestMessage = (SmartMet::T::RequestMessage*)*ptr;
-
+    auto *requestMessage = (SmartMet::T::RequestMessage *)*ptr;
 
     if (strcmp(method, "GET") == 0)
     {

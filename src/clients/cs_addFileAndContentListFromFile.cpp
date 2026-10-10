@@ -40,21 +40,21 @@ int main(int argc, char *argv[])
 
     if (argc == 5  &&  strcmp(argv[3],"-http") == 0)
     {
-      ContentServer::HTTP::ClientImplementation *httpService = new ContentServer::HTTP::ClientImplementation();
+      auto *httpService = new ContentServer::HTTP::ClientImplementation();
       httpService->init(argv[4]);
       service = httpService;
     }
     else
     if (argc > 5  &&  strcmp(argv[argc-5],"-redis") == 0)
     {
-      ContentServer::RedisImplementation *redis = new ContentServer::RedisImplementation();
+      auto *redis = new ContentServer::RedisImplementation();
       redis->init(argv[argc-4],toInt64(argv[argc-3]),argv[argc-2],argv[argc-1]);
       service = redis;
     }
     else
     if (strcmp(argv[argc-2],"-pg") == 0)
     {
-      ContentServer::PostgresqlImplementation *pg = new ContentServer::PostgresqlImplementation();
+      auto *pg = new ContentServer::PostgresqlImplementation();
       pg->init(argv[argc-1],"",false);
       service = pg;
     }
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
         return -2;
       }
 
-      ContentServer::Corba::ClientImplementation *corbaService = new ContentServer::Corba::ClientImplementation();
+      auto *corbaService = new ContentServer::Corba::ClientImplementation();
       corbaService->init(serviceIor);
       service = corbaService;
     }
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
           fileInfo.mName = field[3];
           fileInfo.mFlags = toInt64(field[4]);
 
-          T::ContentInfo *contentInfo = new T::ContentInfo();
+          auto *contentInfo = new T::ContentInfo();
           contentInfo->mFileId = 0;
           contentInfo->mFileType = fileInfo.mFileType;
           contentInfo->mProducerId = fileInfo.mProducerId;
