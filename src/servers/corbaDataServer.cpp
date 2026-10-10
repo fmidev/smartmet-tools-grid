@@ -15,6 +15,7 @@
 #include <grid-files/common/MemoryMapper.h>
 #include <iostream>
 #include <macgyver/Exception.h>
+#include <memory>
 #include <pthread.h>
 #include <stdexcept>
 #include <sys/time.h>
@@ -243,11 +244,11 @@ int main(int argc, char *argv[])
 
     std::shared_ptr<Fmi::DEM> dem;
     if (demdir > " ")
-      dem.reset(new Fmi::DEM(demdir));
+      dem = std::make_shared<Fmi::DEM>(demdir);
 
     std::shared_ptr<Fmi::LandCover> landCover;
     if (landcoverdir > " ")
-      landCover.reset(new Fmi::LandCover(landcoverdir));
+      landCover = std::make_shared<Fmi::LandCover>(landcoverdir);
 
     std::string virtualFileDef;
     std::vector<std::string> luaFiles;
