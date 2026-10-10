@@ -6,9 +6,9 @@
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
-#include <macgyver/Exception.h>
 #include "grid-files/common/GeneralFunctions.h"
-#include "string.h"
+#include <cstring>
+#include <macgyver/Exception.h>
 
 using namespace SmartMet;
 

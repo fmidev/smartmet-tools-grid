@@ -16,14 +16,13 @@
 #include "grid-files/common/Typedefs.h"
 #include "grid-files/common/GeneralFunctions.h"
 
+#include <csignal>
+#include <cstring>
 #include <iostream>
-#include <stdexcept>
-#include <string.h>
-#include <vector>
 #include <pthread.h>
+#include <stdexcept>
 #include <sys/time.h>
-#include <signal.h>
-
+#include <vector>
 
 using namespace SmartMet;
 

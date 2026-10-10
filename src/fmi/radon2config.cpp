@@ -8,9 +8,9 @@
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/identification/GridDef.h"
 
+#include <cstring>
 #include <libpq-fe.h>
 #include <stdlib.h>
-#include <string.h>
 
 #define FUNCTION_TRACE FUNCTION_TRACE_OFF
 

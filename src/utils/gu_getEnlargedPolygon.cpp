@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
         p++;
         double x = toDouble(buf);
         double y = toDouble(p);
-        polygonPoints.push_back(T::Coordinate(x,y));
+        polygonPoints.emplace_back(x, y);
         printf("Coordinate %f,%f\n",x,y);
       }
     }

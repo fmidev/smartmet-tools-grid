@@ -3,16 +3,16 @@
  */
 
 #include "grid-content/contentServer/cache/CacheImplementation.h"
-#include "grid-content/contentServer/redis/RedisImplementation.h"
-#include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
+#include "grid-content/contentServer/corba/server/Server.h"
+#include "grid-content/contentServer/corba/server/ServerInterface.h"
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/contentServer/memory/MemoryImplementation.h"
-#include "grid-content/contentServer/corba/server/Server.h"
-#include <macgyver/Exception.h>
-#include "grid-content/contentServer/corba/server/ServerInterface.h"
+#include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
+#include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-files/identification/GridDef.h"
-#include <signal.h>
+#include <csignal>
+#include <macgyver/Exception.h>
 
 #define CONTENT_SERVER_SESSION_ID 111111111
 #define DATA_SERVER_SESSION_ID 222222222

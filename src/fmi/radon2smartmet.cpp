@@ -15,11 +15,10 @@
 #include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
 #include <boost/bimap.hpp>
 
+#include <csignal>
+#include <cstring>
 #include <libpq-fe.h>
 #include <stdlib.h>
-#include <string.h>
-#include <signal.h>
-
 
 #define FUNCTION_TRACE FUNCTION_TRACE_OFF
 

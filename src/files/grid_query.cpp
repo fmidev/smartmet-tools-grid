@@ -12,11 +12,11 @@
 #include "grid-files/grid/Typedefs.h"
 #include "grid-files/grid/ValueCache.h"
 
+#include <cstring>
 #include <iostream>
 #include <stdexcept>
-#include <string.h>
-#include <vector>
 #include <sys/time.h>
+#include <vector>
 
 using namespace SmartMet;
 
@@ -212,7 +212,7 @@ int run(int argc, char **argv)
       }
       else
       if (argv[t][0] != '-')
-        files.push_back(std::string(argv[t]));
+        files.emplace_back(argv[t]);
     }
 
     init();

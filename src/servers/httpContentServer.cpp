@@ -12,10 +12,10 @@
 #include "grid-files/common/Log.h"
 #include "grid-files/common/GeneralFunctions.h"
 
+#include <cstdio>
+#include <cstring>
 #include <microhttpd.h>
 #include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 
 using namespace SmartMet;
 

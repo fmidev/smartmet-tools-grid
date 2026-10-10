@@ -23,13 +23,13 @@
 #include "grid-files/common/Typedefs.h"
 #include "grid-files/common/GeneralFunctions.h"
 
+#include <csignal>
+#include <cstring>
 #include <iostream>
-#include <stdexcept>
-#include <string.h>
-#include <vector>
 #include <pthread.h>
+#include <stdexcept>
 #include <sys/time.h>
-#include <signal.h>
+#include <vector>
 
 #define CONTENT_SERVER_SESSION_ID 111111111
 #define DATA_SERVER_SESSION_ID 222222222

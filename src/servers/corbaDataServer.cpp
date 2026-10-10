@@ -4,22 +4,21 @@
 
 #include "grid-content/contentServer/cache/CacheImplementation.h"
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
-#include "grid-content/dataServer/implementation/ServiceImplementation.h"
-#include "grid-content/dataServer/corba/server/ServerInterface.h"
 #include "grid-content/dataServer/corba/server/Server.h"
-#include <macgyver/Exception.h>
+#include "grid-content/dataServer/corba/server/ServerInterface.h"
+#include "grid-content/dataServer/implementation/ServiceImplementation.h"
 #include "grid-files/common/Typedefs.h"
 #include "grid-files/grid/ValueCache.h"
 #include "grid-files/identification/GridDef.h"
+#include <csignal>
+#include <cstring>
 #include <grid-files/common/MemoryMapper.h>
 #include <iostream>
-#include <stdexcept>
-#include <string.h>
-#include <vector>
+#include <macgyver/Exception.h>
 #include <pthread.h>
+#include <stdexcept>
 #include <sys/time.h>
-#include <signal.h>
-
+#include <vector>
 
 using namespace SmartMet;
 

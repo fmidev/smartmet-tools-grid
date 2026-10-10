@@ -13,12 +13,11 @@
 #include "grid-files/grid/Typedefs.h"
 #include "grid-files/grid/ValueCache.h"
 
+#include <cstring>
 #include <iostream>
 #include <stdexcept>
-#include <string.h>
-#include <vector>
 #include <sys/time.h>
-
+#include <vector>
 
 using namespace SmartMet;
 

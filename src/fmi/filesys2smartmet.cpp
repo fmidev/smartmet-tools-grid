@@ -19,10 +19,10 @@
 #include "grid-content/contentServer/http/client/ClientImplementation.h"
 #include "grid-content/lua/LuaFile.h"
 
+#include <csignal>
+#include <cstring>
 #include <libpq-fe.h>
 #include <stdlib.h>
-#include <string.h>
-#include <signal.h>
 
 #define FUNCTION_TRACE FUNCTION_TRACE_OFF
 
@@ -1398,7 +1398,7 @@ int main(int argc, char *argv[])
 
       // Finding current index cache filenames
       std::vector<std::string> cachePatterns;
-      cachePatterns.push_back(std::string("F2S_*"));
+      cachePatterns.emplace_back("F2S_*");
       std::set<std::string> cacheDirList;
       std::vector<std::pair<std::string,std::string>> cacheFileList;
       getFileList(mCacheDir.c_str(),cachePatterns,false,cacheDirList,cacheFileList);

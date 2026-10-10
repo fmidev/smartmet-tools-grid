@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
       for (int x=0; x<width; x++)
       {
         lon = lon + lonStep;
-        coordinates.push_back(T::Coordinate(lon,lat));
+        coordinates.emplace_back(lon, lat);
       }
       lat = lat + latStep;
     }

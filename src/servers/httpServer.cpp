@@ -2,12 +2,12 @@
  *  \brief Minimal HTTP file server daemon that serves files from a root directory over HTTP using libmicrohttpd.
  */
 
+#include <cstdio>
+#include <cstring>
+#include <map>
 #include <microhttpd.h>
 #include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 #include <string>
-#include <map>
 #include <vector>
 
 #include "grid-files/common/ThreadLock.h"
