@@ -1849,8 +1849,7 @@ void updateGeometries()
       if (targetGeometry->mSourceId == mSourceId  &&  mProducerIdList.find(targetGeometry->mProducerId) != mProducerIdList.end())
       {
         T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoById(targetGeometry->mGenerationId);
-        if (targetGeneration != NULL)
-        {
+        if (targetGeneration != nullptr) {
           char st[200];
           sprintf(st, "%s:%d:%d",targetGeneration->mName.c_str(),targetGeometry->mGeometryId,targetGeometry->mLevelId);
 
@@ -3078,7 +3077,8 @@ int main(int argc, char *argv[])
         PRINT_DATA(mDebugLogPtr, "   - mFileRecMap           = %lu\n",mFileRecMap.size());
         PRINT_DATA(mDebugLogPtr, "   - fileRecords           = %u\n",countFileRecords());
         PRINT_DATA(mDebugLogPtr, "   - loopCounter           = %d\n",mLoopCounter);
-        PRINT_DATA(mDebugLogPtr, "   - loopTime              = %ld sec\n",time(0)-loopStart);
+        PRINT_DATA(mDebugLogPtr, "   - loopTime              = %ld sec\n",
+                   time(nullptr) - loopStart);
 
         PRINT_DATA(mDebugLogPtr, "********************************************************************\n\n");
 
@@ -3111,7 +3111,8 @@ int main(int argc, char *argv[])
         }
       }
 
-      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE;END;Loop time %ld seconds;",time(0)-loopStart);
+      PRINT_EVENT_LINE(mProcessingLogPtr, "UPDATE;END;Loop time %ld seconds;",
+                       time(nullptr) - loopStart);
 
       if (mWaitTime > 0 && !shutdownRequested)
       {

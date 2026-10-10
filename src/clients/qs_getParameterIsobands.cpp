@@ -61,12 +61,10 @@ int main(int argc, char *argv[])
   try
   {
     char *serviceIor = getenv("SMARTMET_QS_IOR");
-    if (serviceIor == NULL)
-    {
+    if (serviceIor == nullptr) {
       fprintf(stdout,"SMARTMET_QS_IOR not defined!\n");
       return -1;
     }
-
 
     if (argc < 12)
     {

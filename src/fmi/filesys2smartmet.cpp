@@ -649,12 +649,11 @@ bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T:
     missingInformation = false;
 
     FILE *file = fopen(cacheFilename,"r");
-    if (file == NULL)
+    if (file == nullptr)
       return false;
 
     char buf[1000];
-    if (fgets(buf,1000,file) != 0  &&  buf[0] == '#')
-    {
+    if (fgets(buf, 1000, file) != nullptr && buf[0] == '#') {
       char *p = strstr(buf,"\n");
       if (p)
         *p = '\0';
@@ -724,8 +723,7 @@ void readSourceContent(T::FileInfo& fileInfo,T::ContentInfoList& contentList,boo
       return;
 
     FILE *file = fopen(cacheFilename,"w");
-    if (file == NULL)
-    {
+    if (file == nullptr) {
       Fmi::Exception exception(BCP, "Cannot create cached index file!");
       exception.addParameter("CacheFilename",cacheFilename);
       throw exception;

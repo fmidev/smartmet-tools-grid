@@ -33,8 +33,7 @@ struct FileHandle
 
 std::map<std::string,FileHandle*> fileHandles;
 SmartMet::ThreadLock fileHandles_threadLock;
-time_t fileHandles_lastChecked = time(0);
-
+time_t fileHandles_lastChecked = time(nullptr);
 
 struct Request
 {
@@ -48,7 +47,7 @@ struct Request
 
 FileHandle* getFileHandle(const char *filename)
 {
-  time_t currentTime = time(0);
+  time_t currentTime = time(nullptr);
 
   SmartMet::AutoThreadLock lock(&fileHandles_threadLock);
   if ((currentTime - fileHandles_lastChecked) > 3600)
@@ -75,7 +74,7 @@ FileHandle* getFileHandle(const char *filename)
       }
     }
 
-    fileHandles_lastChecked = time(0);
+    fileHandles_lastChecked = time(nullptr);
   }
 
   auto fh = fileHandles.find(filename);
@@ -87,8 +86,7 @@ FileHandle* getFileHandle(const char *filename)
 
   auto *f = new FileHandle;
   f->fileHandle = fopen(filename,"r");
-  if (f->fileHandle != NULL)
-  {
+  if (f->fileHandle != nullptr) {
     f->lastUsed = currentTime;
     fileHandles.insert(std::pair<std::string,FileHandle*>(filename,f));
     return f;
@@ -174,7 +172,7 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
   else
     filename = request->url;
 
-  char *content = NULL;
+  char *content = nullptr;
   std::size_t contentSize = 0;
   auto range = request->headers.find("Range");
   if (range != request->headers.end())
@@ -184,8 +182,7 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
     {
       char *p1 = buf+6;
       char *p2 = strchr(p1,'-');
-      if (p2 != NULL)
-      {
+      if (p2 != nullptr) {
         *p2 = '\0';
         p2++;
 
@@ -198,8 +195,7 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
           content = new char[contentSize];
 
           auto fh = getFileHandle(filename.c_str());
-          if (fh != NULL)
-          {
+          if (fh != nullptr) {
             SmartMet::AutoThreadLock lock(&fh->threadLock);
             fseek(fh->fileHandle,filePosition1,SEEK_SET);
             int n = fread(content,1,contentSize,fh->fileHandle);
@@ -210,17 +206,14 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
   }
 
   *ptr = nullptr; /* clear context pointer */
-  if (content != NULL)
-  {
+  if (content != nullptr) {
     printf("SEND %ld\n",contentSize);
     struct MHD_Response *response = MHD_create_response_from_buffer(contentSize,(void*)content,MHD_RESPMEM_MUST_FREE);
     MHD_add_response_header(response, MHD_HTTP_HEADER_CONNECTION,"keep-alive");
     MHD_Result ret = MHD_queue_response(connection,MHD_HTTP_OK,response);
     MHD_destroy_response(response);
     return ret;
-  }
-  else
-  {
+  } else {
     return MHD_NO;
   }
 }
