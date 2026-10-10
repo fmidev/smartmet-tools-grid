@@ -70,6 +70,12 @@ int main(int argc, char *argv[])
       lat = lat + ystep;
     }
     FILE *file = fopen(argv[4],"w");
+    if (file == nullptr)
+    {
+      fprintf(stderr,"Cannot create the file '%s'\n",argv[4]);
+      delete[] data;
+      return -1;
+    }
     fwrite(&w,4,1,file);
     fwrite(&h,4,1,file);
     BitLine bitLine(data,bits);

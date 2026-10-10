@@ -1251,7 +1251,7 @@ int main(int argc, char *argv[])
     if (version == 0)
       configurationFile.getAttributeValue("Grib1.IndicatorSection.EditionNumber",version);
 
-    if (version == 0)
+    if (version != 1 && version != 2)
     {
       printf("Unknow grib version (%d)!\n",version);
       return -2;

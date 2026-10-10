@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 26.10.3
+Version: 26.10.10
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -288,6 +288,10 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Sat Oct 10 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.10-1.fmi
+- grid_create: reject GRIB editions other than 1 and 2
+- createLandSeaMap: check that the output file could be created
+
 * Sat Oct 03 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.3-1.fmi
 - Repackaged due to grid-content ABI changes (CacheImplementation and MergeImplementation size)
 
