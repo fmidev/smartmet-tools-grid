@@ -131,10 +131,8 @@ int main(int argc, char **argv)
 
     printf("\nContours : %ld\n",contours.size());
 
-
-    for (auto contour = contours.begin(); contour != contours.end(); ++contour)
-    {
-      printf("Lines %ld\n",contour->size());
+    for (auto &contour : contours) {
+      printf("Lines %ld\n", contour.size());
     }
 
     // ### Allocating and initializing the image:
@@ -161,14 +159,13 @@ int main(int argc, char **argv)
       uint step = 250 / contours.size();
 
       uint t = 0;
-      for (auto it = contours.begin(); it != contours.end(); ++it)
-      {
+      for (auto &contour : contours) {
         uint col = colorList[t];
         if (col == 0xFFFFFFFF)
           col = (c << 16) + (c << 8) + c;
 
         imagePaint.setFillColor(col);
-        imagePaint.paintWkb(mp,mp,0,0,*it);
+        imagePaint.paintWkb(mp, mp, 0, 0, contour);
         c = c - step;
         t++;
       }

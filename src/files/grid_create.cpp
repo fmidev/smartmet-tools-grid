@@ -1308,22 +1308,18 @@ int main(int argc, char *argv[])
 
           auto properties = gribProperty.getPropertyVector();
 
-          for (auto it = properties.begin(); it != properties.end(); ++it)
-          {
-            if (configurationFile.getAttributeValue(it->first.c_str(),v))
-            {
-              newMessage->setProperty(it->second,v);
-              std::cout << "SET " << it->first << " : " << v << "\n";
-            }
-            else
-            if (dataMessage->getProperty(it->second,v))
-            {
-              std::cout << "*SET " << it->first << " : " << v << "\n";
-              newMessage->setProperty(it->second,v);
+          for (auto &propertie : properties) {
+            if (configurationFile.getAttributeValue(propertie.first.c_str(),
+                                                    v)) {
+              newMessage->setProperty(propertie.second, v);
+              std::cout << "SET " << propertie.first << " : " << v << "\n";
+            } else if (dataMessage->getProperty(propertie.second, v)) {
+              std::cout << "*SET " << propertie.first << " : " << v << "\n";
+              newMessage->setProperty(propertie.second, v);
             }
           }
 
-  #if 0
+#if 0
 
           if (dataMessage->getProperty(Property::IndicatorSection::EditionNumber,v))
             newMessage->setProperty(Property::IndicatorSection::EditionNumber,v);
@@ -1429,22 +1425,17 @@ int main(int argc, char *argv[])
 
         auto properties = gribProperty.getPropertyVector();
 
-        for (auto it = properties.begin(); it != properties.end(); ++it)
-        {
-          if (configurationFile.getAttributeValue(it->first.c_str(),v))
-          {
-            newMessage->setProperty(it->second,v);
-            std::cout << "SET " << it->first << " : " << v << "\n";
-          }
-          else
-          if (dataMessage->getProperty(it->second,v))
-          {
-            std::cout << "*SET " << it->first << " : " << v << "\n";
-            newMessage->setProperty(it->second,v);
+        for (auto &propertie : properties) {
+          if (configurationFile.getAttributeValue(propertie.first.c_str(), v)) {
+            newMessage->setProperty(propertie.second, v);
+            std::cout << "SET " << propertie.first << " : " << v << "\n";
+          } else if (dataMessage->getProperty(propertie.second, v)) {
+            std::cout << "*SET " << propertie.first << " : " << v << "\n";
+            newMessage->setProperty(propertie.second, v);
           }
         }
 
-  #if 0
+#if 0
         if (dataMessage->getProperty(Property::IndicatorSection::Discipline,v))
           newMessage->setProperty(Property::IndicatorSection::Discipline,v);
 

@@ -43,9 +43,8 @@ int main(int argc, char *argv[])
     Identification::gridDef.getGeometryIdListByLatLon(lat,lon,geometryIdList);
     UInt64 endTime = getTime();
 
-    for (auto it = geometryIdList.begin(); it != geometryIdList.end(); ++it)
-    {
-      printf("GeometryId : %u\n",*it);
+    for (int it : geometryIdList) {
+      printf("GeometryId : %u\n", it);
     }
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);

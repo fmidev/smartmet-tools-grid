@@ -149,15 +149,13 @@ void loadMappings(QueryServer::ParamMappingFile_vec& parameterMappings)
 {
   try
   {
-    for (auto it = query_server_mappingFiles.begin(); it != query_server_mappingFiles.end(); ++it)
-    {
-      QueryServer::ParameterMappingFile mapping(*it);
+    for (auto &query_server_mappingFile : query_server_mappingFiles) {
+      QueryServer::ParameterMappingFile mapping(query_server_mappingFile);
       parameterMappings.push_back(mapping);
     }
 
-    for (auto it = parameterMappings.begin(); it != parameterMappings.end(); ++it)
-    {
-      it->init();
+    for (auto &parameterMapping : parameterMappings) {
+      parameterMapping.init();
     }
   }
   catch (...)
@@ -311,10 +309,9 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
       int result = contentService->getProducerParameterListByProducerId(sessionId,producerInfo->mProducerId,sourceParameterKeyType,targetParameterKeyType,infoList);
       if (result == 0)
       {
-        for (auto it=infoList.begin(); it != infoList.end(); ++it)
-        {
+        for (const auto &it : infoList) {
           std::vector<std::string> pl;
-          splitString(it->c_str(),';',pl);
+          splitString(it.c_str(), ';', pl);
           if (pl.size() >= 8)
           {
             QueryServer::ParameterMapping m;
@@ -725,8 +722,8 @@ void readConfigFile(const char* configFile)
 
     std::vector<std::string> vec;
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingLevelSimplification", vec);
-    for (auto it = vec.begin(); it != vec.end(); it++)
-      mParameterMapping_simplifiedLevelIdSet.insert(atoi(it->c_str()));
+    for (auto &it : vec)
+      mParameterMapping_simplifiedLevelIdSet.insert(atoi(it.c_str()));
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.fmi",query_server_mappingUpdateFile_fmi);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.newbase",query_server_mappingUpdateFile_newbase);

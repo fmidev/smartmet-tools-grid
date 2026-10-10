@@ -88,14 +88,12 @@ int main(int argc, char *argv[])
 
     std::vector<std::string> attrList;
     splitString(attributes,'|',attrList);
-    for (auto it=attrList.begin(); it != attrList.end(); ++it)
-    {
+    for (auto &it : attrList) {
       std::vector<std::string> partList;
-      splitString(*it,'=',partList);
+      splitString(it, '=', partList);
       if (partList.size() == 2)
         query.mAttributeList.setAttribute(partList[0],partList[1]);
     }
-
 
     query.mStartTime = utcTimeToTimeT(argv[7]);
 
@@ -147,10 +145,9 @@ int main(int argc, char *argv[])
           int width = atoi(newQuery.mAttributeList.getAttributeValue("grid.width"));
           int height = atoi(newQuery.mAttributeList.getAttributeValue("grid.height"));
 
-          for (auto it = newQuery.mQueryParameterList.begin(); it != newQuery.mQueryParameterList.end(); ++it)
-          {
-            for (auto v = it->mValueList.begin(); v != it->mValueList.end(); ++v)
-            {
+          for (auto &it : newQuery.mQueryParameterList) {
+            for (auto v = it.mValueList.begin(); v != it.mValueList.end();
+                 ++v) {
               //printf("%s (%lu):",v->mForecastTime.c_str(),v->mValueData.size());
 
               int imageWidth = width*mp;
@@ -162,13 +159,12 @@ int main(int argc, char *argv[])
               if ((*v)->mValueData.size() > 0)
               {
                 uint t = 0;
-                for (auto it = (*v)->mValueData.begin(); it != (*v)->mValueData.end(); ++it)
-                {
+                for (auto &it : (*v)->mValueData) {
                   uint col = colorList[t];
                   if (col == 0xFFFFFFFF)
                     col = 0;
 
-                  imagePaint.paintWkb(1,1,0,0,*it);
+                  imagePaint.paintWkb(1, 1, 0, 0, it);
                   t++;
                 }
               }

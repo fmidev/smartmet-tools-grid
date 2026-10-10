@@ -64,8 +64,8 @@ int main(int argc, char *argv[])
 
     // ### Printing the result:
 
-    for (auto it = valueVector.begin(); it != valueVector.end(); ++it)
-      std::cout << *it << "\n";
+    for (double &it : valueVector)
+      std::cout << it << "\n";
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

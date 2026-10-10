@@ -238,9 +238,9 @@ void saveAllSubmaps(uint fileIndex,SmartMet::GRID::GridFile& gridFile,double lat
     std::set<T::GribParamId> parameterIdList;
     getParameterIdentifiers(gridFile,parameterIdList);
 
-    for (auto id = parameterIdList.begin();id != parameterIdList.end(); ++id)
-    {
-      saveSubmapsByParameterId(fileIndex,gridFile,*id,lat,lon,width,height,step,imageDir,valueLevels,flags);
+    for (unsigned int id : parameterIdList) {
+      saveSubmapsByParameterId(fileIndex, gridFile, id, lat, lon, width, height,
+                               step, imageDir, valueLevels, flags);
     }
   }
   catch (...)

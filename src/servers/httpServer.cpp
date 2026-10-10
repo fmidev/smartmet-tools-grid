@@ -54,17 +54,14 @@ FileHandle* getFileHandle(const char *filename)
   {
     std::vector<std::string> deleteList;
     time_t old = currentTime - 3600;
-    for (auto it = fileHandles.begin(); it != fileHandles.end(); ++it)
-    {
-      if (it->second->lastUsed < old)
-      {
-        deleteList.push_back(it->first);
+    for (auto &fileHandle : fileHandles) {
+      if (fileHandle.second->lastUsed < old) {
+        deleteList.push_back(fileHandle.first);
       }
     }
 
-    for (auto it = deleteList.begin(); it != deleteList.end(); ++it)
-    {
-      auto itm = fileHandles.find(*it);
+    for (auto &it : deleteList) {
+      auto itm = fileHandles.find(it);
       if (itm != fileHandles.end())
       {
         //printf("DELETE %s\n",it->c_str());

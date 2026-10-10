@@ -118,15 +118,13 @@ void loadMappings(QueryServer::ParamMappingFile_vec& parameterMappings)
 {
   try
   {
-    for (auto it = mParameterMappingFiles.begin(); it != mParameterMappingFiles.end(); ++it)
-    {
-      QueryServer::ParameterMappingFile mapping(*it);
+    for (auto &mParameterMappingFile : mParameterMappingFiles) {
+      QueryServer::ParameterMappingFile mapping(mParameterMappingFile);
       parameterMappings.push_back(mapping);
     }
 
-    for (auto it = parameterMappings.begin(); it != parameterMappings.end(); ++it)
-    {
-      it->init();
+    for (auto &parameterMapping : parameterMappings) {
+      parameterMapping.init();
     }
   }
   catch (...)
@@ -280,10 +278,9 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
       int result = contentServer->getProducerParameterListByProducerId(sessionId,producerInfo->mProducerId,sourceParameterKeyType,targetParameterKeyType,infoList);
       if (result == 0)
       {
-        for (auto it=infoList.begin(); it != infoList.end(); ++it)
-        {
+        for (const auto &it : infoList) {
           std::vector<std::string> pl;
-          splitString(it->c_str(),';',pl);
+          splitString(it.c_str(), ';', pl);
           if (pl.size() >= 8)
           {
             QueryServer::ParameterMapping m;
@@ -689,9 +686,8 @@ void readConfigFile(const char* configFile)
 
     std::vector<std::string> vec;
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingLevelSimplification", vec);
-    for (auto it = vec.begin(); it != vec.end(); it++)
-      mParameterMapping_simplifiedLevelIdSet.insert(atoi(it->c_str()));
-
+    for (auto &it : vec)
+      mParameterMapping_simplifiedLevelIdSet.insert(atoi(it.c_str()));
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.fmi",mParameterMappingUpdateFile_fmi);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.newbase",mParameterMappingUpdateFile_newbase);

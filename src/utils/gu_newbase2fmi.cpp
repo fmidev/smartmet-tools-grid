@@ -107,22 +107,22 @@ int main(int argc, char *argv[])
     Identification::NewbaseParamDef_vec parameters;
     loadNewbaseParameterDefs(configDir,parameters);
 
-    for (auto it = parameters.begin(); it != parameters.end(); ++it)
-    {
+    for (auto &parameter : parameters) {
       Identification::FmiParameterDef rec;
-      if (Identification::gridDef.getFmiParameterDefByNewbaseId(it->mNewbaseParameterId,rec))
-      {
+      if (Identification::gridDef.getFmiParameterDefByNewbaseId(
+              parameter.mNewbaseParameterId, rec)) {
         if (!reverse)
-          std::cout << "newbase." << it->mParameterName << ";" << rec.mParameterName << "\n";
+          std::cout << "newbase." << parameter.mParameterName << ";"
+                    << rec.mParameterName << "\n";
         else
-          std::cout << it->mParameterName << ";newbase." << it->mParameterName << "\n";
-      }
-      else
-      {
+          std::cout << parameter.mParameterName << ";newbase."
+                    << parameter.mParameterName << "\n";
+      } else {
         if (!reverse)
-          std::cout << "# newbase." << it->mParameterName << ";\n";
+          std::cout << "# newbase." << parameter.mParameterName << ";\n";
         else
-          std::cout << "# " << it->mParameterName << ";newbase." << it->mParameterName << "\n";
+          std::cout << "# " << parameter.mParameterName << ";newbase."
+                    << parameter.mParameterName << "\n";
       }
     }
 

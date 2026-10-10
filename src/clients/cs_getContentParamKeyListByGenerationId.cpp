@@ -89,8 +89,8 @@ int main(int argc, char *argv[])
     }
 
     // ### Result:
-    for (auto it=paramKeyList.begin(); it!=paramKeyList.end(); ++it)
-      printf("%s\n",it->c_str());
+    for (const auto &it : paramKeyList)
+      printf("%s\n", it.c_str());
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

@@ -49,9 +49,8 @@ int main(int argc, char *argv[])
     getPointsInsidePolygon(width,height,polygonPoints,gridPoints);
     UInt64 endTime = getTime();
 
-    for (auto it = gridPoints.begin(); it != gridPoints.end(); ++it)
-    {
-      printf("%d,%d\n",it->x(),it->y());
+    for (auto &gridPoint : gridPoints) {
+      printf("%d,%d\n", gridPoint.x(), gridPoint.y());
     }
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);

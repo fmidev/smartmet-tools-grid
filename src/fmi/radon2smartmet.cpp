@@ -1765,8 +1765,8 @@ void updateGenerations()
         exception.printError();
       }
 
-      for (auto it = generationIdList.begin(); it != generationIdList.end(); ++it)
-        mTargetGenerationList.deleteGenerationInfoById(*it);
+      for (unsigned long it : generationIdList)
+        mTargetGenerationList.deleteGenerationInfoById(it);
     }
 
     len = mSourceGenerationList.getLength();
@@ -1881,13 +1881,15 @@ void updateGeometries()
       }
     }
 
-    for (auto g = mSourceGeometryList.begin(); g != mSourceGeometryList.end(); ++g)
-    {
-      std::string gname = toUpperString(g->second.producerName + ":" + g->second.analysisTime);
+    for (auto &g : mSourceGeometryList) {
+      std::string gname =
+          toUpperString(g.second.producerName + ":" + g.second.analysisTime);
       T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoByName(gname);
       if (targetGeneration != nullptr)
       {
-        T::GeometryInfo *targetGeom = mTargetGeometryList.getGeometryInfoById(targetGeneration->mGenerationId,g->second.geometryId,g->second.levelId);
+        T::GeometryInfo *targetGeom = mTargetGeometryList.getGeometryInfoById(
+            targetGeneration->mGenerationId, g.second.geometryId,
+            g.second.levelId);
 
         if (targetGeom == nullptr)
         {
@@ -1896,8 +1898,8 @@ void updateGeometries()
           T::GeometryInfo geomInfo;
           geomInfo.mProducerId = targetGeneration->mProducerId;
           geomInfo.mGenerationId = targetGeneration->mGenerationId;
-          geomInfo.mGeometryId = g->second.geometryId;
-          geomInfo.mLevelId = g->second.levelId;
+          geomInfo.mGeometryId = g.second.geometryId;
+          geomInfo.mLevelId = g.second.levelId;
           geomInfo.mSourceId = mSourceId;
           geomInfo.mStatus = T::GenerationInfo::Status::Running;
           geomInfo.mModificationTime = targetGeneration->mModificationTime;
@@ -2134,9 +2136,8 @@ void updateGenerationStatus()
             auto rec = mProducerDependensies.find(pname);
             if (rec != mProducerDependensies.end())
             {
-              for (auto it = rec->second.begin(); it != rec->second.end(); ++it)
-              {
-                std::string n = toUpperString(*it + ":" + parts[1] + ":0:0");
+              for (auto &it : rec->second) {
+                std::string n = toUpperString(it + ":" + parts[1] + ":0:0");
                 auto gen = mReadyGenerations.find(n);
                 if (gen == mReadyGenerations.end())
                 {
@@ -2219,9 +2220,11 @@ void updateGenerationStatus()
                 auto rec = mProducerDependensies.find(pname);
                 if (rec != mProducerDependensies.end())
                 {
-                  for (auto it = rec->second.begin(); it != rec->second.end(); ++it)
-                  {
-                    std::string n = toUpperString(*it + ":" + parts[1] + ":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId));
+                  for (auto &it : rec->second) {
+                    std::string n =
+                        toUpperString(it + ":" + parts[1] + ":" +
+                                      std::to_string(geomInfo->mGeometryId) +
+                                      ":" + std::to_string(geomInfo->mLevelId));
                     auto gen = mReadyGenerations.find(n);
                     if (gen == mReadyGenerations.end())
                     {
@@ -2361,17 +2364,14 @@ void deleteOldFileRecords(uint loadCounter)
   {
     std::set<std::string> entriesToRemove;
 
-    for (auto it = mFileRecMap.begin(); it != mFileRecMap.end(); ++it)
-    {
-      if (it->second.loadCounter != loadCounter)
-      {
-        entriesToRemove.insert(it->first);
+    for (auto &it : mFileRecMap) {
+      if (it.second.loadCounter != loadCounter) {
+        entriesToRemove.insert(it.first);
       }
     }
 
-    for (auto it = entriesToRemove.begin(); it != entriesToRemove.end(); ++it)
-    {
-      auto pos = mFileRecMap.find(*it);
+    for (const auto &it : entriesToRemove) {
+      auto pos = mFileRecMap.find(it);
       if (pos != mFileRecMap.end())
       {
         pos->second.files.clear();
@@ -2398,9 +2398,8 @@ uint countFileRecords()
   try
   {
     uint cnt = 0;
-    for (auto it = mFileRecMap.begin(); it != mFileRecMap.end(); ++it)
-    {
-      cnt = cnt + it->second.files.size();
+    for (auto &it : mFileRecMap) {
+      cnt = cnt + it.second.files.size();
     }
 
     return cnt;
@@ -2455,16 +2454,15 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
         fileReadCount++;
       }
 
-      for (auto it = recList.begin(); it != recList.end(); ++it)
-      {
+      for (auto &it : recList) {
         if (shutdownRequested)
           return;
 
-        fileRecList.push_back(*it);
+        fileRecList.push_back(it);
         T::FileInfo fileInfo;
-        std::string filename = getFilename(it->fileId);
-        if (mSourceFilenames.find(it->fileId) == mSourceFilenames.end() && targetFileList.getFileInfoByName(filename) == nullptr)
-        {
+        std::string filename = getFilename(it.fileId);
+        if (mSourceFilenames.find(it.fileId) == mSourceFilenames.end() &&
+            targetFileList.getFileInfoByName(filename) == nullptr) {
           // The target data storage does not have the current file information. It should be added.
 
           PRINT_DATA(mDebugLogPtr, "**** New file : %s\n", filename.c_str());
@@ -2474,28 +2472,26 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
           fc.mFileInfo.mProducerId = generation->mProducerId;
           fc.mFileInfo.mGenerationId = generation->mGenerationId;
           fc.mFileInfo.mFileId = 0;
-          fc.mFileInfo.mServerType = it->serverType;
-          fc.mFileInfo.mServer = it->server;
+          fc.mFileInfo.mServerType = it.serverType;
+          fc.mFileInfo.mServer = it.server;
 
-          if (strncasecmp(it->server.c_str(),"http://",7) == 0)
-          {
+          if (strncasecmp(it.server.c_str(), "http://", 7) == 0) {
             fc.mFileInfo.mProtocol = 1;
-            fc.mFileInfo.mServer = it->server.substr(7);
+            fc.mFileInfo.mServer = it.server.substr(7);
           }
 
-          if (strncasecmp(it->server.c_str(),"https://",8) == 0)
-          {
+          if (strncasecmp(it.server.c_str(), "https://", 8) == 0) {
             fc.mFileInfo.mProtocol = 2;
-            fc.mFileInfo.mServer = it->server.substr(8);
+            fc.mFileInfo.mServer = it.server.substr(8);
           }
 
-          if (it->serverType > 1  &&  fc.mFileInfo.mProtocol == 0)
+          if (it.serverType > 1 && fc.mFileInfo.mProtocol == 0)
             fc.mFileInfo.mProtocol = 2;
 
-          fc.mFileInfo.mFileType = it->format;
+          fc.mFileInfo.mFileType = it.format;
           fc.mFileInfo.mName = filename;
 
-          if (it->cachingRequested)
+          if (it.cachingRequested)
             fc.mFileInfo.mFlags = T::FileInfo::Flags::LocalCacheRecommended;
           else
             fc.mFileInfo.mFlags = 0;
@@ -2506,8 +2502,8 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
           fileAndContentList.push_back(fc);
         }
 
-        if (mSourceFilenames.find(it->fileId) == mSourceFilenames.end())
-          mSourceFilenames.insert(it->fileId);
+        if (mSourceFilenames.find(it.fileId) == mSourceFilenames.end())
+          mSourceFilenames.insert(it.fileId);
       }
       if (generation->mModificationTime <= forecast.lastUpdated)
       {
@@ -2550,14 +2546,13 @@ void saveTargetContent(T::ProducerId producerId,std::vector<FileRec>& fileRecLis
 
     T::ContentInfoList contentList;
 
-    for (auto it = fileRecList.begin(); it != fileRecList.end(); ++it)
-    {
-      std::string filename = getFilename(it->fileId);
+    for (auto &it : fileRecList) {
+      std::string filename = getFilename(it.fileId);
       T::FileInfo *fileInfo = targetFileList.getFileInfoByName(filename);
       if (fileInfo != nullptr)
       {
         UInt64 id = fileInfo->mFileId;
-        id = (id << 32) + it->messageIndex;
+        id = (id << 32) + it.messageIndex;
         auto pos = mTargetContentList.find(id);
         if (pos == mTargetContentList.end())
         {
@@ -2567,31 +2562,31 @@ void saveTargetContent(T::ProducerId producerId,std::vector<FileRec>& fileRecLis
 
           contentInfo->mFileId = fileInfo->mFileId;
           contentInfo->mFileType = fileInfo->mFileType;
-          contentInfo->mMessageIndex = it->messageIndex;
-          contentInfo->mFilePosition = it->filePosition;
-          contentInfo->mMessageSize = it->messageSize;
+          contentInfo->mMessageIndex = it.messageIndex;
+          contentInfo->mFilePosition = it.filePosition;
+          contentInfo->mMessageSize = it.messageSize;
           contentInfo->mProducerId = fileInfo->mProducerId;
           contentInfo->mGenerationId = fileInfo->mGenerationId;
-          contentInfo->setForecastTime(utcTimeFromTimeT(it->forecastTime));
-          contentInfo->mFmiParameterId = it->paramId;
-          contentInfo->mFmiParameterLevelId = it->levelId;
-          contentInfo->mParameterLevel = it->levelValue;
-          contentInfo->mForecastType = it->forecastType;
-          contentInfo->mForecastNumber = it->forecastNumber;
-          contentInfo->mAggregationId = it->aggregation_id;
-          contentInfo->mAggregationPeriod = it->aggregation_period;
-          contentInfo->mProcessingTypeId = it->processing_type_id;
-          contentInfo->mProcessingTypeValue1 = it->processing_type_value;
-          contentInfo->mProcessingTypeValue2 = it->processing_type_value2;
+          contentInfo->setForecastTime(utcTimeFromTimeT(it.forecastTime));
+          contentInfo->mFmiParameterId = it.paramId;
+          contentInfo->mFmiParameterLevelId = it.levelId;
+          contentInfo->mParameterLevel = it.levelValue;
+          contentInfo->mForecastType = it.forecastType;
+          contentInfo->mForecastNumber = it.forecastNumber;
+          contentInfo->mAggregationId = it.aggregation_id;
+          contentInfo->mAggregationPeriod = it.aggregation_period;
+          contentInfo->mProcessingTypeId = it.processing_type_id;
+          contentInfo->mProcessingTypeValue1 = it.processing_type_value;
+          contentInfo->mProcessingTypeValue2 = it.processing_type_value2;
           contentInfo->mFlags = 0;
           contentInfo->mSourceId = mSourceId;
-          contentInfo->mGeometryId = it->geometryId;
-          contentInfo->mModificationTime = it->lastUpdated;
+          contentInfo->mGeometryId = it.geometryId;
+          contentInfo->mModificationTime = it.lastUpdated;
           contentInfo->mDeletionTime = fileInfo->mDeletionTime;
 
           Identification::FmiParameterDef fmiDef;
-          if (Identification::gridDef.getFmiParameterDefById(it->paramId, fmiDef))
-          {
+          if (Identification::gridDef.getFmiParameterDefById(it.paramId,
+                                                             fmiDef)) {
             contentInfo->setFmiParameterName(fmiDef.mParameterName);
           }
 
@@ -2649,14 +2644,13 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
 
     T::ContentInfoList contentList;
 
-    for (auto it = fileRecList.begin(); it != fileRecList.end(); ++it)
-    {
-      std::string filename = getFilename(it->fileId);
+    for (auto &it : fileRecList) {
+      std::string filename = getFilename(it.fileId);
       T::FileInfo *fileInfo = targetFileList.getFileInfoByName(filename);
       if (fileInfo != nullptr)
       {
         UInt64 id = fileInfo->mFileId;
-        id = (id << 32) + it->messageIndex;
+        id = (id << 32) + it.messageIndex;
         auto pos = targetContentList.find(id);
         if (pos == targetContentList.end())
         {
@@ -2666,31 +2660,31 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
 
           contentInfo->mFileId = fileInfo->mFileId;
           contentInfo->mFileType = T::FileTypeValue::Unknown;
-          contentInfo->mMessageIndex = it->messageIndex;
-          contentInfo->mFilePosition = it->filePosition;
-          contentInfo->mMessageSize = it->messageSize;
+          contentInfo->mMessageIndex = it.messageIndex;
+          contentInfo->mFilePosition = it.filePosition;
+          contentInfo->mMessageSize = it.messageSize;
           contentInfo->mProducerId = fileInfo->mProducerId;
           contentInfo->mGenerationId = fileInfo->mGenerationId;
-          contentInfo->setForecastTime(utcTimeFromTimeT(it->forecastTime));
-          contentInfo->mFmiParameterId = it->paramId;
-          contentInfo->mFmiParameterLevelId = it->levelId;
-          contentInfo->mParameterLevel = it->levelValue;
-          contentInfo->mForecastType = it->forecastType;
-          contentInfo->mForecastNumber = it->forecastNumber;
-          contentInfo->mAggregationId = it->aggregation_id;
-          contentInfo->mAggregationPeriod = it->aggregation_period;
-          contentInfo->mProcessingTypeId = it->processing_type_id;
-          contentInfo->mProcessingTypeValue1 = it->processing_type_value;
-          contentInfo->mProcessingTypeValue2 = it->processing_type_value2;
+          contentInfo->setForecastTime(utcTimeFromTimeT(it.forecastTime));
+          contentInfo->mFmiParameterId = it.paramId;
+          contentInfo->mFmiParameterLevelId = it.levelId;
+          contentInfo->mParameterLevel = it.levelValue;
+          contentInfo->mForecastType = it.forecastType;
+          contentInfo->mForecastNumber = it.forecastNumber;
+          contentInfo->mAggregationId = it.aggregation_id;
+          contentInfo->mAggregationPeriod = it.aggregation_period;
+          contentInfo->mProcessingTypeId = it.processing_type_id;
+          contentInfo->mProcessingTypeValue1 = it.processing_type_value;
+          contentInfo->mProcessingTypeValue2 = it.processing_type_value2;
           contentInfo->mFlags = 0;
           contentInfo->mSourceId = mSourceId;
-          contentInfo->mGeometryId = it->geometryId;
-          contentInfo->mModificationTime = it->lastUpdated;
+          contentInfo->mGeometryId = it.geometryId;
+          contentInfo->mModificationTime = it.lastUpdated;
           contentInfo->mDeletionTime = fileInfo->mDeletionTime;
 
           Identification::FmiParameterDef fmiDef;
-          if (Identification::gridDef.getFmiParameterDefById(it->paramId, fmiDef))
-          {
+          if (Identification::gridDef.getFmiParameterDefById(it.paramId,
+                                                             fmiDef)) {
             contentInfo->setFmiParameterName(fmiDef.mParameterName);
           }
 

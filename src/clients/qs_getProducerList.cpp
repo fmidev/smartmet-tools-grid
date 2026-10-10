@@ -54,8 +54,8 @@ int main(int argc, char *argv[])
 
     // ### Result:
 
-    for (auto it = producerList.begin(); it != producerList.end(); ++it)
-      std::cout << *it << "\n";
+    for (auto &it : producerList)
+      std::cout << it << "\n";
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

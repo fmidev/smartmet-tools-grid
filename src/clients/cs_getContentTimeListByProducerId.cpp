@@ -88,9 +88,8 @@ int main(int argc, char *argv[])
     }
 
     // ### Result:
-    for (auto it=timeList.begin(); it!=timeList.end(); ++it)
-      printf("%s\n",it->c_str());
-
+    for (const auto &it : timeList)
+      printf("%s\n", it.c_str());
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

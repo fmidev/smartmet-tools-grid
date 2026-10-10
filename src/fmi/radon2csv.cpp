@@ -91,9 +91,8 @@ bool producerEnabled(const char *producerName)
 {
   try
   {
-    for (auto it = producerList.begin(); it != producerList.end(); ++it)
-    {
-      if (strcasecmp(it->c_str(),producerName) == 0)
+    for (auto &it : producerList) {
+      if (strcasecmp(it.c_str(), producerName) == 0)
         return true;
     }
     return false;

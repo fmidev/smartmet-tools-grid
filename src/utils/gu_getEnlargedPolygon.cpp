@@ -48,11 +48,8 @@ int main(int argc, char *argv[])
     std::vector<T::Coordinate> newCoordinates = getEnlargedPolygon(polygonPoints,xAddition,yAddition);
     UInt64 endTime = getTime();
 
-
-
-    for (auto it = newCoordinates.begin(); it != newCoordinates.end(); ++it)
-    {
-      printf("%f,%f\n",it->x(),it->y());
+    for (auto &newCoordinate : newCoordinates) {
+      printf("%f,%f\n", newCoordinate.x(), newCoordinate.y());
     }
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);

@@ -421,11 +421,10 @@ void readSourceFiles(std::vector<DataFetcher::FileRec>& fileList)
     mSourceFileList.clear();
     mSourceContentList.clear();
 
-    for (auto it = fileList.begin(); it != fileList.end(); ++it)
-    {
+    for (auto &it : fileList) {
       std::string fn;
       std::string path;
-      splitFilename(it->filename,path,fn);
+      splitFilename(it.filename, path, fn);
       if (mLuaFunction > " ")
       {
         std::vector<std::string> params;
@@ -465,15 +464,14 @@ void readSourceFiles(std::vector<DataFetcher::FileRec>& fileList)
               fileInfo->mGenerationId = generation->mGenerationId;
               fileInfo->mFileId = mSourceFileList.getLength() + 1;
               //fileInfo->mFileType;
-              fileInfo->mName = it->filename;
+              fileInfo->mName = it.filename;
               fileInfo->mFlags = 0;
               fileInfo->mSourceId = mSourceId;
-              fileInfo->mModificationTime = it->lastModified;
-              fileInfo->mServer = it->server;
-              fileInfo->mServerType = it->serverType;
-              fileInfo->mProtocol = it->protocol;
-              fileInfo->mSize = it->size;
-
+              fileInfo->mModificationTime = it.lastModified;
+              fileInfo->mServer = it.server;
+              fileInfo->mServerType = it.serverType;
+              fileInfo->mProtocol = it.protocol;
+              fileInfo->mSize = it.size;
 
               mSourceFileList.addFileInfo(fileInfo);
               //fileInfo->print(std::cout,0,0);
@@ -509,11 +507,10 @@ void readSourceGenerations(std::vector<DataFetcher::FileRec>& fileList)
 
     mSourceGenerationList.clear();
 
-    for (auto it = fileList.begin(); it != fileList.end(); ++it)
-    {
+    for (auto &it : fileList) {
       std::string fn;
       std::string path;
-      splitFilename(it->filename,path,fn);
+      splitFilename(it.filename, path, fn);
       //std::string fn = it->second.c_str();
       if (mLuaFunction > " ")
       {
@@ -1356,28 +1353,31 @@ int main(int argc, char *argv[])
       DataFetcher_network df_network;
       std::vector<DataFetcher::FileRec> fileList;
 
-      for (auto location = mLocations.begin(); location != mLocations.end(); ++location)
-      {
+      for (auto &mLocation : mLocations) {
         //printf("LOCATION %s\n",location->url.c_str());
-        if (location->type.empty() ||  strcmp(location->type.c_str(),"FS") == 0)
-        {
+        if (mLocation.type.empty() ||
+            strcmp(mLocation.type.c_str(), "FS") == 0) {
           serverType = DataFetcher::ServerType::Filesys;
-          dirName = location->url;
-          df_filesys.getFileList(serverType,protocol,server.c_str(),dirName.c_str(),location->patterns,fileList);
-        }
-        else
-        if (mMemoryMapperEnabled  &&  (location->type == "S3" ||  location->type == "s3"))
-        {
+          dirName = mLocation.url;
+          df_filesys.getFileList(serverType, protocol, server.c_str(),
+                                 dirName.c_str(), mLocation.patterns, fileList);
+        } else if (mMemoryMapperEnabled &&
+                   (mLocation.type == "S3" || mLocation.type == "s3")) {
           serverType = DataFetcher::ServerType::S3;
-          DataFetcher::splitUrl(location->url.c_str(),protocol,server,dirName);
+          DataFetcher::splitUrl(mLocation.url.c_str(), protocol, server,
+                                dirName);
 
-          if (location->authenticationMethod)
-          {
-            memoryMapper.addAccessInfo(server.c_str(),location->authenticationMethod,location->username.c_str(),location->password.c_str());
-            df_network.addAccessInfo(server.c_str(),location->authenticationMethod,location->username.c_str(),location->password.c_str());
+          if (mLocation.authenticationMethod) {
+            memoryMapper.addAccessInfo(
+                server.c_str(), mLocation.authenticationMethod,
+                mLocation.username.c_str(), mLocation.password.c_str());
+            df_network.addAccessInfo(
+                server.c_str(), mLocation.authenticationMethod,
+                mLocation.username.c_str(), mLocation.password.c_str());
           }
 
-          df_network.getFileList(serverType,protocol,server.c_str(),dirName.c_str(),location->patterns,fileList);
+          df_network.getFileList(serverType, protocol, server.c_str(),
+                                 dirName.c_str(), mLocation.patterns, fileList);
           //std::cout << "GET : " << dir->c_str() << " : " << server << " : " <<  protocol << " : " << dirName << " : " << fileList.size() << "\n";
         }
       }
@@ -1388,9 +1388,8 @@ int main(int argc, char *argv[])
       // Defining index cache filenames
       std::set<std::string> cacheFiles;
       char filename[1000];
-      for (auto it = fileList.begin();it != fileList.end();++it)
-      {
-        sprintf(filename,"%s:%s",it->server.c_str(),it->filename.c_str());
+      for (auto &it : fileList) {
+        sprintf(filename, "%s:%s", it.server.c_str(), it.filename.c_str());
         char cacheFilename[1000];
         getCacheFileName(filename,cacheFilename);
         cacheFiles.insert(std::string(cacheFilename));
@@ -1404,9 +1403,8 @@ int main(int argc, char *argv[])
       getFileList(mCacheDir.c_str(),cachePatterns,false,cacheDirList,cacheFileList);
 
       // Removing index cache files that do not have corresponding grid files
-      for (auto it = cacheFileList.begin();it != cacheFileList.end();++it)
-      {
-        sprintf(filename,"%s:%s",it->first.c_str(),it->second.c_str());
+      for (auto &it : cacheFileList) {
+        sprintf(filename, "%s:%s", it.first.c_str(), it.second.c_str());
         if (cacheFiles.find(filename) == cacheFiles.end())
           remove(filename);
       }
