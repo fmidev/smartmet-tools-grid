@@ -88,8 +88,7 @@ struct GeomRec
     std::string analysisTime;
 };
 
-typedef std::unordered_map<std::string, FileRecVec> FileRec_map;
-
+using FileRec_map = std::unordered_map<std::string, FileRecVec>;
 
 // Global variables:
 
@@ -145,8 +144,8 @@ T::GenerationInfoList mSourceGenerationList;
 std::set<int> mSourceFilenames;
 int mFileIdCounter = 0;
 
-typedef boost::bimap< std::string, int > string_bimap;
-typedef string_bimap::value_type bimap_rec;
+using string_bimap = boost::bimap<std::string, int>;
+using bimap_rec = string_bimap::value_type;
 
 string_bimap mFilenameMap;
 
