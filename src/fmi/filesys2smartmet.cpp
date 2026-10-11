@@ -655,7 +655,7 @@ bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T:
       if (p)
         *p = '\0';
 
-      time_t modTime = atoll(buf+1);
+      time_t modTime = toInt64(buf+1);
       if (modTime != modificationTime)
       {
         fclose(file);

@@ -3,6 +3,7 @@
  */
 
 #include <macgyver/Exception.h>
+#include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ImageFunctions.h"
 #include <string>
 
@@ -23,7 +24,7 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    uint numOfFiles = atoi(argv[1]);
+    uint numOfFiles = toInt32(argv[1]);
 
     for (uint a=0; a<numOfFiles; a++)
     {

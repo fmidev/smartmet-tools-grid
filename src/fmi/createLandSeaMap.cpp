@@ -29,8 +29,8 @@ int main(int argc, char *argv[])
     uint byteIdx = 0;
     uint bitIdx = 0;
 
-    uint w = atoi(argv[2]);
-    uint h = atoi(argv[3]);
+    uint w = toInt32(argv[2]);
+    uint h = toInt32(argv[3]);
 
     double xstep = 360.0 / (double)w;
     double ystep = 180.0 / (double)h;

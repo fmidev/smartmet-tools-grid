@@ -92,15 +92,15 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
         T::GridProjectionValue::LatLon,
         PQgetvalue(res,i,0),
         PQgetvalue(res,i,1),
-        atoi(PQgetvalue(res,i,2)),
-        atoi(PQgetvalue(res,i,3)),
-        getLongitude(atof(PQgetvalue(res,i,4))),
-        atof(PQgetvalue(res,i,5)),
-        fabs(atof(PQgetvalue(res,i,6))),
-        fabs(atof(PQgetvalue(res,i,7))),
+        toInt32(PQgetvalue(res,i,2)),
+        toInt32(PQgetvalue(res,i,3)),
+        getLongitude(toDouble(PQgetvalue(res,i,4))),
+        toDouble(PQgetvalue(res,i,5)),
+        fabs(toDouble(PQgetvalue(res,i,6))),
+        fabs(toDouble(PQgetvalue(res,i,7))),
         PQgetvalue(res,i,8),
-        fabs(atof(PQgetvalue(res,i,9))),
-        fabs(atof(PQgetvalue(res,i,10))),
+        fabs(toDouble(PQgetvalue(res,i,9))),
+        fabs(toDouble(PQgetvalue(res,i,10))),
         PQgetvalue(res,i,11));
     }
 
@@ -146,18 +146,18 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
         T::GridProjectionValue::RotatedLatLon,
         PQgetvalue(res,i,0),
         PQgetvalue(res,i,1),
-        atoi(PQgetvalue(res,i,2)),
-        atoi(PQgetvalue(res,i,3)),
-        getLongitude(atof(PQgetvalue(res,i,4))),
-        atof(PQgetvalue(res,i,5)),
-        fabs(atof(PQgetvalue(res,i,6))),
-        fabs(atof(PQgetvalue(res,i,7))),
+        toInt32(PQgetvalue(res,i,2)),
+        toInt32(PQgetvalue(res,i,3)),
+        getLongitude(toDouble(PQgetvalue(res,i,4))),
+        toDouble(PQgetvalue(res,i,5)),
+        fabs(toDouble(PQgetvalue(res,i,6))),
+        fabs(toDouble(PQgetvalue(res,i,7))),
         PQgetvalue(res,i,8),
-        atof(PQgetvalue(res,i,9)),
-        atof(PQgetvalue(res,i,10)),
-        atof(PQgetvalue(res,i,11)),
-        atof(PQgetvalue(res,i,12)),
-        atof(PQgetvalue(res,i,13)),
+        toDouble(PQgetvalue(res,i,9)),
+        toDouble(PQgetvalue(res,i,10)),
+        toDouble(PQgetvalue(res,i,11)),
+        toDouble(PQgetvalue(res,i,12)),
+        toDouble(PQgetvalue(res,i,13)),
         PQgetvalue(res,i,14));
     }
 
@@ -206,21 +206,21 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
         T::GridProjectionValue::LambertConformal,
         PQgetvalue(res,i,0),
         PQgetvalue(res,i,1),
-        atoi(PQgetvalue(res,i,2)),
-        atoi(PQgetvalue(res,i,3)),
-        getLongitude(atof(PQgetvalue(res,i,4))),
-        atof(PQgetvalue(res,i,5)),
-        fabs(atof(PQgetvalue(res,i,6))),
-        fabs(atof(PQgetvalue(res,i,7))),
+        toInt32(PQgetvalue(res,i,2)),
+        toInt32(PQgetvalue(res,i,3)),
+        getLongitude(toDouble(PQgetvalue(res,i,4))),
+        toDouble(PQgetvalue(res,i,5)),
+        fabs(toDouble(PQgetvalue(res,i,6))),
+        fabs(toDouble(PQgetvalue(res,i,7))),
         PQgetvalue(res,i,8),
-        atof(PQgetvalue(res,i,9)),
-        atof(PQgetvalue(res,i,10)),
-        atof(PQgetvalue(res,i,11)),
-        atof(PQgetvalue(res,i,12)),
-        atof(PQgetvalue(res,i,13)),
-        atof(PQgetvalue(res,i,14)),
-        atof(PQgetvalue(res,i,15)),
-        atof(PQgetvalue(res,i,16)),
+        toDouble(PQgetvalue(res,i,9)),
+        toDouble(PQgetvalue(res,i,10)),
+        toDouble(PQgetvalue(res,i,11)),
+        toDouble(PQgetvalue(res,i,12)),
+        toDouble(PQgetvalue(res,i,13)),
+        toDouble(PQgetvalue(res,i,14)),
+        toDouble(PQgetvalue(res,i,15)),
+        toDouble(PQgetvalue(res,i,16)),
         PQgetvalue(res,i,17));
     }
 
@@ -266,17 +266,17 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
         T::GridProjectionValue::LambertAzimuthalEqualArea,
         PQgetvalue(res,i,0),
         PQgetvalue(res,i,1),
-        atoi(PQgetvalue(res,i,2)),
-        atoi(PQgetvalue(res,i,3)),
-        getLongitude(atof(PQgetvalue(res,i,4))),
-        atof(PQgetvalue(res,i,5)),
-        fabs(atof(PQgetvalue(res,i,6))),
-        fabs(atof(PQgetvalue(res,i,7))),
+        toInt32(PQgetvalue(res,i,2)),
+        toInt32(PQgetvalue(res,i,3)),
+        getLongitude(toDouble(PQgetvalue(res,i,4))),
+        toDouble(PQgetvalue(res,i,5)),
+        fabs(toDouble(PQgetvalue(res,i,6))),
+        fabs(toDouble(PQgetvalue(res,i,7))),
         PQgetvalue(res,i,8),
-        atof(PQgetvalue(res,i,9)),
-        atof(PQgetvalue(res,i,10)),
-        atof(PQgetvalue(res,i,11)),
-        atof(PQgetvalue(res,i,12)),
+        toDouble(PQgetvalue(res,i,9)),
+        toDouble(PQgetvalue(res,i,10)),
+        toDouble(PQgetvalue(res,i,11)),
+        toDouble(PQgetvalue(res,i,12)),
         PQgetvalue(res,i,13));
     }
 
@@ -321,17 +321,17 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
         T::GridProjectionValue::PolarStereographic,
         PQgetvalue(res,i,0),
         PQgetvalue(res,i,1),
-        atoi(PQgetvalue(res,i,2)),
-        atoi(PQgetvalue(res,i,3)),
-        getLongitude(atof(PQgetvalue(res,i,4))),
-        atof(PQgetvalue(res,i,5)),
-        fabs(atof(PQgetvalue(res,i,6))),
-        fabs(atof(PQgetvalue(res,i,7))),
+        toInt32(PQgetvalue(res,i,2)),
+        toInt32(PQgetvalue(res,i,3)),
+        getLongitude(toDouble(PQgetvalue(res,i,4))),
+        toDouble(PQgetvalue(res,i,5)),
+        fabs(toDouble(PQgetvalue(res,i,6))),
+        fabs(toDouble(PQgetvalue(res,i,7))),
         PQgetvalue(res,i,8),
-        atof(PQgetvalue(res,i,9)),
-        atof(PQgetvalue(res,i,10)),
-        atof(PQgetvalue(res,i,11)),
-        atof(PQgetvalue(res,i,12)),
+        toDouble(PQgetvalue(res,i,9)),
+        toDouble(PQgetvalue(res,i,10)),
+        toDouble(PQgetvalue(res,i,11)),
+        toDouble(PQgetvalue(res,i,12)),
         PQgetvalue(res,i,13));
     }
 
@@ -376,17 +376,17 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
         T::GridProjectionValue::TransverseMercator,
         PQgetvalue(res,i,0),
         PQgetvalue(res,i,1),
-        atoi(PQgetvalue(res,i,2)),
-        atoi(PQgetvalue(res,i,3)),
-        getLongitude(atof(PQgetvalue(res,i,4))),
-        atof(PQgetvalue(res,i,5)),
-        fabs(atof(PQgetvalue(res,i,6))),
-        fabs(atof(PQgetvalue(res,i,7))),
+        toInt32(PQgetvalue(res,i,2)),
+        toInt32(PQgetvalue(res,i,3)),
+        getLongitude(toDouble(PQgetvalue(res,i,4))),
+        toDouble(PQgetvalue(res,i,5)),
+        fabs(toDouble(PQgetvalue(res,i,6))),
+        fabs(toDouble(PQgetvalue(res,i,7))),
         PQgetvalue(res,i,8),
-        atof(PQgetvalue(res,i,9)),
-        atof(PQgetvalue(res,i,10)),
-        atof(PQgetvalue(res,i,11)),
-        atof(PQgetvalue(res,i,12)),
+        toDouble(PQgetvalue(res,i,9)),
+        toDouble(PQgetvalue(res,i,10)),
+        toDouble(PQgetvalue(res,i,11)),
+        toDouble(PQgetvalue(res,i,12)),
         PQgetvalue(res,i,13));
     }
 
@@ -426,12 +426,12 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
         T::GridProjectionValue::Gaussian,
         PQgetvalue(res,i,0),
         PQgetvalue(res,i,1),
-        atoi(PQgetvalue(res,i,2)),
-        atof(PQgetvalue(res,i,3)),
-        atof(PQgetvalue(res,i,4)),
+        toInt32(PQgetvalue(res,i,2)),
+        toDouble(PQgetvalue(res,i,3)),
+        toDouble(PQgetvalue(res,i,4)),
         PQgetvalue(res,i,5),
-        atoi(PQgetvalue(res,i,6)),
-        atoi(PQgetvalue(res,i,7)),
+        toInt32(PQgetvalue(res,i,6)),
+        toInt32(PQgetvalue(res,i,7)),
         PQgetvalue(res,i,8));
 
       for (int f=0; f< fieldCount; f++)
@@ -517,10 +517,10 @@ void create_fmi_levelId_grib2(PGconn *conn,const char *dir)
 
     for (int i = 0; i < rowCount; i++)
     {
-      int fid = atoi(PQgetvalue(res,i,0));
-      int pid = atoi(PQgetvalue(res,i,1));
-      int cid = atoi(PQgetvalue(res,i,2));
-      int gid = atoi(PQgetvalue(res,i,3));
+      int fid = toInt32(PQgetvalue(res,i,0));
+      int pid = toInt32(PQgetvalue(res,i,1));
+      int cid = toInt32(PQgetvalue(res,i,2));
+      int gid = toInt32(PQgetvalue(res,i,3));
       if (fmiLevelId != fid)
       {
         gribLevelId = gid;
@@ -607,7 +607,7 @@ void create_fmi_levels(PGconn *conn,const char *dir)
 
     for (int i = 0; i < rowCount; i++)
     {
-      int id = atoi(PQgetvalue(res,i,0));
+      int id = toInt32(PQgetvalue(res,i,0));
       std::string name = PQgetvalue(res,i,1);
       std::string descr = PQgetvalue(res,i,2);
       std::string units = PQgetvalue(res,i,3);
@@ -703,10 +703,10 @@ void create_fmi_levelId_grib1(PGconn *conn,const char *dir)
 
     for (int i = 0; i < rowCount; i++)
     {
-      int fid = atoi(PQgetvalue(res,i,0));
-      int pid = atoi(PQgetvalue(res,i,1));
-      int cid = atoi(PQgetvalue(res,i,2));
-      int gid = atoi(PQgetvalue(res,i,3));
+      int fid = toInt32(PQgetvalue(res,i,0));
+      int pid = toInt32(PQgetvalue(res,i,1));
+      int cid = toInt32(PQgetvalue(res,i,2));
+      int gid = toInt32(PQgetvalue(res,i,3));
       if (fmiLevelId != fid)
       {
         gribLevelId = gid;
@@ -1251,7 +1251,7 @@ void create_fmi_forecastTypes(PGconn *conn,const char *dir)
 
     for (int i = 0; i < rowCount; i++)
     {
-      int id = atoi(PQgetvalue(res,i,0));
+      int id = toInt32(PQgetvalue(res,i,0));
       std::string name = PQgetvalue(res,i,1);
       std::string descr = PQgetvalue(res,i,2);
 
@@ -1319,7 +1319,7 @@ void create_fmi_aggregations(PGconn *conn,const char *dir)
 
     for (int i = 0; i < rowCount; i++)
     {
-      int id = atoi(PQgetvalue(res,i,0));
+      int id = toInt32(PQgetvalue(res,i,0));
       std::string name = PQgetvalue(res,i,1);
       std::string descr = PQgetvalue(res,i,2);
 
@@ -1387,7 +1387,7 @@ void create_fmi_processingTypes(PGconn *conn,const char *dir)
 
     for (int i = 0; i < rowCount; i++)
     {
-      int id = atoi(PQgetvalue(res,i,0));
+      int id = toInt32(PQgetvalue(res,i,0));
       std::string name = PQgetvalue(res,i,1);
       std::string descr = PQgetvalue(res,i,2);
 

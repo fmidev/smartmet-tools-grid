@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ThreadLock.h"
 #include "grid-files/common/AutoThreadLock.h"
 
@@ -183,8 +184,8 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
         *p2 = '\0';
         p2++;
 
-        std::size_t filePosition1 = atoll(p1);
-        std::size_t filePosition2 = atoll(p2);
+        std::size_t filePosition1 = SmartMet::toInt64(p1);
+        std::size_t filePosition2 = SmartMet::toInt64(p2);
 
         if (filePosition2 > filePosition1)
         {
@@ -229,7 +230,7 @@ int main(int argc,char ** argv)
     exit(-1);
   }
 
-  int port = atoi(argv[1]);
+  int port = SmartMet::toInt32(argv[1]);
   rootDir = argv[2];
 
 

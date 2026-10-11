@@ -89,10 +89,10 @@ int main(int argc, char **argv)
     T::ParamValue_vec values;
 
     std::string gridFilename = argv[1];
-    T::MessageIndex messageIndex = atoi(argv[2]);
+    T::MessageIndex messageIndex = toInt32(argv[2]);
     uint areaInterpolation = toInt64(argv[3]);
     double mp = toDouble(argv[4]);
-    bool rotate = (bool)atoi(argv[5]);
+    bool rotate = (bool)toInt32(argv[5]);
     char *pngFile = argv[6];
 
     SmartMet::GRID::GridFile gridFile;
@@ -132,8 +132,8 @@ int main(int argc, char **argv)
 
     // ### Allocating and initializing the image:
 
-    int width = atoi(attributeList.getAttributeValue("grid.width"));
-    int height = atoi(attributeList.getAttributeValue("grid.height"));
+    int width = toInt32(attributeList.getAttributeValue("grid.width"));
+    int height = toInt32(attributeList.getAttributeValue("grid.height"));
 
     if (width <= 0 ||  height <= 0)
     {

@@ -305,7 +305,7 @@ int run(int argc, char **argv)
       else
       if (strcmp(argv[t],"-l") == 0  &&  (t+1) < argc)
       {
-        valueLevels = atol(argv[t+1]);
+        valueLevels = toInt64(argv[t+1]);
         t++;
       }
       else

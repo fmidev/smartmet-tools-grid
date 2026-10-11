@@ -127,8 +127,8 @@ int main(int argc, char *argv[])
 
     // ### Allocating and initializing the image:
 
-    int width = atoi(attributeList.getAttributeValue("grid.width"));
-    int height = atoi(attributeList.getAttributeValue("grid.height"));
+    int width = toInt32(attributeList.getAttributeValue("grid.width"));
+    int height = toInt32(attributeList.getAttributeValue("grid.height"));
 
     if (width <= 0 ||  height <= 0)
     {

@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     }
 
     T::SessionId sessionId = toInt64(argv[1]);
-    T::SourceId sourceId = atol(argv[2]);
+    T::SourceId sourceId = toInt64(argv[2]);
     T::ProducerInfoList infoList;
 
     ContentServer::ServiceInterface *service = nullptr;

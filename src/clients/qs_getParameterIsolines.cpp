@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     char *attributes = argv[3];
     uint areaInterpolation = toInt64(argv[4]);
     double mp = toDouble(argv[5]);
-    bool rotate = (bool)atoi(argv[6]);
+    bool rotate = (bool)toInt32(argv[6]);
 
     service.init(serviceIor);
 
@@ -97,8 +97,8 @@ int main(int argc, char *argv[])
 
     query.mStartTime = utcTimeToTimeT(argv[7]);
 
-    uint timestep = atoi(argv[8]);
-    uint timesteps = atoi(argv[9]);
+    uint timestep = toInt32(argv[8]);
+    uint timesteps = toInt32(argv[9]);
     char *filePrefix = argv[10];
 
     param.mParam = argv[2];
@@ -142,8 +142,8 @@ int main(int argc, char *argv[])
       {
         if (newQuery.mAttributeList.getAttributeValue("grid.width") != nullptr && newQuery.mAttributeList.getAttributeValue("grid.height") != nullptr)
         {
-          int width = atoi(newQuery.mAttributeList.getAttributeValue("grid.width"));
-          int height = atoi(newQuery.mAttributeList.getAttributeValue("grid.height"));
+          int width = toInt32(newQuery.mAttributeList.getAttributeValue("grid.width"));
+          int height = toInt32(newQuery.mAttributeList.getAttributeValue("grid.height"));
 
           for (auto &it : newQuery.mQueryParameterList) {
             for (auto v = it.mValueList.begin(); v != it.mValueList.end();

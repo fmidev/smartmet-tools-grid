@@ -826,7 +826,7 @@ std::string getTableInfo(PGconn *conn, const char *tableName, T::ProducerId prod
 
     if (rowCount == 1)
     {
-      count = atoi(PQgetvalue(res, 0, 0));
+      count = toInt32(PQgetvalue(res, 0, 0));
       std::string tt = PQgetvalue(res, 0, 1);
       if (!tt.empty())
         lastUpdate =  utcTimeToTimeT(PQgetvalue(res, 0, 1));

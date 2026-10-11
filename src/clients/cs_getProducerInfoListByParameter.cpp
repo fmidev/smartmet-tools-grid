@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     }
 
     T::SessionId sessionId = toInt64(argv[1]);
-    T::ParamKeyType paramKeyType = atol(argv[2]);
+    T::ParamKeyType paramKeyType = toInt64(argv[2]);
     std::string paramKey = argv[3];
     T::ProducerInfoList infoList;
 

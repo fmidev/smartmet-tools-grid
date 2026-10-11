@@ -723,7 +723,7 @@ void readConfigFile(const char* configFile)
     std::vector<std::string> vec;
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingLevelSimplification", vec);
     for (auto &it : vec)
-      mParameterMapping_simplifiedLevelIdSet.insert(atoi(it.c_str()));
+      mParameterMapping_simplifiedLevelIdSet.insert(toInt32(it.c_str()));
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.fmi",query_server_mappingUpdateFile_fmi);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.newbase",query_server_mappingUpdateFile_newbase);
