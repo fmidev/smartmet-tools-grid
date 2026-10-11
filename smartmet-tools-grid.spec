@@ -290,6 +290,7 @@ fi
 %changelog
 * Sun Oct 11 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.11-1.fmi
 - Failed file writes, closes and seeks are now reported instead of being ignored
+- Floating point loops use integer counters, so rounding no longer drops or adds iterations
 
 * Sat Oct 10 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.10-1.fmi
 - grid_create: reject GRIB editions other than 1 and 2

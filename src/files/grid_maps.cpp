@@ -147,11 +147,14 @@ void saveMessageMap(const char *imageFile,const GRID::Message *message,T::ParamV
     uint startLon = 0;
     uint y = 0;
 
-    for (double lat = -89.8; lat < 90; lat=lat+0.2)
+    // 899 rows and 1800 columns, which is what the accumulating loops used to produce
+    for (int nlat = 0; nlat < 899; nlat++)
     {
+      const double lat = -89.8 + nlat * 0.2;
       uint x = startLon;
-      for (double lon = -179.8; lon < 180; lon=lon + 0.2)
+      for (int nlon = 0; nlon < 1800; nlon++)
       {
+        const double lon = -179.8 + nlon * 0.2;
         T::ParamValue val = message->getGridValueByLatLonCoordinate(lat,lon,interpolationMethod);
 
         uint v = 255 - ((val - minValue) / step / levelSize);
