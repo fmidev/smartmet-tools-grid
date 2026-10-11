@@ -22,7 +22,7 @@
 #include <csignal>
 #include <cstring>
 #include <libpq-fe.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #define FUNCTION_TRACE FUNCTION_TRACE_OFF
 

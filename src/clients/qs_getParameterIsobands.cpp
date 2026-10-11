@@ -18,7 +18,7 @@
 #include <macgyver/TimeParser.h>
 #include <macgyver/TimeZoneFactory.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace SmartMet;
 

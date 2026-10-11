@@ -8,7 +8,7 @@
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/identification/GridDef.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace SmartMet;
 

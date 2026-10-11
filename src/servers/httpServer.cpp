@@ -6,7 +6,7 @@
 #include <cstring>
 #include <map>
 #include <microhttpd.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <vector>
 

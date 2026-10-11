@@ -15,7 +15,7 @@
 #include <cstdio>
 #include <cstring>
 #include <microhttpd.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace SmartMet;
 
