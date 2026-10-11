@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     if ((gridData.mColumns*gridData.mRows) != sz)
     {
       fprintf(stdout,"ERROR: The size of the grid (%u x %u) and the number of the values (%u) no not match!\n",gridData.mColumns,gridData.mRows,sz);
-      fclose(file);
+      (void)fclose(file);
       return -7;
     }
 
@@ -98,7 +98,8 @@ int main(int argc, char *argv[])
     }
     printf("VALUES %lu\n",values.size());
 
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
     return 0;
   }
   catch (Fmi::Exception& e)

@@ -76,11 +76,14 @@ int main(int argc, char *argv[])
       delete[] data;
       return -1;
     }
-    fwrite(&w,4,1,file);
-    fwrite(&h,4,1,file);
+    if (fwrite(&w,4,1,file) != 1)
+      throw Fmi::Exception(BCP, "Failed to write the file");
+    if (fwrite(&h,4,1,file) != 1)
+      throw Fmi::Exception(BCP, "Failed to write the file");
     BitLine bitLine(data,bits);
     bitLine.writeToFile(file);
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
     delete [] data;
 
 

@@ -66,7 +66,7 @@ FileHandle* getFileHandle(const char *filename)
       if (itm != fileHandles.end())
       {
         //printf("DELETE %s\n",it->c_str());
-        fclose(itm->second->fileHandle);
+        (void)fclose(itm->second->fileHandle);  // read-only
         delete itm->second;
         fileHandles.erase(itm);
       }
@@ -195,8 +195,13 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
           auto fh = getFileHandle(filename.c_str());
           if (fh != nullptr) {
             SmartMet::AutoThreadLock lock(&fh->threadLock);
-            fseek(fh->fileHandle,filePosition1,SEEK_SET);
-            int n = fread(content,1,contentSize,fh->fileHandle);
+            // Never send the uninitialized buffer if the range cannot be read
+            if (fseek(fh->fileHandle,filePosition1,SEEK_SET) != 0 ||
+                fread(content,1,contentSize,fh->fileHandle) != contentSize)
+            {
+              delete[] content;
+              content = nullptr;
+            }
           }
         }
       }

@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
     }
 
 
-    signal(SIGINT, sig_handler);
+    (void)signal(SIGINT, sig_handler);
 
     if (!mAccessFile.empty())
       memoryMapper.setAccessFile(mAccessFile.c_str());
@@ -299,7 +299,8 @@ int main(int argc, char *argv[])
         throw exception;
       }
       fprintf(file,"%s\n",ior.c_str());
-      fclose(file);
+      if (fclose(file) != 0)
+        throw Fmi::Exception(BCP, "Failed to close the output file");
     }
 
     corbaServer->run();

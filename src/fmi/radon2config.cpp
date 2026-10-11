@@ -444,7 +444,8 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     PQclear(res);
 
 
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
   }
   catch (...)
   {
@@ -536,7 +537,8 @@ void create_fmi_levelId_grib2(PGconn *conn,const char *dir)
       }
     }
 
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
     PQclear(res);
   }
   catch (...)
@@ -629,7 +631,8 @@ void create_fmi_levels(PGconn *conn,const char *dir)
       fprintf(file,"%d;%s;%d;%s;%s\n",id,name.c_str(),type,descr.c_str(),units.c_str());
     }
 
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
     PQclear(res);
   }
   catch (...)
@@ -722,7 +725,8 @@ void create_fmi_levelId_grib1(PGconn *conn,const char *dir)
       }
     }
 
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
     PQclear(res);
   }
   catch (...)
@@ -808,7 +812,8 @@ void create_fmi_parameterId_grib2(PGconn *conn,const char *dir)
       fprintf(file,"\n");
     }
 
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
     PQclear(res);
   }
   catch (...)
@@ -894,7 +899,8 @@ void create_fmi_parameterId_grib1(PGconn *conn,const char *dir)
       fprintf(file,"\n");
     }
 
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
     PQclear(res);
   }
   catch (...)
@@ -1021,7 +1027,8 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
         fprintf(file,";;\n");
     }
 
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
     PQclear(res);
   }
   catch (...)
@@ -1110,7 +1117,8 @@ void create_fmi_parameters(PGconn *conn,const char *dir)
         fprintf(file,";\n");
     }
 
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
     PQclear(res);
   }
   catch (...)
@@ -1189,7 +1197,8 @@ void create_fmi_producerId_grib(PGconn *conn,const char *dir)
       fprintf(file,"\n");
     }
 
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
     PQclear(res);
   }
   catch (...)
@@ -1257,7 +1266,8 @@ void create_fmi_forecastTypes(PGconn *conn,const char *dir)
 
       fprintf(file,"%d;%s;%s\n",id,name.c_str(),descr.c_str());
     }
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
     PQclear(res);
   }
   catch (...)
@@ -1325,7 +1335,8 @@ void create_fmi_aggregations(PGconn *conn,const char *dir)
 
       fprintf(file,"%d;%s;%s\n",id,name.c_str(),descr.c_str());
     }
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
     PQclear(res);
   }
   catch (...)
@@ -1393,7 +1404,8 @@ void create_fmi_processingTypes(PGconn *conn,const char *dir)
 
       fprintf(file,"%d;%s;%s\n",id,name.c_str(),descr.c_str());
     }
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
     PQclear(res);
   }
   catch (...)

@@ -46,7 +46,8 @@ void writeProducers(T::SessionId sessionId,ContentServer::ServiceInterface *serv
       fprintf(file,"%s\n",st.c_str());
     }
 
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
   }
   catch (...)
   {
@@ -92,7 +93,8 @@ void writeGenerations(T::SessionId sessionId,ContentServer::ServiceInterface *se
       fprintf(file,"%s\n",st.c_str());
     }
 
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
   }
   catch (...)
   {
@@ -145,7 +147,8 @@ void writeFiles(T::SessionId sessionId,ContentServer::ServiceInterface *serviceI
           startFileId = info->mFileId + 1;
       }
     }
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
   }
   catch (...)
   {
@@ -203,7 +206,8 @@ void writeContent(T::SessionId sessionId,ContentServer::ServiceInterface *servic
         }
       }
     }
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
   }
   catch (...)
   {

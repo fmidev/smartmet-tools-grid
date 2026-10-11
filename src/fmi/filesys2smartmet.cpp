@@ -658,8 +658,8 @@ bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T:
       time_t modTime = toInt64(buf+1);
       if (modTime != modificationTime)
       {
-        fclose(file);
-        remove(cacheFilename);
+        (void)fclose(file);
+        (void)remove(cacheFilename);
         return false;
       }
     }
@@ -676,8 +676,8 @@ bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T:
           {
             missingInformation = true;
             delete contentInfo;
-            fclose(file);
-            remove(cacheFilename);
+            (void)fclose(file);
+            (void)remove(cacheFilename);
             return false;
           }
 
@@ -689,7 +689,7 @@ bool readSourceContentCache(const char *cacheFilename,time_t modificationTime,T:
         }
       }
     }
-    fclose(file);
+    (void)fclose(file);
     return true;
   }
   catch (...)
@@ -763,7 +763,8 @@ void readSourceContent(T::FileInfo& fileInfo,T::ContentInfoList& contentList,boo
         fprintf(file,"%s\n",s.c_str());
       }
     }
-    fclose(file);
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
     //contentList.print(std::cout,0,0);
   }
   catch (...)
@@ -841,7 +842,7 @@ void readSourceProducers()
       }
 
     }
-    fclose(file);
+    (void)fclose(file);
   }
   catch (...)
   {
@@ -1406,7 +1407,7 @@ int main(int argc, char *argv[])
       for (auto &it : cacheFileList) {
         sprintf(filename, "%s:%s", it.first.c_str(), it.second.c_str());
         if (cacheFiles.find(filename) == cacheFiles.end())
-          remove(filename);
+          (void)remove(filename);
       }
 
       PRINT_DATA(mDebugLogPtr,"* Reading producer information from the target data storage\n");

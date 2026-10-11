@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    fclose(file);
+    (void)fclose(file);
 
     UInt64 endTime = getTime();
 

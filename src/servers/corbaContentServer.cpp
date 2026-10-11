@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    signal(SIGINT, sig_handler);
+    (void)signal(SIGINT, sig_handler);
 
     readConfigFile(argv[1]);
 
@@ -349,7 +349,8 @@ int main(int argc, char *argv[])
         throw exception;
       }
       fprintf(file,"%s\n",ior.c_str());
-      fclose(file);
+      if (fclose(file) != 0)
+        throw Fmi::Exception(BCP, "Failed to close the output file");
     }
 
     corbaServer->run();

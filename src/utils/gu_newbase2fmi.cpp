@@ -72,7 +72,7 @@ void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_ve
         }
       }
     }
-    fclose(file);
+    (void)fclose(file);
   }
   catch (...)
   {

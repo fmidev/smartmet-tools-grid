@@ -447,9 +447,8 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
       file = openMappingFile(mappingFile);
     }
 
-    if (file != nullptr)
-      fclose(file);
-
+    if (file != nullptr && fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the mapping file");
   }
   catch (...)
   {
@@ -816,7 +815,8 @@ int main(int argc, char *argv[])
         throw exception;
       }
       fprintf(file,"%s\n",ior.c_str());
-      fclose(file);
+      if (fclose(file) != 0)
+        throw Fmi::Exception(BCP, "Failed to close the output file");
     }
 
     mProducerMappingFileCollection.init(mProducerMappingFiles,true);

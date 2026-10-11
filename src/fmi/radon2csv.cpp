@@ -73,7 +73,7 @@ void readProducerList(const char *filename)
           producerList.emplace_back(st);
       }
     }
-    fclose(file);
+    (void)fclose(file);
   }
   catch (...)
   {
@@ -415,10 +415,14 @@ int main(int argc, char *argv[])
 
     PQfinish(conn);
 
-    fclose(producerFile);
-    fclose(generationFile);
-    fclose(fileFile);
-    fclose(contentFile);
+    if (fclose(producerFile) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
+    if (fclose(generationFile) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
+    if (fclose(fileFile) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
+    if (fclose(contentFile) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
 
     return 0;
   }

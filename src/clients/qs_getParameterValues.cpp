@@ -122,7 +122,8 @@ int main(int argc, char *argv[])
           }
           fprintf(file,"\n");
         }
-        fclose(file);
+        if (fclose(file) != 0)
+          throw Fmi::Exception(BCP, "Failed to close the output file");
       }
     }
 

@@ -432,7 +432,7 @@ void readProducerList(const char *filename)
         }
       }
     }
-    fclose(file);
+    (void)fclose(file);
     mLoopCounter++;
   }
   catch (...)
@@ -2863,9 +2863,9 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    signal(SIGINT, sig_handler);
-    signal(SIGTERM, sig_handler);
-    signal(SIGHUP, sig_handler);
+    (void)signal(SIGINT, sig_handler);
+    (void)signal(SIGTERM, sig_handler);
+    (void)signal(SIGHUP, sig_handler);
 
 
     readConfigFile(argv[1]);

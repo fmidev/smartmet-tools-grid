@@ -189,7 +189,7 @@ void getMainPage(SmartMet::T::ResponseMessage& response)
           *p = '\0';
         response.addLine(st);
       }
-      fclose(file);
+      (void)fclose(file);
     }
     else
     {
