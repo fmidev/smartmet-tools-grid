@@ -86,8 +86,9 @@ int main(int argc, char *argv[])
     }
 
     // ### Result:
-    for (const auto &it : infoList) {
-      printf("%s\n", it.c_str());
+    for (const auto &it : infoList)
+    {
+      printf("%s\n",it.c_str());
     }
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);

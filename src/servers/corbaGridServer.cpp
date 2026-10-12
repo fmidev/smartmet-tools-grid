@@ -149,12 +149,14 @@ void loadMappings(QueryServer::ParamMappingFile_vec& parameterMappings)
 {
   try
   {
-    for (auto &query_server_mappingFile : query_server_mappingFiles) {
+    for (auto &query_server_mappingFile : query_server_mappingFiles)
+    {
       QueryServer::ParameterMappingFile mapping(query_server_mappingFile);
       parameterMappings.push_back(mapping);
     }
 
-    for (auto &parameterMapping : parameterMappings) {
+    for (auto &parameterMapping : parameterMappings)
+    {
       parameterMapping.init();
     }
   }
@@ -309,9 +311,10 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
       int result = contentService->getProducerParameterListByProducerId(sessionId,producerInfo->mProducerId,sourceParameterKeyType,targetParameterKeyType,infoList);
       if (result == 0)
       {
-        for (const auto &it : infoList) {
+        for (const auto &it : infoList)
+        {
           std::vector<std::string> pl;
-          splitString(it.c_str(), ';', pl);
+          splitString(it.c_str(),';',pl);
           if (pl.size() >= 8)
           {
             QueryServer::ParameterMapping m;
@@ -803,6 +806,7 @@ int main(int argc, char *argv[])
     std::shared_ptr<Fmi::LandCover> landCover;
     if (landcoverdir > " ")
       landCover = std::make_shared<Fmi::LandCover>(landcoverdir);
+
 
     if (strcasecmp(content_server_content_source_type.c_str(),"redis") == 0)
     {

@@ -12,6 +12,7 @@
 #include <libpq-fe.h>
 #include <cstdlib>
 
+
 #define FUNCTION_TRACE FUNCTION_TRACE_OFF
 
 
@@ -91,8 +92,9 @@ bool producerEnabled(const char *producerName)
 {
   try
   {
-    for (auto &it : producerList) {
-      if (strcasecmp(it.c_str(), producerName) == 0)
+    for (auto &it : producerList)
+    {
+      if (strcasecmp(it.c_str(),producerName) == 0)
         return true;
     }
     return false;

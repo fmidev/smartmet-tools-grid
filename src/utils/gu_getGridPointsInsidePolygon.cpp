@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
         p++;
         double x = toDouble(buf);
         double y = toDouble(p);
-        polygonPoints.emplace_back(x, y);
+        polygonPoints.emplace_back(x,y);
         printf("Coordinate %f,%f\n",x,y);
       }
     }
@@ -49,8 +49,9 @@ int main(int argc, char *argv[])
     getPointsInsidePolygon(width,height,polygonPoints,gridPoints);
     UInt64 endTime = getTime();
 
-    for (auto &gridPoint : gridPoints) {
-      printf("%d,%d\n", gridPoint.x(), gridPoint.y());
+    for (auto &gridPoint : gridPoints)
+    {
+      printf("%d,%d\n",gridPoint.x(),gridPoint.y());
     }
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);

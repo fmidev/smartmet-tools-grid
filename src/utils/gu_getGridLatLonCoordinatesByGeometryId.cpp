@@ -48,8 +48,9 @@ int main(int argc, char *argv[])
 
     UInt64 endTime = getTime();
 
-    for (auto &it : *coordinates) {
-      printf("%f,%f\n", it.x(), it.y());
+    for (auto &it : *coordinates)
+    {
+      printf("%f,%f\n",it.x(),it.y());
     }
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);

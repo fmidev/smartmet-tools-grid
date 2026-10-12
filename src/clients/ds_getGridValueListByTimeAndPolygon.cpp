@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
         p++;
         double x = toDouble(buf);
         double y = toDouble(p);
-        polygonPoints.emplace_back(x, y);
+        polygonPoints.emplace_back(x,y);
         printf("Coordinate %f,%f\n",x,y);
       }
     }

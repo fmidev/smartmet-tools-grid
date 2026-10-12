@@ -138,8 +138,7 @@ int main(int argc, char *argv[])
       }
       else
       {
-        auto *fileInfo =
-            (T::FileInfo *)fileInfoList.getFileInfoByIndex(len - 1);
+        auto *fileInfo = (T::FileInfo*)fileInfoList.getFileInfoByIndex(len-1);
         startFileId = fileInfo->mFileId + 1;
       }
     }
@@ -172,8 +171,7 @@ int main(int argc, char *argv[])
       }
       else
       {
-        auto *contentInfo =
-            (T::ContentInfo *)contentInfoList.getContentInfoByIndex(len - 1);
+        auto *contentInfo = (T::ContentInfo*)contentInfoList.getContentInfoByIndex(len-1);
         startFileId = contentInfo->mFileId;
         startMessageIndex = contentInfo->mMessageIndex + 1;
       }

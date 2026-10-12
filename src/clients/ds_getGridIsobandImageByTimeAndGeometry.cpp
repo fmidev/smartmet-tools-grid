@@ -77,9 +77,10 @@ int main(int argc, char *argv[])
 
     std::vector<std::string> attrList;
     splitString(attributes,',',attrList);
-    for (auto &it : attrList) {
+    for (auto &it : attrList)
+    {
       std::vector<std::string> partList;
-      splitString(it, '=', partList);
+      splitString(it,'=',partList);
       if (partList.size() == 2)
         attributeList.setAttribute(partList[0],partList[1]);
     }
@@ -107,8 +108,9 @@ int main(int argc, char *argv[])
 
     printf("\nContours : %ld\n",contours.size());
 
-    for (auto &contour : contours) {
-      printf("Lines %ld\n", contour.size());
+    for (auto &contour : contours)
+    {
+      printf("Lines %ld\n",contour.size());
     }
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
@@ -137,13 +139,14 @@ int main(int argc, char *argv[])
       uint step = 250 / contours.size();
 
       uint t = 0;
-      for (auto &contour : contours) {
+      for (auto &contour : contours)
+      {
         uint col = colorList[t];
         if (col == 0xFFFFFFFF)
           col = (c << 16) + (c << 8) + c;
 
         imagePaint.setFillColor(col);
-        imagePaint.paintWkb(mp, mp, 0, 0, contour);
+        imagePaint.paintWkb(mp,mp,0,0,contour);
         c = c - step;
         t++;
       }

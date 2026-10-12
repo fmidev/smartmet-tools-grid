@@ -37,8 +37,9 @@ int main(int argc, char *argv[])
     getPointsInsideCircle(width,height,origoX,origoY,radius,gridPoints);
     UInt64 endTime = getTime();
 
-    for (auto &gridPoint : gridPoints) {
-      printf("%d,%d\n", gridPoint.x(), gridPoint.y());
+    for (auto &gridPoint : gridPoints)
+    {
+      printf("%d,%d\n",gridPoint.x(),gridPoint.y());
     }
 
 /*

@@ -20,6 +20,7 @@
 #include <libpq-fe.h>
 #include <cstdlib>
 
+
 #define FUNCTION_TRACE FUNCTION_TRACE_OFF
 
 using namespace SmartMet;
@@ -89,6 +90,7 @@ struct GeomRec
 
 using FileRec_map = std::unordered_map<std::string, FileRecVec>;
 
+
 // Global variables:
 
 std::vector<FileRec> emptyRecList;
@@ -143,7 +145,7 @@ T::GenerationInfoList mSourceGenerationList;
 std::set<int> mSourceFilenames;
 int mFileIdCounter = 0;
 
-using string_bimap = boost::bimap<std::string, int>;
+using string_bimap = boost::bimap< std::string, int >;
 using bimap_rec = string_bimap::value_type;
 
 string_bimap mFilenameMap;
@@ -1847,7 +1849,8 @@ void updateGeometries()
       if (targetGeometry->mSourceId == mSourceId  &&  mProducerIdList.find(targetGeometry->mProducerId) != mProducerIdList.end())
       {
         T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoById(targetGeometry->mGenerationId);
-        if (targetGeneration != nullptr) {
+        if (targetGeneration != nullptr)
+        {
           char st[200];
           sprintf(st, "%s:%d:%d",targetGeneration->mName.c_str(),targetGeometry->mGeometryId,targetGeometry->mLevelId);
 
@@ -1881,15 +1884,13 @@ void updateGeometries()
       }
     }
 
-    for (auto &g : mSourceGeometryList) {
-      std::string gname =
-          toUpperString(g.second.producerName + ":" + g.second.analysisTime);
+    for (auto &g : mSourceGeometryList)
+    {
+      std::string gname = toUpperString(g.second.producerName + ":" + g.second.analysisTime);
       T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoByName(gname);
       if (targetGeneration != nullptr)
       {
-        T::GeometryInfo *targetGeom = mTargetGeometryList.getGeometryInfoById(
-            targetGeneration->mGenerationId, g.second.geometryId,
-            g.second.levelId);
+        T::GeometryInfo *targetGeom = mTargetGeometryList.getGeometryInfoById(targetGeneration->mGenerationId,g.second.geometryId,g.second.levelId);
 
         if (targetGeom == nullptr)
         {
@@ -1990,9 +1991,7 @@ void updateGenerationStatus(T::ProducerInfo& targetProducer)
           uint gLen = mTargetGeometryList.getLength();
           for (uint g=0; g<gLen; g++)
           {
-            auto *geomInfo =
-                (T::GeometryInfo *)mTargetGeometryList.getGeometryInfoByIndex(
-                    g);
+            auto *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
             if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
             {
               std::string gkey = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
@@ -2051,9 +2050,7 @@ void updateGenerationStatus(T::ProducerInfo& targetProducer)
           uint gLen = mTargetGeometryList.getLength();
           for (uint g=0; g<gLen; g++)
           {
-            auto *geomInfo =
-                (T::GeometryInfo *)mTargetGeometryList.getGeometryInfoByIndex(
-                    g);
+            auto *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
             if (geomInfo->mGenerationId == targetGeneration->mGenerationId  &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
             {
               std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
@@ -2136,7 +2133,8 @@ void updateGenerationStatus()
             auto rec = mProducerDependensies.find(pname);
             if (rec != mProducerDependensies.end())
             {
-              for (auto &it : rec->second) {
+              for (auto &it : rec->second)
+              {
                 std::string n = toUpperString(it + ":" + parts[1] + ":0:0");
                 auto gen = mReadyGenerations.find(n);
                 if (gen == mReadyGenerations.end())
@@ -2155,9 +2153,7 @@ void updateGenerationStatus()
           uint gLen = mTargetGeometryList.getLength();
           for (uint g=0; g<gLen; g++)
           {
-            auto *geomInfo =
-                (T::GeometryInfo *)mTargetGeometryList.getGeometryInfoByIndex(
-                    g);
+            auto *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
             if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
             {
               std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
@@ -2202,9 +2198,7 @@ void updateGenerationStatus()
           for (uint g=0; g<gLen; g++)
           {
             bool geom_ready = true;
-            auto *geomInfo =
-                (T::GeometryInfo *)mTargetGeometryList.getGeometryInfoByIndex(
-                    g);
+            auto *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
             if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
             {
               std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId));
@@ -2220,11 +2214,9 @@ void updateGenerationStatus()
                 auto rec = mProducerDependensies.find(pname);
                 if (rec != mProducerDependensies.end())
                 {
-                  for (auto &it : rec->second) {
-                    std::string n =
-                        toUpperString(it + ":" + parts[1] + ":" +
-                                      std::to_string(geomInfo->mGeometryId) +
-                                      ":" + std::to_string(geomInfo->mLevelId));
+                  for (auto &it : rec->second)
+                  {
+                    std::string n = toUpperString(it + ":" + parts[1] + ":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId));
                     auto gen = mReadyGenerations.find(n);
                     if (gen == mReadyGenerations.end())
                     {
@@ -2364,13 +2356,16 @@ void deleteOldFileRecords(uint loadCounter)
   {
     std::set<std::string> entriesToRemove;
 
-    for (auto &it : mFileRecMap) {
-      if (it.second.loadCounter != loadCounter) {
+    for (auto &it : mFileRecMap)
+    {
+      if (it.second.loadCounter != loadCounter)
+      {
         entriesToRemove.insert(it.first);
       }
     }
 
-    for (const auto &it : entriesToRemove) {
+    for (const auto &it : entriesToRemove)
+    {
       auto pos = mFileRecMap.find(it);
       if (pos != mFileRecMap.end())
       {
@@ -2398,7 +2393,8 @@ uint countFileRecords()
   try
   {
     uint cnt = 0;
-    for (auto &it : mFileRecMap) {
+    for (auto &it : mFileRecMap)
+    {
       cnt = cnt + it.second.files.size();
     }
 
@@ -2454,15 +2450,16 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
         fileReadCount++;
       }
 
-      for (auto &it : recList) {
+      for (auto &it : recList)
+      {
         if (shutdownRequested)
           return;
 
         fileRecList.push_back(it);
         T::FileInfo fileInfo;
         std::string filename = getFilename(it.fileId);
-        if (mSourceFilenames.find(it.fileId) == mSourceFilenames.end() &&
-            targetFileList.getFileInfoByName(filename) == nullptr) {
+        if (mSourceFilenames.find(it.fileId) == mSourceFilenames.end() && targetFileList.getFileInfoByName(filename) == nullptr)
+        {
           // The target data storage does not have the current file information. It should be added.
 
           PRINT_DATA(mDebugLogPtr, "**** New file : %s\n", filename.c_str());
@@ -2475,17 +2472,19 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
           fc.mFileInfo.mServerType = it.serverType;
           fc.mFileInfo.mServer = it.server;
 
-          if (strncasecmp(it.server.c_str(), "http://", 7) == 0) {
+          if (strncasecmp(it.server.c_str(),"http://",7) == 0)
+          {
             fc.mFileInfo.mProtocol = 1;
             fc.mFileInfo.mServer = it.server.substr(7);
           }
 
-          if (strncasecmp(it.server.c_str(), "https://", 8) == 0) {
+          if (strncasecmp(it.server.c_str(),"https://",8) == 0)
+          {
             fc.mFileInfo.mProtocol = 2;
             fc.mFileInfo.mServer = it.server.substr(8);
           }
 
-          if (it.serverType > 1 && fc.mFileInfo.mProtocol == 0)
+          if (it.serverType > 1  &&  fc.mFileInfo.mProtocol == 0)
             fc.mFileInfo.mProtocol = 2;
 
           fc.mFileInfo.mFileType = it.format;
@@ -2546,7 +2545,8 @@ void saveTargetContent(T::ProducerId producerId,std::vector<FileRec>& fileRecLis
 
     T::ContentInfoList contentList;
 
-    for (auto &it : fileRecList) {
+    for (auto &it : fileRecList)
+    {
       std::string filename = getFilename(it.fileId);
       T::FileInfo *fileInfo = targetFileList.getFileInfoByName(filename);
       if (fileInfo != nullptr)
@@ -2585,8 +2585,8 @@ void saveTargetContent(T::ProducerId producerId,std::vector<FileRec>& fileRecLis
           contentInfo->mDeletionTime = fileInfo->mDeletionTime;
 
           Identification::FmiParameterDef fmiDef;
-          if (Identification::gridDef.getFmiParameterDefById(it.paramId,
-                                                             fmiDef)) {
+          if (Identification::gridDef.getFmiParameterDefById(it.paramId, fmiDef))
+          {
             contentInfo->setFmiParameterName(fmiDef.mParameterName);
           }
 
@@ -2644,7 +2644,8 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
 
     T::ContentInfoList contentList;
 
-    for (auto &it : fileRecList) {
+    for (auto &it : fileRecList)
+    {
       std::string filename = getFilename(it.fileId);
       T::FileInfo *fileInfo = targetFileList.getFileInfoByName(filename);
       if (fileInfo != nullptr)
@@ -2683,8 +2684,8 @@ void saveTargetContent(std::vector<FileRec>& fileRecList)
           contentInfo->mDeletionTime = fileInfo->mDeletionTime;
 
           Identification::FmiParameterDef fmiDef;
-          if (Identification::gridDef.getFmiParameterDefById(it.paramId,
-                                                             fmiDef)) {
+          if (Identification::gridDef.getFmiParameterDefById(it.paramId, fmiDef))
+          {
             contentInfo->setFmiParameterName(fmiDef.mParameterName);
           }
 
@@ -3069,8 +3070,7 @@ int main(int argc, char *argv[])
         PRINT_DATA(mDebugLogPtr, "   - mFileRecMap           = %lu\n",mFileRecMap.size());
         PRINT_DATA(mDebugLogPtr, "   - fileRecords           = %u\n",countFileRecords());
         PRINT_DATA(mDebugLogPtr, "   - loopCounter           = %d\n",mLoopCounter);
-        PRINT_DATA(mDebugLogPtr, "   - loopTime              = %ld sec\n",
-                   time(nullptr) - loopStart);
+        PRINT_DATA(mDebugLogPtr, "   - loopTime              = %ld sec\n",time(nullptr)-loopStart);
 
         PRINT_DATA(mDebugLogPtr, "********************************************************************\n\n");
 
@@ -3103,8 +3103,7 @@ int main(int argc, char *argv[])
         }
       }
 
-      PRINT_EVENT_LINE(mProcessingLogPtr, "UPDATE;END;Loop time %ld seconds;",
-                       time(nullptr) - loopStart);
+      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE;END;Loop time %ld seconds;",time(nullptr)-loopStart);
 
       if (mWaitTime > 0 && !shutdownRequested)
       {

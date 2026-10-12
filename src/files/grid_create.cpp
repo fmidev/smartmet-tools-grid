@@ -19,6 +19,7 @@
 #include <sys/time.h>
 #include <vector>
 
+
 using namespace SmartMet;
 
 
@@ -1308,18 +1309,22 @@ int main(int argc, char *argv[])
 
           auto properties = gribProperty.getPropertyVector();
 
-          for (auto &propertie : properties) {
-            if (configurationFile.getAttributeValue(propertie.first.c_str(),
-                                                    v)) {
-              newMessage->setProperty(propertie.second, v);
+          for (auto &propertie : properties)
+          {
+            if (configurationFile.getAttributeValue(propertie.first.c_str(),v))
+            {
+              newMessage->setProperty(propertie.second,v);
               std::cout << "SET " << propertie.first << " : " << v << "\n";
-            } else if (dataMessage->getProperty(propertie.second, v)) {
+            }
+            else
+            if (dataMessage->getProperty(propertie.second,v))
+            {
               std::cout << "*SET " << propertie.first << " : " << v << "\n";
-              newMessage->setProperty(propertie.second, v);
+              newMessage->setProperty(propertie.second,v);
             }
           }
 
-#if 0
+  #if 0
 
           if (dataMessage->getProperty(Property::IndicatorSection::EditionNumber,v))
             newMessage->setProperty(Property::IndicatorSection::EditionNumber,v);
@@ -1425,17 +1430,22 @@ int main(int argc, char *argv[])
 
         auto properties = gribProperty.getPropertyVector();
 
-        for (auto &propertie : properties) {
-          if (configurationFile.getAttributeValue(propertie.first.c_str(), v)) {
-            newMessage->setProperty(propertie.second, v);
+        for (auto &propertie : properties)
+        {
+          if (configurationFile.getAttributeValue(propertie.first.c_str(),v))
+          {
+            newMessage->setProperty(propertie.second,v);
             std::cout << "SET " << propertie.first << " : " << v << "\n";
-          } else if (dataMessage->getProperty(propertie.second, v)) {
+          }
+          else
+          if (dataMessage->getProperty(propertie.second,v))
+          {
             std::cout << "*SET " << propertie.first << " : " << v << "\n";
-            newMessage->setProperty(propertie.second, v);
+            newMessage->setProperty(propertie.second,v);
           }
         }
 
-#if 0
+  #if 0
         if (dataMessage->getProperty(Property::IndicatorSection::Discipline,v))
           newMessage->setProperty(Property::IndicatorSection::Discipline,v);
 

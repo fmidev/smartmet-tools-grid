@@ -58,10 +58,12 @@ int main(int argc, char *argv[])
   try
   {
     char *serviceIor = getenv("SMARTMET_QS_IOR");
-    if (serviceIor == nullptr) {
+    if (serviceIor == nullptr)
+    {
       fprintf(stdout,"SMARTMET_QS_IOR not defined!\n");
       return -1;
     }
+
 
     if (argc < 12)
     {
@@ -88,12 +90,14 @@ int main(int argc, char *argv[])
 
     std::vector<std::string> attrList;
     splitString(attributes,'|',attrList);
-    for (auto &it : attrList) {
+    for (auto &it : attrList)
+    {
       std::vector<std::string> partList;
-      splitString(it, '=', partList);
+      splitString(it,'=',partList);
       if (partList.size() == 2)
         query.mAttributeList.setAttribute(partList[0],partList[1]);
     }
+
 
     query.mStartTime = utcTimeToTimeT(argv[7]);
 
@@ -145,9 +149,10 @@ int main(int argc, char *argv[])
           int width = toInt32(newQuery.mAttributeList.getAttributeValue("grid.width"));
           int height = toInt32(newQuery.mAttributeList.getAttributeValue("grid.height"));
 
-          for (auto &it : newQuery.mQueryParameterList) {
-            for (auto v = it.mValueList.begin(); v != it.mValueList.end();
-                 ++v) {
+          for (auto &it : newQuery.mQueryParameterList)
+          {
+            for (auto v = it.mValueList.begin(); v != it.mValueList.end(); ++v)
+            {
               //printf("%s (%lu):",v->mForecastTime.c_str(),v->mValueData.size());
 
               int imageWidth = width*mp;
@@ -159,12 +164,13 @@ int main(int argc, char *argv[])
               if ((*v)->mValueData.size() > 0)
               {
                 uint t = 0;
-                for (auto &it : (*v)->mValueData) {
+                for (auto &it : (*v)->mValueData)
+                {
                   uint col = colorList[t];
                   if (col == 0xFFFFFFFF)
                     col = 0;
 
-                  imagePaint.paintWkb(1, 1, 0, 0, it);
+                  imagePaint.paintWkb(1,1,0,0,it);
                   t++;
                 }
               }

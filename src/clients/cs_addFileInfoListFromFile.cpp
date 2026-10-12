@@ -9,7 +9,6 @@
 #include "grid-files/common/GeneralFunctions.h"
 #include <cstring>
 #include <macgyver/Exception.h>
-
 using namespace SmartMet;
 
 

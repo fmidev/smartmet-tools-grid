@@ -91,7 +91,8 @@ int main(int argc, char *argv[])
 
     // ### Result:
     for (int it : levelList)
-      printf("%d\n", it);
+      printf("%d\n",it);
+
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

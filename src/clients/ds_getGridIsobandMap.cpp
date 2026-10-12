@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
       for (int x=0; x<width; x++)
       {
         lon = lon + lonStep;
-        coordinates.emplace_back(lon, lat);
+        coordinates.emplace_back(lon,lat);
       }
       lat = lat + latStep;
     }
@@ -119,8 +119,9 @@ int main(int argc, char *argv[])
 
     printf("\nContours : %ld\n",contours.size());
 
-    for (auto &contour : contours) {
-      printf("Lines %ld\n", contour.size());
+    for (auto &contour : contours)
+    {
+      printf("Lines %ld\n",contour.size());
     }
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
@@ -134,13 +135,14 @@ int main(int argc, char *argv[])
       uint step = 250 / contours.size();
 
       uint t = 0;
-      for (auto &contour : contours) {
+      for (auto &contour : contours)
+      {
         uint col = colorList[t];
         if (col == 0xFFFFFFFF)
           col = (c << 16) + (c << 8) + c;
 
         imagePaint.setFillColor(col);
-        imagePaint.paintWkb(mp, mp, 0, 0, contour);
+        imagePaint.paintWkb(mp,mp,0,0,contour);
         c = c - step;
         t++;
       }

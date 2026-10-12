@@ -18,6 +18,8 @@
 #include <sys/time.h>
 #include <vector>
 
+
+
 using namespace SmartMet;
 
 
@@ -237,9 +239,9 @@ void saveAllMaps(uint fileIndex,SmartMet::GRID::GridFile& gridFile,const char *i
     std::set<T::GribParamId> parameterIdList;
     getParameterIdentifiers(gridFile,parameterIdList);
 
-    for (unsigned int id : parameterIdList) {
-      saveMapsByParameterId(fileIndex, gridFile, id, imageDir, valueLevels,
-                            minMaxLevel);
+    for (unsigned int id : parameterIdList)
+    {
+      saveMapsByParameterId(fileIndex,gridFile,id,imageDir,valueLevels,minMaxLevel);
     }
   }
   catch (...)

@@ -101,7 +101,8 @@ int main(int argc, char *argv[])
     }
 
     // ### Result:
-    for (const auto &it : infoList) {
+    for (const auto &it : infoList)
+    {
       std::cout << it << "\n";
       /*
       std::vector<std::string> partList;
@@ -160,6 +161,7 @@ int main(int argc, char *argv[])
       }
   */
     }
+
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 

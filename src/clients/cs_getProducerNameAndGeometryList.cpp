@@ -117,9 +117,10 @@ int main(int argc, char *argv[])
     }
 
     // ### Result:
-    for (const auto &it : infoList) {
+    for (const auto &it : infoList)
+    {
       std::vector<std::string> partList;
-      splitString(it.c_str(), ';', partList);
+      splitString(it.c_str(),';',partList);
       if (partList.size() >= 2)
       {
         double width = 0, height = 0;
@@ -128,6 +129,7 @@ int main(int argc, char *argv[])
         else
           printf("%s;%s;;\n",partList[0].c_str(),partList[1].c_str());
       }
+
     }
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);

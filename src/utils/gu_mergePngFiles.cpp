@@ -38,9 +38,9 @@ int main(int argc, char *argv[])
     unsigned long col1 = 0;
     unsigned long col2 = 0;
     unsigned long nc = 0;
-    auto *c1 = (uchar *)&col1;
-    auto *c2 = (uchar *)&col2;
-    auto *c = (uchar *)&nc;
+    auto *c1 = (uchar*)&col1;
+    auto *c2 = (uchar*)&col2;
+    auto *c = (uchar*)&nc;
 
     for (int t = 4; t < argc; t++)
     {

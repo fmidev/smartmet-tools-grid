@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstring>
 #include <map>
+
 #include <microhttpd.h>
 #include <cstdlib>
 #include <string>
@@ -36,6 +37,7 @@ std::map<std::string,FileHandle*> fileHandles;
 SmartMet::ThreadLock fileHandles_threadLock;
 time_t fileHandles_lastChecked = time(nullptr);
 
+
 struct Request
 {
     std::string url;
@@ -55,13 +57,16 @@ FileHandle* getFileHandle(const char *filename)
   {
     std::vector<std::string> deleteList;
     time_t old = currentTime - 3600;
-    for (auto &fileHandle : fileHandles) {
-      if (fileHandle.second->lastUsed < old) {
+    for (auto &fileHandle : fileHandles)
+    {
+      if (fileHandle.second->lastUsed < old)
+      {
         deleteList.push_back(fileHandle.first);
       }
     }
 
-    for (auto &it : deleteList) {
+    for (auto &it : deleteList)
+    {
       auto itm = fileHandles.find(it);
       if (itm != fileHandles.end())
       {
@@ -84,7 +89,8 @@ FileHandle* getFileHandle(const char *filename)
 
   auto *f = new FileHandle;
   f->fileHandle = fopen(filename,"r");
-  if (f->fileHandle != nullptr) {
+  if (f->fileHandle != nullptr)
+  {
     f->lastUsed = currentTime;
     fileHandles.insert(std::pair<std::string,FileHandle*>(filename,f));
     return f;
@@ -103,7 +109,7 @@ static MHD_Result addParameter(void *cls, enum MHD_ValueKind kind, const char *k
 
   if (cls != nullptr)
   {
-    auto *list = (std::map<std::string, std::string> *)cls;
+    auto *list = (std::map<std::string,std::string>*)cls;
     list->insert(std::pair<std::string,std::string>(key,value));
   }
 
@@ -118,7 +124,7 @@ static MHD_Result addParameter(void *cls, enum MHD_ValueKind kind, const char *k
 
 static void requestCompleted (void *cls, struct MHD_Connection *connection,void **ptr, enum MHD_RequestTerminationCode toe)
 {
-  auto *request = (Request *)*ptr;
+  auto *request = (Request*)*ptr;
   if (request != nullptr)
     delete request;
 }
@@ -150,7 +156,7 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
   // This is the second or N:th call. Let's pick up the request structure.
   //SmartMet::T::RequestMessage *requestMessage = (SmartMet::T::RequestMessage*)*ptr;
 
-  auto *request = (Request *)*ptr;
+  auto *request = (Request*)*ptr;
 
   if (strcmp(method, "GET") == 0)
   {
@@ -180,7 +186,8 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
     {
       char *p1 = buf+6;
       char *p2 = strchr(p1,'-');
-      if (p2 != nullptr) {
+      if (p2 != nullptr)
+      {
         *p2 = '\0';
         p2++;
 
@@ -193,7 +200,8 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
           content = new char[contentSize];
 
           auto fh = getFileHandle(filename.c_str());
-          if (fh != nullptr) {
+          if (fh != nullptr)
+          {
             SmartMet::AutoThreadLock lock(&fh->threadLock);
             // Never send the uninitialized buffer if the range cannot be read
             if (fseek(fh->fileHandle,filePosition1,SEEK_SET) != 0 ||
@@ -209,14 +217,17 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
   }
 
   *ptr = nullptr; /* clear context pointer */
-  if (content != nullptr) {
+  if (content != nullptr)
+  {
     printf("SEND %ld\n",contentSize);
     struct MHD_Response *response = MHD_create_response_from_buffer(contentSize,(void*)content,MHD_RESPMEM_MUST_FREE);
     MHD_add_response_header(response, MHD_HTTP_HEADER_CONNECTION,"keep-alive");
     MHD_Result ret = MHD_queue_response(connection,MHD_HTTP_OK,response);
     MHD_destroy_response(response);
     return ret;
-  } else {
+  }
+  else
+  {
     return MHD_NO;
   }
 }
