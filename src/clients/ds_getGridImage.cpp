@@ -71,6 +71,7 @@ void saveImage(const char *imageFile,T::GridData&  gridData)
           if (val == ParamValueMissing)
             col = 0xE8E8E8;
 
+          // codechecker_false_positive [security.ArrayBound] the number of values has been checked to be width * height, the size of the image
           image[y*width + x] = col;
           c++;
         }
@@ -88,6 +89,7 @@ void saveImage(const char *imageFile,T::GridData&  gridData)
           if (val == ParamValueMissing)
             col = 0xE8E8E8;
 
+          // codechecker_false_positive [security.ArrayBound] the number of values has been checked to be width * height, the size of the image
           image[y*width + x] = col;
           c++;
         }
