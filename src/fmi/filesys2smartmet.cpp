@@ -894,10 +894,7 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
             exception.addParameter("Result",ContentServer::getResultString(result));
             throw exception;
           }
-          else
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;OK;%s;",targetProducer->mName.c_str());
-          }
+          PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;OK;%s;",targetProducer->mName.c_str());
         }
       }
     }
@@ -930,10 +927,7 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
             exception.addParameter("Result",ContentServer::getResultString(result));
             throw exception;
           }
-          else
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-ADD;OK;%s;",producer.mName.c_str());
-          }
+          PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-ADD;OK;%s;",producer.mName.c_str());
         }
       }
     }
@@ -989,11 +983,8 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
         exception.addParameter("Result",ContentServer::getResultString(result));
         throw exception;
       }
-      else
-      {
-        for (auto it = generationNameList.begin(); it != generationNameList.end(); ++it)
-          PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;OK;%s;",it->c_str());
-      }
+      for (auto it = generationNameList.begin(); it != generationNameList.end(); ++it)
+        PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;OK;%s;",it->c_str());
     }
 
 
@@ -1028,10 +1019,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
             exception.addParameter("Result",ContentServer::getResultString(result));
             throw exception;
           }
-          else
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;OK;%s;",generationInfo.mName.c_str());
-          }
+          PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;OK;%s;",generationInfo.mName.c_str());
         }
       }
     }
@@ -1088,11 +1076,8 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
         exception.addParameter("Result",ContentServer::getResultString(result));
         throw exception;
       }
-      else
-      {
-        for (auto it = fileNameList.begin(); it != fileNameList.end(); ++it)
-          PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;OK;%s;",it->c_str());
-      }
+      for (auto it = fileNameList.begin(); it != fileNameList.end(); ++it)
+        PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;OK;%s;",it->c_str());
     }
 
 
@@ -1117,10 +1102,7 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
             exception.addParameter("Result",ContentServer::getResultString(result));
             throw exception;
           }
-          else
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;OK;%s;",targetFile->mName.c_str());
-          }
+          PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;OK;%s;",targetFile->mName.c_str());
           targetFile = nullptr;
         }
 
@@ -1162,10 +1144,7 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
               exception.addParameter("Result",ContentServer::getResultString(result));
               throw exception;
             }
-            else
-            {
-              PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-ADD;OK;%s;",fileInfo.mName.c_str());
-            }
+            PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-ADD;OK;%s;",fileInfo.mName.c_str());
           }
           else
           {

@@ -358,20 +358,15 @@ int main(int argc, char *argv[])
 
     corbaServer->run();
 
-    
-      delete redisImplementation;
+    delete redisImplementation;
 
-    
-      delete postgresImplementation;
+    delete postgresImplementation;
 
-    
-      delete corbaClient;
+    delete corbaClient;
 
-    
-      delete httpClient;
+    delete httpClient;
 
-    
-      delete memoryImplementation;
+    delete memoryImplementation;
 
     delete corbaServer;
 

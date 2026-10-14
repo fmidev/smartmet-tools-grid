@@ -15,36 +15,6 @@ using namespace SmartMet;
 
 
 
-/*! \brief Init. */
-
-namespace
-{
-void init()
-{
-  try
-  {
-    char *configFile = getenv(SMARTMET_GRID_CONFIG_FILE);
-    if (configFile == nullptr)
-    {
-      printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
-      exit(-1);
-    }
-
-    // Initializing the global structures. These are needed when
-    // extracting information from GRIB files.
-
-    Identification::gridDef.init(configFile);
-  }
-  catch (...)
-  {
-    throw Fmi::Exception(BCP,"Operation failed!",nullptr);
-  }
-}
-}  // namespace
-
-
-
-
 /*! \brief Program entry point. */
 
 int main(int argc, char *argv[])

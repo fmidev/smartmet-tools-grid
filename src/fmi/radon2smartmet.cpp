@@ -529,42 +529,6 @@ void readTargetGeometries(T::GeometryInfoList& targetGeometryList)
 
 
 
-/*! \brief Read target file list. */
-
-void readTargetFileList(T::FileInfoList& targetFileList)
-{
-  FUNCTION_TRACE
-  try
-  {
-    targetFileList.clear();
-    targetFileList.setComparisonMethod(T::FileInfo::ComparisonMethod::none);
-    T::FileId startFileId = 0;
-    uint len = 50000;
-    while (len > 0)
-    {
-      T::FileInfoList fileInfoList;
-      mTargetInterface->getFileInfoList(mSessionId, startFileId, 50000, fileInfoList);
-
-      len = fileInfoList.getLength();
-      for (uint t = 0; t < len; t++)
-      {
-        T::FileInfo *fileInfo = fileInfoList.getFileInfoByIndex(t);
-        if (fileInfo != nullptr)
-        {
-          targetFileList.addFileInfo(fileInfo->duplicate());
-
-          if (fileInfo->mFileId >= startFileId)
-            startFileId = fileInfo->mFileId + 1;
-        }
-      }
-    }
-  }
-  catch (...)
-  {
-    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
-  }
-}
-
 
 
 
@@ -609,88 +573,8 @@ void readTargetFileList(T::ProducerId producerId, T::FileInfoList& targetFileLis
 
 
 
-/*! \brief Read target content list. */
-
-void readTargetContentList(T::ProducerId producerId, T::ContentInfoList& targetContentList)
-{
-  FUNCTION_TRACE
-  try
-  {
-    targetContentList.clear();
-
-    T::FileId startFileId = 0;
-    uint startMessageIndex = 0;
-    uint len = 50000;
-    while (len > 0)
-    {
-      T::ContentInfoList contentInfoList;
-      int result = mTargetInterface->getContentListByProducerId(mSessionId, producerId, startFileId, startMessageIndex, 50000, contentInfoList);
-
-      if (result == 0)
-      {
-        len = contentInfoList.getLength();
-        for (uint t = 0; t < len; t++)
-        {
-          T::ContentInfo *contentInfo = contentInfoList.getContentInfoByIndex(t);
-          if (contentInfo != nullptr)
-          {
-            startFileId = contentInfo->mFileId;
-            startMessageIndex = contentInfo->mMessageIndex + 1;
-
-            targetContentList.addContentInfo(contentInfo->duplicate());
-          }
-        }
-      }
-    }
-  }
-  catch (...)
-  {
-    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
-  }
-}
 
 
-
-
-/*! \brief Read target content list. */
-
-void readTargetContentList(T::ContentInfoList& targetContentList)
-{
-  FUNCTION_TRACE
-  try
-  {
-    targetContentList.clear();
-
-    T::FileId startFileId = 0;
-    uint startMessageIndex = 0;
-    uint len = 50000;
-    while (len > 0)
-    {
-      T::ContentInfoList contentInfoList;
-      int result = mTargetInterface->getContentList(mSessionId, startFileId, startMessageIndex, 50000, contentInfoList);
-
-      if (result == 0)
-      {
-        len = contentInfoList.getLength();
-        for (uint t = 0; t < len; t++)
-        {
-          T::ContentInfo *contentInfo = contentInfoList.getContentInfoByIndex(t);
-          if (contentInfo != nullptr)
-          {
-            startFileId = contentInfo->mFileId;
-            startMessageIndex = contentInfo->mMessageIndex + 1;
-
-            targetContentList.addContentInfo(contentInfo->duplicate());
-          }
-        }
-      }
-    }
-  }
-  catch (...)
-  {
-    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
-  }
-}
 
 
 
@@ -742,49 +626,6 @@ void readTargetContentList(std::set<UInt64>& targetContentList)
 
 
 
-
-/*! \brief Read target content list. */
-
-void readTargetContentList(T::ProducerId producerId,std::set<UInt64>& targetContentList)
-{
-  FUNCTION_TRACE
-  try
-  {
-    targetContentList.clear();
-
-    T::FileId startFileId = 0;
-    uint startMessageIndex = 0;
-    uint len = 50000;
-    while (len > 0)
-    {
-      T::ContentInfoList contentInfoList;
-      int result = mTargetInterface->getContentListByProducerId(mSessionId, producerId, startFileId, startMessageIndex, 50000, contentInfoList);
-
-      if (result == 0)
-      {
-        len = contentInfoList.getLength();
-        for (uint t = 0; t < len; t++)
-        {
-          T::ContentInfo *contentInfo = contentInfoList.getContentInfoByIndex(t);
-          if (contentInfo != nullptr  &&  contentInfo->mProducerId == producerId)
-          {
-            startFileId = contentInfo->mFileId;
-            startMessageIndex = contentInfo->mMessageIndex + 1;
-
-            UInt64 id = contentInfo->mFileId;
-            id = (id << 32) + contentInfo->mMessageIndex;
-
-            targetContentList.insert(id);
-          }
-        }
-      }
-    }
-  }
-  catch (...)
-  {
-    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
-  }
-}
 
 
 
@@ -1082,14 +923,11 @@ std::vector<FileRec>& readSourceFilesAndContent(
         pos->second.loadCounter = loadCounter;
         return pos->second.files;
       }
-      else
+      std::string tbl = std::string(tableName) + ":" + std::to_string(producerId) + ":" + std::to_string(geometryId) + ":" + std::string(analysisTime);
+      auto pos = mFileTables.find(tbl);
+      if (pos != mFileTables.end())
       {
-        std::string tbl = std::string(tableName) + ":" + std::to_string(producerId) + ":" + std::to_string(geometryId) + ":" + std::string(analysisTime);
-        auto pos = mFileTables.find(tbl);
-        if (pos != mFileTables.end())
-        {
-          mFileTables.erase(pos);
-        }
+        mFileTables.erase(pos);
       }
     }
 
@@ -2279,38 +2117,6 @@ void updateGenerationStatus()
 
 
 
-/*! \brief Delete target files. */
-
-void deleteTargetFiles(T::FileInfoList& targetFileList)
-{
-  FUNCTION_TRACE
-  try
-  {
-    PRINT_DATA(mDebugLogPtr, "* Deleting old files from the target data storage\n");
-
-    std::set<T::FileId> deleteList;
-    uint len = targetFileList.getLength();
-    for (uint t = 0; t < len; t++)
-    {
-      T::FileInfo *fileInfo = targetFileList.getFileInfoByIndex(t);
-      if (fileInfo != nullptr)
-      {
-        if (fileInfo->mSourceId == mSourceId && mIgnoreGeneration.find(fileInfo->mGenerationId) == mIgnoreGeneration.end()  &&  mSourceFilenames.find(getFileId(fileInfo->mName,false)) == mSourceFilenames.end())
-        {
-          deleteList.insert(fileInfo->mFileId);
-        }
-      }
-    }
-    PRINT_DATA(mDebugLogPtr, "  -- Delete files : %lu\n", deleteList.size());
-    if (!deleteList.empty())
-      mTargetInterface->deleteFileInfoListByFileIdList(mSessionId, deleteList);
-  }
-  catch (...)
-  {
-    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
-  }
-}
-
 
 
 
@@ -2630,100 +2436,6 @@ void saveTargetContent(T::ProducerId producerId,std::vector<FileRec>& fileRecLis
 
 
 
-
-/*! \brief Save target content. */
-
-void saveTargetContent(std::vector<FileRec>& fileRecList)
-{
-  try
-  {
-    T::FileInfoList targetFileList;
-    readTargetFileList(targetFileList);
-    targetFileList.sort(T::FileInfo::ComparisonMethod::fileName);
-
-    std::set<UInt64> targetContentList;
-    readTargetContentList(targetContentList);
-
-    T::ContentInfoList contentList;
-
-    for (auto &it : fileRecList)
-    {
-      std::string filename = getFilename(it.fileId);
-      T::FileInfo *fileInfo = targetFileList.getFileInfoByName(filename);
-      if (fileInfo != nullptr)
-      {
-        UInt64 id = fileInfo->mFileId;
-        id = (id << 32) + it.messageIndex;
-        auto pos = targetContentList.find(id);
-        if (pos == targetContentList.end())
-        {
-          // The content does not exists. It should be added.
-
-          auto *contentInfo = new T::ContentInfo();
-
-          contentInfo->mFileId = fileInfo->mFileId;
-          contentInfo->mFileType = T::FileTypeValue::Unknown;
-          contentInfo->mMessageIndex = it.messageIndex;
-          contentInfo->mFilePosition = it.filePosition;
-          contentInfo->mMessageSize = it.messageSize;
-          contentInfo->mProducerId = fileInfo->mProducerId;
-          contentInfo->mGenerationId = fileInfo->mGenerationId;
-          contentInfo->setForecastTime(utcTimeFromTimeT(it.forecastTime));
-          contentInfo->mFmiParameterId = it.paramId;
-          contentInfo->mFmiParameterLevelId = it.levelId;
-          contentInfo->mParameterLevel = it.levelValue;
-          contentInfo->mForecastType = it.forecastType;
-          contentInfo->mForecastNumber = it.forecastNumber;
-          contentInfo->mAggregationId = it.aggregation_id;
-          contentInfo->mAggregationPeriod = it.aggregation_period;
-          contentInfo->mProcessingTypeId = it.processing_type_id;
-          contentInfo->mProcessingTypeValue1 = it.processing_type_value;
-          contentInfo->mProcessingTypeValue2 = it.processing_type_value2;
-          contentInfo->mFlags = 0;
-          contentInfo->mSourceId = mSourceId;
-          contentInfo->mGeometryId = it.geometryId;
-          contentInfo->mModificationTime = it.lastUpdated;
-          contentInfo->mDeletionTime = fileInfo->mDeletionTime;
-
-          Identification::FmiParameterDef fmiDef;
-          if (Identification::gridDef.getFmiParameterDefById(it.paramId, fmiDef))
-          {
-            contentInfo->setFmiParameterName(fmiDef.mParameterName);
-          }
-
-          contentList.addContentInfo(contentInfo);
-
-          if (contentList.getLength() >= mMaxMessageSize)
-          {
-            PRINT_DATA(mDebugLogPtr, "  -- Add content information : %u (%u/%u)\n", contentList.getLength(), mContentAddCount, mContentReadCount);
-            mTargetInterface->addContentList(mSessionId, contentList);
-            contentList.clear();
-          }
-        }
-      }
-      else
-      {
-        PRINT_DATA(mDebugLogPtr,"#### File info not found : %s\n", filename.c_str());
-      }
-      mContentAddCount++;
-    }
-
-    PRINT_DATA(mDebugLogPtr, "  -- Add content information : %u (%u/%u)\n", contentList.getLength(), mContentAddCount, mContentReadCount);
-    if (contentList.getLength() > 0)
-      mTargetInterface->addContentList(mSessionId, contentList);
-
-    std::set<UInt64> tcList;
-    targetContentList.clear();
-    targetContentList.swap(tcList);
-
-    deleteTargetFiles(targetFileList);
-    targetFileList.clear();
-  }
-  catch (...)
-  {
-    throw Fmi::Exception(BCP, "Operation failed!", nullptr);
-  }
-}
 
 
 

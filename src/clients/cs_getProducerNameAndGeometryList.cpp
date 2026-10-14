@@ -126,7 +126,8 @@ int main(int argc, char *argv[])
       splitString(it.c_str(),';',partList);
       if (partList.size() >= 2)
       {
-        double width = 0, height = 0;
+        double width = 0;
+        double height = 0;
         if (Identification::gridDef.getGridCellAverageSizeByGeometryId((T::GeometryId)toInt64(partList[1].c_str()),width,height))
           printf("%s;%s;%.1fkm x %.1fkm;\n",partList[0].c_str(),partList[1].c_str(),width,height);
         else

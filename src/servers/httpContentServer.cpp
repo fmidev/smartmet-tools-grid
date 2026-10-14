@@ -248,8 +248,7 @@ void requestCompleted (void * /*cls*/, struct MHD_Connection * /*connection*/,vo
   try
   {
     auto *request = (SmartMet::T::RequestMessage*)*ptr;
-    
-      delete request;
+    delete request;
   }
   catch (...)
   {
@@ -509,20 +508,15 @@ int main(int argc,char ** argv)
     (void) getc(stdin);
     MHD_stop_daemon(daemon);
 
-    
-      delete redisImplementation;
+    delete redisImplementation;
 
-    
-      delete corbaClient;
+    delete corbaClient;
 
-    
-      delete httpClient;
+    delete httpClient;
 
-    
-      delete memoryImplementation;
+    delete memoryImplementation;
 
-    
-      delete cacheImplementation;
+    delete cacheImplementation;
 
     delete httpServer;
 

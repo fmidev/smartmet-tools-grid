@@ -133,8 +133,7 @@ MHD_Result addParameter(void *cls, enum MHD_ValueKind /*kind*/, const char *key,
 void requestCompleted (void * /*cls*/, struct MHD_Connection * /*connection*/,void **ptr, enum MHD_RequestTerminationCode /*toe*/)
 {
   auto *request = (Request*)*ptr;
-  
-    delete request;
+  delete request;
 }
 
 
@@ -234,10 +233,7 @@ MHD_Result processRequest(void * /*cls*/,struct MHD_Connection *connection,const
     MHD_destroy_response(response);
     return ret;
   }
-  else
-  {
-    return MHD_NO;
-  }
+  return MHD_NO;
 }
 }  // namespace
 
