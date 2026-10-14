@@ -39,6 +39,8 @@
 using namespace SmartMet;
 
 
+namespace
+{
 ContentServer::Corba::ClientImplementation *corbaContentClient = nullptr;
 ContentServer::HTTP::ClientImplementation *httpContentClient = nullptr;
 ContentServer::RedisImplementation *redisImplementation = nullptr;
@@ -361,7 +363,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
                     {
                       QueryServer::ParameterMapping_vec vec;
                       it->getMappings(m.mProducerName,m.mParameterName,m.mGeometryId,true,vec);
-                      if (vec.size() > 0)
+                      if (!vec.empty())
                       {
                         searchEnabled = true;
                       }
@@ -546,7 +548,7 @@ void updateProcessing()
 
 /*! \brief Corba query server update thread. */
 
-static void* corbaQueryServer_updateThread(void *arg)
+void* corbaQueryServer_updateThread(void * /*arg*/)
 {
   try
   {
@@ -757,6 +759,7 @@ void readConfigFile(const char* configFile)
     throw Fmi::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
+}  // namespace
 
 
 
@@ -848,13 +851,13 @@ int main(int argc, char *argv[])
       cacheImplementation->setContentSwap(false,0,0);
       cacheImplementation->setRequestForwardEnabled(content_server_cache_requestForwardEnabled);
 
-      if (content_server_processing_log_enabled && content_server_processing_log_file.length() > 0)
+      if (content_server_processing_log_enabled && !content_server_processing_log_file.empty())
       {
         mContentServerProcessingLog.init(true,content_server_processing_log_file.c_str(),content_server_processing_log_maxSize,content_server_processing_log_truncateSize);
         cacheImplementation->setProcessingLog(&mContentServerProcessingLog);
       }
 
-      if (content_server_debug_log_enabled && content_server_debug_log_file.length() > 0)
+      if (content_server_debug_log_enabled && !content_server_debug_log_file.empty())
       {
         mContentServerDebugLog.init(true,content_server_debug_log_file.c_str(),content_server_debug_log_maxSize,content_server_debug_log_truncateSize);
         cacheImplementation->setDebugLog(&mContentServerDebugLog);
@@ -867,13 +870,13 @@ int main(int argc, char *argv[])
     }
     else
     {
-      if (content_server_processing_log_enabled && content_server_processing_log_file.length() > 0)
+      if (content_server_processing_log_enabled && !content_server_processing_log_file.empty())
       {
         mContentServerProcessingLog.init(true,content_server_processing_log_file.c_str(),content_server_processing_log_maxSize,content_server_processing_log_truncateSize);
         contentService->setProcessingLog(&mContentServerProcessingLog);
       }
 
-      if (content_server_debug_log_enabled && content_server_debug_log_file.length() > 0)
+      if (content_server_debug_log_enabled && !content_server_debug_log_file.empty())
       {
         mContentServerDebugLog.init(true,content_server_debug_log_file.c_str(),content_server_debug_log_maxSize,content_server_debug_log_truncateSize);
         contentService->setDebugLog(&mContentServerDebugLog);
@@ -897,13 +900,13 @@ int main(int argc, char *argv[])
         query_server_aliasFiles,query_server_producerFile,query_server_producerAliasFiles,query_server_luaFiles,
         query_server_checkGeometryStatus,data_server_methods_enabled);
 
-    if (data_server_processing_log_enabled && data_server_processing_log_file.length() > 0)
+    if (data_server_processing_log_enabled && !data_server_processing_log_file.empty())
     {
       mDataServerProcessingLog.init(true,data_server_processing_log_file.c_str(),data_server_processing_log_maxSize,data_server_processing_log_truncateSize);
       dataService->setProcessingLog(&mDataServerProcessingLog);
     }
 
-    if (data_server_debug_log_enabled && data_server_debug_log_file.length() > 0)
+    if (data_server_debug_log_enabled && !data_server_debug_log_file.empty())
     {
       mDataServerDebugLog.init(true,data_server_debug_log_file.c_str(),data_server_debug_log_maxSize,data_server_debug_log_truncateSize);
       dataService->setDebugLog(&mDataServerDebugLog);
@@ -912,13 +915,13 @@ int main(int argc, char *argv[])
     dataService->startEventProcessing();
 
 
-    if (query_server_processing_log_enabled && query_server_processing_log_file.length() > 0)
+    if (query_server_processing_log_enabled && !query_server_processing_log_file.empty())
     {
       mQueryServerProcessingLog.init(true,query_server_processing_log_file.c_str(),query_server_processing_log_maxSize,query_server_processing_log_truncateSize);
       queryService->setProcessingLog(&mQueryServerProcessingLog);
     }
 
-    if (query_server_debug_log_enabled  &&  query_server_debug_log_file.length() > 0)
+    if (query_server_debug_log_enabled  &&  !query_server_debug_log_file.empty())
     {
       mQueryServerDebugLog.init(true,query_server_debug_log_file.c_str(),query_server_debug_log_maxSize,query_server_debug_log_truncateSize);
       queryService->setDebugLog(&mQueryServerDebugLog);
@@ -928,7 +931,7 @@ int main(int argc, char *argv[])
     // to handle an IOR is to store it into an environment variable.
 
     std::string ior = corbaServer->getContentServiceIor();
-    if (content_server_iorFile.length() == 0)
+    if (content_server_iorFile.empty())
     {
       printf("\n\nContentServer\n%s\n",ior.c_str());
     }
@@ -948,7 +951,7 @@ int main(int argc, char *argv[])
 
 
     ior = corbaServer->getDataServiceIor();
-    if (data_server_iorFile.length() == 0)
+    if (data_server_iorFile.empty())
     {
       printf("\n\nDataServer\n%s\n",ior.c_str());
     }
@@ -968,7 +971,7 @@ int main(int argc, char *argv[])
 
 
     ior = corbaServer->getQueryServiceIor();
-    if (query_server_iorFile.length() == 0)
+    if (query_server_iorFile.empty())
     {
       printf("\n\nQueryServer\n%s\n",ior.c_str());
     }

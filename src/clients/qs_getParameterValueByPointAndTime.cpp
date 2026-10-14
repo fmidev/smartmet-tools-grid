@@ -4,6 +4,7 @@
 
 #include "grid-content/queryServer/corba/client/ClientImplementation.h"
 #include <macgyver/Exception.h>
+#include <cmath>
 #include "grid-files/common/GeneralFunctions.h"
 
 using namespace SmartMet;
@@ -30,7 +31,7 @@ int main(int argc, char *argv[])
     double x = toDouble(argv[4]);
     double y = toDouble(argv[5]);
     std::string timeStr = argv[6];
-    T::ParamValue value;
+    T::ParamValue value = NAN;
 
     char *serviceIor = getenv("SMARTMET_QS_IOR");
 

@@ -24,7 +24,10 @@ typedef int MHD_Result;
 #endif
 
 
-std::string rootDir = "";
+namespace
+{
+std::string rootDir;
+}  // namespace
 
 struct FileHandle
 {
@@ -33,9 +36,12 @@ struct FileHandle
   time_t lastUsed;
 };
 
+namespace
+{
 std::map<std::string,FileHandle*> fileHandles;
 SmartMet::ThreadLock fileHandles_threadLock;
 time_t fileHandles_lastChecked = time(nullptr);
+}  // namespace
 
 
 struct Request
@@ -48,6 +54,8 @@ struct Request
 
 /*! \brief Get file handle. */
 
+namespace
+{
 FileHandle* getFileHandle(const char *filename)
 {
   time_t currentTime = time(nullptr);
@@ -103,7 +111,7 @@ FileHandle* getFileHandle(const char *filename)
 
 /*! \brief Add parameter. */
 
-static MHD_Result addParameter(void *cls, enum MHD_ValueKind kind, const char *key,const char *value)
+MHD_Result addParameter(void *cls, enum MHD_ValueKind /*kind*/, const char *key,const char *value)
 {
   //printf("%s: %s\n",key,value);
 
@@ -122,10 +130,10 @@ static MHD_Result addParameter(void *cls, enum MHD_ValueKind kind, const char *k
 
 /*! \brief Request completed. */
 
-static void requestCompleted (void *cls, struct MHD_Connection *connection,void **ptr, enum MHD_RequestTerminationCode toe)
+void requestCompleted (void * /*cls*/, struct MHD_Connection * /*connection*/,void **ptr, enum MHD_RequestTerminationCode /*toe*/)
 {
   auto *request = (Request*)*ptr;
-  if (request != nullptr)
+  
     delete request;
 }
 
@@ -135,8 +143,8 @@ static void requestCompleted (void *cls, struct MHD_Connection *connection,void 
 
 /*! \brief Process request. */
 
-static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,const char *url,const char *method,const char *version,
-        const char *upload_data,size_t *upload_data_size,void **ptr)
+MHD_Result processRequest(void * /*cls*/,struct MHD_Connection *connection,const char *url,const char *method,const char * /*version*/,
+        const char * /*upload_data*/,size_t *upload_data_size,void **ptr)
 {
   printf("PROCESS REQUEST : %s : %lld : %s\n",url,(long long)*ptr,method);
   if (*ptr == nullptr)
@@ -199,7 +207,7 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
           contentSize = filePosition2 - filePosition1 + 1;
           content = new char[contentSize];
 
-          auto fh = getFileHandle(filename.c_str());
+          auto *fh = getFileHandle(filename.c_str());
           if (fh != nullptr)
           {
             SmartMet::AutoThreadLock lock(&fh->threadLock);
@@ -231,6 +239,7 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
     return MHD_NO;
   }
 }
+}  // namespace
 
 
 

@@ -9,7 +9,10 @@
 
 using namespace SmartMet;
 
+namespace
+{
 std::set<T::ParamValue> values;
+}  // namespace
 
 
 /*! \brief Program entry point. */

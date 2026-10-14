@@ -5,6 +5,8 @@
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/dataServer/corba/client/ClientImplementation.h"
 #include <macgyver/Exception.h>
+
+#include <algorithm>
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/ImageFunctions.h"
 
@@ -15,6 +17,8 @@ using namespace SmartMet;
 
 /*! \brief Save image. */
 
+namespace
+{
 void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  values)
 {
   try
@@ -35,11 +39,9 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
       double val = values[t];
       if (val != ParamValueMissing)
       {
-        if (val < minValue)
-          minValue = val;
+        minValue = std::min(val, minValue);
 
-        if (val > maxValue)
-          maxValue = val;
+        maxValue = std::max(val, maxValue);
       }
     }
 
@@ -85,6 +87,7 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
     throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
+}  // namespace
 
 
 

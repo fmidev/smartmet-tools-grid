@@ -29,6 +29,8 @@ typedef int MHD_Result;
 #define CONTENT_SERVER_SESSION_ID 111111111
 #define DATA_SERVER_SESSION_ID 222222222
 
+namespace
+{
 ContentServer::ServiceInterface *contentSource = nullptr;
 ContentServer::Corba::ClientImplementation *corbaClient = nullptr;
 ContentServer::HTTP::ClientImplementation *httpClient = nullptr;
@@ -208,7 +210,7 @@ void getMainPage(SmartMet::T::ResponseMessage& response)
 
 /*! \brief Add parameter. */
 
-static MHD_Result addParameter(void *cls, enum MHD_ValueKind kind, const char *key,const char *value)
+MHD_Result addParameter(void *cls, enum MHD_ValueKind /*kind*/, const char *key,const char *value)
 {
   try
   {
@@ -241,12 +243,12 @@ static MHD_Result addParameter(void *cls, enum MHD_ValueKind kind, const char *k
 
 /*! \brief Request completed. */
 
-static void requestCompleted (void *cls, struct MHD_Connection *connection,void **ptr, enum MHD_RequestTerminationCode toe)
+void requestCompleted (void * /*cls*/, struct MHD_Connection * /*connection*/,void **ptr, enum MHD_RequestTerminationCode /*toe*/)
 {
   try
   {
     auto *request = (SmartMet::T::RequestMessage*)*ptr;
-    if (request != nullptr)
+    
       delete request;
   }
   catch (...)
@@ -261,7 +263,7 @@ static void requestCompleted (void *cls, struct MHD_Connection *connection,void 
 
 /*! \brief Process request. */
 
-static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,const char *url,const char *method,const char *version,
+MHD_Result processRequest(void * /*cls*/,struct MHD_Connection *connection,const char * /*url*/,const char *method,const char * /*version*/,
         const char *upload_data,size_t *upload_data_size,void **ptr)
 {
   try
@@ -305,7 +307,7 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
         if (lCount > 0)
         {
           std::string lastLine = requestMessage->getLineByIndex(lCount-1);
-          if (lastLine.length() > 0  &&  lastLine[lastLine.length()-1] == '\n')
+          if (!lastLine.empty()  &&  lastLine[lastLine.length()-1] == '\n')
           {
             c = lastLine.length() - 1;
             strncpy(line,lastLine.c_str(),c);
@@ -389,6 +391,7 @@ static MHD_Result processRequest(void *cls,struct MHD_Connection *connection,con
     return MHD_NO;
   }
 }
+}  // namespace
 
 
 
@@ -506,19 +509,19 @@ int main(int argc,char ** argv)
     (void) getc(stdin);
     MHD_stop_daemon(daemon);
 
-    if (redisImplementation != nullptr)
+    
       delete redisImplementation;
 
-    if (corbaClient != nullptr)
+    
       delete corbaClient;
 
-    if (httpClient != nullptr)
+    
       delete httpClient;
 
-    if (memoryImplementation != nullptr)
+    
       delete memoryImplementation;
 
-    if (cacheImplementation != nullptr)
+    
       delete cacheImplementation;
 
     delete httpServer;

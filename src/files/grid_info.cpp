@@ -24,6 +24,8 @@ using namespace SmartMet;
 
 /*! \brief Init. */
 
+namespace
+{
 void init()
 {
   try
@@ -52,7 +54,7 @@ void init()
 
 /*! \brief Show info. */
 
-void showInfo(SmartMet::GRID::GridFile& gridFile)
+void showInfo(SmartMet::GRID::GridFile& /*gridFile*/)
 {
   try
   {
@@ -112,7 +114,7 @@ void showInfo(SmartMet::GRID::GridFile& gridFile)
 
 /*! \brief Show full info. */
 
-void showFullInfo(SmartMet::GRID::GridFile& gridFile)
+void showFullInfo(SmartMet::GRID::GridFile& /*gridFile*/)
 {
   try
   {
@@ -268,6 +270,7 @@ int run(int argc, char **argv)
     throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
+}  // namespace
 
 
 

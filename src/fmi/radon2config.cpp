@@ -22,6 +22,8 @@ using namespace SmartMet;
 
 /*! \brief Error. */
 
+namespace
+{
 void error(char *mess)
 {
   fprintf(stderr, "### %s\n", mess);
@@ -1413,6 +1415,7 @@ void create_fmi_processingTypes(PGconn *conn,const char *dir)
     throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
+}  // namespace
 
 
 

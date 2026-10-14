@@ -27,6 +27,8 @@
 
 using namespace SmartMet;
 
+namespace
+{
 QueryServer::Corba::Server *corbaServer = nullptr;
 QueryServer::ServiceImplementation *queryServer = nullptr;
 ContentServer::Corba::ClientImplementation *contentServer = nullptr;
@@ -331,7 +333,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
                     {
                       QueryServer::ParameterMapping_vec vec;
                       it->getMappings(m.mProducerName,m.mParameterName,m.mGeometryId,true,vec);
-                      if (vec.size() > 0)
+                      if (!vec.empty())
                       {
                         searchEnabled = true;
                       }
@@ -533,7 +535,7 @@ void updateProcessing()
 
 /*! \brief Corba query server update thread. */
 
-static void* corbaQueryServer_updateThread(void *arg)
+void* corbaQueryServer_updateThread(void * /*arg*/)
 {
   try
   {
@@ -714,6 +716,7 @@ void readConfigFile(const char* configFile)
     throw Fmi::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
+}  // namespace
 
 
 
@@ -766,37 +769,37 @@ int main(int argc, char *argv[])
         mUnitConversionFile,mMappingAliasFiles,mParameterAliasFiles,mProducerFile,mProducerMappingFiles,
         mQueryServerLuaFiles,mQueryServerCheckGeometryStatus,mDataServerMethodsEnabled);
 
-    if (mContentServerProcessingLogEnabled &&  mContentServerProcessingLogFile.length() > 0)
+    if (mContentServerProcessingLogEnabled &&  !mContentServerProcessingLogFile.empty())
     {
       mContentServerProcessingLog.init(true,mContentServerProcessingLogFile.c_str(),mContentServerProcessingLogMaxSize,mContentServerProcessingLogTruncateSize);
       contentServer->setProcessingLog(&mContentServerProcessingLog);
     }
 
-    if (mContentServerDebugLogEnabled && mContentServerDebugLogFile.length() > 0)
+    if (mContentServerDebugLogEnabled && !mContentServerDebugLogFile.empty())
     {
       mContentServerDebugLog.init(true,mContentServerDebugLogFile.c_str(),mContentServerDebugLogMaxSize,mContentServerDebugLogTruncateSize);
       contentServer->setDebugLog(&mContentServerDebugLog);
     }
 
-    if (mDataServerProcessingLogEnabled && mDataServerProcessingLogFile.length() > 0)
+    if (mDataServerProcessingLogEnabled && !mDataServerProcessingLogFile.empty())
     {
       mDataServerProcessingLog.init(true,mDataServerProcessingLogFile.c_str(),mDataServerProcessingLogMaxSize,mDataServerProcessingLogTruncateSize);
       dataServer->setProcessingLog(&mDataServerProcessingLog);
     }
 
-    if (mDataServerDebugLogEnabled && mDataServerDebugLogFile.length() > 0)
+    if (mDataServerDebugLogEnabled && !mDataServerDebugLogFile.empty())
     {
       mDataServerDebugLog.init(true,mDataServerDebugLogFile.c_str(),mDataServerDebugLogMaxSize,mDataServerDebugLogTruncateSize);
       dataServer->setDebugLog(&mDataServerDebugLog);
     }
 
-    if (mQueryServerProcessingLogEnabled && mQueryServerProcessingLogFile.length() > 0)
+    if (mQueryServerProcessingLogEnabled && !mQueryServerProcessingLogFile.empty())
     {
       mQueryServerProcessingLog.init(true,mQueryServerProcessingLogFile.c_str(),mQueryServerProcessingLogMaxSize,mQueryServerProcessingLogTruncateSize);
       queryServer->setProcessingLog(&mQueryServerProcessingLog);
     }
 
-    if (mQueryServerDebugLogEnabled && mQueryServerDebugLogFile.length() > 0)
+    if (mQueryServerDebugLogEnabled && !mQueryServerDebugLogFile.empty())
     {
       mQueryServerDebugLog.init(true,mQueryServerDebugLogFile.c_str(),mQueryServerDebugLogMaxSize,mQueryServerDebugLogTruncateSize);
       queryServer->setDebugLog(&mQueryServerDebugLog);
@@ -806,7 +809,7 @@ int main(int argc, char *argv[])
     // to handle an IOR is to store it into an environment variable.
 
     std::string ior = corbaServer->getServiceIor();
-    if (mServerIorFile.length() == 0)
+    if (mServerIorFile.empty())
     {
       printf("\n%s\n",ior.c_str());
     }

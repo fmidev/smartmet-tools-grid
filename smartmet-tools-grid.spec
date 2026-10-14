@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 26.10.11
+Version: 26.10.14
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -24,9 +24,9 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
 BuildRequires: smartmet-library-macgyver-devel >= 26.10.11
-BuildRequires: smartmet-library-spine-devel >= 26.10.11
-BuildRequires: smartmet-library-grid-files-devel >= 26.10.11
-BuildRequires: smartmet-library-grid-content-devel >= 26.10.11
+BuildRequires: smartmet-library-spine-devel >= 26.10.13
+BuildRequires: smartmet-library-grid-files-devel >= 26.10.13
+BuildRequires: smartmet-library-grid-content-devel >= 26.10.13
 BuildRequires: gdal312-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
@@ -42,8 +42,8 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-spine >= 26.10.11
 #Requires: smartmet-server >= 26.10.11
 Requires: smartmet-library-macgyver >= 26.10.11
-Requires: smartmet-library-grid-files >= 26.10.11
-Requires: smartmet-library-grid-content >= 26.10.11
+Requires: smartmet-library-grid-files >= 26.10.13
+Requires: smartmet-library-grid-content >= 26.10.13
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -288,6 +288,10 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Oct 14 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.14-1.fmi
+- Fixed mechanical clang-tidy findings (internal linkage, unused parameters, initialization, redundant code), no functional changes
+- Requires 26.10.13 versions of spine, grid-files, grid-content due to their ABI changes
+
 * Sun Oct 11 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.11-1.fmi
 - Failed file writes, closes and seeks are now reported instead of being ignored
 - Floating point loops use integer counters, so rounding no longer drops or adds iterations

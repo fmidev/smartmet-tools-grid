@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
     ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,0x000000,0xA0A0A0,false,false);
 
 
-    if (contours.size() > 0)
+    if (!contours.empty())
     {
       uint t = 0;
       for (auto &contour : contours)

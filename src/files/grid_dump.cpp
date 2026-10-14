@@ -25,6 +25,8 @@ using namespace SmartMet;
 
 /*! \brief Init. */
 
+namespace
+{
 void init()
 {
   try
@@ -170,6 +172,7 @@ int run(int argc, char **argv)
     throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
+}  // namespace
 
 
 // ----------------------------------------------------------------------

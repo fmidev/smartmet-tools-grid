@@ -12,6 +12,7 @@
 #include "grid-files/grid/Typedefs.h"
 #include "grid-files/grid/ValueCache.h"
 
+#include <algorithm>
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
@@ -33,6 +34,8 @@ enum ImageFlags
 
 /*! \brief Get grid min and max values. */
 
+namespace
+{
 void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::GribParamId parameterId,T::ParamValue& minValue,T::ParamValue& maxValue)
 {
   try
@@ -43,7 +46,7 @@ void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::GribParamId parameterId,
     std::size_t messageCount = gridFile.getNumberOfMessages();
     for (std::size_t t=0; t<messageCount; t++)
     {
-      auto message = gridFile.getMessageByIndex(t);
+      auto *message = gridFile.getMessageByIndex(t);
       if (message != nullptr  &&  message->getGribParameterId() == parameterId)
       {
         T::ParamValue min = 1000000000;
@@ -52,11 +55,9 @@ void getGridMinAndMaxValues(GRID::GridFile& gridFile,T::GribParamId parameterId,
 
         if (min != 1000000000  &&  max != -1000000000)
         {
-          if (min < minValue)
-            minValue = min;
+          minValue = std::min(min, minValue);
 
-          if (max > maxValue)
-            maxValue = max;
+          maxValue = std::max(max, maxValue);
         }
       }
     }
@@ -367,6 +368,7 @@ int run(int argc, char **argv)
     throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
+}  // namespace
 
 
 // ----------------------------------------------------------------------

@@ -25,6 +25,8 @@ using namespace SmartMet;
 
 /*! \brief Init. */
 
+namespace
+{
 void init()
 {
   try
@@ -46,6 +48,7 @@ void init()
     throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
+}  // namespace
 
 
 
@@ -161,7 +164,7 @@ int main(int argc, char *argv[])
               ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,0x00000,0xA0A0A0,false,rotate);
 
 
-              if ((*v)->mValueData.size() > 0)
+              if (!(*v)->mValueData.empty())
               {
                 uint t = 0;
                 for (auto &it : (*v)->mValueData)

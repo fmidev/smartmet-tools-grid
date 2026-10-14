@@ -17,6 +17,8 @@ using namespace SmartMet;
 
 /*! \brief Init. */
 
+namespace
+{
 void init()
 {
   try
@@ -38,6 +40,7 @@ void init()
     throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
+}  // namespace
 
 
 
@@ -144,7 +147,7 @@ int main(int argc, char *argv[])
 
     // ### Painting contours into the image:
 
-    if (contours.size() > 0)
+    if (!contours.empty())
     {
       uint t = 0;
       for (auto &contour : contours)

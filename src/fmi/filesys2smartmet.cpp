@@ -46,6 +46,8 @@ class Location
 
 // Global variables:
 
+namespace
+{
 ConfigurationFile         mConfigurationFile;
 std::string               mGridConfigFile;
 uint                      mSourceId = 100;
@@ -146,7 +148,7 @@ void readLocations(const char* configFile)
       }
     }
 
-    if (mLocations.size() == 0)
+    if (mLocations.empty())
     {
       Fmi::Exception exception(BCP, "No location defined!");
       exception.addParameter("File",configFile);
@@ -592,7 +594,7 @@ void readSourceGenerations(std::vector<DataFetcher::FileRec>& fileList)
 
 /*! \brief Set message content. */
 
-void setMessageContent(SmartMet::GRID::GridFile& gridFile,SmartMet::GRID::Message& message,T::ContentInfo& contentInfo)
+void setMessageContent(SmartMet::GRID::GridFile& /*gridFile*/,SmartMet::GRID::Message& message,T::ContentInfo& contentInfo)
 {
   try
   {
@@ -975,7 +977,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
       }
     }
 
-    if (generationIdList.size() > 0)
+    if (!generationIdList.empty())
     {
       int result = targetInterface->deleteGenerationInfoListByIdList(mSessionId,generationIdList);
       if (result != 0)
@@ -1073,7 +1075,7 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
       }
     }
 
-    if (fileIdList.size() > 0)
+    if (!fileIdList.empty())
     {
       int result = targetInterface->deleteFileInfoListByFileIdList(mSessionId,fileIdList);
       if (result != 0)
@@ -1254,6 +1256,7 @@ void updateLoopEnd(ContentServer::ServiceInterface *targetInterface)
     throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
+}  // namespace
 
 
 

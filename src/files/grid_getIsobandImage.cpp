@@ -27,6 +27,8 @@ using namespace SmartMet;
 
 /*! \brief Init. */
 
+namespace
+{
 void init()
 {
   try
@@ -68,6 +70,7 @@ void print_usage()
   printf("-------------------------------------------------------------------------------- \n");
   printf("\n");
 }
+}  // namespace
 
 
 
@@ -157,7 +160,7 @@ int main(int argc, char **argv)
 
     // ### Painting contours into the image:
 
-    if (contours.size() > 0)
+    if (!contours.empty())
     {
       uint c = 250;
       uint step = 250 / contours.size();

@@ -415,7 +415,7 @@ int run(int argc, char **argv)
  */
 // ----------------------------------------------------------------------
 
-int main(int argc, char **argv) try
+int main(int /*argc*/, char ** /*argv*/) try
 {
   return 0;
   // return run(argc, argv);

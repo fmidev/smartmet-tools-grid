@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 
     // ### Painting contours into the image:
 
-    if (contours.size() > 0)
+    if (!contours.empty())
     {
       uint c = 250;
       uint step = 250 / contours.size();

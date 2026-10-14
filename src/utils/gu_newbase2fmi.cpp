@@ -13,6 +13,8 @@ using namespace SmartMet;
 
 /*! \brief Load newbase parameter defs. */
 
+namespace
+{
 void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_vec& parameters)
 {
   try
@@ -79,6 +81,7 @@ void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_ve
     throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
+}  // namespace
 
 
 

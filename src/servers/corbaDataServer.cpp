@@ -24,6 +24,8 @@
 
 using namespace SmartMet;
 
+namespace
+{
 DataServer::Corba::Server *corbaServer = nullptr;
 DataServer::ServiceImplementation *dataServer = nullptr;
 
@@ -65,7 +67,7 @@ bool mShutdownRequested = false;
 
 /*! \brief Sig handler. */
 
-void sig_handler(int signum)
+void sig_handler(int /*signum*/)
 {
   {
     try
@@ -177,6 +179,7 @@ void readConfigFile(const char* configFile)
     throw Fmi::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
+}  // namespace
 
 
 
@@ -286,7 +289,7 @@ int main(int argc, char *argv[])
     // to handle an IOR is to store it into an environment variable.
 
     std::string ior = corbaServer->getServiceIor();
-    if (mServerIorFile.length() == 0)
+    if (mServerIorFile.empty())
     {
       printf("\n%s\n",ior.c_str());
     }

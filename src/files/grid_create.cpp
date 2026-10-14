@@ -26,6 +26,8 @@ using namespace SmartMet;
 
 /*! \brief Init. */
 
+namespace
+{
 void init()
 {
   try
@@ -1224,6 +1226,7 @@ void setMessage_Mercator_v2(GRID::Message *message,GRID::Message *dataMessage)
     exception.printError();
   }
 }
+}  // namespace
 
 
 

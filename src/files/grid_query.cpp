@@ -25,6 +25,8 @@ using namespace SmartMet;
 
 /*! \brief Init. */
 
+namespace
+{
 void init()
 {
   try
@@ -52,7 +54,7 @@ void init()
 
 /*! \brief Execute query. */
 
-void executeQuery(SmartMet::GRID::GridFile& gridFile,double lat,double lon,std::vector<T::ParamId>& parameterIdList)
+void executeQuery(SmartMet::GRID::GridFile& /*gridFile*/,double /*lat*/,double /*lon*/,std::vector<T::ParamId>& /*parameterIdList*/)
 {
   try
   {
@@ -246,6 +248,7 @@ int run(int argc, char **argv)
     throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
+}  // namespace
 
 
 // ----------------------------------------------------------------------

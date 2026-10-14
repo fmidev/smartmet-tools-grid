@@ -93,6 +93,8 @@ using FileRec_map = std::unordered_map<std::string, FileRecVec>;
 
 // Global variables:
 
+namespace
+{
 std::vector<FileRec> emptyRecList;
 ConfigurationFile mConfigurationFile;
 std::string mGridConfigFile;
@@ -144,10 +146,13 @@ T::GenerationInfoList mSourceGenerationList;
 //std::vector<ForecastRec>  mSourceForacastList;
 std::set<int> mSourceFilenames;
 int mFileIdCounter = 0;
+}  // namespace
 
 using string_bimap = boost::bimap< std::string, int >;
 using bimap_rec = string_bimap::value_type;
 
+namespace
+{
 string_bimap mFilenameMap;
 
 T::ProducerInfoList mTargetProducerList;
@@ -178,7 +183,7 @@ std::unordered_map<std::string,time_t> mReadyGenerations;
 
 /*! \brief Sig handler. */
 
-void sig_handler(int signum)
+void sig_handler(int /*signum*/)
 {
   printf("##### SHUTDOWN REQUESTED #####\n");
   shutdownRequested = true;
@@ -375,7 +380,7 @@ void readProducerList(const char *filename)
         std::set<int> geometries;
         std::set<int> levelTypes;
 
-        if (fields.size() > 0)
+        if (!fields.empty())
         {
           if (fields.size() > 1)
             e = toInt32(fields[1]);
@@ -412,16 +417,16 @@ void readProducerList(const char *filename)
             {
               mProducerList.insert(pname);
 
-              if (geometries.size() > 0)
+              if (!geometries.empty())
                 mProducerGeometryList.insert(std::pair<std::string, std::set<int>>(pname,geometries));
 
-              if (levelTypes.size() > 0)
+              if (!levelTypes.empty())
                 mProducerLevelTypeCacheList.insert(std::pair<std::string, std::set<int>>(pname,levelTypes));
 
-              if (acceptedParameters.size() > 0)
+              if (!acceptedParameters.empty())
                 mAcceptedParameters.insert(std::pair<std::string, std::set<std::string>>(pname,acceptedParameters));
 
-              if (ignoredParameters.size() > 0)
+              if (!ignoredParameters.empty())
                 mIgnoredParameters.insert(std::pair<std::string, std::set<std::string>>(pname,ignoredParameters));
 
               if (e == 0)
@@ -976,10 +981,7 @@ void readTableRecords(PGconn *conn, const char *tableName, T::ProducerId produce
       if (rec.levelId == 2)
         rec.levelValue = rec.levelValue * 100;
 
-      if (lt != mProducerLevelTypeCacheList.end()  &&  lt->second.find(rec.levelId) != lt->second.end())
-        rec.cachingRequested = true;
-      else
-        rec.cachingRequested = false;
+      rec.cachingRequested = lt != mProducerLevelTypeCacheList.end()  &&  lt->second.find(rec.levelId) != lt->second.end();
 
       bool accepted = true;
 
@@ -987,7 +989,7 @@ void readTableRecords(PGconn *conn, const char *tableName, T::ProducerId produce
       if (Identification::gridDef.getFmiParameterDefById(rec.paramId, fmiDef))
       {
         auto arec = mAcceptedParameters.find(producerName);
-        if (arec != mAcceptedParameters.end()  &&  arec->second.size() > 0)
+        if (arec != mAcceptedParameters.end()  &&  !arec->second.empty())
         {
           if (arec->second.find(fmiDef.mParameterName) == arec->second.end())
             accepted = false;
@@ -996,7 +998,7 @@ void readTableRecords(PGconn *conn, const char *tableName, T::ProducerId produce
         if (accepted)
         {
           auto irec = mIgnoredParameters.find(producerName);
-          if (irec != mIgnoredParameters.end()  &&  irec->second.size() > 0)
+          if (irec != mIgnoredParameters.end()  &&  !irec->second.empty())
           {
             if (irec->second.find(fmiDef.mParameterName) != irec->second.end())
               accepted = false;
@@ -1502,7 +1504,7 @@ void readSourceProducers(PGconn *conn)
         return;
 
       std::string searchStr = toUpperString(std::string(PQgetvalue(res, i, 1)));
-      if (mProducerList.size() == 0 || mProducerList.find(searchStr) != mProducerList.end())
+      if (mProducerList.empty() || mProducerList.find(searchStr) != mProducerList.end())
       {
         auto *producer = new T::ProducerInfo();
         producer->mProducerId = toInt64(PQgetvalue(res, i, 0));
@@ -1545,7 +1547,7 @@ void updateProducers()
       {
         std::string searchStr = toUpperString(targetProducer->mName);
         bool producerFound = false;
-        if (mProducerFullList.size() == 0 || mProducerList.find(searchStr) != mProducerList.end())
+        if (mProducerFullList.empty() || mProducerList.find(searchStr) != mProducerList.end())
           producerFound = true;
 
         T::ProducerInfo *sourceProducer = nullptr;
@@ -1757,7 +1759,7 @@ void updateGenerations()
       }
     }
 
-    if (generationIdList.size() > 0)
+    if (!generationIdList.empty())
     {
       int result = mTargetInterface->deleteGenerationInfoListByIdList(mSessionId, generationIdList);
       if (result != 0)
@@ -1962,7 +1964,7 @@ void updateGenerationStatus(T::ProducerInfo& targetProducer)
 
     std::string pname = toUpperString(targetProducer.mName);
     bool ignore = false;
-    if (mProducerList.size() == 0  ||  mGenerationStatusCheckIgnore.find(pname) != mGenerationStatusCheckIgnore.end())
+    if (mProducerList.empty()  ||  mGenerationStatusCheckIgnore.find(pname) != mGenerationStatusCheckIgnore.end())
     {
       PRINT_DATA(mDebugLogPtr, "  -- Ignore generation status update : %s\n", targetProducer.mName.c_str());
       ignore = true;
@@ -2112,13 +2114,13 @@ void updateGenerationStatus()
         bool ready = true;
         bool producerCheckEnabled = false;
 
-        if (mProducerList.size() == 0 || mProducerList.find(pname) != mProducerList.end())
+        if (mProducerList.empty() || mProducerList.find(pname) != mProducerList.end())
         {
           PRINT_DATA(mDebugLogPtr, "  -- Checking generation status : %s (status=%u)\n", targetGeneration->mName.c_str(),targetGeneration->mStatus);
           producerCheckEnabled = true;
         }
 
-        if (producerCheckEnabled  &&  mProducerList.size() > 0  &&  mGenerationStatusCheckIgnore.find(pname) == mGenerationStatusCheckIgnore.end())
+        if (producerCheckEnabled  &&  !mProducerList.empty()  &&  mGenerationStatusCheckIgnore.find(pname) == mGenerationStatusCheckIgnore.end())
         {
           std::string key = toUpperString(targetGeneration->mName + ":0:0");
           auto gen = mReadyGenerations.find(key);
@@ -2300,7 +2302,7 @@ void deleteTargetFiles(T::FileInfoList& targetFileList)
       }
     }
     PRINT_DATA(mDebugLogPtr, "  -- Delete files : %lu\n", deleteList.size());
-    if (deleteList.size() > 0)
+    if (!deleteList.empty())
       mTargetInterface->deleteFileInfoListByFileIdList(mSessionId, deleteList);
   }
   catch (...)
@@ -2335,7 +2337,7 @@ void deleteTargetFiles(T::ProducerId producerId,T::FileInfoList& targetFileList)
       }
     }
     PRINT_DATA(mDebugLogPtr, "  -- Delete files : %lu\n", deleteList.size());
-    if (deleteList.size() > 0)
+    if (!deleteList.empty())
       mTargetInterface->deleteFileInfoListByFileIdList(mSessionId, deleteList);
   }
   catch (...)
@@ -2440,7 +2442,7 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
       PRINT_DATA(mDebugLogPtr, "  -- Read files by forecast time %s:%u:%d:%d:%d : %lu (contentCount = %u)\n", forecast.forecastTime.c_str(), forecast.producerId, forecast.geometryId,
           forecast.forecastTypeId, forecast.forecastTypeValue, recList.size(), mContentReadCount);
 
-      if (recList.size() == 0)
+      if (recList.empty())
         return;
 
       if (fileReadCount == 0  &&  targetFileList.getLength() == 0)
@@ -2532,7 +2534,7 @@ void saveTargetContent(T::ProducerId producerId,std::vector<FileRec>& fileRecLis
 {
   try
   {
-    if (fileRecList.size() == 0)
+    if (fileRecList.empty())
       return;
 
     T::FileInfoList targetFileList;
@@ -2801,7 +2803,7 @@ void updateTargetFiles(PGconn *conn)
               }
             }
 
-            if (fcList.size() > 0)
+            if (!fcList.empty())
             {
               PRINT_DATA(mDebugLogPtr, "  -- Add file information : %lu\n", fcList.size());
               int result = mTargetInterface->addFileInfoListWithContent(mSessionId, 0, fcList);
@@ -2847,6 +2849,7 @@ void updateTargetFiles(PGconn *conn)
     throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
+}  // namespace
 
 
 
@@ -2968,7 +2971,7 @@ int main(int argc, char *argv[])
           readProducerList(mProducerFile.c_str());
         }
 
-        if (mProducerList.size() > 0 ||  mProducerFullList.size() == 0)
+        if (!mProducerList.empty() ||  mProducerFullList.empty())
         {
           if (!shutdownRequested)
           {

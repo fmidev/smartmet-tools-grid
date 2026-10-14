@@ -20,6 +20,8 @@
 using namespace SmartMet;
 
 
+namespace
+{
 FILE *producerFile = nullptr;
 FILE *generationFile = nullptr;
 FILE *fileFile = nullptr;
@@ -111,7 +113,7 @@ bool producerEnabled(const char *producerName)
 
 /*! \brief Read content. */
 
-void readContent(PGconn *conn,char *producerId,T::GenerationId generationId,T::FileId fileId,uint fileType,char *geometryId,char *forecastTime,char *fmiParameterId,char *fmiLevelId,char *parameterLevel,char *forecastType,char *pertubationNumber)
+void readContent(PGconn * /*conn*/,char *producerId,T::GenerationId generationId,T::FileId fileId,uint fileType,char *geometryId,char *forecastTime,char *fmiParameterId,char *fmiLevelId,char *parameterLevel,char *forecastType,char *pertubationNumber)
 {
   FUNCTION_TRACE
   try
@@ -337,6 +339,7 @@ void readProducers(PGconn *conn)
     throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
 }
+}  // namespace
 
 
 

@@ -20,6 +20,8 @@
 using namespace SmartMet;
 
 
+namespace
+{
 ContentServer::Corba::Server *corbaServer = nullptr;
 ContentServer::ServiceInterface *contentSource = nullptr;
 ContentServer::Corba::ClientImplementation *corbaClient = nullptr;
@@ -71,7 +73,7 @@ std::string         mSecondaryConnectionString;
 
 /*! \brief Sig handler. */
 
-void sig_handler(int signum)
+void sig_handler(int /*signum*/)
 {
   {
     try
@@ -200,6 +202,7 @@ void readConfigFile(const char* configFile)
     throw Fmi::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
+}  // namespace
 
 
 
@@ -335,7 +338,7 @@ int main(int argc, char *argv[])
     // to handle an IOR is to store it into an environment variable.
 
     std::string ior = corbaServer->getServiceIor();
-    if (mServerIorFile.length() == 0)
+    if (mServerIorFile.empty())
     {
       printf("\n%s\n",ior.c_str());
     }
@@ -355,19 +358,19 @@ int main(int argc, char *argv[])
 
     corbaServer->run();
 
-    if (redisImplementation != nullptr)
+    
       delete redisImplementation;
 
-    if (postgresImplementation != nullptr)
+    
       delete postgresImplementation;
 
-    if (corbaClient != nullptr)
+    
       delete corbaClient;
 
-    if (httpClient != nullptr)
+    
       delete httpClient;
 
-    if (memoryImplementation != nullptr)
+    
       delete memoryImplementation;
 
     delete corbaServer;

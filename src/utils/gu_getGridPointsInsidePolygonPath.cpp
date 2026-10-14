@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
     for (int t=3; t<argc; t++)
     {
-      if (strcmp(argv[t],"/") == 0  &&  polygonPoints.size() > 0)
+      if (strcmp(argv[t],"/") == 0  &&  !polygonPoints.empty())
       {
         polygonPath.push_back(polygonPoints);
         polygonPoints.clear();
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
       }
     }
 
-    if (polygonPoints.size() > 0)
+    if (!polygonPoints.empty())
       polygonPath.push_back(polygonPoints);
 
 

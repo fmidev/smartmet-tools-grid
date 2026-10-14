@@ -14,6 +14,8 @@ using namespace SmartMet;
 
 /*! \brief Write producers. */
 
+namespace
+{
 void writeProducers(T::SessionId sessionId,ContentServer::ServiceInterface *serviceInterface,const char *dir)
 {
   try
@@ -214,6 +216,7 @@ void writeContent(T::SessionId sessionId,ContentServer::ServiceInterface *servic
     throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
+}  // namespace
 
 
 
