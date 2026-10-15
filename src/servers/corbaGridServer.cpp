@@ -554,15 +554,12 @@ void* corbaQueryServer_updateThread(void * /*arg*/)
     Fmi::set_thread_name("upd-cgs");
     updateProcessing();
     pthread_exit(nullptr);
-    return nullptr;
   }
   catch (...)
   {
     Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
     pthread_exit(nullptr);
-    // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
-    exit(-1);
   }
 }
 
