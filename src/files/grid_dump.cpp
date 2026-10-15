@@ -145,11 +145,9 @@ int run(int argc, char **argv)
     init();
 
     UInt64 startTime = getTime();
-    uint fileIndex = 0;
 
     for (const auto &file : files)
     {
-      fileIndex++;
       UInt64 readStartTime = getTime();
       SmartMet::GRID::GridFile gridFile;
       gridFile.read(file);
