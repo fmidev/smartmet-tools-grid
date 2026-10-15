@@ -826,13 +826,13 @@ int main(int argc, char *argv[])
     else if (strcasecmp(content_server_content_source_type.c_str(),"corba") == 0)
     {
       corbaContentClient = new ContentServer::Corba::ClientImplementation();
-      corbaContentClient->init(content_server_content_source_corba_ior.c_str());
+      corbaContentClient->init(content_server_content_source_corba_ior);
       contentService = corbaContentClient;
     }
     else if (strcasecmp(content_server_content_source_type.c_str(),"http") == 0)
     {
       httpContentClient = new ContentServer::HTTP::ClientImplementation();
-      httpContentClient->init(content_server_content_source_http_url.c_str());
+      httpContentClient->init(content_server_content_source_http_url);
       contentService = httpContentClient;
     }
 
@@ -891,7 +891,7 @@ int main(int argc, char *argv[])
     corbaServer->init(contentService,dataService,queryService);
 
 
-    dataService->init(0,data_server_id,data_server_name.c_str(),corbaServer->getDataServiceIor().c_str(),data_server_grid_storage_directory.c_str(),contentService);
+    dataService->init(0,data_server_id,data_server_name,corbaServer->getDataServiceIor(),data_server_grid_storage_directory,contentService);
     queryService->init(contentService,dataService,grid_files_configFile,query_server_heightConversionFile,
         query_server_mappingFiles,query_server_unitConversionFile,query_server_mappingAliasFiles,
         query_server_aliasFiles,query_server_producerFile,query_server_producerAliasFiles,query_server_luaFiles,

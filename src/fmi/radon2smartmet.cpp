@@ -2620,7 +2620,7 @@ int main(int argc, char *argv[])
     if (mStorageType == "http")
     {
       auto *httpClient = new ContentServer::HTTP::ClientImplementation();
-      httpClient->init(mContentServerUrl.c_str());
+      httpClient->init(mContentServerUrl);
       mTargetInterface = httpClient;
     }
 

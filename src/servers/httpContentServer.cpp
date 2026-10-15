@@ -432,13 +432,13 @@ int main(int argc,char ** argv)
     {
       corbaClient = new ContentServer::Corba::ClientImplementation();
       std::cout << mCorbaIor << " *** IOR\n";
-      corbaClient->init(mCorbaIor.c_str());
+      corbaClient->init(mCorbaIor);
       contentSource = corbaClient;
     }
     else if (strcasecmp(mContentSourceType.c_str(),"http") == 0)
     {
       httpClient = new ContentServer::HTTP::ClientImplementation();
-      httpClient->init(mHttpUrl.c_str());
+      httpClient->init(mHttpUrl);
       contentSource = httpClient;
     }
     else if (strcasecmp(mContentSourceType.c_str(),"memory") == 0)

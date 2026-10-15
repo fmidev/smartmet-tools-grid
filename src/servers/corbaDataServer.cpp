@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
     corbaServer->init(dataServer);
 
     ContentServer::Corba::ClientImplementation contentServerClient;
-    contentServerClient.init(mContentSourceIor.c_str());
+    contentServerClient.init(mContentSourceIor);
 
     if (mProcessingLogEnabled)
     {
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
     }
 
 
-    dataServer->init(0,mServerId,mServerName.c_str(),corbaServer->getServiceIor().c_str(),mGridDirectory.c_str(),&contentServerClient);
+    dataServer->init(0,mServerId,mServerName,corbaServer->getServiceIor(),mGridDirectory,&contentServerClient);
     dataServer->setDem(dem);
     dataServer->setLandCover(landCover);
     dataServer->startEventProcessing();

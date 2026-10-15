@@ -269,13 +269,13 @@ int main(int argc, char *argv[])
     else if (strcasecmp(mContentSourceType.c_str(),"corba") == 0)
     {
       corbaClient = new ContentServer::Corba::ClientImplementation();
-      corbaClient->init(mCorbaIor.c_str());
+      corbaClient->init(mCorbaIor);
       contentSource = corbaClient;
     }
     else if (strcasecmp(mContentSourceType.c_str(),"http") == 0)
     {
       httpClient = new ContentServer::HTTP::ClientImplementation();
-      httpClient->init(mHttpUrl.c_str());
+      httpClient->init(mHttpUrl);
       contentSource = httpClient;
     }
     else if (strcasecmp(mContentSourceType.c_str(),"memory") == 0)

@@ -442,8 +442,8 @@ void readSourceFiles(std::vector<DataFetcher::FileRec>& fileList)
 
       if (partList.size() > 2)
       {
-        std::string producerAbbr = partList[0];
-        std::string generationTime = partList[1];
+        const std::string& producerAbbr = partList[0];
+        const std::string& generationTime = partList[1];
 
         auto pp = mProducerAbbrList.find(producerAbbr);
         if (pp ==  mProducerAbbrList.end())
@@ -452,7 +452,7 @@ void readSourceFiles(std::vector<DataFetcher::FileRec>& fileList)
         }
         else
         {
-          T::ProducerInfo *producer = mTargetProducerList.getProducerInfoByName(pp->second.c_str());
+          T::ProducerInfo *producer = mTargetProducerList.getProducerInfoByName(pp->second);
           if (producer == nullptr)
           {
             //std::cout << "Producer not found : " << pp->second << "\n";
@@ -531,8 +531,8 @@ void readSourceGenerations(std::vector<DataFetcher::FileRec>& fileList)
 
       if (partList.size() > 2)
       {
-        std::string producerAbbr = partList[0];
-        std::string generationTime = partList[1];
+        const std::string& producerAbbr = partList[0];
+        const std::string& generationTime = partList[1];
 
         auto pp = mProducerAbbrList.find(producerAbbr);
         if (pp ==  mProducerAbbrList.end())
@@ -543,7 +543,7 @@ void readSourceGenerations(std::vector<DataFetcher::FileRec>& fileList)
         {
           //std::cout << "Found [" << producerAbbr << "] : " << pp->second << "\n";
 
-          T::ProducerInfo *producer = mTargetProducerList.getProducerInfoByName(pp->second.c_str());
+          T::ProducerInfo *producer = mTargetProducerList.getProducerInfoByName(pp->second);
           if (producer == nullptr)
           {
             //std::cout << "Producer not found : " << pp->second << "\n";
@@ -1284,14 +1284,14 @@ int main(int argc, char *argv[])
     if (mStorageType =="corba")
     {
       auto *client = new ContentServer::Corba::ClientImplementation();
-      client->init(mContentServerIor.c_str());
+      client->init(mContentServerIor);
       targetInterface = client;
     }
 
     if (mStorageType =="http")
     {
       auto *httpClient = new ContentServer::HTTP::ClientImplementation();
-      httpClient->init(mContentServerUrl.c_str());
+      httpClient->init(mContentServerUrl);
       targetInterface = httpClient;
     }
 
