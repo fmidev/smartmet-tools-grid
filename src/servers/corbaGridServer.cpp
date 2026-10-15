@@ -175,7 +175,7 @@ void loadMappings(QueryServer::ParamMappingFile_vec& parameterMappings)
 
 /*! \brief Open mapping file. */
 
-FILE* openMappingFile(std::string mappingFile)
+FILE* openMappingFile(const std::string& mappingFile)
 {
   try
   {
@@ -286,7 +286,7 @@ FILE* openMappingFile(std::string mappingFile)
 
 /*! \brief Update mappings. */
 
-void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targetParameterKeyType,std::string mappingFile,QueryServer::ParamMappingFile_vec& parameterMappings)
+void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targetParameterKeyType,const std::string& mappingFile,QueryServer::ParamMappingFile_vec& parameterMappings)
 {
   try
   {

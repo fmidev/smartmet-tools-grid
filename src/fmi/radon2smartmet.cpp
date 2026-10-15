@@ -298,7 +298,7 @@ void readConfigFile(const char* configFile)
 
 /*! \brief Get file id. */
 
-int getFileId(std::string filename,bool create)
+int getFileId(const std::string& filename,bool create)
 {
   try
   {
