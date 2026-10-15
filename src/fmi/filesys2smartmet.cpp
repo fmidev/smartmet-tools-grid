@@ -23,6 +23,8 @@
 #include <cstring>
 #include <libpq-fe.h>
 #include <cstdlib>
+#include <chrono>
+#include <thread>
 
 #define FUNCTION_TRACE FUNCTION_TRACE_OFF
 
@@ -78,7 +80,6 @@ Log                       mDebugLog;
 Log*                      mDebugLogPtr = nullptr;
 
 T::SessionId              mSessionId = 0;
-uint                      mGlobalFileId = 0;
 
 T::ProducerInfoList       mSourceProducerList;
 T::GenerationInfoList     mSourceGenerationList;
@@ -733,7 +734,7 @@ void readSourceContent(T::FileInfo& fileInfo,T::ContentInfoList& contentList,boo
       throw exception;
     }
 
-    fprintf(file,"#%lu\n",fileInfo.mModificationTime);
+    fprintf(file,"#%ld\n",fileInfo.mModificationTime);
     fprintf(file,"#%s\n",fname);
 
     SmartMet::GRID::GridFile gridFile;
@@ -1444,14 +1445,14 @@ int main(int argc, char *argv[])
 
 
       if (waitTime > 0)
-        sleep(waitTime);
+        std::this_thread::sleep_for(std::chrono::seconds(waitTime));
       else
         ind = false;
     }
 
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

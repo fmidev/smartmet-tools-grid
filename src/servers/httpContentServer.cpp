@@ -39,8 +39,6 @@ ContentServer::HTTP::ServerInterface *httpServer = nullptr;
 ContentServer::MemoryImplementation *memoryImplementation = nullptr;
 ContentServer::CacheImplementation *cacheImplementation = nullptr;
 
-bool shutdownRequested = false;
-
 ConfigurationFile   mConfigurationFile;
 std::string         mServerAddress;
 std::string         mServerPort;
@@ -287,8 +285,7 @@ MHD_Result processRequest(void * /*cls*/,struct MHD_Connection *connection,const
 
       MHD_get_connection_values(connection, MHD_GET_ARGUMENT_KIND, addParameter, requestMessage);
     }
-    else
-    if (strcmp(method, "POST") == 0)
+    else if (strcmp(method, "POST") == 0)
     {
       // This is a POST message, which means that parameters are in the content part of the message.
 
@@ -431,23 +428,20 @@ int main(int argc,char ** argv)
       redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str(),mRedisPassword.c_str());
       contentSource = redisImplementation;
     }
-    else
-    if (strcasecmp(mContentSourceType.c_str(),"corba") == 0)
+    else if (strcasecmp(mContentSourceType.c_str(),"corba") == 0)
     {
       corbaClient = new ContentServer::Corba::ClientImplementation();
       std::cout << mCorbaIor << " *** IOR\n";
       corbaClient->init(mCorbaIor.c_str());
       contentSource = corbaClient;
     }
-    else
-    if (strcasecmp(mContentSourceType.c_str(),"http") == 0)
+    else if (strcasecmp(mContentSourceType.c_str(),"http") == 0)
     {
       httpClient = new ContentServer::HTTP::ClientImplementation();
       httpClient->init(mHttpUrl.c_str());
       contentSource = httpClient;
     }
-    else
-    if (strcasecmp(mContentSourceType.c_str(),"memory") == 0)
+    else if (strcasecmp(mContentSourceType.c_str(),"memory") == 0)
     {
       memoryImplementation = new ContentServer::MemoryImplementation();
       memoryImplementation->init(mDataLoadEnabled,mDataSaveEnabled,mDataSyncEnabled,true,mDataDir,mDataSaveInterval);

@@ -31,6 +31,7 @@ void saveImage(const char *imageFile,uint columns,uint rows,T::ParamValue_vec&  
     if (sz != (columns * rows))
     {
       printf("The number of values (%u) does not match to the grid size (%u x %u)1\n",sz,columns,rows);
+      // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
       exit(-1);
     }
 
@@ -147,7 +148,7 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

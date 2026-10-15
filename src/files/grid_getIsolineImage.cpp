@@ -37,6 +37,7 @@ void init()
     if (configFile == nullptr)
     {
       printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
+      // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
       exit(-1);
     }
 
@@ -129,11 +130,11 @@ int main(int argc, char **argv)
 
     message->getGridIsolines(values,attributeList,contours);
 
-    printf("\nContours : %ld\n",contours.size());
+    printf("\nContours : %zu\n",contours.size());
 
     for (auto &contour : contours)
     {
-      printf("Lines %ld\n",contour.size());
+      printf("Lines %zu\n",contour.size());
     }
 
     // ### Allocating and initializing the image:
@@ -163,6 +164,7 @@ int main(int argc, char **argv)
         if (col == 0xFFFFFFFF)
           col = 0;
 
+        imagePaint.setDrawColor(col);
         imagePaint.paintWkb(mp,mp,0,0,contour);
         t++;
       }

@@ -80,6 +80,7 @@ void init()
     if (configFile == nullptr)
     {
       printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
+      // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
       exit(-1);
     }
 
@@ -203,7 +204,7 @@ void saveImagesByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T
           message->getGridMinAndMaxValues(minValue,maxValue);
 
         char imageFile[300];
-        sprintf(imageFile,"%s/image-%04u-%u-%09u-%s-%04lu.jpg",imageDir,fileIndex,parameterId,level,toString(message->getForecastTime()).c_str(),(UInt64)m);
+        sprintf(imageFile,"%s/image-%04u-%u-%09d-%s-%04lu.jpg",imageDir,fileIndex,parameterId,level,toString(message->getForecastTime()).c_str(),(UInt64)m);
         saveMessageImage(imageFile,message,minValue,maxValue,interpolationMethod,scaleFactor,valueLevels,flags);
       }
     }
@@ -236,7 +237,7 @@ void saveAllImages(uint fileIndex,SmartMet::GRID::GridFile& gridFile,const char 
       message->getGridMinAndMaxValues(minValue,maxValue);
 
       char imageFile[300];
-      sprintf(imageFile,"%s/image-%04u-%04lu-%09u-%s.jpg",imageDir,fileIndex,m,level,toString(message->getForecastTime()).c_str());
+      sprintf(imageFile,"%s/image-%04u-%04lu-%09d-%s.jpg",imageDir,fileIndex,m,level,toString(message->getForecastTime()).c_str());
       saveMessageImage(imageFile,message,minValue,maxValue,interpolationMethod,scaleFactor,valueLevels,flags);
     }
   }

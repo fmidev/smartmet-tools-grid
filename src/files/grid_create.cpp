@@ -36,6 +36,7 @@ void init()
     if (configFile == nullptr)
     {
       printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
+      // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
       exit(-1);
     }
 
@@ -216,7 +217,7 @@ int main(int argc, char *argv[])
 
         printf("** VERSION %u\n",dataMessage->getGribVersion());
 
-        if (version == dataMessage->getGribVersion())
+        if (C_UINT(version) == dataMessage->getGribVersion())
         {
           Int64 v = 0;
 

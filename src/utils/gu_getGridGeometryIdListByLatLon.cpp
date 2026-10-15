@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
     if (configFile == nullptr)
     {
       printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
+      // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
       exit(-1);
     }
 
@@ -45,13 +46,13 @@ int main(int argc, char *argv[])
 
     for (int it : geometryIdList)
     {
-      printf("GeometryId : %u\n",it);
+      printf("GeometryId : %d\n",it);
     }
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

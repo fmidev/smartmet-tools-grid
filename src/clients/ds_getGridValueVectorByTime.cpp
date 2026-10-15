@@ -67,14 +67,14 @@ int main(int argc, char *argv[])
     uint cnt = values.size();
     for (uint t=0; t<cnt; t++)
     {
-      printf("%06d;%f\n",t,values[t]);
+      printf("%06u;%f\n",t,values[t]);
     }
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
 
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

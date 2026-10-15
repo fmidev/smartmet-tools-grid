@@ -35,7 +35,7 @@ void saveImage(const char *imageFile,T::GridData&  gridData)
 
     if (sz != size)
     {
-      printf("ERROR: There are not enough values (= %lu) for the grid (%u x %u)!\n",sz,width,height);
+      printf("ERROR: There are not enough values (= %lu) for the grid (%d x %d)!\n",sz,width,height);
       return;
     }
 
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

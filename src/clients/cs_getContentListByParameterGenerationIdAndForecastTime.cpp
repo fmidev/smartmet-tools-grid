@@ -53,17 +53,13 @@ int main(int argc, char *argv[])
     T::ParamKeyType paramKeyType = T::ParamKeyTypeValue::FMI_ID;
     if (strcmp(argv[3],"fmi-id") == 0)
       paramKeyType = T::ParamKeyTypeValue::FMI_ID;
-    else
-    if (strcmp(argv[3],"fmi-name") == 0)
+    else if (strcmp(argv[3],"fmi-name") == 0)
       paramKeyType = T::ParamKeyTypeValue::FMI_NAME;
-    else
-    if (strcmp(argv[3],"grib-id") == 0)
+    else if (strcmp(argv[3],"grib-id") == 0)
       paramKeyType = T::ParamKeyTypeValue::GRIB_ID;
-    else
-    if (strcmp(argv[3],"newbase-id") == 0)
+    else if (strcmp(argv[3],"newbase-id") == 0)
       paramKeyType = T::ParamKeyTypeValue::NEWBASE_ID;
-    else
-    if (strcmp(argv[3],"newbase-name") == 0)
+    else if (strcmp(argv[3],"newbase-name") == 0)
       paramKeyType = T::ParamKeyTypeValue::NEWBASE_NAME;
 
     T::ParamId parameterKey = argv[4];
@@ -83,15 +79,13 @@ int main(int argc, char *argv[])
       httpClient->init(argv[argc-1]);
       service = httpClient;
     }
-    else
-    if (argc > 5  &&  strcmp(argv[argc-5],"-redis") == 0)
+    else if (argc > 5  &&  strcmp(argv[argc-5],"-redis") == 0)
     {
       auto *redis = new ContentServer::RedisImplementation();
       redis->init(argv[argc-4],toInt64(argv[argc-3]),argv[argc-2],argv[argc-1]);
       service = redis;
     }
-    else
-    if (strcmp(argv[argc-2],"-pg") == 0)
+    else if (strcmp(argv[argc-2],"-pg") == 0)
     {
       auto *pg = new ContentServer::PostgresqlImplementation();
       pg->init(argv[argc-1],"",false);
@@ -142,7 +136,7 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

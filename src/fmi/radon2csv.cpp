@@ -37,9 +37,10 @@ std::vector<std::string> producerList;
 
 /*! \brief Error. */
 
-void error(char *mess)
+[[noreturn]] void error(char *mess)
 {
   fprintf(stderr, "### %s\n", mess);
+  // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
   exit(1);
 }
 
@@ -154,7 +155,7 @@ void readContent(PGconn * /*conn*/,char *producerId,T::GenerationId generationId
     }
 
 
-    fprintf(contentFile,"%lu;%u;%u;%s;%lu;%u;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%u;%u;%u;%s;\n",
+    fprintf(contentFile,"%lu;%d;%u;%s;%lu;%d;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%d;%d;%u;%s;\n",
            fileId,
            0, // messageIndex
            fileType,
@@ -214,7 +215,7 @@ uint readFiles(PGconn *conn,char *producerId,T::GenerationId generationId,char *
     {
       if (strstr(PQgetvalue(res, i, 0),"masala") != nullptr)
       {
-        fprintf(fileFile,"%lu;%u;%s;%s;%lu;%u;%u;%u\n",
+        fprintf(fileFile,"%lu;%d;%s;%s;%lu;%d;%d;%u\n",
                globalFileId,
                0,   // Type
                PQgetvalue(res, i, 0),  // fileName
@@ -321,7 +322,7 @@ void readProducers(PGconn *conn)
         //printf("-- read generations\n");
         if (readGenerations(conn,PQgetvalue(res, i, 0),PQgetvalue(res, i, 1)) > 0)
         {
-          fprintf(producerFile,"%s;%s;%s;%s;%u;%u\n",
+          fprintf(producerFile,"%s;%s;%s;%s;%d;%u\n",
                  PQgetvalue(res, i, 0), // producerId
                  PQgetvalue(res, i, 1), // name
                  PQgetvalue(res, i, 1), // title
@@ -362,6 +363,7 @@ int main(int argc, char *argv[])
     if (configFile == nullptr)
     {
       printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
+      // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
       exit(-1);
     }
 
@@ -431,7 +433,7 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

@@ -110,6 +110,7 @@ void init()
     if (configFile == nullptr)
     {
       printf("%s not defined!\n",SMARTMET_GRID_CONFIG_FILE);
+      // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
       exit(-1);
     }
 
@@ -217,7 +218,7 @@ void saveMapsByParameterId(uint fileIndex,SmartMet::GRID::GridFile& gridFile,T::
 
         auto level = message->getGridParameterLevel();
         char imageFile[300];
-        sprintf(imageFile,"%s/map-%04u-%u-%09u-%s-%04lu.jpg",imageDir,fileIndex,parameterId,level,toString(message->getForecastTime()).c_str(),(UInt64)m);
+        sprintf(imageFile,"%s/map-%04u-%u-%09d-%s-%04lu.jpg",imageDir,fileIndex,parameterId,level,toString(message->getForecastTime()).c_str(),(UInt64)m);
         saveMessageMap(imageFile,message,minValue,maxValue,interpolationMethod,valueLevels,flags);
       }
     }

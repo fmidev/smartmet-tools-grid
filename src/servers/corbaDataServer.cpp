@@ -20,6 +20,8 @@
 #include <stdexcept>
 #include <sys/time.h>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 
 using namespace SmartMet;
@@ -76,17 +78,19 @@ void sig_handler(int /*signum*/)
       {
         printf("\n**** SHUTTING DOWN ****\n");
         mShutdownRequested = true;
-        sleep(2);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
         dataServer->shutdown();
         corbaServer->shutdown();
       }
       else
+        // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
         exit(-1);
     }
     catch (...)
     {
       Fmi::Exception exception(BCP,"Operation failed!",nullptr);
       exception.printError();
+      // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
       exit(-1);
     }
   }

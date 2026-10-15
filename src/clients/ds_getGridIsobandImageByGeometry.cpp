@@ -100,12 +100,12 @@ int main(int argc, char *argv[])
 
     // ### Printing the result:
 
-    printf("\nContours : %ld\n",contours.size());
+    printf("\nContours : %zu\n",contours.size());
 
 
     for (auto &contour : contours)
     {
-      printf("Lines %ld\n",contour.size());
+      printf("Lines %zu\n",contour.size());
     }
 
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

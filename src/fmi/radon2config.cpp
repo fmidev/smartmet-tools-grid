@@ -24,9 +24,10 @@ using namespace SmartMet;
 
 namespace
 {
-void error(char *mess)
+[[noreturn]] void error(char *mess)
 {
   fprintf(stderr, "### %s\n", mess);
+  // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
   exit(1);
 }
 
@@ -79,13 +80,12 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  geom_latitude_longitude_v\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  geometry_id;\n");
+    sprintf(p,"  geometry_id;\n");
 
     PGresult *res = PQexec(conn,sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
       error(PQresultErrorMessage(res));
 
-    int fieldCount = PQnfields(res);
     int rowCount = PQntuples(res);
 
     for (int i = 0; i < rowCount; i++)
@@ -132,14 +132,13 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  geom_rotated_latitude_longitude_v\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  geometry_id;\n");
+    sprintf(p,"  geometry_id;\n");
 
 
     res = PQexec(conn,sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
       error(PQresultErrorMessage(res));
 
-    fieldCount = PQnfields(res);
     rowCount = PQntuples(res);
 
     for (int i = 0; i < rowCount; i++)
@@ -192,14 +191,13 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  geom_lambert_conformal_v\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  geometry_id;\n");
+    sprintf(p,"  geometry_id;\n");
 
 
     res = PQexec(conn,sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
       error(PQresultErrorMessage(res));
 
-    fieldCount = PQnfields(res);
     rowCount = PQntuples(res);
 
     for (int i = 0; i < rowCount; i++)
@@ -252,14 +250,13 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  geom_lambert_equal_area_v\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  geometry_id;\n");
+    sprintf(p,"  geometry_id;\n");
 
 
     res = PQexec(conn,sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
       error(PQresultErrorMessage(res));
 
-    fieldCount = PQnfields(res);
     rowCount = PQntuples(res);
 
     for (int i = 0; i < rowCount; i++)
@@ -307,14 +304,13 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  geom_stereographic_v\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  geometry_id;\n");
+    sprintf(p,"  geometry_id;\n");
 
 
     res = PQexec(conn,sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
       error(PQresultErrorMessage(res));
 
-    fieldCount = PQnfields(res);
     rowCount = PQntuples(res);
 
     for (int i = 0; i < rowCount; i++)
@@ -362,14 +358,13 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  geom_transverse_mercator_v\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  geometry_id;\n");
+    sprintf(p,"  geometry_id;\n");
 
 
     res = PQexec(conn,sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
       error(PQresultErrorMessage(res));
 
-    fieldCount = PQnfields(res);
     rowCount = PQntuples(res);
 
     for (int i = 0; i < rowCount; i++)
@@ -412,14 +407,14 @@ void create_fmi_geometries(PGconn *conn,const char *dir)
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  geom_reduced_gaussian\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  id;\n");
+    sprintf(p,"  id;\n");
 
 
     res = PQexec(conn,sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
       error(PQresultErrorMessage(res));
 
-    fieldCount = PQnfields(res);
+    int fieldCount = PQnfields(res);
     rowCount = PQntuples(res);
 
     for (int i = 0; i < rowCount; i++)
@@ -506,7 +501,7 @@ void create_fmi_levelId_grib2(PGconn *conn,const char *dir)
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  level_grib2 LEFT OUTER JOIN producer_grib ON (level_grib2.producer_id = producer_grib.producer_id)\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  level_grib2.level_id,producer_grib.centre,producer_grib.ident,level_grib2.grib_level_id;\n");
+    sprintf(p,"  level_grib2.level_id,producer_grib.centre,producer_grib.ident,level_grib2.grib_level_id;\n");
 
 
     int fmiLevelId = 0;
@@ -599,7 +594,7 @@ void create_fmi_levels(PGconn *conn,const char *dir)
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  level LEFT OUTER JOIN param_unit ON (level.unit_id = param_unit.id)\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  level.id;\n");
+    sprintf(p,"  level.id;\n");
 
 
     PGresult *res = PQexec(conn,sql);
@@ -627,6 +622,8 @@ void create_fmi_levels(PGconn *conn,const char *dir)
 
         case 3:         // Hybrid => levels have no relationship, interpolation not possible
           type = 3;
+          break;
+        default:
           break;
       }
 
@@ -694,7 +691,7 @@ void create_fmi_levelId_grib1(PGconn *conn,const char *dir)
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  level_grib1 LEFT OUTER JOIN producer_grib ON (level_grib1.producer_id = producer_grib.producer_id)\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  level_grib1.level_id,producer_grib.centre,producer_grib.ident,level_grib1.grib_level_id;\n");
+    sprintf(p,"  level_grib1.level_id,producer_grib.centre,producer_grib.ident,level_grib1.grib_level_id;\n");
 
 
     int fmiLevelId = 0;
@@ -798,7 +795,7 @@ void create_fmi_parameterId_newbase(PGconn *conn,const char *dir)
     p += sprintf(p,"  param.unit_id=param_unit.id\n");
     // p += sprintf(p,"  param.unit_id=param_unit.id AND param_newbase.base = 0 AND param_newbase.scale = 1\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  param.id;\n");
+    sprintf(p,"  param.id;\n");
 
 
     PGresult *res = PQexec(conn,sql);
@@ -929,7 +926,7 @@ void create_fmi_parameters(PGconn *conn,const char *dir)
     p += sprintf(p,"WHERE\n");
     p += sprintf(p,"  param.unit_id=param_unit.id\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  param.id;\n");
+    sprintf(p,"  param.id;\n");
 
 
     PGresult *res = PQexec(conn,sql);
@@ -1018,7 +1015,7 @@ void create_fmi_producerId_grib(PGconn *conn,const char *dir)
     //p += sprintf(p,"WHERE\n");
     //p += sprintf(p,"  fmi_producer.id=producer_grib.producer_id\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  fmi_producer.id,producer_grib.centre,producer_grib.ident;\n");
+    sprintf(p,"  fmi_producer.id,producer_grib.centre,producer_grib.ident;\n");
 
     PGresult *res = PQexec(conn,sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
@@ -1087,7 +1084,7 @@ void create_fmi_forecastTypes(PGconn *conn,const char *dir)
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  forecast_type\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  id;\n");
+    sprintf(p,"  id;\n");
 
 
     PGresult *res = PQexec(conn,sql);
@@ -1156,7 +1153,7 @@ void create_fmi_aggregations(PGconn *conn,const char *dir)
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  aggregation\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  id;\n");
+    sprintf(p,"  id;\n");
 
 
     PGresult *res = PQexec(conn,sql);
@@ -1225,7 +1222,7 @@ void create_fmi_processingTypes(PGconn *conn,const char *dir)
     p += sprintf(p,"FROM\n");
     p += sprintf(p,"  processing_type\n");
     p += sprintf(p,"ORDER BY\n");
-    p += sprintf(p,"  id;\n");
+    sprintf(p,"  id;\n");
 
 
     PGresult *res = PQexec(conn,sql);
@@ -1307,7 +1304,7 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

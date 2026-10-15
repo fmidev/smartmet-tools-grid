@@ -19,6 +19,8 @@
 #include <cstring>
 #include <libpq-fe.h>
 #include <cstdlib>
+#include <chrono>
+#include <thread>
 
 
 #define FUNCTION_TRACE FUNCTION_TRACE_OFF
@@ -34,7 +36,7 @@ struct ForecastRec
     int forecastTypeId = 0;
     int forecastTypeValue = 0;
     time_t deletionTime = 0;
-    time_t lastUpdated;
+    time_t lastUpdated = 0;
     std::string producerName;
     std::string analysisTime;
     std::string generationName;
@@ -45,36 +47,36 @@ struct ForecastRec
 
 struct FileRec
 {
-    T::ProducerId producerId;
-    T::FileId fileId;
-    T::MessageIndex messageIndex;
-    uint paramId;
-    UInt64 filePosition;
-    uint messageSize;
-    T::GeometryId geometryId;
-    time_t analysisTime;
-    time_t forecastTime;
-    int levelValue;
-    short levelId;
-    T::ForecastType forecastType;
-    T::ForecastNumber forecastNumber;
-    uchar serverType;
-    uchar format;
-    int aggregation_id;
-    int aggregation_period;
-    int processing_type_id;
-    float processing_type_value;
-    float processing_type_value2;
-    time_t lastUpdated;
+    T::ProducerId producerId = 0;
+    T::FileId fileId = 0;
+    T::MessageIndex messageIndex = 0;
+    uint paramId = 0;
+    UInt64 filePosition = 0;
+    uint messageSize = 0;
+    T::GeometryId geometryId = 0;
+    time_t analysisTime = 0;
+    time_t forecastTime = 0;
+    int levelValue = 0;
+    short levelId = 0;
+    T::ForecastType forecastType = 0;
+    T::ForecastNumber forecastNumber = 0;
+    uchar serverType = 0;
+    uchar format = 0;
+    int aggregation_id = 0;
+    int aggregation_period = 0;
+    int processing_type_id = 0;
+    float processing_type_value = 0.0F;
+    float processing_type_value2 = 0.0F;
+    time_t lastUpdated = 0;
     std::string producerName;
     std::string server;
-    bool cachingRequested;
+    bool cachingRequested = false;
 };
 
 struct FileRecVec
 {
-    time_t updateTime;
-    uint loadCounter;
+    time_t updateTime = 0;
+    uint loadCounter = 0;
     std::string info;
     std::vector<FileRec> files;
 };
@@ -657,7 +659,7 @@ std::string getTableInfo(PGconn *conn, const char *tableName, T::ProducerId prod
     p += sprintf(p, "FROM\n");
     p += sprintf(p, "  %s\n", tableName);
     p += sprintf(p, "WHERE\n");
-    p += sprintf(p, "  producer_id=%u AND geometry_id=%u AND analysis_time = to_timestamp('%s', 'yyyymmddThh24MISS')\n", producerId, geometryId, analysisTime);
+    sprintf(p, "  producer_id=%u AND geometry_id=%u AND analysis_time = to_timestamp('%s', 'yyyymmddThh24MISS')\n", producerId, geometryId, analysisTime);
 
     //printf("%s\n",sql);
     PGresult *res = PQexec(conn, sql);
@@ -756,7 +758,7 @@ void readTableRecords(PGconn *conn, const char *tableName, T::ProducerId produce
     p += sprintf(p, "FROM\n");
     p += sprintf(p, "  %s\n", tableName);
     p += sprintf(p, "WHERE\n");
-    p += sprintf(p, "  producer_id=%u AND geometry_id = %u AND analysis_time = to_timestamp('%s', 'yyyymmddThh24MISS') AND file_format_id IN (1,2,3,4)\n", producerId, geometryId,analysisTime);
+    sprintf(p, "  producer_id=%u AND geometry_id = %u AND analysis_time = to_timestamp('%s', 'yyyymmddThh24MISS') AND file_format_id IN (1,2,3,4)\n", producerId, geometryId,analysisTime);
 
     //printf("%s\n",sql);
     PGresult *res = PQexec(conn, sql);
@@ -850,7 +852,7 @@ void readTableRecords(PGconn *conn, const char *tableName, T::ProducerId produce
       if (accepted)
       {
         char key[200];
-        sprintf(key, "%s;%u;%u;%d;%d;%lu;%s", tableName, rec.producerId, rec.geometryId, rec.forecastType, rec.forecastNumber, rec.analysisTime, forecastPeriod.c_str());
+        sprintf(key, "%s;%u;%d;%d;%d;%ld;%s", tableName, rec.producerId, rec.geometryId, rec.forecastType, rec.forecastNumber, rec.analysisTime, forecastPeriod.c_str());
 
         auto pos = mFileRecMap.find(key);
         if (pos == mFileRecMap.end())
@@ -907,7 +909,7 @@ std::vector<FileRec>& readSourceFilesAndContent(
       return emptyRecList;
 
     char key[200];
-    sprintf(key, "%s;%u;%u;%d;%d;%lu;%s", tableName, producerId, geometryId, forecastTypeId, forecastTypeValue, utcTimeToTimeT(analysisTime), forecastPeriod);
+    sprintf(key, "%s;%u;%u;%d;%d;%ld;%s", tableName, producerId, geometryId, forecastTypeId, forecastTypeValue, utcTimeToTimeT(analysisTime), forecastPeriod);
 
     uint count = 0;
     time_t lastUpdate = 0;
@@ -985,7 +987,7 @@ void readSourceForecastTimes(PGconn *conn, uint fmiProducerId, std::vector<Forec
     p += sprintf(p, "ORDER BY\n");
     p += sprintf(p, "  fmi_producer.id,to_char(ss_state_v.analysis_time at time zone 'utc', 'yyyymmddThh24MISS') desc,\n");
     p += sprintf(p, "  to_char(ss_state_v.last_updated at time zone 'utc', 'yyyy,mm,dd,hh24,MI,SS,US') asc,\n");
-    p += sprintf(p, "  to_char((ss_state_v.analysis_time+ss_state_v.forecast_period) at time zone 'utc', 'yyyymmddThh24MISS');\n");
+    sprintf(p, "  to_char((ss_state_v.analysis_time+ss_state_v.forecast_period) at time zone 'utc', 'yyyymmddThh24MISS');\n");
 
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
@@ -1069,7 +1071,7 @@ void readSourceGenerations(PGconn *conn)
     p += sprintf(p, "  ss_state_v LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_state_v.producer_id\n");
     p += sprintf(p, "ORDER BY");
     p += sprintf(p, "  fmi_producer.id,to_char(ss_state_v.analysis_time at time zone 'utc', 'yyyymmddThh24MISS') desc,");
-    p += sprintf(p, "  to_char(ss_state_v.last_updated at time zone 'utc', 'yyyymmddThh24MISS') desc;");
+    sprintf(p, "  to_char(ss_state_v.last_updated at time zone 'utc', 'yyyymmddThh24MISS') desc;");
 
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
@@ -1157,7 +1159,7 @@ void readSourceGeometries(PGconn *conn,std::unordered_map<std::string,GeomRec>& 
     p += sprintf(p, "  ss_state\n");
     p += sprintf(p, "ORDER BY\n");
     p += sprintf(p, "  producer_id,to_char(analysis_time at time zone 'utc', 'yyyymmddThh24MISS'),");
-    p += sprintf(p, "  geometry_id;");
+    sprintf(p, "  geometry_id;");
 
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
@@ -1236,7 +1238,7 @@ void readReadyGenerations(PGconn *conn,std::unordered_map<std::string,time_t>& r
     //p += sprintf(p, " ss_forecast_status.geometry_id IS NULL AND upper(status)='READY'\n");
     p += sprintf(p, "ORDER BY\n");
     p += sprintf(p, "  fmi_producer.id,to_char(ss_forecast_status.analysis_time at time zone 'utc', 'yyyymmddThh24MISS') desc,");
-    p += sprintf(p, "  to_char(ss_forecast_status.status_time at time zone 'utc', 'yyyymmddThh24MISS') desc;");
+    sprintf(p, "  to_char(ss_forecast_status.status_time at time zone 'utc', 'yyyymmddThh24MISS') desc;");
 
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
@@ -1322,7 +1324,7 @@ void readSourceProducers(PGconn *conn)
     p += sprintf(p, "  fmi_producer.name,\n");
     p += sprintf(p, "  fmi_producer.description\n");
     p += sprintf(p, "FROM\n");
-    p += sprintf(p, "  ss_state_v LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_state_v.producer_id");
+    sprintf(p, "  ss_state_v LEFT OUTER JOIN fmi_producer ON fmi_producer.id = ss_state_v.producer_id");
 
     PGresult *res = PQexec(conn, sql);
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
@@ -2031,8 +2033,7 @@ void updateGenerationStatus()
             PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-READY;FAIL;%s;",targetGeneration->mName.c_str());
           }
         }
-        else
-        if (producerCheckEnabled &&  !ready  &&  targetGeneration->mStatus == T::GenerationInfo::Status::Ready)
+        else if (producerCheckEnabled &&  !ready  &&  targetGeneration->mStatus == T::GenerationInfo::Status::Ready)
         {
           uint gLen = mTargetGeometryList.getLength();
           for (uint g=0; g<gLen; g++)
@@ -2245,7 +2246,7 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
           forecast.forecastTypeValue, forecast.analysisTime.c_str(), forecast.forecastPeriod.c_str(), forecast.lastUpdated, loadCounter);
 
       mContentReadCount += recList.size();
-      PRINT_DATA(mDebugLogPtr, "  -- Read files by forecast time %s:%u:%d:%d:%d : %lu (contentCount = %u)\n", forecast.forecastTime.c_str(), forecast.producerId, forecast.geometryId,
+      PRINT_DATA(mDebugLogPtr, "  -- Read files by forecast time %s:%u:%d:%u:%d : %lu (contentCount = %u)\n", forecast.forecastTime.c_str(), forecast.producerId, forecast.geometryId,
           forecast.forecastTypeId, forecast.forecastTypeValue, recList.size(), mContentReadCount);
 
       if (recList.empty())
@@ -2823,7 +2824,7 @@ int main(int argc, char *argv[])
       if (mWaitTime > 0 && !shutdownRequested)
       {
         if (mLoopCounter > 10)
-          sleep(mWaitTime);
+          std::this_thread::sleep_for(std::chrono::seconds(mWaitTime));
       }
       else
       {
@@ -2843,7 +2844,7 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP, "Service call failed!", nullptr);
     exception.printError();

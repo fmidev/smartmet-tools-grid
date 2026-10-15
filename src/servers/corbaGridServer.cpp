@@ -31,6 +31,8 @@
 #include <stdexcept>
 #include <sys/time.h>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 #define CONTENT_SERVER_SESSION_ID 111111111
 #define DATA_SERVER_SESSION_ID 222222222
@@ -105,7 +107,6 @@ std::string data_server_iorFile;
 std::string data_server_name;
 uint data_server_id = 0;
 std::string data_server_grid_storage_directory;
-bool data_server_memoryMapCheck_enabled = false;
 bool data_server_processing_log_enabled = false;
 std::string data_server_processing_log_file;
 uint data_server_processing_log_maxSize = 0;
@@ -396,11 +397,9 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
                 bool found = false;
                 if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_NAME)
                   found = Identification::gridDef.getFmiParameterDefByName(pl[3],paramDef);
-                else
-                if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_ID)
+                else if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_ID)
                   found = Identification::gridDef.getFmiParameterDefById(toUInt32(pl[3]),paramDef);
-                else
-                if (targetParameterKeyType == T::ParamKeyTypeValue::NEWBASE_ID)
+                else if (targetParameterKeyType == T::ParamKeyTypeValue::NEWBASE_ID)
                   found = Identification::gridDef.getFmiParameterDefByNewbaseId(toUInt32(pl[3]),paramDef);
 
                 if (found)
@@ -533,7 +532,7 @@ void updateProcessing()
     while (!mShutdownRequested)
     {
       updateMappings();
-      sleep(1);
+      std::this_thread::sleep_for(std::chrono::seconds(1));
     }
   }
   catch (...)
@@ -562,6 +561,7 @@ void* corbaQueryServer_updateThread(void * /*arg*/)
     Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
     pthread_exit(nullptr);
+    // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
     exit(-1);
   }
 }
@@ -817,22 +817,19 @@ int main(int argc, char *argv[])
       redisImplementation->init(content_server_content_source_redis_address.c_str(),content_server_content_source_redis_port,content_server_content_source_redis_tablePrefix.c_str(),content_server_content_source_redis_password.c_str());
       contentService = redisImplementation;
     }
-    else
-    if (strcasecmp(content_server_content_source_type.c_str(),"postgresql") == 0)
+    else if (strcasecmp(content_server_content_source_type.c_str(),"postgresql") == 0)
     {
       postgresImplementation = new ContentServer::PostgresqlImplementation();
       postgresImplementation->init(content_server_primaryConnectionString.c_str(),content_server_secondaryConnectionString.c_str(),false);
       contentService = postgresImplementation;
     }
-    else
-    if (strcasecmp(content_server_content_source_type.c_str(),"corba") == 0)
+    else if (strcasecmp(content_server_content_source_type.c_str(),"corba") == 0)
     {
       corbaContentClient = new ContentServer::Corba::ClientImplementation();
       corbaContentClient->init(content_server_content_source_corba_ior.c_str());
       contentService = corbaContentClient;
     }
-    else
-    if (strcasecmp(content_server_content_source_type.c_str(),"http") == 0)
+    else if (strcasecmp(content_server_content_source_type.c_str(),"http") == 0)
     {
       httpContentClient = new ContentServer::HTTP::ClientImplementation();
       httpContentClient->init(content_server_content_source_http_url.c_str());

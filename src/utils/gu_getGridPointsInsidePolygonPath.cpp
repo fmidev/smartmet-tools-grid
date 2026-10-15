@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     printf("\nTIME : %f sec\n\n",(float)(endTime-startTime)/1000000);
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

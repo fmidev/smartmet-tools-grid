@@ -13,6 +13,8 @@
 #include "grid-files/identification/GridDef.h"
 #include <csignal>
 #include <macgyver/Exception.h>
+#include <chrono>
+#include <thread>
 
 #define CONTENT_SERVER_SESSION_ID 111111111
 #define DATA_SERVER_SESSION_ID 222222222
@@ -82,16 +84,18 @@ void sig_handler(int /*signum*/)
       {
         printf("\n**** SHUTTING DOWN ****\n");
         mShutdownRequested = true;
-        sleep(2);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
         corbaServer->shutdown();
       }
       else
+        // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
         exit(-1);
     }
     catch (...)
     {
       Fmi::Exception exception(BCP,"Operation failed!",nullptr);
       exception.printError();
+      // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
       exit(-1);
     }
   }
@@ -256,29 +260,25 @@ int main(int argc, char *argv[])
       redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str(),mRedisPassword.c_str());
       contentSource = redisImplementation;
     }
-    else
-    if (strcasecmp(mContentSourceType.c_str(),"postgresql") == 0)
+    else if (strcasecmp(mContentSourceType.c_str(),"postgresql") == 0)
     {
       postgresImplementation = new ContentServer::PostgresqlImplementation();
       postgresImplementation->init(mPrimaryConnectionString.c_str(),mSecondaryConnectionString.c_str(),false);
       contentSource = postgresImplementation;
     }
-    else
-    if (strcasecmp(mContentSourceType.c_str(),"corba") == 0)
+    else if (strcasecmp(mContentSourceType.c_str(),"corba") == 0)
     {
       corbaClient = new ContentServer::Corba::ClientImplementation();
       corbaClient->init(mCorbaIor.c_str());
       contentSource = corbaClient;
     }
-    else
-    if (strcasecmp(mContentSourceType.c_str(),"http") == 0)
+    else if (strcasecmp(mContentSourceType.c_str(),"http") == 0)
     {
       httpClient = new ContentServer::HTTP::ClientImplementation();
       httpClient->init(mHttpUrl.c_str());
       contentSource = httpClient;
     }
-    else
-    if (strcasecmp(mContentSourceType.c_str(),"memory") == 0)
+    else if (strcasecmp(mContentSourceType.c_str(),"memory") == 0)
     {
       memoryImplementation = new ContentServer::MemoryImplementation();
       memoryImplementation->init(mDataLoadEnabled,mDataSaveEnabled,mDataSyncEnabled,true,mDataDir,mDataSaveInterval);
@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();

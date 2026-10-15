@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         CImage img;
         if (png_load(filename,img) != 0  ||  img.width != image.width ||  img.height != image.height)
         {
-          printf("Not found (%s,%u,%u,%u,%u)!\n",filename,img.width,image.width,img.height,image.height);
+          printf("Not found (%s,%d,%d,%d,%d)!\n",filename,img.width,image.width,img.height,image.height);
           return -1;
         }
 
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

@@ -31,9 +31,9 @@ std::string rootDir;
 
 struct FileHandle
 {
-  FILE *fileHandle;
+  FILE *fileHandle = nullptr;
   SmartMet::ThreadLock threadLock;
-  time_t lastUsed;
+  time_t lastUsed = 0;
 };
 
 namespace
@@ -226,7 +226,7 @@ MHD_Result processRequest(void * /*cls*/,struct MHD_Connection *connection,const
   *ptr = nullptr; /* clear context pointer */
   if (content != nullptr)
   {
-    printf("SEND %ld\n",contentSize);
+    printf("SEND %zu\n",contentSize);
     struct MHD_Response *response = MHD_create_response_from_buffer(contentSize,(void*)content,MHD_RESPMEM_MUST_FREE);
     MHD_add_response_header(response, MHD_HTTP_HEADER_CONNECTION,"keep-alive");
     MHD_Result ret = MHD_queue_response(connection,MHD_HTTP_OK,response);
@@ -248,6 +248,7 @@ int main(int argc,char ** argv)
   if (argc != 3)
   {
     fprintf(stderr,"USAGE: httpServer <port> <rootDir>\n");
+    // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
     exit(-1);
   }
 

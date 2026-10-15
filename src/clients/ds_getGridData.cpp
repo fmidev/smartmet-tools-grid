@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
       throw Fmi::Exception(BCP, "Failed to close the output file");
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

@@ -47,14 +47,12 @@ int main(int argc, char *argv[])
       httpClient.init(argv[argc-1]);
       service = &httpClient;
     }
-    else
-    if (argc > 5  &&  strcmp(argv[argc-5],"-redis") == 0)
+    else if (argc > 5  &&  strcmp(argv[argc-5],"-redis") == 0)
     {
       redisClient.init(argv[argc-4],toInt64(argv[argc-3]),argv[argc-2],argv[argc-1]);
       service = &redisClient;
     }
-    else
-    if (strcmp(argv[argc-2],"-pg") == 0)
+    else if (strcmp(argv[argc-2],"-pg") == 0)
     {
       auto *pg = new ContentServer::PostgresqlImplementation();
       pg->init(argv[argc-1],"",false);
@@ -183,7 +181,7 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

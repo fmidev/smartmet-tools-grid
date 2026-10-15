@@ -72,8 +72,7 @@ int main(int argc, char *argv[])
           // Pixel is transparent
           image.pixel[a] = col1;
         }
-        else
-        if (r == 0xFF000000)
+        else if (r == 0xFF000000)
         {
 
           // Pixel has no tranparency
@@ -103,7 +102,7 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

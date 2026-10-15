@@ -23,6 +23,8 @@
 #include <stdexcept>
 #include <sys/time.h>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 
 using namespace SmartMet;
@@ -86,9 +88,6 @@ Log                 mQueryServerDebugLog;
 
 
 std::string         mGridConfigFile;
-uint                mNumOfCachedGrids = 50000;
-uint                mMaxCompressedMegaBytesOfCachedGrids = 10000;
-uint                mMaxUncompressedMegaBytesOfCachedGrids = 10000;
 
 std::string         mProducerFile;
 string_vec          mProducerMappingFiles;
@@ -366,14 +365,11 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
                 bool found = false;
                 if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_NAME)
                   found = Identification::gridDef.getFmiParameterDefByName(pl[3],paramDef);
-                else
-                if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_ID)
+                else if (targetParameterKeyType == T::ParamKeyTypeValue::FMI_ID)
                   found = Identification::gridDef.getFmiParameterDefById(toUInt32(pl[3]),paramDef);
-                else
-                if (targetParameterKeyType == T::ParamKeyTypeValue::NEWBASE_ID)
+                else if (targetParameterKeyType == T::ParamKeyTypeValue::NEWBASE_ID)
                   found = Identification::gridDef.getFmiParameterDefByNewbaseId(toUInt32(pl[3]),paramDef);
-                else
-                if (targetParameterKeyType == T::ParamKeyTypeValue::NETCDF_NAME)
+                else if (targetParameterKeyType == T::ParamKeyTypeValue::NETCDF_NAME)
                   found = Identification::gridDef.getFmiParameterDefByNetCdfName(pl[3],paramDef);
 
                 if (found)
@@ -408,8 +404,7 @@ void updateMappings(T::ParamKeyType sourceParameterKeyType,T::ParamKeyType targe
                       fprintf(file,";;");
                     }
                   }
-                  else
-                  if (sourceParameterKeyType == T::ParamKeyTypeValue::NETCDF_NAME)
+                  else if (sourceParameterKeyType == T::ParamKeyTypeValue::NETCDF_NAME)
                   {
                     Identification::FmiParameterId_netCdf paramMapping;
                     if (Identification::gridDef.getNetCdfParameterMappingByFmiId(paramDef.mFmiParameterId,paramMapping))
@@ -520,7 +515,7 @@ void updateProcessing()
     while (!mShutdownRequested)
     {
       updateMappings();
-      sleep(1);
+      std::this_thread::sleep_for(std::chrono::seconds(1));
     }
   }
   catch (...)
@@ -549,6 +544,7 @@ void* corbaQueryServer_updateThread(void * /*arg*/)
     Fmi::Exception exception(BCP,"Operation failed!",nullptr);
     exception.printError();
     pthread_exit(nullptr);
+    // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
     exit(-1);
   }
 }

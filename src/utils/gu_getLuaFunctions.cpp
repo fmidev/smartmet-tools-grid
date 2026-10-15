@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     luaFile.print(std::cout,0,0);
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();

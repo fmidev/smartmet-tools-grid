@@ -142,6 +142,7 @@ int main(int argc, char *argv[])
                   if (col == 0xFFFFFFFF)
                     col = 0;
 
+                  imagePaint.setDrawColor(col);
                   imagePaint.paintWkb(1,1,0,0,it);
                   t++;
                 }
@@ -162,7 +163,7 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch (Fmi::Exception& e)
+  catch (Fmi::Exception&)
   {
     Fmi::Exception exception(BCP,"Service call failed!",nullptr);
     exception.printError();
