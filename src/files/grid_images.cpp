@@ -98,6 +98,25 @@ void init()
 
 
 
+/*! \brief Returns the pixel color of the grid value. */
+
+uint pixelColor(T::ParamValue val,T::ParamValue minValue,double step,uint levelSize,uint flags,unsigned char hue,unsigned char saturation)
+{
+  uint v = 255 - ((val - minValue) / step / levelSize);
+  v = v * levelSize;
+  if ((flags & IMGF_REVERSE) != 0)
+    v = 255-v;
+
+  uint col = hsv_to_rgb(hue,saturation,(unsigned char)v);
+  if (val == ParamValueMissing)
+    col = 0xE8E8E8;
+
+  return col;
+}
+
+
+
+
 /*! \brief Save message image. */
 
 void saveMessageImage(const char *imageFile,const GRID::Message *message,T::ParamValue minValue,T::ParamValue maxValue,short interpolationMethod,double scaleFactor,uint valueLevels,uint flags)
@@ -126,44 +145,17 @@ void saveMessageImage(const char *imageFile,const GRID::Message *message,T::Para
     unsigned char hue = 30;
     unsigned char saturation = 128;
 
-    if ((flags & IMGF_ROTATE) == 0)
+    for (int y=0; y<height; y++)
     {
-      for (int y=0; y<height; y++)
+      // Rotated images are stored upside down
+      int row = y;
+      if ((flags & IMGF_ROTATE) != 0)
+        row = height-y-1;
+
+      for (int x=0; x<width; x++)
       {
-        for (int x=0; x<width; x++)
-        {
-          T::ParamValue val = message->getGridValueByGridPoint_byInterpolation(C_DOUBLE(x)/scaleFactor,C_DOUBLE(y)/scaleFactor,interpolationMethod);
-          uint v = 255 - ((val - minValue) / step / levelSize);
-          v = v * levelSize;
-          if ((flags & IMGF_REVERSE) != 0)
-            v = 255-v;
-
-          uint col = hsv_to_rgb(hue,saturation,(unsigned char)v);
-          if (val == ParamValueMissing)
-            col = 0xE8E8E8;
-
-          image[y*width + x] = col;
-        }
-      }
-    }
-    else
-    {
-      for (int y=0; y<height; y++)
-      {
-        for (int x=0; x<width; x++)
-        {
-          T::ParamValue val = message->getGridValueByGridPoint_byInterpolation(C_DOUBLE(x)/scaleFactor,C_DOUBLE(y)/scaleFactor,interpolationMethod);
-          uint v = 255 - ((val - minValue) / step / levelSize);
-          v = v * levelSize;
-          if ((flags & IMGF_REVERSE) != 0)
-            v = 255-v;
-
-          uint col = hsv_to_rgb(hue,saturation,(unsigned char)v);
-          if (val == ParamValueMissing)
-            col = 0xE8E8E8;
-
-          image[(height-y-1)*width + x] = col;
-        }
+        T::ParamValue val = message->getGridValueByGridPoint_byInterpolation(C_DOUBLE(x)/scaleFactor,C_DOUBLE(y)/scaleFactor,interpolationMethod);
+        image[row*width + x] = pixelColor(val,minValue,step,levelSize,flags,hue,saturation);
       }
     }
 
