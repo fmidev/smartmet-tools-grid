@@ -501,6 +501,60 @@ void readSourceFiles(std::vector<DataFetcher::FileRec>& fileList)
 
 
 
+/*! \brief Returns the file name used for the producer and generation detection. The
+    name is mapped by the LUA function if one is defined. */
+
+std::string getGenerationFileName(std::string& filename)
+{
+  std::string fn;
+  std::string path;
+  splitFilename(filename,path,fn);
+  //std::string fn = it->second.c_str();
+  if (mLuaFunction > " ")
+  {
+    std::vector<std::string> params;
+    params.push_back(fn);
+    params.push_back(path);
+    fn = mLuaFile.executeFunctionCall6(mLuaFunction,params);
+  }
+  return fn;
+}
+
+
+
+
+
+/*! \brief Adds the producer generation to the source generation list unless it already exists. */
+
+void addSourceGeneration(const T::ProducerInfo *producer,const std::string& genName,const std::string& generationTime)
+{
+  T::GenerationInfo *generation =  mSourceGenerationList.getGenerationInfoByName(genName);
+  if (generation == nullptr)
+  {
+    generation = new T::GenerationInfo();
+    generation->mGenerationId = mSourceGenerationList.getLength() + 1;
+    generation->mGenerationType = 0;
+    generation->mProducerId = producer->mProducerId;
+    generation->mName = genName;
+    generation->mDescription = "Producer " + producer->mName + " generation " + generationTime;
+    generation->mAnalysisTime = generationTime;
+    generation->mStatus = T::GenerationInfo::Status::Ready;
+    generation->mFlags = 0;
+    generation->mSourceId = mSourceId;
+    mSourceGenerationList.addGenerationInfo(generation);
+
+    //generation->print(std::cout,0,0);
+  }
+  else
+  {
+    //std::cout << " -- generation exists\n";
+  }
+}
+
+
+
+
+
 /*! \brief Read source generations. */
 
 void readSourceGenerations(std::vector<DataFetcher::FileRec>& fileList)
@@ -514,72 +568,39 @@ void readSourceGenerations(std::vector<DataFetcher::FileRec>& fileList)
 
     for (auto &it : fileList)
     {
-      std::string fn;
-      std::string path;
-      splitFilename(it.filename,path,fn);
-      //std::string fn = it->second.c_str();
-      if (mLuaFunction > " ")
-      {
-        std::vector<std::string> params;
-        params.push_back(fn);
-        params.push_back(path);
-        fn = mLuaFile.executeFunctionCall6(mLuaFunction,params);
-      }
+      std::string fn = getGenerationFileName(it.filename);
 
       std::vector<std::string> partList;
       splitString(fn,'_',partList);
 
-      if (partList.size() > 2)
+      if (partList.size() <= 2)
+        continue;
+
+      const std::string& producerAbbr = partList[0];
+      const std::string& generationTime = partList[1];
+
+      auto pp = mProducerAbbrList.find(producerAbbr);
+      if (pp ==  mProducerAbbrList.end())
       {
-        const std::string& producerAbbr = partList[0];
-        const std::string& generationTime = partList[1];
+        //std::cout << "Unknown producer abbr : " << producerAbbr << "\n";
+        continue;
+      }
 
-        auto pp = mProducerAbbrList.find(producerAbbr);
-        if (pp ==  mProducerAbbrList.end())
-        {
-          //std::cout << "Unknown producer abbr : " << producerAbbr << "\n";
-        }
-        else
-        {
-          //std::cout << "Found [" << producerAbbr << "] : " << pp->second << "\n";
+      //std::cout << "Found [" << producerAbbr << "] : " << pp->second << "\n";
 
-          T::ProducerInfo *producer = mTargetProducerList.getProducerInfoByName(pp->second);
-          if (producer == nullptr)
-          {
-            //std::cout << "Producer not found : " << pp->second << "\n";
-          }
-          else
-          {
-            std::string genName = producer->mName + ":" + generationTime;
+      T::ProducerInfo *producer = mTargetProducerList.getProducerInfoByName(pp->second);
+      if (producer == nullptr)
+      {
+        //std::cout << "Producer not found : " << pp->second << "\n";
+        continue;
+      }
 
-            if (processedGenerations.find(genName) == processedGenerations.end())
-            {
-              processedGenerations.insert(genName);
+      std::string genName = producer->mName + ":" + generationTime;
 
-              T::GenerationInfo *generation =  mSourceGenerationList.getGenerationInfoByName(genName);
-              if (generation == nullptr)
-              {
-                generation = new T::GenerationInfo();
-                generation->mGenerationId = mSourceGenerationList.getLength() + 1;
-                generation->mGenerationType = 0;
-                generation->mProducerId = producer->mProducerId;
-                generation->mName = genName;
-                generation->mDescription = "Producer " + producer->mName + " generation " + generationTime;
-                generation->mAnalysisTime = generationTime;
-                generation->mStatus = T::GenerationInfo::Status::Ready;
-                generation->mFlags = 0;
-                generation->mSourceId = mSourceId;
-                mSourceGenerationList.addGenerationInfo(generation);
-
-                //generation->print(std::cout,0,0);
-              }
-              else
-              {
-                //std::cout << " -- generation exists\n";
-              }
-            }
-          }
-        }
+      if (processedGenerations.find(genName) == processedGenerations.end())
+      {
+        processedGenerations.insert(genName);
+        addSourceGeneration(producer,genName,generationTime);
       }
     }
   }
