@@ -11,10 +11,42 @@ using namespace SmartMet;
 
 
 
-/*! \brief Load newbase parameter defs. */
-
 namespace
 {
+/*! \brief Splits the line in place into fields separated by ';' or newline, ignoring
+    separators inside quotes. Returns the number of field pointers set (at most 100),
+    which includes the field starting after the last separator. */
+
+uint splitFields(char *st,char *field[100])
+{
+  bool ind = false;
+  uint c = 1;
+  field[0] = st;
+  char *p = st;
+  while (*p != '\0'  &&  c < 100)
+  {
+    if (*p == '"')
+      ind = !ind;
+
+    if ((*p == ';'  || *p == '\n') && !ind)
+    {
+      *p = '\0';
+      p++;
+      field[c] = p;
+      c++;
+    }
+    else
+    {
+      p++;
+    }
+  }
+  return c;
+}
+
+
+
+/*! \brief Load newbase parameter defs. */
+
 void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_vec& parameters)
 {
   try
@@ -37,28 +69,8 @@ void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_ve
     {
       if (fgets(st,1000,file) != nullptr  &&  st[0] != '#')
       {
-        bool ind = false;
         char *field[100];
-        uint c = 1;
-        field[0] = st;
-        char *p = st;
-        while (*p != '\0'  &&  c < 100)
-        {
-          if (*p == '"')
-            ind = !ind;
-
-          if ((*p == ';'  || *p == '\n') && !ind)
-          {
-            *p = '\0';
-            p++;
-            field[c] = p;
-            c++;
-          }
-          else
-          {
-            p++;
-          }
-        }
+        uint c = splitFields(st,field);
 
         if (c > 1)
         {
