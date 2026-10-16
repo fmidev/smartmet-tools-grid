@@ -132,6 +132,31 @@ void print_usage()
 
 /*! \brief Set message mercator v2. */
 
+/*! \brief Copies the message properties from the configuration file, or from the data
+    message if the configuration does not define them. */
+
+void copyMessageProperties(T::PropertyVec& properties,ConfigurationFile& configurationFile,GRID::Message *dataMessage,GRID::Message *newMessage)
+{
+  Int64 v = 0;
+
+  for (auto &propertie : properties)
+  {
+    if (configurationFile.getAttributeValue(propertie.first.c_str(),v))
+    {
+      newMessage->setProperty(propertie.second,v);
+      std::cout << "SET " << propertie.first << " : " << v << "\n";
+    }
+    else
+    if (dataMessage->getProperty(propertie.second,v))
+    {
+      std::cout << "*SET " << propertie.first << " : " << v << "\n";
+      newMessage->setProperty(propertie.second,v);
+    }
+  }
+}
+
+
+
 }  // namespace
 
 
@@ -219,24 +244,8 @@ int main(int argc, char *argv[])
 
         if (C_UINT(version) == dataMessage->getGribVersion())
         {
-          Int64 v = 0;
-
           auto properties = gribProperty.getPropertyVector();
-
-          for (auto &propertie : properties)
-          {
-            if (configurationFile.getAttributeValue(propertie.first.c_str(),v))
-            {
-              newMessage->setProperty(propertie.second,v);
-              std::cout << "SET " << propertie.first << " : " << v << "\n";
-            }
-            else
-            if (dataMessage->getProperty(propertie.second,v))
-            {
-              std::cout << "*SET " << propertie.first << " : " << v << "\n";
-              newMessage->setProperty(propertie.second,v);
-            }
-          }
+          copyMessageProperties(properties,configurationFile,dataMessage,newMessage);
 
   #if 0
 
@@ -340,24 +349,8 @@ int main(int argc, char *argv[])
 
         newMessage = targetGridFile.newMessage(T::FileTypeValue::Grib2);
 
-        Int64 v = 0;
-
         auto properties = gribProperty.getPropertyVector();
-
-        for (auto &propertie : properties)
-        {
-          if (configurationFile.getAttributeValue(propertie.first.c_str(),v))
-          {
-            newMessage->setProperty(propertie.second,v);
-            std::cout << "SET " << propertie.first << " : " << v << "\n";
-          }
-          else
-          if (dataMessage->getProperty(propertie.second,v))
-          {
-            std::cout << "*SET " << propertie.first << " : " << v << "\n";
-            newMessage->setProperty(propertie.second,v);
-          }
-        }
+        copyMessageProperties(properties,configurationFile,dataMessage,newMessage);
 
   #if 0
         if (dataMessage->getProperty(Property::IndicatorSection::Discipline,v))
