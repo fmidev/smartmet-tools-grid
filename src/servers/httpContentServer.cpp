@@ -258,6 +258,79 @@ void requestCompleted (void * /*cls*/, struct MHD_Connection * /*connection*/,vo
 
 
 
+/*! \brief Appends the uploaded POST data to the request lines. An unterminated last line
+    is marked with a newline so that it is continued by the next block of data. */
+
+void appendUploadLines(SmartMet::T::RequestMessage& requestMessage,const char *upload_data,size_t sz)
+{
+  char line[10000];
+  uint c = 0;
+
+  uint lCount = requestMessage.getLineCount();
+  if (lCount > 0)
+  {
+    std::string lastLine = requestMessage.getLineByIndex(lCount-1);
+    if (!lastLine.empty()  &&  lastLine[lastLine.length()-1] == '\n')
+    {
+      c = lastLine.length() - 1;
+      strncpy(line,lastLine.c_str(),c);
+      requestMessage.deleteLineByIndex(lCount-1);
+    }
+  }
+
+  for (size_t t=0; t<sz; t++)
+  {
+    char ch = upload_data[t];
+    if (ch == '\r'  || ch == '\n')
+    {
+      line[c] = '\0';
+      if (c > 0)
+       requestMessage.addLine(line);
+
+      c = 0;
+    }
+    else
+    {
+      line[c] = ch;
+      c++;
+    }
+  }
+
+  if (c > 0)
+  {
+    line[c] = '\n';
+    c++;
+    line[c] = '\0';
+    requestMessage.addLine(line);
+  }
+}
+
+
+
+
+
+/*! \brief Returns the response lines as a newline separated string allocated with new[]. */
+
+char *responseContent(SmartMet::T::ResponseMessage& responseMessage)
+{
+  uint lineCount = responseMessage.getLineCount();
+  uint size = responseMessage.getContentSize();
+  char *content = new char[size+30000];
+  char *p = content;
+
+  //p += sprintf(p,"<HTML><BODY><PRE>\n");
+  for (uint t=0; t<lineCount; t++)
+  {
+    std::string s = responseMessage.getLineByIndex(t);
+    p += sprintf(p,"%s\n",s.c_str());
+  }
+  return content;
+}
+
+
+
+
+
 /*! \brief Process request. */
 
 MHD_Result processRequest(void * /*cls*/,struct MHD_Connection *connection,const char * /*url*/,const char *method,const char * /*version*/,
@@ -296,46 +369,7 @@ MHD_Result processRequest(void * /*cls*/,struct MHD_Connection *connection,const
 
       if (sz > 0)
       {
-        char line[10000];
-        uint c = 0;
-
-        uint lCount = requestMessage->getLineCount();
-        if (lCount > 0)
-        {
-          std::string lastLine = requestMessage->getLineByIndex(lCount-1);
-          if (!lastLine.empty()  &&  lastLine[lastLine.length()-1] == '\n')
-          {
-            c = lastLine.length() - 1;
-            strncpy(line,lastLine.c_str(),c);
-            requestMessage->deleteLineByIndex(lCount-1);
-          }
-        }
-
-        for (size_t t=0; t<sz; t++)
-        {
-          char ch = upload_data[t];
-          if (ch == '\r'  || ch == '\n')
-          {
-            line[c] = '\0';
-            if (c > 0)
-             requestMessage->addLine(line);
-
-            c = 0;
-          }
-          else
-          {
-            line[c] = ch;
-            c++;
-          }
-        }
-
-        if (c > 0)
-        {
-          line[c] = '\n';
-          c++;
-          line[c] = '\0';
-          requestMessage->addLine(line);
-        }
+        appendUploadLines(*requestMessage,upload_data,sz);
         *upload_data_size = 0;
 
         return MHD_YES;
@@ -360,17 +394,7 @@ MHD_Result processRequest(void * /*cls*/,struct MHD_Connection *connection,const
     //requestMessage->print(std::cout,0,0);
     //responseMessage.print(std::cout,0,0);
 
-    uint lineCount = responseMessage.getLineCount();
-    uint size = responseMessage.getContentSize();
-    char *content = new char[size+30000];
-    char *p = content;
-
-    //p += sprintf(p,"<HTML><BODY><PRE>\n");
-    for (uint t=0; t<lineCount; t++)
-    {
-      std::string s = responseMessage.getLineByIndex(t);
-      p += sprintf(p,"%s\n",s.c_str());
-    }
+    char *content = responseContent(responseMessage);
 
     //printf("%s",content);
 
