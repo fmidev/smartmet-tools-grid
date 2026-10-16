@@ -140,6 +140,52 @@ void requestCompleted (void * /*cls*/, struct MHD_Connection * /*connection*/,vo
 
 
 
+/*! \brief Reads the byte range "bytes=<first>-<last>" of the file. Returns nullptr if the
+    range is invalid or cannot be read. */
+
+char* readRange(const std::string& filename,const std::string& rangeStr,std::size_t& contentSize)
+{
+  char *content = nullptr;
+  std::string bufStr(rangeStr);  char *buf = bufStr.data();
+  if (strncasecmp(buf,"bytes=",6) != 0)
+    return nullptr;
+
+  char *p1 = buf+6;
+  char *p2 = strchr(p1,'-');
+  if (p2 == nullptr)
+    return nullptr;
+
+  *p2 = '\0';
+  p2++;
+
+  std::size_t filePosition1 = SmartMet::toInt64(p1);
+  std::size_t filePosition2 = SmartMet::toInt64(p2);
+
+  if (filePosition2 > filePosition1)
+  {
+    contentSize = filePosition2 - filePosition1 + 1;
+    content = new char[contentSize];
+
+    auto *fh = getFileHandle(filename.c_str());
+    if (fh != nullptr)
+    {
+      SmartMet::AutoThreadLock lock(&fh->threadLock);
+      // Never send the uninitialized buffer if the range cannot be read
+      if (fseek(fh->fileHandle,filePosition1,SEEK_SET) != 0 ||
+          fread(content,1,contentSize,fh->fileHandle) != contentSize)
+      {
+        delete[] content;
+        content = nullptr;
+      }
+    }
+  }
+  return content;
+}
+
+
+
+
+
 /*! \brief Process request. */
 
 MHD_Result processRequest(void * /*cls*/,struct MHD_Connection *connection,const char *url,const char *method,const char * /*version*/,
@@ -187,41 +233,7 @@ MHD_Result processRequest(void * /*cls*/,struct MHD_Connection *connection,const
   std::size_t contentSize = 0;
   auto range = request->headers.find("Range");
   if (range != request->headers.end())
-  {
-    std::string bufStr(range->second);  char *buf = bufStr.data();
-    if (strncasecmp(buf,"bytes=",6) == 0)
-    {
-      char *p1 = buf+6;
-      char *p2 = strchr(p1,'-');
-      if (p2 != nullptr)
-      {
-        *p2 = '\0';
-        p2++;
-
-        std::size_t filePosition1 = SmartMet::toInt64(p1);
-        std::size_t filePosition2 = SmartMet::toInt64(p2);
-
-        if (filePosition2 > filePosition1)
-        {
-          contentSize = filePosition2 - filePosition1 + 1;
-          content = new char[contentSize];
-
-          auto *fh = getFileHandle(filename.c_str());
-          if (fh != nullptr)
-          {
-            SmartMet::AutoThreadLock lock(&fh->threadLock);
-            // Never send the uninitialized buffer if the range cannot be read
-            if (fseek(fh->fileHandle,filePosition1,SEEK_SET) != 0 ||
-                fread(content,1,contentSize,fh->fileHandle) != contentSize)
-            {
-              delete[] content;
-              content = nullptr;
-            }
-          }
-        }
-      }
-    }
-  }
+    content = readRange(filename,range->second,contentSize);
 
   *ptr = nullptr; /* clear context pointer */
   if (content != nullptr)
