@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 26.10.15
+Version: 26.10.16
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -23,10 +23,10 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: %{smartmet_boost}-devel
-BuildRequires: smartmet-library-macgyver-devel >= 26.10.15
-BuildRequires: smartmet-library-spine-devel >= 26.10.15
-BuildRequires: smartmet-library-grid-files-devel >= 26.10.15
-BuildRequires: smartmet-library-grid-content-devel >= 26.10.15
+BuildRequires: smartmet-library-macgyver-devel >= 26.10.16
+BuildRequires: smartmet-library-spine-devel >= 26.10.16
+BuildRequires: smartmet-library-grid-files-devel >= 26.10.16
+BuildRequires: smartmet-library-grid-content-devel >= 26.10.16
 BuildRequires: gdal312-devel
 BuildRequires: postgresql15-devel
 BuildRequires: omniORB-devel >= 4.3.0
@@ -41,9 +41,9 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-macgyver >= 26.10.11
 #Requires: smartmet-library-spine >= 26.10.11
 #Requires: smartmet-server >= 26.10.11
-Requires: smartmet-library-macgyver >= 26.10.15
-Requires: smartmet-library-grid-files >= 26.10.15
-Requires: smartmet-library-grid-content >= 26.10.15
+Requires: smartmet-library-macgyver >= 26.10.16
+Requires: smartmet-library-grid-files >= 26.10.16
+Requires: smartmet-library-grid-content >= 26.10.16
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -288,6 +288,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Fri Oct 16 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.16-1.fmi
+- Fixed compiler warnings and clang-tidy findings (unused code, unreachable code, empty statements, member initialization, parameter passing, noexcept), no functional changes
+
 * Thu Oct 15 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.15-1.fmi
 - Fixed mechanical clang-tidy findings (internal linkage, unused parameters, initialization, redundant code), no functional changes
 - Requires 26.10.15 versions of spine, grid-files, grid-content due to their ABI changes
