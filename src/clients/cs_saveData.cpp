@@ -12,6 +12,84 @@
 using namespace SmartMet;
 
 
+/*! \brief Saves the file information in blocks into files.csv. Returns -7 on failure. */
+
+int saveFileInfo(ContentServer::ServiceInterface& service,T::SessionId sessionId,const std::string& dir)
+{
+  int result = 0;
+  bool ind = true;
+  T::FileId startFileId = 0;
+  while (ind)
+  {
+    T::FileInfoList fileInfoList;
+    result = service.getFileInfoList(sessionId,startFileId,10000,fileInfoList);
+    if (result != 0)
+    {
+      fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
+      return -7;
+    }
+
+    if (startFileId == 0)
+      fileInfoList.writeToFile(dir + "/files.csv","we");
+    else
+      fileInfoList.writeToFile(dir + "/files.csv","a");
+
+    uint len = fileInfoList.getLength();
+    if (len == 0)
+    {
+      ind = false;
+    }
+    else
+    {
+      auto *fileInfo = (T::FileInfo*)fileInfoList.getFileInfoByIndex(len-1);
+      startFileId = fileInfo->mFileId + 1;
+    }
+  }
+  return 0;
+}
+
+
+
+/*! \brief Saves the content information in blocks into content.csv. Returns -8 on failure. */
+
+int saveContentInfo(ContentServer::ServiceInterface& service,T::SessionId sessionId,const std::string& dir)
+{
+  int result = 0;
+  bool ind = true;
+  T::FileId startFileId = 0;
+  uint startMessageIndex = 0;
+  while (ind)
+  {
+    T::ContentInfoList contentInfoList;
+    result = service.getContentList(sessionId,startFileId,startMessageIndex,10000,contentInfoList);
+    if (result != 0)
+    {
+      fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
+      return -8;
+    }
+
+    if (startFileId == 0)
+      contentInfoList.writeToFile(dir + "/content.csv","we");
+    else
+      contentInfoList.writeToFile(dir + "/content.csv","a");
+
+    uint len = contentInfoList.getLength();
+    if (len == 0)
+    {
+      ind = false;
+    }
+    else
+    {
+      auto *contentInfo = (T::ContentInfo*)contentInfoList.getContentInfoByIndex(len-1);
+      startFileId = contentInfo->mFileId;
+      startMessageIndex = contentInfo->mMessageIndex + 1;
+    }
+  }
+  return 0;
+}
+
+
+
 /*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
@@ -112,68 +190,16 @@ int main(int argc, char *argv[])
 
     // Reading file information
 
-    bool ind = true;
-    T::FileId startFileId = 0;
-    while (ind)
-    {
-      T::FileInfoList fileInfoList;
-      result = service->getFileInfoList(sessionId,startFileId,10000,fileInfoList);
-      if (result != 0)
-      {
-        fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
-        return -7;
-      }
-
-      if (startFileId == 0)
-        fileInfoList.writeToFile(dir + "/files.csv","we");
-      else
-        fileInfoList.writeToFile(dir + "/files.csv","a");
-
-      uint len = fileInfoList.getLength();
-      if (len == 0)
-      {
-        ind = false;
-      }
-      else
-      {
-        auto *fileInfo = (T::FileInfo*)fileInfoList.getFileInfoByIndex(len-1);
-        startFileId = fileInfo->mFileId + 1;
-      }
-    }
+    result = saveFileInfo(*service,sessionId,dir);
+    if (result != 0)
+      return result;
 
 
     // Reading content information
 
-    ind = true;
-    startFileId = 0;
-    uint startMessageIndex = 0;
-    while (ind)
-    {
-      T::ContentInfoList contentInfoList;
-      result = service->getContentList(sessionId,startFileId,startMessageIndex,10000,contentInfoList);
-      if (result != 0)
-      {
-        fprintf(stdout,"ERROR (%d) : %s\n",result,ContentServer::getResultString(result).c_str());
-        return -8;
-      }
-
-      if (startFileId == 0)
-        contentInfoList.writeToFile(dir + "/content.csv","we");
-      else
-        contentInfoList.writeToFile(dir + "/content.csv","a");
-
-      uint len = contentInfoList.getLength();
-      if (len == 0)
-      {
-        ind = false;
-      }
-      else
-      {
-        auto *contentInfo = (T::ContentInfo*)contentInfoList.getContentInfoByIndex(len-1);
-        startFileId = contentInfo->mFileId;
-        startMessageIndex = contentInfo->mMessageIndex + 1;
-      }
-    }
+    result = saveContentInfo(*service,sessionId,dir);
+    if (result != 0)
+      return result;
 
     UInt64 endTime = getTime();
 
