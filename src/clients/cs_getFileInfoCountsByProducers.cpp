@@ -13,6 +13,31 @@ using namespace SmartMet;
 
 
 
+/*! \brief Prints the file count of each producer and measures the time used. */
+
+static int printFileInfoCounts(ContentServer::ServiceInterface& service,T::SessionId sessionId,UInt64& startTime,UInt64& endTime)
+{
+  T::ProducerInfoList infoList;
+
+  startTime = getTime();
+  int result = service.getProducerInfoList(sessionId,infoList);
+
+  uint len = infoList.getLength();
+  for (uint t=0; t<len; t++)
+  {
+    T::ProducerInfo *info = infoList.getProducerInfoByIndex(t);
+    uint count = 0;
+    if (service.getFileInfoCountByProducerId(sessionId,info->mProducerId,count) == 0)
+    {
+      printf("%s:%u\n",info->mName.c_str(),count);
+    }
+  }
+  endTime = getTime();
+  return result;
+}
+
+
+
 /*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
@@ -26,7 +51,6 @@ int main(int argc, char *argv[])
     }
 
     T::SessionId sessionId = toInt64(argv[1]);
-    T::ProducerInfoList infoList;
     int result = 0;
     UInt64 startTime = 0;
     UInt64 endTime = 0;
@@ -36,40 +60,14 @@ int main(int argc, char *argv[])
       ContentServer::HTTP::ClientImplementation service;
       service.init(argv[argc-1]);
 
-      startTime = getTime();
-      result = service.getProducerInfoList(sessionId,infoList);
-
-      uint len = infoList.getLength();
-      for (uint t=0; t<len; t++)
-      {
-        T::ProducerInfo *info = infoList.getProducerInfoByIndex(t);
-        uint count = 0;
-        if (service.getFileInfoCountByProducerId(sessionId,info->mProducerId,count) == 0)
-        {
-          printf("%s:%u\n",info->mName.c_str(),count);
-        }
-      }
-      endTime = getTime();
+      result = printFileInfoCounts(service,sessionId,startTime,endTime);
     }
     else if (argc > 5  &&  strcmp(argv[argc-5],"-redis") == 0)
     {
       ContentServer::RedisImplementation service;
       service.init(argv[argc-4],toInt64(argv[argc-3]),argv[argc-2],argv[argc-1]);
 
-      startTime = getTime();
-      result = service.getProducerInfoList(sessionId,infoList);
-
-      uint len = infoList.getLength();
-      for (uint t=0; t<len; t++)
-      {
-        T::ProducerInfo *info = infoList.getProducerInfoByIndex(t);
-        uint count = 0;
-        if (service.getFileInfoCountByProducerId(sessionId,info->mProducerId,count) == 0)
-        {
-          printf("%s:%u\n",info->mName.c_str(),count);
-        }
-      }
-      endTime = getTime();
+      result = printFileInfoCounts(service,sessionId,startTime,endTime);
     }
     else
     {
@@ -87,20 +85,7 @@ int main(int argc, char *argv[])
       ContentServer::Corba::ClientImplementation service;
       service.init(serviceIor);
 
-      startTime = getTime();
-      result = service.getProducerInfoList(sessionId,infoList);
-
-      uint len = infoList.getLength();
-      for (uint t=0; t<len; t++)
-      {
-        T::ProducerInfo *info = infoList.getProducerInfoByIndex(t);
-        uint count = 0;
-        if (service.getFileInfoCountByProducerId(sessionId,info->mProducerId,count) == 0)
-        {
-          printf("%s:%u\n",info->mName.c_str(),count);
-        }
-      }
-      endTime = getTime();
+      result = printFileInfoCounts(service,sessionId,startTime,endTime);
     }
 
     if (result != 0)
