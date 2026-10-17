@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 26.10.16
+Version: 26.10.17
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -41,9 +41,9 @@ BuildRequires: krb5-devel
 #Requires: smartmet-library-macgyver >= 26.10.11
 #Requires: smartmet-library-spine >= 26.10.11
 #Requires: smartmet-server >= 26.10.11
-Requires: smartmet-library-macgyver >= 26.10.16
-Requires: smartmet-library-grid-files >= 26.10.16
-Requires: smartmet-library-grid-content >= 26.10.16
+Requires: smartmet-library-macgyver >= 26.10.17
+Requires: smartmet-library-grid-files >= 26.10.17
+Requires: smartmet-library-grid-content >= 26.10.17
 Requires: openldap
 Requires: openssl-libs
 Requires: krb5-devel
@@ -288,6 +288,16 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Sat Oct 17 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.17-1.fmi
+- gu_newbase2fmi: take the grid-files configuration file instead of a directory
+- httpServer: do not send an unread buffer when the requested file cannot be opened
+- cs_saveData, cs_getContentListByParameter*: do not require SMARTMET_CS_IOR with
+  -ior/-redis/-http/-pg
+- corbaGridServer, corbaQueryServer: read the query-server settings from smartmet.tools.grid
+- cs_getContentListByParameter: remove the unused CORBA client created from SMARTMET_CS_IOR
+- radon2smartmet readTableRecords: clear the query result on shutdown and on a query error
+- Split functions with a cognitive complexity above 25 into smaller helpers, no functional changes
+
 * Fri Oct 16 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.16-1.fmi
 - Fixed compiler warnings and clang-tidy findings (unused code, unreachable code, empty statements, member initialization, parameter passing, noexcept), no functional changes
 
