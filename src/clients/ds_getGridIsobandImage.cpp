@@ -52,6 +52,191 @@ bool isLand(double lon,double lat)
     throw exception;
   }
 }
+
+
+
+
+
+/*! \brief Parse the contour values and colors given after the -contours option. */
+
+void parseContours(int a,int argc,char *argv[],T::ParamValue_vec& lowValues,T::ParamValue_vec& highValues,std::vector<uint>& colorList)
+{
+  for (int t=a+1; t<(argc-1); t++)
+  {
+    std::vector<std::string> partList1;
+    splitString(argv[t],':',partList1);
+    lowValues.push_back(toDouble(partList1[0].c_str()));
+    if (partList1.size() == 2)
+      colorList.push_back(strtoll(partList1[1].c_str(),nullptr,16));
+    else
+      colorList.push_back(0xFFFFFFFF);
+
+    std::vector<std::string> partList2;
+    splitString(argv[t+1],':',partList2);
+    highValues.push_back(toDouble(partList2[0].c_str()));
+  }
+}
+
+
+
+
+
+/*! \brief Paint the contours into the image. */
+
+void paintContours(ImagePaint& imagePaint,T::ByteData_vec& contours,const std::vector<uint>& colorList,double mp)
+{
+  if (contours.empty())
+    return;
+
+  uint c = 250;
+  uint step = 250 / contours.size();
+
+  uint t = 0;
+  for (auto &contour : contours)
+  {
+    uint col = colorList[t];
+    if (col == 0xFFFFFFFF)
+      col = c ;// (c << 16) + (c << 8) + c;
+
+    imagePaint.setFillColor(col);
+    imagePaint.paintWkb(mp,mp,0,0,contour);
+    c = c - step;
+    t++;
+  }
+}
+
+
+
+
+
+/*! \brief Paint a land pixel and the border below the sea above it. */
+
+void paintLandPixel(unsigned int *image,uint idx,int y,int width,int height,uint borderColor,uint landColor,bool& land)
+{
+  if (landColor != 0xFFFFFFFF)
+    image[idx] = landColor;
+
+  if (borderColor != 0xFFFFFFFF)
+  {
+    if (!land)
+    {
+      image[idx] = borderColor;
+      if ((y+1) < height)
+        image[idx+width] = borderColor;
+    }
+
+    land = true;
+  }
+}
+
+
+
+
+
+/*! \brief Paint a sea pixel and the border above it if the pixel above is land. */
+
+void paintSeaPixel(unsigned int *image,uint idx,int y,int width,uint borderColor,uint seaColor,bool& land)
+{
+  if (seaColor != 0xFFFFFFFF)
+    image[idx] = seaColor;
+
+  if (borderColor != 0xFFFFFFFF)
+  {
+    if (land)
+    {
+      if (y > 0)
+        image[idx-width] = borderColor;
+
+      if (y > 2)
+        image[idx-2*width] = borderColor;
+    }
+  }
+  land = false;
+}
+
+
+
+
+
+/*! \brief Paint the land and sea colors and the vertical land borders into the image. */
+
+void paintLandAndSea(unsigned int *image,T::GridCoordinates& coordinates,int width,int height,uint borderColor,uint landColor,uint seaColor)
+{
+  for (int x=0; x<width; x++)
+  {
+    bool land = false;
+    for (int y=0; y<height; y++)
+    {
+      uint idx = y*width + x;
+      T::Coordinate cc = coordinates.mCoordinateList[idx];
+
+      bool ind = isLand(cc.x(),cc.y());
+      if (ind)
+        paintLandPixel(image,idx,y,width,height,borderColor,landColor,land);
+      else
+        paintSeaPixel(image,idx,y,width,borderColor,seaColor,land);
+    }
+  }
+}
+
+
+
+
+
+/*! \brief Paint the horizontal land borders of a row into the image. */
+
+void paintRowBorders(unsigned int *image,T::GridCoordinates& coordinates,int y,int width,uint borderColor)
+{
+  bool land = false;
+  for (int x=0; x<width; x++)
+  {
+    uint idx = y*width + x;
+    T::Coordinate cc = coordinates.mCoordinateList[idx];
+    bool ind = isLand(cc.x(),cc.y());
+    if (ind)
+    {
+      if (!land)
+      {
+        image[idx] = borderColor;
+        if ((x+1) < width)
+          image[idx+1] = borderColor;
+
+        //if ((x+2) < width)
+        //  image[idx+2] = landborder;
+
+        land = true;
+      }
+    }
+    else
+    {
+      if (land)
+      {
+        if (x > 0)
+          image[idx-1] = borderColor;
+
+        if (x > 1)
+          image[idx-2] = borderColor;
+
+        //if (x > 3)
+        //  image[idx-3] = landborder;
+      }
+      land = false;
+    }
+  }
+}
+
+
+
+
+
+/*! \brief Paint the horizontal land borders into the image. */
+
+void paintHorizontalBorders(unsigned int *image,T::GridCoordinates& coordinates,int width,int height,uint borderColor)
+{
+  for (int y=0; y<height; y++)
+    paintRowBorders(image,coordinates,y,width,borderColor);
+}
+
 }  // namespace
 
 
@@ -111,20 +296,7 @@ int main(int argc, char *argv[])
       }
       if (strcmp(argv[a],"-contours") == 0)
       {
-        for (int t=a+1; t<(argc-1); t++)
-        {
-          std::vector<std::string> partList1;
-          splitString(argv[t],':',partList1);
-          lowValues.push_back(toDouble(partList1[0].c_str()));
-          if (partList1.size() == 2)
-            colorList.push_back(strtoll(partList1[1].c_str(),nullptr,16));
-          else
-            colorList.push_back(0xFFFFFFFF);
-
-          std::vector<std::string> partList2;
-          splitString(argv[t+1],':',partList2);
-          highValues.push_back(toDouble(partList2[0].c_str()));
-        }
+        parseContours(a,argc,argv,lowValues,highValues,colorList);
         a = argc;
       }
     }
@@ -193,119 +365,17 @@ int main(int argc, char *argv[])
 
     // ### Painting contours into the image:
 
-    if (!contours.empty())
-    {
-      uint c = 250;
-      uint step = 250 / contours.size();
-
-      uint t = 0;
-      for (auto &contour : contours)
-      {
-        uint col = colorList[t];
-        if (col == 0xFFFFFFFF)
-          col = c ;// (c << 16) + (c << 8) + c;
-
-        imagePaint.setFillColor(col);
-        imagePaint.paintWkb(mp,mp,0,0,contour);
-        c = c - step;
-        t++;
-      }
-    }
+    paintContours(imagePaint,contours,colorList,mp);
 
     // ### Saving the image:
 
 
     if (map)
     {
-      for (int x=0; x<width; x++)
-      {
-        bool land = false;
-        for (int y=0; y<height; y++)
-        {
-          uint idx = y*width + x;
-          T::Coordinate cc = coordinates.mCoordinateList[idx];
-
-          bool ind = isLand(cc.x(),cc.y());
-          if (ind)
-          {
-            if (landColor != 0xFFFFFFFF)
-              image[idx] = landColor;
-
-            if (borderColor != 0xFFFFFFFF)
-            {
-              if (!land)
-              {
-                image[idx] = borderColor;
-                if ((y+1) < height)
-                  image[idx+width] = borderColor;
-              }
-
-              land = true;
-            }
-          }
-          else
-          {
-            if (seaColor != 0xFFFFFFFF)
-              image[idx] = seaColor;
-
-            if (borderColor != 0xFFFFFFFF)
-            {
-              if (land)
-              {
-                if (y > 0)
-                  image[idx-width] = borderColor;
-
-                if (y > 2)
-                  image[idx-2*width] = borderColor;
-              }
-            }
-            land = false;
-          }
-        }
-      }
+      paintLandAndSea(image,coordinates,width,height,borderColor,landColor,seaColor);
 
       if (borderColor != 0xFFFFFFFF)
-      {
-        for (int y=0; y<height; y++)
-        {
-          bool land = false;
-          for (int x=0; x<width; x++)
-          {
-            uint idx = y*width + x;
-            T::Coordinate cc = coordinates.mCoordinateList[idx];
-            bool ind = isLand(cc.x(),cc.y());
-            if (ind)
-            {
-              if (!land)
-              {
-                image[idx] = borderColor;
-                if ((x+1) < width)
-                  image[idx+1] = borderColor;
-
-                //if ((x+2) < width)
-                //  image[idx+2] = landborder;
-
-                land = true;
-              }
-            }
-            else
-            {
-              if (land)
-              {
-                if (x > 0)
-                  image[idx-1] = borderColor;
-
-                if (x > 1)
-                  image[idx-2] = borderColor;
-
-                //if (x > 3)
-                //  image[idx-3] = landborder;
-              }
-              land = false;
-            }
-          }
-        }
-      }
+        paintHorizontalBorders(image,coordinates,width,height,borderColor);
 
     }
 
