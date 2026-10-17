@@ -1426,6 +1426,70 @@ void readSourceProducers(PGconn *conn)
 
 
 
+/*! \brief Remove the producer information from the target data storage. */
+
+void deleteTargetProducer(T::ProducerInfo *targetProducer)
+{
+  PRINT_DATA(mDebugLogPtr, "  -- Remove producer : %s\n", targetProducer->mName.c_str());
+
+  int result = mTargetInterface->deleteProducerInfoById(mSessionId, targetProducer->mProducerId);
+  if (result == 0)
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;OK;%s;",targetProducer->mName.c_str());
+  }
+  else
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;FAIL;%s;",targetProducer->mName.c_str());
+  }
+
+  if (result != 0)
+  {
+    Fmi::Exception exception(BCP, "Cannot delete the producer information from the target data storage!");
+    exception.addParameter("ProducerId", std::to_string(targetProducer->mProducerId));
+    exception.addParameter("ProducerName", targetProducer->mName);
+    exception.addParameter("Result", ContentServer::getResultString(result));
+    exception.printError();
+  }
+}
+
+
+
+
+/*! \brief Add the producer information into the target data storage. */
+
+void addTargetProducer(T::ProducerInfo *sourceProducer)
+{
+  // The producer information is not available in the target data storage. So, we should add it.
+
+  T::ProducerInfo producer(*sourceProducer);
+  producer.mProducerId = 0;
+  producer.mSourceId = mSourceId;
+
+  PRINT_DATA(mDebugLogPtr, "  -- Add producer : %s\n", producer.mName.c_str());
+
+  int result = mTargetInterface->addProducerInfo(mSessionId, producer);
+  if (result == 0)
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-ADD;OK;%s;",sourceProducer->mName.c_str());
+  }
+  else
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-ADD;FAIL;%s;",sourceProducer->mName.c_str());
+  }
+
+  if (result != 0)
+  {
+    Fmi::Exception exception(BCP, "Cannot add the producer information into the target data storage!");
+    exception.addParameter("ProducerId", std::to_string(sourceProducer->mProducerId));
+    exception.addParameter("ProducerName", sourceProducer->mName);
+    exception.addParameter("Result", ContentServer::getResultString(result));
+    throw exception;
+  }
+}
+
+
+
+
 /*! \brief Update producers. */
 
 void updateProducers()
@@ -1458,26 +1522,7 @@ void updateProducers()
             // The producer information is not wanted or it is not available in the source data
             // storage. So, we should remove it also from the target data storage.
 
-            PRINT_DATA(mDebugLogPtr, "  -- Remove producer : %s\n", targetProducer->mName.c_str());
-
-            int result = mTargetInterface->deleteProducerInfoById(mSessionId, targetProducer->mProducerId);
-            if (result == 0)
-            {
-              PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;OK;%s;",targetProducer->mName.c_str());
-            }
-            else
-            {
-              PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;FAIL;%s;",targetProducer->mName.c_str());
-            }
-
-            if (result != 0)
-            {
-              Fmi::Exception exception(BCP, "Cannot delete the producer information from the target data storage!");
-              exception.addParameter("ProducerId", std::to_string(targetProducer->mProducerId));
-              exception.addParameter("ProducerName", targetProducer->mName);
-              exception.addParameter("Result", ContentServer::getResultString(result));
-              exception.printError();
-            }
+            deleteTargetProducer(targetProducer);
           }
         }
         else
@@ -1496,32 +1541,7 @@ void updateProducers()
         T::ProducerInfo *targetProducer = mTargetProducerList.getProducerInfoByName(sourceProducer->mName);
         if (targetProducer == nullptr)
         {
-          // The producer information is not available in the target data storage. So, we should add it.
-
-          T::ProducerInfo producer(*sourceProducer);
-          producer.mProducerId = 0;
-          producer.mSourceId = mSourceId;
-
-          PRINT_DATA(mDebugLogPtr, "  -- Add producer : %s\n", producer.mName.c_str());
-
-          int result = mTargetInterface->addProducerInfo(mSessionId, producer);
-          if (result == 0)
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-ADD;OK;%s;",sourceProducer->mName.c_str());
-          }
-          else
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-ADD;FAIL;%s;",sourceProducer->mName.c_str());
-          }
-
-          if (result != 0)
-          {
-            Fmi::Exception exception(BCP, "Cannot add the producer information into the target data storage!");
-            exception.addParameter("ProducerId", std::to_string(sourceProducer->mProducerId));
-            exception.addParameter("ProducerName", sourceProducer->mName);
-            exception.addParameter("Result", ContentServer::getResultString(result));
-            throw exception;
-          }
+          addTargetProducer(sourceProducer);
         }
       }
     }
