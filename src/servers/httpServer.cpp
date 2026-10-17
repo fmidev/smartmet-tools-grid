@@ -161,23 +161,23 @@ char* readRange(const std::string& filename,const std::string& rangeStr,std::siz
   std::size_t filePosition1 = SmartMet::toInt64(p1);
   std::size_t filePosition2 = SmartMet::toInt64(p2);
 
-  if (filePosition2 > filePosition1)
-  {
-    contentSize = filePosition2 - filePosition1 + 1;
-    content = new char[contentSize];
+  if (filePosition2 <= filePosition1)
+    return nullptr;
 
-    auto *fh = getFileHandle(filename.c_str());
-    if (fh != nullptr)
-    {
-      SmartMet::AutoThreadLock lock(&fh->threadLock);
-      // Never send the uninitialized buffer if the range cannot be read
-      if (fseek(fh->fileHandle,filePosition1,SEEK_SET) != 0 ||
-          fread(content,1,contentSize,fh->fileHandle) != contentSize)
-      {
-        delete[] content;
-        content = nullptr;
-      }
-    }
+  auto *fh = getFileHandle(filename.c_str());
+  if (fh == nullptr)
+    return nullptr;
+
+  contentSize = filePosition2 - filePosition1 + 1;
+  content = new char[contentSize];
+
+  SmartMet::AutoThreadLock lock(&fh->threadLock);
+  // Never send the uninitialized buffer if the range cannot be read
+  if (fseek(fh->fileHandle,filePosition1,SEEK_SET) != 0 ||
+      fread(content,1,contentSize,fh->fileHandle) != contentSize)
+  {
+    delete[] content;
+    content = nullptr;
   }
   return content;
 }
