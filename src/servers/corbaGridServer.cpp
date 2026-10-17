@@ -754,7 +754,9 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.iorFile",query_server_iorFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerFile",query_server_producerFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.heightConversionFile",query_server_heightConversionFile);
-    mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.checkGeometryStatus",query_server_checkGeometryStatus);
+    // Older configurations have these under smartmet.engine.grid.query-server
+    if (!mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.checkGeometryStatus",query_server_checkGeometryStatus))
+      mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.checkGeometryStatus",query_server_checkGeometryStatus);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerAliasFiles",query_server_producerAliasFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingTargetKeyType",query_server_mappingTargetKeyType);
 
@@ -768,8 +770,11 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.netCdf",query_server_mappingUpdateFile_netCdf);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.luaFiles",query_server_luaFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingFiles",query_server_mappingFiles);
-    mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.unitConversionFile", query_server_unitConversionFile);
-    mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.mappingAliasFiles",query_server_mappingAliasFiles);
+    // Older configurations have these under smartmet.engine.grid.query-server
+    if (!mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.unitConversionFile",query_server_unitConversionFile))
+      mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.unitConversionFile",query_server_unitConversionFile);
+    if (!mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingAliasFiles",query_server_mappingAliasFiles))
+      mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.mappingAliasFiles",query_server_mappingAliasFiles);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.aliasFiles",query_server_aliasFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.processing-log.enabled",query_server_processing_log_enabled);

@@ -701,7 +701,9 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.address", mServerAddress);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.port", mServerPort);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.iorFile", mServerIorFile);
-    mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.checkGeometryStatus",mQueryServerCheckGeometryStatus);
+    // Older configurations have these under smartmet.engine.grid.query-server
+    if (!mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.checkGeometryStatus",mQueryServerCheckGeometryStatus))
+      mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.checkGeometryStatus",mQueryServerCheckGeometryStatus);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.producerFile",mProducerFile);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.heightConversionFile",mQueryServerHeightConversionFile);
@@ -729,12 +731,17 @@ void readConfigFile(const char* configFile)
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.newbase",mParameterMappingUpdateFile_newbase);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingUpdateFile.netCdf",mParameterMappingUpdateFile_netCdf);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingFiles",mParameterMappingFiles);
-    mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.unitConversionFile", mUnitConversionFile);
-    mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.mappingAliasFiles",mMappingAliasFiles);
+    // Older configurations have these under smartmet.engine.grid.query-server
+    if (!mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.unitConversionFile",mUnitConversionFile))
+      mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.unitConversionFile",mUnitConversionFile);
+    if (!mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.mappingAliasFiles",mMappingAliasFiles))
+      mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.mappingAliasFiles",mMappingAliasFiles);
 
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.aliasFiles",mParameterAliasFiles);
     mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.luaFiles",mQueryServerLuaFiles);
-    mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.dataServerMethodsEnabled",mDataServerMethodsEnabled);
+    // Older configurations have these under smartmet.engine.grid.query-server
+    if (!mConfigurationFile.getAttributeValue("smartmet.tools.grid.query-server.dataServerMethodsEnabled",mDataServerMethodsEnabled))
+      mConfigurationFile.getAttributeValue("smartmet.engine.grid.query-server.dataServerMethodsEnabled",mDataServerMethodsEnabled);
 
 
     // Initializing information that is needed for identifying the content of the grid files.
