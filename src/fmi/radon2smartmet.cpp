@@ -1910,6 +1910,119 @@ void updateGeometries()
 
 
 
+/*! \brief Set the geometry status to ready in the target data storage. */
+
+void setGeometryReady(T::GenerationInfo *targetGeneration,T::GeometryInfo *geomInfo)
+{
+  geomInfo->mStatus = T::GeometryInfo::Status::Ready;
+  int result = mTargetInterface->setGeometryInfo(mSessionId,*geomInfo);
+
+  if (result == 0)
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;OK;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
+  }
+  else
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;FAIL;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
+  }
+}
+
+
+
+
+/*! \brief Set all the geometries of a ready generation to ready. */
+
+void setReadyGenerationGeometries(T::GenerationInfo *targetGeneration,std::unordered_map<std::string,time_t>::iterator mTime)
+{
+  uint gLen = mTargetGeometryList.getLength();
+  for (uint g=0; g<gLen; g++)
+  {
+    auto *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
+    if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
+    {
+      std::string gkey = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
+      auto gTime = mReadyGenerations.find(gkey);
+
+      if (gTime != mReadyGenerations.end())
+      {
+        geomInfo->mModificationTime = gTime->second;
+      }
+      else
+      {
+        if (mTime != mReadyGenerations.end())
+          geomInfo->mModificationTime = mTime->second;
+      }
+
+      setGeometryReady(targetGeneration,geomInfo);
+    }
+  }
+}
+
+
+
+
+/*! \brief Set the generation status to ready in the target data storage. */
+
+void setTargetGenerationReady(T::GenerationInfo *targetGeneration,std::unordered_map<std::string,time_t>::iterator mTime)
+{
+  PRINT_DATA(mDebugLogPtr, "  -- Update generation status : %s\n", targetGeneration->mName.c_str());
+  targetGeneration->mStatus = T::GenerationInfo::Status::Ready;
+  if (mTime != mReadyGenerations.end())
+    targetGeneration->mModificationTime = mTime->second;
+
+  int result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+
+  if (result == 0)
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-READY;OK;%s;",targetGeneration->mName.c_str());
+  }
+  else
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-READY;FAIL;%s;",targetGeneration->mName.c_str());
+  }
+
+  if (result != 0)
+  {
+    Fmi::Exception exception(BCP, "Cannot update the generation status into the target data storage!");
+    exception.addParameter("GenerationName", targetGeneration->mName);
+    exception.addParameter("Result", ContentServer::getResultString(result));
+    throw exception;
+  }
+}
+
+
+
+
+/*! \brief Set the ready geometries of a generation which is not ready to ready. */
+
+void setReadyGeometries(T::GenerationInfo *targetGeneration)
+{
+  uint gLen = mTargetGeometryList.getLength();
+  for (uint g=0; g<gLen; g++)
+  {
+    auto *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
+    if (geomInfo->mGenerationId == targetGeneration->mGenerationId  &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
+    {
+      std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
+      auto mTime = mReadyGenerations.find(key);
+      if (mTime == mReadyGenerations.end())
+      {
+        key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId));
+        mTime = mReadyGenerations.find(key);
+      }
+
+      if (mTime != mReadyGenerations.end())
+      {
+        geomInfo->mModificationTime = mTime->second;
+        setGeometryReady(targetGeneration,geomInfo);
+      }
+    }
+  }
+}
+
+
+
+
 /*! \brief Update generation status. */
 
 void updateGenerationStatus(T::ProducerInfo& targetProducer)
@@ -1946,96 +2059,12 @@ void updateGenerationStatus(T::ProducerInfo& targetProducer)
         auto mTime = mReadyGenerations.find(key);
         if (ignore || mTime != mReadyGenerations.end())
         {
-          uint gLen = mTargetGeometryList.getLength();
-          for (uint g=0; g<gLen; g++)
-          {
-            auto *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
-            if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
-            {
-              std::string gkey = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
-              auto gTime = mReadyGenerations.find(gkey);
-
-              if (gTime != mReadyGenerations.end())
-              {
-                geomInfo->mModificationTime = gTime->second;
-              }
-              else
-              {
-                if (mTime != mReadyGenerations.end())
-                  geomInfo->mModificationTime = mTime->second;
-              }
-
-              geomInfo->mStatus = T::GeometryInfo::Status::Ready;
-              int result = mTargetInterface->setGeometryInfo(mSessionId,*geomInfo);
-
-              if (result == 0)
-              {
-                PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;OK;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
-              }
-              else
-              {
-                PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;FAIL;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
-              }
-            }
-          }
-
-          PRINT_DATA(mDebugLogPtr, "  -- Update generation status : %s\n", targetGeneration->mName.c_str());
-          targetGeneration->mStatus = T::GenerationInfo::Status::Ready;
-          if (mTime != mReadyGenerations.end())
-            targetGeneration->mModificationTime = mTime->second;
-
-          int result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
-
-          if (result == 0)
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-READY;OK;%s;",targetGeneration->mName.c_str());
-          }
-          else
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-READY;FAIL;%s;",targetGeneration->mName.c_str());
-          }
-
-          if (result != 0)
-          {
-            Fmi::Exception exception(BCP, "Cannot update the generation status into the target data storage!");
-            exception.addParameter("GenerationName", targetGeneration->mName);
-            exception.addParameter("Result", ContentServer::getResultString(result));
-            throw exception;
-          }
+          setReadyGenerationGeometries(targetGeneration,mTime);
+          setTargetGenerationReady(targetGeneration,mTime);
         }
         else
         {
-          uint gLen = mTargetGeometryList.getLength();
-          for (uint g=0; g<gLen; g++)
-          {
-            auto *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
-            if (geomInfo->mGenerationId == targetGeneration->mGenerationId  &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
-            {
-              std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
-              auto mTime = mReadyGenerations.find(key);
-              if (mTime == mReadyGenerations.end())
-              {
-                key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId));
-                mTime = mReadyGenerations.find(key);
-              }
-
-              if (mTime != mReadyGenerations.end())
-              {
-                geomInfo->mModificationTime = mTime->second;
-                geomInfo->mStatus = T::GeometryInfo::Status::Ready;
-                int result = mTargetInterface->setGeometryInfo(mSessionId,*geomInfo);
-
-                if (result == 0)
-                {
-                  PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;OK;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
-                }
-                else
-                {
-                  PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;FAIL;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
-                }
-              }
-            }
-          }
+          setReadyGeometries(targetGeneration);
         }
       }
     }
@@ -2044,6 +2073,164 @@ void updateGenerationStatus(T::ProducerInfo& targetProducer)
   {
     throw Fmi::Exception(BCP, "Operation failed!", nullptr);
   }
+}
+
+
+
+
+/*! \brief Check if the generations of the producers the producer depends on are ready. */
+
+bool dependenciesReady(const std::string& pname,const std::string& analysisTime,const std::string& suffix,bool geometry)
+{
+  bool ready = true;
+  auto rec = mProducerDependensies.find(pname);
+  if (rec != mProducerDependensies.end())
+  {
+    for (auto &it : rec->second)
+    {
+      std::string n = toUpperString(it + ":" + analysisTime + suffix);
+      auto gen = mReadyGenerations.find(n);
+      if (gen == mReadyGenerations.end())
+      {
+        if (geometry)
+        {
+          PRINT_DATA(mDebugLogPtr, "  -- Geometry dependency not ready: %s\n", n.c_str());
+        }
+        else
+        {
+          PRINT_DATA(mDebugLogPtr, "  -- Generation dependency not ready : %s\n", n.c_str());
+        }
+        ready = false;
+      }
+    }
+  }
+  return ready;
+}
+
+
+
+
+/*! \brief Check if the generation and the generations it depends on are ready. */
+
+bool isGenerationReady(T::GenerationInfo *targetGeneration,const std::string& pname,const std::vector<std::string>& parts)
+{
+  std::string key = toUpperString(targetGeneration->mName + ":0:0");
+  auto gen = mReadyGenerations.find(key);
+  if (gen == mReadyGenerations.end())
+  {
+    PRINT_DATA(mDebugLogPtr, "  -- Generation not ready : %s\n", key.c_str());
+    return false;
+  }
+
+  targetGeneration->mModificationTime = gen->second;
+  return dependenciesReady(pname,parts[1],":0:0",false);
+}
+
+
+
+
+/*! \brief Set the geometries of a ready generation to ready and the generation status to ready. */
+
+int setGenerationReady(T::GenerationInfo *targetGeneration)
+{
+  uint gLen = mTargetGeometryList.getLength();
+  for (uint g=0; g<gLen; g++)
+  {
+    auto *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
+    if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
+    {
+      std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
+      auto gTime = mReadyGenerations.find(key);
+      if (gTime != mReadyGenerations.end())
+        geomInfo->mModificationTime = gTime->second;
+      else
+        geomInfo->mModificationTime = targetGeneration->mModificationTime;
+
+      setGeometryReady(targetGeneration,geomInfo);
+    }
+  }
+
+  PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'ready': %s\n", targetGeneration->mName.c_str());
+  targetGeneration->mStatus = T::GenerationInfo::Status::Ready;
+  targetGeneration->mModificationTime++;
+  int result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+
+  if (result == 0)
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-READY;OK;%s;",targetGeneration->mName.c_str());
+  }
+  else
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-READY;FAIL;%s;",targetGeneration->mName.c_str());
+  }
+  return result;
+}
+
+
+
+
+/*! \brief Check if the geometry and the geometries it depends on are ready. */
+
+bool isGeometryReady(T::GenerationInfo *targetGeneration,T::GeometryInfo *geomInfo,const std::string& pname,const std::vector<std::string>& parts)
+{
+  std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId));
+  auto gTime = mReadyGenerations.find(key);
+  if (gTime == mReadyGenerations.end())
+  {
+    PRINT_DATA(mDebugLogPtr, "  -- Geometry not ready: %s\n", key.c_str());
+    return false;
+  }
+
+  geomInfo->mModificationTime = gTime->second;
+  return dependenciesReady(pname,parts[1],":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId),true);
+}
+
+
+
+
+/*! \brief Check if the generation status of the producer should be checked. */
+
+bool isProducerCheckEnabled(T::GenerationInfo *targetGeneration,const std::string& pname)
+{
+  if (mProducerList.empty() || mProducerList.find(pname) != mProducerList.end())
+  {
+    PRINT_DATA(mDebugLogPtr, "  -- Checking generation status : %s (status=%u)\n", targetGeneration->mName.c_str(),targetGeneration->mStatus);
+    return true;
+  }
+  return false;
+}
+
+
+
+
+/*! \brief Set the ready geometries of a generation which is no longer ready to ready and the generation status to running. */
+
+int setGenerationRunning(T::GenerationInfo *targetGeneration,const std::string& pname,const std::vector<std::string>& parts)
+{
+  uint gLen = mTargetGeometryList.getLength();
+  for (uint g=0; g<gLen; g++)
+  {
+    auto *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
+    if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
+    {
+      if (isGeometryReady(targetGeneration,geomInfo,pname,parts))
+        setGeometryReady(targetGeneration,geomInfo);
+    }
+  }
+
+  PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'running': %s\n", targetGeneration->mName.c_str());
+  targetGeneration->mStatus = T::GenerationInfo::Status::Running;
+  targetGeneration->mModificationTime++;
+  int result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+  if (result == 0)
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"# GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
+  }
+  else
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;FAIL;%s;",targetGeneration->mName.c_str());
+  }
+  return result;
 }
 
 
@@ -2068,152 +2255,16 @@ void updateGenerationStatus()
         splitString(targetGeneration->mName,':',parts);
         std::string pname = toUpperString(parts[0]);
         bool ready = true;
-        bool producerCheckEnabled = false;
-
-        if (mProducerList.empty() || mProducerList.find(pname) != mProducerList.end())
-        {
-          PRINT_DATA(mDebugLogPtr, "  -- Checking generation status : %s (status=%u)\n", targetGeneration->mName.c_str(),targetGeneration->mStatus);
-          producerCheckEnabled = true;
-        }
+        bool producerCheckEnabled = isProducerCheckEnabled(targetGeneration,pname);
 
         if (producerCheckEnabled  &&  !mProducerList.empty()  &&  mGenerationStatusCheckIgnore.find(pname) == mGenerationStatusCheckIgnore.end())
-        {
-          std::string key = toUpperString(targetGeneration->mName + ":0:0");
-          auto gen = mReadyGenerations.find(key);
-          if (gen == mReadyGenerations.end())
-          {
-            PRINT_DATA(mDebugLogPtr, "  -- Generation not ready : %s\n", key.c_str());
-            ready = false;
-          }
-          else
-          {
-            targetGeneration->mModificationTime = gen->second;
-            auto rec = mProducerDependensies.find(pname);
-            if (rec != mProducerDependensies.end())
-            {
-              for (auto &it : rec->second)
-              {
-                std::string n = toUpperString(it + ":" + parts[1] + ":0:0");
-                auto gen = mReadyGenerations.find(n);
-                if (gen == mReadyGenerations.end())
-                {
-                  PRINT_DATA(mDebugLogPtr, "  -- Generation dependency not ready : %s\n", n.c_str());
-                  ready = false;
-                }
-              }
-            }
-          }
-        }
+          ready = isGenerationReady(targetGeneration,pname,parts);
 
         int result = 0;
         if (producerCheckEnabled &&  ready  &&  targetGeneration->mStatus != T::GenerationInfo::Status::Ready)
-        {
-          uint gLen = mTargetGeometryList.getLength();
-          for (uint g=0; g<gLen; g++)
-          {
-            auto *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
-            if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
-            {
-              std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":0");
-              auto gTime = mReadyGenerations.find(key);
-              if (gTime != mReadyGenerations.end())
-                geomInfo->mModificationTime = gTime->second;
-              else
-                geomInfo->mModificationTime = targetGeneration->mModificationTime;
-
-              geomInfo->mStatus = T::GeometryInfo::Status::Ready;
-              int result = mTargetInterface->setGeometryInfo(mSessionId,*geomInfo);
-
-              if (result == 0)
-              {
-                PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;OK;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
-              }
-              else
-              {
-                PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;FAIL;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
-              }
-            }
-          }
-
-          PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'ready': %s\n", targetGeneration->mName.c_str());
-          targetGeneration->mStatus = T::GenerationInfo::Status::Ready;
-          targetGeneration->mModificationTime++;
-          result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
-
-          if (result == 0)
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-READY;OK;%s;",targetGeneration->mName.c_str());
-          }
-          else
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-READY;FAIL;%s;",targetGeneration->mName.c_str());
-          }
-        }
+          result = setGenerationReady(targetGeneration);
         else if (producerCheckEnabled &&  !ready  &&  targetGeneration->mStatus == T::GenerationInfo::Status::Ready)
-        {
-          uint gLen = mTargetGeometryList.getLength();
-          for (uint g=0; g<gLen; g++)
-          {
-            bool geom_ready = true;
-            auto *geomInfo = (T::GeometryInfo*)mTargetGeometryList.getGeometryInfoByIndex(g);
-            if (geomInfo->mGenerationId == targetGeneration->mGenerationId &&  geomInfo->mStatus != T::GeometryInfo::Status::Ready)
-            {
-              std::string key = toUpperString(targetGeneration->mName + ":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId));
-              auto gTime = mReadyGenerations.find(key);
-              if (gTime == mReadyGenerations.end())
-              {
-                PRINT_DATA(mDebugLogPtr, "  -- Geometry not ready: %s\n", key.c_str());
-                geom_ready = false;
-              }
-              else
-              {
-                geomInfo->mModificationTime = gTime->second;
-                auto rec = mProducerDependensies.find(pname);
-                if (rec != mProducerDependensies.end())
-                {
-                  for (auto &it : rec->second)
-                  {
-                    std::string n = toUpperString(it + ":" + parts[1] + ":" + std::to_string(geomInfo->mGeometryId) + ":" + std::to_string(geomInfo->mLevelId));
-                    auto gen = mReadyGenerations.find(n);
-                    if (gen == mReadyGenerations.end())
-                    {
-                      PRINT_DATA(mDebugLogPtr, "  -- Geometry dependency not ready: %s\n", n.c_str());
-                      geom_ready = false;
-                    }
-                  }
-                }
-              }
-
-              if (geom_ready)
-              {
-                geomInfo->mStatus = T::GeometryInfo::Status::Ready;
-                int result = mTargetInterface->setGeometryInfo(mSessionId,*geomInfo);
-
-                if (result == 0)
-                {
-                  PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;OK;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
-                }
-                else
-                {
-                  PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-STATUS-UPDATE-TO-READY;FAIL;%s:%d:%d;",targetGeneration->mName.c_str(),geomInfo->mGeometryId,geomInfo->mLevelId);
-                }
-              }
-            }
-          }
-
-          PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'running': %s\n", targetGeneration->mName.c_str());
-          targetGeneration->mStatus = T::GenerationInfo::Status::Running;
-          targetGeneration->mModificationTime++;
-          result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
-          if (result == 0)
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"# GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
-          }
-          else
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;FAIL;%s;",targetGeneration->mName.c_str());
-          }
-        }
+          result = setGenerationRunning(targetGeneration,pname,parts);
 
         if (result != 0)
         {
