@@ -1100,6 +1100,102 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
 
 
 
+/*! \brief Remove the file information from the target data storage. */
+
+void deleteTargetFiles(ContentServer::ServiceInterface *targetInterface,std::set<T::FileId>& fileIdList,std::vector<std::string>& fileNameList)
+{
+  int result = targetInterface->deleteFileInfoListByFileIdList(mSessionId,fileIdList);
+  if (result != 0)
+  {
+    for (auto it = fileNameList.begin(); it != fileNameList.end(); ++it)
+      PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;FAIL;%s;",it->c_str());
+
+
+    Fmi::Exception exception(BCP,"Cannot delete the file information from the target data storage!");
+    exception.addParameter("Result",ContentServer::getResultString(result));
+    throw exception;
+  }
+  for (auto it = fileNameList.begin(); it != fileNameList.end(); ++it)
+    PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;OK;%s;",it->c_str());
+}
+
+
+
+
+
+/*! \brief Remove the file information whose modification time has changed from the target data storage. */
+
+void deleteModifiedTargetFile(ContentServer::ServiceInterface *targetInterface,T::FileInfo *targetFile)
+{
+  PRINT_DATA(mDebugLogPtr,"  -- Remove file: %s\n",targetFile->mName.c_str());
+  int result = targetInterface->deleteFileInfoById(mSessionId,targetFile->mFileId);
+  if (result != 0)
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;FAIL;%s;",targetFile->mName.c_str());
+
+    Fmi::Exception exception(BCP,"Cannot delete the file information from the target data storage!");
+    exception.addParameter("Result",ContentServer::getResultString(result));
+    throw exception;
+  }
+  PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;OK;%s;",targetFile->mName.c_str());
+}
+
+
+
+
+
+/*! \brief Add the file information into the target data storage. */
+
+void addTargetFile(ContentServer::ServiceInterface *targetInterface,T::FileInfo *sourceFile)
+{
+  // The file information is not available in the target data storage. So, we should add it.
+
+  T::FileInfo fileInfo(*sourceFile);
+  fileInfo.mFileId = 0;
+
+  PRINT_DATA(mDebugLogPtr,"  -- Add file: %s\n",fileInfo.mName.c_str());
+
+  bool missingInformation = false;
+  T::ContentInfoList contentList;
+  try
+  {
+    readSourceContent(fileInfo,contentList,missingInformation);
+  }
+  catch (...)
+  {
+    Fmi::Exception exception(BCP,"File read failed!",nullptr);
+    exception.printError();
+    std::string st = exception.getStackTrace();
+    PRINT_DATA(mDebugLogPtr,"%s",st.c_str());
+  }
+
+  if (contentList.getLength() > 0)
+  {
+    if (missingInformation)
+      fileInfo.mModificationTime = fileInfo.mModificationTime - 1;
+
+    int result = targetInterface->addFileInfoWithContentList(mSessionId,fileInfo,contentList);
+    if (result != 0)
+    {
+      PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-ADD;FAIL;%s;",fileInfo.mName.c_str());
+
+      Fmi::Exception exception(BCP,"Cannot add the file information into the target data storage!");
+      exception.addParameter("FileName",fileInfo.mName);
+      exception.addParameter("Result",ContentServer::getResultString(result));
+      throw exception;
+    }
+    PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-ADD;OK;%s;",fileInfo.mName.c_str());
+  }
+  else
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-READ;FAIL;%s;",fileInfo.mName.c_str());
+  }
+}
+
+
+
+
+
 /*! \brief Update files. */
 
 void updateFiles(ContentServer::ServiceInterface *targetInterface)
@@ -1131,19 +1227,7 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
 
     if (!fileIdList.empty())
     {
-      int result = targetInterface->deleteFileInfoListByFileIdList(mSessionId,fileIdList);
-      if (result != 0)
-      {
-        for (auto it = fileNameList.begin(); it != fileNameList.end(); ++it)
-          PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;FAIL;%s;",it->c_str());
-
-
-        Fmi::Exception exception(BCP,"Cannot delete the file information from the target data storage!");
-        exception.addParameter("Result",ContentServer::getResultString(result));
-        throw exception;
-      }
-      for (auto it = fileNameList.begin(); it != fileNameList.end(); ++it)
-        PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;OK;%s;",it->c_str());
+      deleteTargetFiles(targetInterface,fileIdList,fileNameList);
     }
 
 
@@ -1158,64 +1242,13 @@ void updateFiles(ContentServer::ServiceInterface *targetInterface)
         {
           // The file exists in the target data storage, but its modification time is different. So, we should remove it.
 
-          PRINT_DATA(mDebugLogPtr,"  -- Remove file: %s\n",targetFile->mName.c_str());
-          int result = targetInterface->deleteFileInfoById(mSessionId,targetFile->mFileId);
-          if (result != 0)
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;FAIL;%s;",targetFile->mName.c_str());
-
-            Fmi::Exception exception(BCP,"Cannot delete the file information from the target data storage!");
-            exception.addParameter("Result",ContentServer::getResultString(result));
-            throw exception;
-          }
-          PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-DELETE;OK;%s;",targetFile->mName.c_str());
+          deleteModifiedTargetFile(targetInterface,targetFile);
           targetFile = nullptr;
         }
 
         if (targetFile == nullptr)
         {
-          // The file information is not available in the target data storage. So, we should add it.
-
-          T::FileInfo fileInfo(*sourceFile);
-          fileInfo.mFileId = 0;
-
-          PRINT_DATA(mDebugLogPtr,"  -- Add file: %s\n",fileInfo.mName.c_str());
-
-          bool missingInformation = false;
-          T::ContentInfoList contentList;
-          try
-          {
-            readSourceContent(fileInfo,contentList,missingInformation);
-          }
-          catch (...)
-          {
-            Fmi::Exception exception(BCP,"File read failed!",nullptr);
-            exception.printError();
-            std::string st = exception.getStackTrace();
-            PRINT_DATA(mDebugLogPtr,"%s",st.c_str());
-          }
-
-          if (contentList.getLength() > 0)
-          {
-            if (missingInformation)
-              fileInfo.mModificationTime = fileInfo.mModificationTime - 1;
-
-            int result = targetInterface->addFileInfoWithContentList(mSessionId,fileInfo,contentList);
-            if (result != 0)
-            {
-              PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-ADD;FAIL;%s;",fileInfo.mName.c_str());
-
-              Fmi::Exception exception(BCP,"Cannot add the file information into the target data storage!");
-              exception.addParameter("FileName",fileInfo.mName);
-              exception.addParameter("Result",ContentServer::getResultString(result));
-              throw exception;
-            }
-            PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-ADD;OK;%s;",fileInfo.mName.c_str());
-          }
-          else
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"FILE-READ;FAIL;%s;",fileInfo.mName.c_str());
-          }
+          addTargetFile(targetInterface,sourceFile);
         }
       }
     }
