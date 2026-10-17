@@ -19,13 +19,6 @@ int main(int argc, char *argv[])
 
   try
   {
-    char *serviceIor = getenv("SMARTMET_CS_IOR");
-    if (serviceIor == nullptr)
-    {
-      fprintf(stdout,"SMARTMET_CS_IOR not defined!\n");
-      return -2;
-    }
-
     if (argc < 13)
     {
       fprintf(stdout,"USAGE:\n");
