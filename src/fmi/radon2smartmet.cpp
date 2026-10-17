@@ -2798,6 +2798,311 @@ void updateTargetFiles(PGconn *conn)
 
 
 
+/*! \brief Create the target data storage interface. Returns the Redis implementation if it is used. */
+
+ContentServer::RedisImplementation* createTargetInterface()
+{
+  ContentServer::RedisImplementation *redisImplementation = nullptr;
+
+  if (mStorageType == "redis")
+  {
+    redisImplementation = new ContentServer::RedisImplementation();
+    redisImplementation->init(mRedisAddress.c_str(), mRedisPort, mRedisTablePrefix.c_str(),mRedisLockEnabled,mRedisPassword.c_str());
+    mTargetInterface = redisImplementation;
+  }
+
+  if (mStorageType == "postgresql")
+  {
+    auto *client = new ContentServer::PostgresqlImplementation();
+    client->init(mPostgresqlConnectionString.c_str(),"",true);
+    mTargetInterface = client;
+  }
+
+  if (mStorageType == "http")
+  {
+    auto *httpClient = new ContentServer::HTTP::ClientImplementation();
+    httpClient->init(mContentServerUrl);
+    mTargetInterface = httpClient;
+  }
+
+  if (mStorageType == "corba")
+  {
+    auto *corbaClient = new ContentServer::Corba::ClientImplementation();
+    corbaClient->init(mContentServerIor);
+    mTargetInterface = corbaClient;
+  }
+
+  return redisImplementation;
+}
+
+
+
+
+/*! \brief Initialize the logs. */
+
+void initLogs()
+{
+  if (mProcessingLogEnabled)
+  {
+    mProcessingLog.init(true, mProcessingLogFile.c_str(), mProcessingLogMaxSize, mProcessingLogTruncateSize);
+    mProcessingLogPtr = &mProcessingLog;
+  }
+
+  if (mDebugLogEnabled)
+  {
+    mDebugLog.init(true, mDebugLogFile.c_str(), mDebugLogMaxSize, mDebugLogTruncateSize);
+    mDebugLogPtr = &mDebugLog;
+  }
+}
+
+
+
+
+/*! \brief Update the producer and generation information. */
+
+void updateProducerAndGenerationInfo(PGconn *conn)
+{
+  if (!shutdownRequested)
+  {
+    PRINT_DATA(mDebugLogPtr, "* Reading producer information from the target data storage\n");
+    readTargetProducers(mTargetProducerList);
+  }
+
+  if (!shutdownRequested)
+  {
+    PRINT_DATA(mDebugLogPtr, "* Reading producer information from the source data storage\n");
+    readSourceProducers(conn);
+  }
+
+  if (!shutdownRequested)
+  {
+    PRINT_DATA(mDebugLogPtr, "* Updating producer information into the target data storage\n");
+    updateProducers();
+    readTargetProducers(mTargetProducerList);
+  }
+
+  if (!shutdownRequested)
+  {
+    PRINT_DATA(mDebugLogPtr, "* Reading generation information from the target data storage\n");
+    readTargetGenerations(mTargetGenerationList);
+    mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
+  }
+
+  if (!shutdownRequested)
+  {
+    PRINT_DATA(mDebugLogPtr, "* Reading generation information from the source data storage\n");
+    readSourceGenerations(conn);
+  }
+
+  if (!shutdownRequested)
+  {
+    PRINT_DATA(mDebugLogPtr, "* Updating generation information into the target data storage\n");
+    updateGenerations();
+    readTargetGenerations(mTargetGenerationList);
+    mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
+  }
+}
+
+
+
+
+/*! \brief Update the geometry, file and content information. */
+
+void updateGeometryAndContentInfo(PGconn *conn,ContentServer::RedisImplementation *redisImplementation)
+{
+  if (!shutdownRequested)
+  {
+    PRINT_DATA(mDebugLogPtr, "* Reading geometry information from the target data storage\n");
+    readTargetGeometries(mTargetGeometryList);
+    mTargetGeometryList.sort(T::GeometryInfo::ComparisonMethod::generationId);
+  }
+
+  if (!shutdownRequested)
+  {
+    PRINT_DATA(mDebugLogPtr, "* Reading geometry information from the source data storage\n");
+    readSourceGeometries(conn,mSourceGeometryList);
+  }
+
+  if (!shutdownRequested)
+  {
+    PRINT_DATA(mDebugLogPtr, "* Updating geometry information into the target data storage\n");
+    updateGeometries();
+    readTargetGeometries(mTargetGeometryList);
+    mTargetGeometryList.sort(T::GeometryInfo::ComparisonMethod::generationId);
+  }
+
+  if (!shutdownRequested)
+  {
+    PRINT_DATA(mDebugLogPtr, "* Reading content information from the target data storage\n");
+    readTargetContentList(mTargetContentList);
+    mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
+  }
+
+  if (!shutdownRequested)
+  {
+    PRINT_DATA(mDebugLogPtr, "* Updating file and content information into the target data storage\n");
+    updateTargetFiles(conn);
+  }
+
+  if (!shutdownRequested && redisImplementation)
+  {
+    PRINT_DATA(mDebugLogPtr, "* Checking filenames \n");
+    redisImplementation->syncFilenames();
+  }
+}
+
+
+
+
+/*! \brief Print the sizes of the data structures. */
+
+void printDataStructures(time_t loopStart)
+{
+  PRINT_DATA(mDebugLogPtr, "* Data structures\n");
+  PRINT_DATA(mDebugLogPtr, "   - mSourceProducerList   = %u\n",mSourceProducerList.getLength());
+  PRINT_DATA(mDebugLogPtr, "   - mSourceGenerationList = %u\n",mSourceGenerationList.getLength());
+  PRINT_DATA(mDebugLogPtr, "   - mSourceFilenames      = %lu\n",mSourceFilenames.size());
+  PRINT_DATA(mDebugLogPtr, "   - mFilenameMap          = %lu\n",mFilenameMap.size());
+  PRINT_DATA(mDebugLogPtr, "   - mFileRecMap           = %lu\n",mFileRecMap.size());
+  PRINT_DATA(mDebugLogPtr, "   - fileRecords           = %u\n",countFileRecords());
+  PRINT_DATA(mDebugLogPtr, "   - loopCounter           = %d\n",mLoopCounter);
+  PRINT_DATA(mDebugLogPtr, "   - loopTime              = %ld sec\n",time(nullptr)-loopStart);
+
+  PRINT_DATA(mDebugLogPtr, "********************************************************************\n\n");
+}
+
+
+
+
+/*! \brief Clear the data of the update loop, force full database read every 4th hour. */
+
+void clearLoopData(time_t& lastDatabaseRead,PGconn *conn)
+{
+  mProducerList.clear();
+  mSourceProducerList.clear();
+  mSourceGenerationList.clear();
+
+  std::set<int> sourceFilenames;
+  mSourceFilenames.clear();
+  mSourceFilenames.swap(sourceFilenames);
+
+  std::set<UInt64> tcList;
+  mTargetContentList.clear();
+  mTargetContentList.swap(tcList);
+
+  if ((lastDatabaseRead + 14400) < time(nullptr) || reconnectionRequired || conn == nullptr)
+  {
+    // ### Force full database read every 4th hour
+
+    FileRec_map fileRecMap;
+    string_bimap filenameMap;
+
+    mFilenameMap.clear();
+    mFilenameMap.swap(filenameMap);
+
+    mFileRecMap.clear();
+    mFileRecMap.swap(fileRecMap);
+
+    lastDatabaseRead = time(nullptr);
+  }
+}
+
+
+
+
+/*! \brief Connect to the Radon database. Returns false if the connection fails. */
+
+bool connectToRadon(PGconn*& conn)
+{
+  conn = PQconnectdb(mRadonConnectionString.c_str());
+  if (PQstatus(conn) != CONNECTION_OK)
+  {
+    fprintf(stderr, "Postgresql error: %s\n", PQerrorMessage(conn));
+    return false;
+  }
+
+  reconnectionRequired = false;
+  return true;
+}
+
+
+
+
+/*! \brief Run one update of the target data storage. */
+
+void runUpdate(PGconn *conn,ContentServer::RedisImplementation *redisImplementation)
+{
+  PRINT_DATA(mDebugLogPtr, "\n");
+  PRINT_DATA(mDebugLogPtr, "********************************************************************\n");
+  PRINT_DATA(mDebugLogPtr, "****************************** UPDATE ******************************\n");
+  PRINT_DATA(mDebugLogPtr, "********************************************************************\n");
+
+  PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE;START;;");
+
+  try
+  {
+    updateLoopStart();
+
+    if (!shutdownRequested)
+    {
+      PRINT_DATA(mDebugLogPtr, "* Reading producer names that belong to this update\n");
+      readProducerList(mProducerFile.c_str());
+    }
+
+    if (!mProducerList.empty() ||  mProducerFullList.empty())
+    {
+      updateProducerAndGenerationInfo(conn);
+
+      updateGeometryAndContentInfo(conn,redisImplementation);
+    }
+
+    updateLoopEnd();
+  }
+  catch (...)
+  {
+    Fmi::Exception exception(BCP, "Processing exception!", nullptr);
+    exception.printError();
+  }
+}
+
+
+
+
+/*! \brief Wait for the next update loop. Returns false if there is no next loop. */
+
+bool waitNextLoop()
+{
+  if (mWaitTime > 0 && !shutdownRequested)
+  {
+    if (mLoopCounter > 10)
+      std::this_thread::sleep_for(std::chrono::seconds(mWaitTime));
+  }
+  else
+  {
+    return false;
+  }
+  return true;
+}
+
+
+
+
+/*! \brief Close the database connection if the connection should not be kept open. */
+
+void closeConnectionIfNeeded(PGconn*& conn)
+{
+  if (mWaitTime >= 1800 || reconnectionRequired)
+  {
+    if (conn != nullptr)
+      PQfinish(conn);
+
+    conn = nullptr;
+  }
+}
+
+
+
+
 /*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
@@ -2832,47 +3137,9 @@ int main(int argc, char *argv[])
         mWaitTime = 0; // disable looping
     }
 
-    ContentServer::RedisImplementation *redisImplementation = nullptr;
+    ContentServer::RedisImplementation *redisImplementation = createTargetInterface();
 
-    if (mStorageType == "redis")
-    {
-      redisImplementation = new ContentServer::RedisImplementation();
-      redisImplementation->init(mRedisAddress.c_str(), mRedisPort, mRedisTablePrefix.c_str(),mRedisLockEnabled,mRedisPassword.c_str());
-      mTargetInterface = redisImplementation;
-    }
-
-    if (mStorageType == "postgresql")
-    {
-      auto *client = new ContentServer::PostgresqlImplementation();
-      client->init(mPostgresqlConnectionString.c_str(),"",true);
-      mTargetInterface = client;
-    }
-
-    if (mStorageType == "http")
-    {
-      auto *httpClient = new ContentServer::HTTP::ClientImplementation();
-      httpClient->init(mContentServerUrl);
-      mTargetInterface = httpClient;
-    }
-
-    if (mStorageType == "corba")
-    {
-      auto *corbaClient = new ContentServer::Corba::ClientImplementation();
-      corbaClient->init(mContentServerIor);
-      mTargetInterface = corbaClient;
-    }
-
-    if (mProcessingLogEnabled)
-    {
-      mProcessingLog.init(true, mProcessingLogFile.c_str(), mProcessingLogMaxSize, mProcessingLogTruncateSize);
-      mProcessingLogPtr = &mProcessingLog;
-    }
-
-    if (mDebugLogEnabled)
-    {
-      mDebugLog.init(true, mDebugLogFile.c_str(), mDebugLogMaxSize, mDebugLogTruncateSize);
-      mDebugLogPtr = &mDebugLog;
-    }
+    initLogs();
 
     if (mTargetInterface == nullptr)
     {
@@ -2886,189 +3153,23 @@ int main(int argc, char *argv[])
     while (ind)
     {
       time_t loopStart = time(nullptr);
-      if (reconnectionRequired || conn == nullptr)
-      {
-        conn = PQconnectdb(mRadonConnectionString.c_str());
-        if (PQstatus(conn) != CONNECTION_OK)
-        {
-          fprintf(stderr, "Postgresql error: %s\n", PQerrorMessage(conn));
-          return -4;
-        }
+      if ((reconnectionRequired || conn == nullptr) && !connectToRadon(conn))
+        return -4;
 
-        reconnectionRequired = false;
-      }
-
-      PRINT_DATA(mDebugLogPtr, "\n");
-      PRINT_DATA(mDebugLogPtr, "********************************************************************\n");
-      PRINT_DATA(mDebugLogPtr, "****************************** UPDATE ******************************\n");
-      PRINT_DATA(mDebugLogPtr, "********************************************************************\n");
-
-      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE;START;;");
-
-      try
-      {
-        updateLoopStart();
-
-        if (!shutdownRequested)
-        {
-          PRINT_DATA(mDebugLogPtr, "* Reading producer names that belong to this update\n");
-          readProducerList(mProducerFile.c_str());
-        }
-
-        if (!mProducerList.empty() ||  mProducerFullList.empty())
-        {
-          if (!shutdownRequested)
-          {
-            PRINT_DATA(mDebugLogPtr, "* Reading producer information from the target data storage\n");
-            readTargetProducers(mTargetProducerList);
-          }
-
-          if (!shutdownRequested)
-          {
-            PRINT_DATA(mDebugLogPtr, "* Reading producer information from the source data storage\n");
-            readSourceProducers(conn);
-          }
-
-          if (!shutdownRequested)
-          {
-            PRINT_DATA(mDebugLogPtr, "* Updating producer information into the target data storage\n");
-            updateProducers();
-            readTargetProducers(mTargetProducerList);
-          }
-
-          if (!shutdownRequested)
-          {
-            PRINT_DATA(mDebugLogPtr, "* Reading generation information from the target data storage\n");
-            readTargetGenerations(mTargetGenerationList);
-            mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
-          }
-
-          if (!shutdownRequested)
-          {
-            PRINT_DATA(mDebugLogPtr, "* Reading generation information from the source data storage\n");
-            readSourceGenerations(conn);
-          }
-
-          if (!shutdownRequested)
-          {
-            PRINT_DATA(mDebugLogPtr, "* Updating generation information into the target data storage\n");
-            updateGenerations();
-            readTargetGenerations(mTargetGenerationList);
-            mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
-          }
-
-          if (!shutdownRequested)
-          {
-            PRINT_DATA(mDebugLogPtr, "* Reading geometry information from the target data storage\n");
-            readTargetGeometries(mTargetGeometryList);
-            mTargetGeometryList.sort(T::GeometryInfo::ComparisonMethod::generationId);
-          }
-
-          if (!shutdownRequested)
-          {
-            PRINT_DATA(mDebugLogPtr, "* Reading geometry information from the source data storage\n");
-            readSourceGeometries(conn,mSourceGeometryList);
-          }
-
-          if (!shutdownRequested)
-          {
-            PRINT_DATA(mDebugLogPtr, "* Updating geometry information into the target data storage\n");
-            updateGeometries();
-            readTargetGeometries(mTargetGeometryList);
-            mTargetGeometryList.sort(T::GeometryInfo::ComparisonMethod::generationId);
-          }
-
-          if (!shutdownRequested)
-          {
-            PRINT_DATA(mDebugLogPtr, "* Reading content information from the target data storage\n");
-            readTargetContentList(mTargetContentList);
-            mTargetGenerationList.sort(T::GenerationInfo::ComparisonMethod::generationName);
-          }
-
-          if (!shutdownRequested)
-          {
-            PRINT_DATA(mDebugLogPtr, "* Updating file and content information into the target data storage\n");
-            updateTargetFiles(conn);
-          }
-
-          if (!shutdownRequested && redisImplementation)
-          {
-            PRINT_DATA(mDebugLogPtr, "* Checking filenames \n");
-            redisImplementation->syncFilenames();
-          }
-        }
-
-        updateLoopEnd();
-      }
-      catch (...)
-      {
-        Fmi::Exception exception(BCP, "Processing exception!", nullptr);
-        exception.printError();
-      }
+      runUpdate(conn,redisImplementation);
 
 
       if (!shutdownRequested)
       {
-        PRINT_DATA(mDebugLogPtr, "* Data structures\n");
-        PRINT_DATA(mDebugLogPtr, "   - mSourceProducerList   = %u\n",mSourceProducerList.getLength());
-        PRINT_DATA(mDebugLogPtr, "   - mSourceGenerationList = %u\n",mSourceGenerationList.getLength());
-        PRINT_DATA(mDebugLogPtr, "   - mSourceFilenames      = %lu\n",mSourceFilenames.size());
-        PRINT_DATA(mDebugLogPtr, "   - mFilenameMap          = %lu\n",mFilenameMap.size());
-        PRINT_DATA(mDebugLogPtr, "   - mFileRecMap           = %lu\n",mFileRecMap.size());
-        PRINT_DATA(mDebugLogPtr, "   - fileRecords           = %u\n",countFileRecords());
-        PRINT_DATA(mDebugLogPtr, "   - loopCounter           = %d\n",mLoopCounter);
-        PRINT_DATA(mDebugLogPtr, "   - loopTime              = %ld sec\n",time(nullptr)-loopStart);
-
-        PRINT_DATA(mDebugLogPtr, "********************************************************************\n\n");
-
-        mProducerList.clear();
-        mSourceProducerList.clear();
-        mSourceGenerationList.clear();
-
-        std::set<int> sourceFilenames;
-        mSourceFilenames.clear();
-        mSourceFilenames.swap(sourceFilenames);
-
-        std::set<UInt64> tcList;
-        mTargetContentList.clear();
-        mTargetContentList.swap(tcList);
-
-        if ((lastDatabaseRead + 14400) < time(nullptr) || reconnectionRequired || conn == nullptr)
-        {
-          // ### Force full database read every 4th hour
-
-          FileRec_map fileRecMap;
-          string_bimap filenameMap;
-
-          mFilenameMap.clear();
-          mFilenameMap.swap(filenameMap);
-
-          mFileRecMap.clear();
-          mFileRecMap.swap(fileRecMap);
-
-          lastDatabaseRead = time(nullptr);
-        }
+        printDataStructures(loopStart);
+        clearLoopData(lastDatabaseRead,conn);
       }
 
       PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE;END;Loop time %ld seconds;",time(nullptr)-loopStart);
 
-      if (mWaitTime > 0 && !shutdownRequested)
-      {
-        if (mLoopCounter > 10)
-          std::this_thread::sleep_for(std::chrono::seconds(mWaitTime));
-      }
-      else
-      {
-        ind = false;
-      }
+      ind = waitNextLoop();
 
-      if (mWaitTime >= 1800 || reconnectionRequired)
-      {
-        if (conn != nullptr)
-          PQfinish(conn);
-
-        conn = nullptr;
-      }
+      closeConnectionIfNeeded(conn);
     }
 
     PQfinish(conn);
