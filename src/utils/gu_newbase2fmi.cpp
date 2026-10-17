@@ -47,19 +47,18 @@ uint splitFields(char *st,char *field[100])
 
 /*! \brief Load newbase parameter defs. */
 
-void loadNewbaseParameterDefs(char *configDir,Identification::NewbaseParamDef_vec& parameters)
+void loadNewbaseParameterDefs(const std::string& configDir,Identification::NewbaseParamDef_vec& parameters)
 {
   try
   {
-    char filename[200];
-    sprintf(filename,"%s/newbase_parameters.csv",configDir);
+    std::string filename = configDir + "/newbase_parameters.csv";
 
 
-    FILE *file = fopen(filename,"re");
+    FILE *file = fopen(filename.c_str(),"re");
     if (file == nullptr)
     {
       Fmi::Exception exception(BCP,"Cannot open file!");
-      exception.addParameter("Filename",std::string(filename));
+      exception.addParameter("Filename",filename);
       throw exception;
     }
 
@@ -107,16 +106,18 @@ int main(int argc, char *argv[])
   {
     if (argc < 2)
     {
-      fprintf(stderr,"USAGE: gu_newbase2fmi <grid-config-dir> [-rev]\n");
+      fprintf(stderr,"USAGE: gu_newbase2fmi <grid-config-file> [-rev]\n");
       return -1;
     }
 
-    char *configDir = argv[1];
+    // The grid-files configuration file, newbase_parameters.csv is read from the same directory
+    char *configFile = argv[1];
+    std::string configDir = getFileDir(configFile);
     bool reverse = false;
     if (argc == 3  &&  strcmp(argv[2],"-rev") == 0)
       reverse = true;
 
-    Identification::gridDef.init(configDir);
+    Identification::gridDef.init(configFile);
 
 
     Identification::NewbaseParamDef_vec parameters;
