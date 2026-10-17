@@ -50,10 +50,6 @@ int main(int argc, char *argv[])
     // ### Session:
     T::SessionId sessionId = toInt64(argv[1]);
 
-    // ### Service:
-    ContentServer::Corba::ClientImplementation contentServer;
-    contentServer.init(serviceIor);
-
     // ### Service parameters:
     T::ParamKeyType paramKeyType = T::ParamKeyTypeValue::FMI_ID;
     if (strcmp(argv[2],"fmi-id") == 0)
