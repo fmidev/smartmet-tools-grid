@@ -900,6 +900,7 @@ void readTableRecords(PGconn *conn, const char *tableName, T::ProducerId produce
       Fmi::Exception exception(BCP, "Postgresql error!");
       exception.addParameter("ErrorMessage", PQerrorMessage(conn));
       printf("%s\n",sql);
+      PQclear(res);
       throw exception;
     }
 
@@ -911,7 +912,10 @@ void readTableRecords(PGconn *conn, const char *tableName, T::ProducerId produce
     for (int i = 0; i < rowCount; i++)
     {
       if (shutdownRequested)
+      {
+        PQclear(res);
         return;
+      }
 
       FileRec rec;
       std::string forecastPeriod;
