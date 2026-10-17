@@ -2649,6 +2649,103 @@ void saveTargetContent(T::ProducerId producerId,std::vector<FileRec>& fileRecLis
 
 
 
+/*! \brief Add the file and content information into the target data storage. */
+
+void addFileInfoList(std::vector<T::FileAndContent>& fileAndContentList)
+{
+  PRINT_DATA(mDebugLogPtr, "  -- Add file information : %lu\n", fileAndContentList.size());
+  int result = mTargetInterface->addFileInfoListWithContent(mSessionId, 0, fileAndContentList);
+  if (result != 0)
+  {
+    fprintf(stdout, "ERROR (%d) : %s\n", result, ContentServer::getResultString(result).c_str());
+  }
+}
+
+
+
+
+/*! \brief Add the file and content information into the target data storage in parts of the maximum message size. */
+
+void addFileAndContentList(std::vector<T::FileAndContent>& fileAndContentList)
+{
+  if (fileAndContentList.size() <= mMaxMessageSize)
+  {
+    addFileInfoList(fileAndContentList);
+  }
+  else
+  {
+    std::vector < T::FileAndContent > fcList;
+    uint sz = fileAndContentList.size();
+    for (uint s=0; s<sz; s++)
+    {
+      fcList.push_back(fileAndContentList[s]);
+      if (fcList.size() >= mMaxMessageSize)
+      {
+        addFileInfoList(fcList);
+        fcList.clear();
+      }
+    }
+
+    if (!fcList.empty())
+    {
+      addFileInfoList(fcList);
+      fcList.clear();
+    }
+  }
+}
+
+
+
+
+/*! \brief Update the files of the producer into the target data storage. Returns false if shutdown is requested. */
+
+bool updateTargetProducerFiles(PGconn *conn,T::ProducerInfo *sourceProducer,T::ProducerInfo *targetProducer)
+{
+  PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-UPDATE;START;%s;",targetProducer->mName.c_str());
+
+  time_t startTime = time(nullptr);
+  PRINT_DATA(mDebugLogPtr, "* Reading file information from the target data storage\n");
+
+  T::FileInfoList targetFileList;
+  std::vector<FileRec> fileRecList;
+  fileReadCount = 0;
+
+  PRINT_DATA(mDebugLogPtr, "  ** Add file information : %s\n", targetProducer->mName.c_str());
+
+  std::vector<ForecastRec> sourceForecastList;
+  readSourceForecastTimes(conn, sourceProducer->mProducerId, sourceForecastList);
+  std::vector < T::FileAndContent > fileAndContentList;
+
+  for (auto it = sourceForecastList.begin(); it != sourceForecastList.end()  &&  !shutdownRequested; ++it)
+  {
+    readSourceFilesByForecastTime(conn, *it, mFileLoadCounter,targetProducer->mProducerId,targetFileList,targetProducer->mName,fileAndContentList, fileRecList);
+  }
+
+  if (shutdownRequested)
+    return false;
+
+  addFileAndContentList(fileAndContentList);
+
+  fileAndContentList.clear();
+
+  PRINT_DATA(mDebugLogPtr,"* Updating content information into the target data storage\n");
+  saveTargetContent(targetProducer->mProducerId,fileRecList);
+  //printf("-- save target content %ld\n",fileRecList.size());
+
+  PRINT_DATA(mDebugLogPtr, "* Updating generation status information into the target data storage\n");
+  updateGenerationStatus(*targetProducer);
+
+  time_t endTime = time(nullptr);
+  PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-UPDATE;END;%s updated in %ld seconds;",targetProducer->mName.c_str(),(endTime-startTime));
+  PRINT_DATA(mDebugLogPtr, "### PRODUCER UPDATED IN %ld SECONDS (%s)\n",(endTime-startTime),targetProducer->mName.c_str());
+  // printf("### PRODUCER UPDATED IN %3ld SECONDS (%s)\n",(endTime-startTime),targetProducer->mName.c_str());
+
+  return true;
+}
+
+
+
+
 /*! \brief Update target files. */
 
 void updateTargetFiles(PGconn *conn)
@@ -2673,82 +2770,8 @@ void updateTargetFiles(PGconn *conn)
         T::ProducerInfo *targetProducer = mTargetProducerList.getProducerInfoByName(sourceProducer->mName);
         if (targetProducer != nullptr)
         {
-          PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-UPDATE;START;%s;",targetProducer->mName.c_str());
-
-          time_t startTime = time(nullptr);
-          PRINT_DATA(mDebugLogPtr, "* Reading file information from the target data storage\n");
-
-          T::FileInfoList targetFileList;
-          std::vector<FileRec> fileRecList;
-          fileReadCount = 0;
-
-          PRINT_DATA(mDebugLogPtr, "  ** Add file information : %s\n", targetProducer->mName.c_str());
-
-          std::vector<ForecastRec> sourceForecastList;
-          readSourceForecastTimes(conn, sourceProducer->mProducerId, sourceForecastList);
-          std::vector < T::FileAndContent > fileAndContentList;
-
-          for (auto it = sourceForecastList.begin(); it != sourceForecastList.end()  &&  !shutdownRequested; ++it)
-          {
-            readSourceFilesByForecastTime(conn, *it, mFileLoadCounter,targetProducer->mProducerId,targetFileList,targetProducer->mName,fileAndContentList, fileRecList);
-          }
-
-          if (shutdownRequested)
+          if (!updateTargetProducerFiles(conn,sourceProducer,targetProducer))
             return;
-
-          if (fileAndContentList.size() <= mMaxMessageSize)
-          {
-            PRINT_DATA(mDebugLogPtr, "  -- Add file information : %lu\n", fileAndContentList.size());
-            int result = mTargetInterface->addFileInfoListWithContent(mSessionId, 0, fileAndContentList);
-            if (result != 0)
-            {
-              fprintf(stdout, "ERROR (%d) : %s\n", result, ContentServer::getResultString(result).c_str());
-            }
-          }
-          else
-          {
-            std::vector < T::FileAndContent > fcList;
-            uint sz = fileAndContentList.size();
-            for (uint s=0; s<sz; s++)
-            {
-              fcList.push_back(fileAndContentList[s]);
-              if (fcList.size() >= mMaxMessageSize)
-              {
-                PRINT_DATA(mDebugLogPtr, "  -- Add file information : %lu\n", fcList.size());
-                int result = mTargetInterface->addFileInfoListWithContent(mSessionId, 0, fcList);
-                if (result != 0)
-                {
-                  fprintf(stdout, "ERROR (%d) : %s\n", result, ContentServer::getResultString(result).c_str());
-                }
-                fcList.clear();
-              }
-            }
-
-            if (!fcList.empty())
-            {
-              PRINT_DATA(mDebugLogPtr, "  -- Add file information : %lu\n", fcList.size());
-              int result = mTargetInterface->addFileInfoListWithContent(mSessionId, 0, fcList);
-              if (result != 0)
-              {
-                fprintf(stdout, "ERROR (%d) : %s\n", result, ContentServer::getResultString(result).c_str());
-              }
-              fcList.clear();
-            }
-          }
-
-          fileAndContentList.clear();
-
-          PRINT_DATA(mDebugLogPtr,"* Updating content information into the target data storage\n");
-          saveTargetContent(targetProducer->mProducerId,fileRecList);
-          //printf("-- save target content %ld\n",fileRecList.size());
-
-          PRINT_DATA(mDebugLogPtr, "* Updating generation status information into the target data storage\n");
-          updateGenerationStatus(*targetProducer);
-
-          time_t endTime = time(nullptr);
-          PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-UPDATE;END;%s updated in %ld seconds;",targetProducer->mName.c_str(),(endTime-startTime));
-          PRINT_DATA(mDebugLogPtr, "### PRODUCER UPDATED IN %ld SECONDS (%s)\n",(endTime-startTime),targetProducer->mName.c_str());
-          // printf("### PRODUCER UPDATED IN %3ld SECONDS (%s)\n",(endTime-startTime),targetProducer->mName.c_str());
         }
       }
     }
