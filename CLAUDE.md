@@ -56,7 +56,7 @@ External: `libpq`, `hiredis`, `omniORB4`, `libmicrohttpd`, `curl`, `freetype2`, 
 ```
 src/
   servers/     # Standalone server daemons (CORBA/HTTP wrappers around grid-content services)
-  clients/     # CLI tools that call Content/Data/Query Server APIs remotely (~155 programs)
+  clients/     # CLI tools that call Content/Data/Query Server APIs remotely (~153 programs)
   files/       # Tools for inspecting/dumping individual grid files
   fmi/         # FMI data ingestion: radon2smartmet, filesys2smartmet, radon2csv, etc.
   utils/       # Assisting programs: Lua execution, geometry queries, PNG merging, etc.
@@ -137,7 +137,7 @@ Grid file identification requires `SMARTMET_GRID_CONFIG_FILE` environment variab
 ### filesys2smartmet configuration files
 
 `filesys2smartmet` is configured via three complementary files:
-- Main libconfig file (e.g., `cfg/filesys-to-smartmet.cfg`) — storage backend, polling interval, scan paths
+- Main libconfig file (e.g., `cfg/filesys-to-smartmet.cfg`) — storage backend and scan locations (the polling interval is the `loopWaitTime` command-line argument)
 - `producerDef.csv` — `abbr;name;title;description`: the first `_`-separated part of a file name is the producer abbreviation, the second is the analysis time
 - `filenameFixer.lua` (optional) — Lua script for transforming filenames before pattern matching
 

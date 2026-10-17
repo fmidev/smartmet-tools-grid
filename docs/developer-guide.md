@@ -213,6 +213,11 @@ The CORBA servers print their IORs, or write them to the configured `iorFile`s
 (`smartmet.tools.grid.content-server.iorFile`, …). Clients and the grid engine
 (`remote = true` + `ior`) use those IORs. `smartmet.tools.grid.corba-server.address` /
 `.port` fix the listening address, so that the IOR stays the same across restarts.
+`corbaQueryServer` and `corbaGridServer` read their Query Server settings from
+`smartmet.tools.grid.query-server`. Older configurations had `checkGeometryStatus`,
+`unitConversionFile` and `mappingAliasFiles` (and, for corbaQueryServer,
+`dataServerMethodsEnabled`) under `smartmet.engine.grid.query-server`, which is still
+read when the setting is missing from the tools section.
 
 These servers matter when the Data Server has to run on the machines that mount the
 grid files, or when one content cache is shared by many consumers. Most installations

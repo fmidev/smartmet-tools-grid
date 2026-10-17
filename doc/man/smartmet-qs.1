@@ -35,9 +35,9 @@ or as part of
 CORBA International Object Reference of a running QueryServer. Set it once
 to the IOR printed by
 .BR corbaQueryServer (1).
-The clients fall back to a
+An
 .B \-ior
-trailer if the variable is not set.
+trailer overrides it in the clients that accept one.
 .TP
 .B SMARTMET_GRID_CONFIG_FILE
 Path to the
@@ -60,6 +60,12 @@ unless overridden:
 .TP
 .BI \-ior " ior"
 Use this CORBA IOR instead of
+.BR SMARTMET_QS_IOR .
+.BR qs_getParameterIsobands ,
+.B qs_getParameterIsolines
+and
+.B qs_getParameterValues
+do not accept this trailer and always require
 .BR SMARTMET_QS_IOR .
 .PP
 The remaining arguments depend on the call. The exact argument list of

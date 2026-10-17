@@ -51,6 +51,19 @@ grid\(hyfiles configuration path, query\(hyserver address/port/iorFile, the
 content\(hyserver and data\(hyserver IORs, the producer file, parameter
 mapping files, alias files, Lua files and processing/debug logging
 knobs.
+.PP
+All query\(hyserver settings are read from
+.BR smartmet.tools.grid.query\(hyserver .
+For
+.BR checkGeometryStatus ,
+.BR unitConversionFile ,
+.B mappingAliasFiles
+and
+.B dataServerMethodsEnabled
+the older location
+.B smartmet.engine.grid.query\(hyserver
+is still used when the setting is missing from
+.BR smartmet.tools.grid.query\(hyserver .
 .SH SYSTEMD
 There is no bundled systemd unit for
 .B corbaQueryServer

@@ -225,16 +225,16 @@ The "filenameFixer" parameter is used for defining a LUA file and a LUA function
 
 ### <span id="chapter-1-4-3"></span>1.4.3 Content Storage parameters
 
-The " **filesys2smartmet**" application can connect to the Content Storage in different ways. When the Content Storage is a Redis database then the simplest way to use Redis is via its TCP connection. If the Content Storage is a CORBA-server then we just need to define its IOR (International Object Reference). The Content Storage can be also a HTTP-server, which means that we need to define its URL.
+The " **filesys2smartmet**" application can connect to the Content Storage in different ways. When the Content Storage is a Redis database then the simplest way to use Redis is via its TCP connection. A PostgreSQL Content Storage is reached with a connection string. If the Content Storage is a CORBA-server then we just need to define its IOR (International Object Reference). The Content Storage can be also a HTTP-server, which means that we need to define its URL.
 
 The configuration of the Content Storage connection is quite easy (especially if the current Content Storage is already up and running). First, we need to define the type of the Content Storage and after that we just fill the configuration parameters related to the current type.
 
-For example, if we select the type to be "redis" then we just fill the rest of the "redis" related parameters and ignore parameters related to other types (corba, http, file).
+For example, if we select the type to be "redis" then we just fill the rest of the "redis" related parameters and ignore parameters related to other types (postgresql, corba, http). The "password" and "lockEnabled" parameters of the "redis" type are optional.
 
 <pre>
   content-storage : 
   { 
-    # Content storage type (redis/corba/http) 
+    # Content storage type (redis/postgresql/corba/http) 
     type = "redis" 
     
     redis : 
@@ -242,6 +242,12 @@ For example, if we select the type to be "redis" then we just fill the rest of t
       address = "127.0.0.1" 
       port = 6379 
      tablePrefix = "a." 
+      password = "" 
+    } 
+
+    postgresql : 
+    { 
+      connection-string = "$(PG_CONTENT_SERVER_PRIMARY_CONNECTION_STRING)" 
     } 
 
     corba : 
@@ -257,6 +263,12 @@ For example, if we select the type to be "redis" then we just fill the rest of t
 </pre>
 
 The same Radon database can be used by multiple SmartMet Server installations. The "tablePrefix" parameter is used in order to separate different installations. It is a kind of "namespace" definition that is added in the beginning of table names. For example, the SmartMet Sever uses table names like "producers", "generations", "files", "content", etc. Because the Radon database does not contain namespace definitions itself, we just add the "table prefix" on the front of these table names (=\&gt; "a.producers", "a.generations", etc.).
+
+The file and content information is sent to the Content Storage in messages. The mandatory "maxMessageSize" parameter (on the same level as the "content-source" and "content-storage" sections) defines the maximum number of records in one message.
+
+<pre>
+  maxMessageSize = 5000
+</pre>
 
 <hr/>
 

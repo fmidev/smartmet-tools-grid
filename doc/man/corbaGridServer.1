@@ -56,6 +56,18 @@ union of the
 and
 .BR corbaQueryServer (1)
 configuration trees.
+.PP
+All query\(hyserver settings are read from
+.BR smartmet.tools.grid.query\(hyserver .
+For
+.BR checkGeometryStatus ,
+.B unitConversionFile
+and
+.B mappingAliasFiles
+the older location
+.B smartmet.engine.grid.query\(hyserver
+is still used when the setting is missing from
+.BR smartmet.tools.grid.query\(hyserver .
 .SH SYSTEMD
 There is no bundled systemd unit for
 .B corbaGridServer ;

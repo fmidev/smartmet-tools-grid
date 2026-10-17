@@ -155,8 +155,9 @@ Smaller helper tools for development and operations:
   lat/lon points.
 - **`gu_mergePngFiles`** / **`gu_mergePngFilesSeq`** — composite
   multiple PNG layers (single-shot and frame-sequence variants).
-- **`gu_newbase2fmi`** — translate a Newbase parameter ID to its FMI
-  identifier.
+- **`gu_newbase2fmi`** — print the Newbase-to-FMI parameter name
+  mappings (`-rev` for the reverse direction); takes the grid-files
+  configuration file and reads `newbase_parameters.csv` from its directory.
 - **`gu_showConfigurationAttributes`** /
   **`gu_replaceConfigurationAttributes`** — inspect or rewrite the
   attribute tree of a libconfig file.
@@ -184,7 +185,7 @@ Every C++ client program accepts the same trailing flags:
 - **`-ior <IOR>`** — talk to a CORBA Content Server. Default when no
   flag is given is to read `SMARTMET_CS_IOR` from the environment.
 - **`-http <url>`** — talk over the Content Server JSON-over-HTTP API.
-- **`-redis <address> <port> <tablePrefix>`** — go straight to Redis
+- **`-redis <address> <port> <tablePrefix> <password>`** — go straight to Redis
   (Content Server clients only).
 - **`-pg <connectionString>`** — go straight to PostgreSQL (Content
   Server clients only).

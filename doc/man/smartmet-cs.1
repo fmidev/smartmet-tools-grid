@@ -7,7 +7,7 @@ smartmet-cs \- ContentServer command-line clients (cs_*)
 .RI [ "operation arguments" ...]
 .RI [ "-ior <ior>" "\ |\ "
 .BI -http " <url>"
-.RI |\ \fB-redis\fR\ < address > " <port>" " <tablePrefix>"
+.RI |\ \fB-redis\fR\ < address > " <port>" " <tablePrefix>" " <password>"
 .RI |\ \fB-pg\fR\ < connectionString >]
 .SH DESCRIPTION
 .B smartmet-cs
@@ -69,10 +69,10 @@ Open a HTTP connection to a
 listening at
 .IR url .
 .TP
-.B \-redis " " \fIaddress\fR " " \fIport\fR " " \fItablePrefix\fR
+.B \-redis " " \fIaddress\fR " " \fIport\fR " " \fItablePrefix\fR " " \fIpassword\fR
 Talk directly to a Redis content storage at
 .I address:port
-using the given table prefix.
+using the given table prefix and password.
 .TP
 .BI \-pg " connectionString"
 Talk directly to a PostgreSQL content storage. Only the clients that
