@@ -345,6 +345,102 @@ std::string getFilename(int fileId)
 
 
 
+/*! \brief Check if the producer should be processed during the current loop. */
+
+bool isProducerScheduled(int f,int i)
+{
+  return (mWaitTime == 0 || mLoopCounter == f || (mLoopCounter > f  &&  ((mLoopCounter-f) % i) == 0));
+}
+
+
+
+
+/*! \brief Add the producer and its settings. */
+
+void addProducer(const std::string& pname,int e,const std::vector<std::string>& pList,const std::set<int>& geometries,const std::set<int>& levelTypes,const std::set<std::string>& acceptedParameters,const std::set<std::string>& ignoredParameters)
+{
+  mProducerList.insert(pname);
+
+  if (!geometries.empty())
+    mProducerGeometryList.insert(std::pair<std::string, std::set<int>>(pname,geometries));
+
+  if (!levelTypes.empty())
+    mProducerLevelTypeCacheList.insert(std::pair<std::string, std::set<int>>(pname,levelTypes));
+
+  if (!acceptedParameters.empty())
+    mAcceptedParameters.insert(std::pair<std::string, std::set<std::string>>(pname,acceptedParameters));
+
+  if (!ignoredParameters.empty())
+    mIgnoredParameters.insert(std::pair<std::string, std::set<std::string>>(pname,ignoredParameters));
+
+  if (e == 0)
+    mGenerationStatusCheckIgnore.insert(pname);
+
+  if (pList.size() > 1)
+    mProducerDependensies.insert(std::pair<std::string, std::vector<std::string>>(pname,pList));
+}
+
+
+
+
+/*! \brief Read a producer line from the producer file. */
+
+void readProducerLine(char *st)
+{
+  int f = 1;
+  int i = 1;
+  int e = 0;
+  char *p = strstr(st,"\n");
+  if (p)
+    *p = '\0';
+
+  std::vector <std::string> fields;
+  splitString(st,';',fields);
+  std::set<int> geometries;
+  std::set<int> levelTypes;
+
+  if (!fields.empty())
+  {
+    if (fields.size() > 1)
+      e = toInt32(fields[1]);
+
+    if (fields.size() > 2)
+      f = toInt32(fields[2]);
+
+    if (fields.size() > 3)
+      i = toInt32(fields[3]);
+
+    if (fields.size() > 4)
+      splitString(fields[4],',',geometries);
+
+    std::set<std::string> acceptedParameters;
+    if (fields.size() > 5)
+      splitString(fields[5],',',acceptedParameters);
+
+    std::set<std::string> ignoredParameters;
+    if (fields.size() > 6)
+      splitString(fields[6],',',ignoredParameters);
+
+    if (fields.size() > 7)
+      splitString(fields[7],',',levelTypes);
+
+    std::vector<std::string> pList;
+    splitString(fields[0],',',pList);
+
+    for (auto it = pList.begin(); it != pList.end(); ++it)
+    {
+      std::string pname = toUpperString(*it);
+      mProducerFullList.insert(pname);
+
+      if (isProducerScheduled(f,i))
+        addProducer(pname,e,pList,geometries,levelTypes,acceptedParameters,ignoredParameters);
+    }
+  }
+}
+
+
+
+
 /*! \brief Read producer list. */
 
 void readProducerList(const char *filename)
@@ -369,77 +465,7 @@ void readProducerList(const char *filename)
     while (fgets(st,1000,file) != nullptr)
     {
       if (st[0] != '#')
-      {
-        int f = 1;
-        int i = 1;
-        int e = 0;
-        char *p = strstr(st,"\n");
-        if (p)
-          *p = '\0';
-
-        std::vector <std::string> fields;
-        splitString(st,';',fields);
-        std::set<int> geometries;
-        std::set<int> levelTypes;
-
-        if (!fields.empty())
-        {
-          if (fields.size() > 1)
-            e = toInt32(fields[1]);
-
-          if (fields.size() > 2)
-            f = toInt32(fields[2]);
-
-          if (fields.size() > 3)
-            i = toInt32(fields[3]);
-
-          if (fields.size() > 4)
-            splitString(fields[4],',',geometries);
-
-          std::set<std::string> acceptedParameters;
-          if (fields.size() > 5)
-            splitString(fields[5],',',acceptedParameters);
-
-          std::set<std::string> ignoredParameters;
-          if (fields.size() > 6)
-            splitString(fields[6],',',ignoredParameters);
-
-          if (fields.size() > 7)
-            splitString(fields[7],',',levelTypes);
-
-          std::vector<std::string> pList;
-          splitString(fields[0],',',pList);
-
-          for (auto it = pList.begin(); it != pList.end(); ++it)
-          {
-            std::string pname = toUpperString(*it);
-            mProducerFullList.insert(pname);
-
-            if (mWaitTime == 0 || mLoopCounter == f || (mLoopCounter > f  &&  ((mLoopCounter-f) % i) == 0))
-            {
-              mProducerList.insert(pname);
-
-              if (!geometries.empty())
-                mProducerGeometryList.insert(std::pair<std::string, std::set<int>>(pname,geometries));
-
-              if (!levelTypes.empty())
-                mProducerLevelTypeCacheList.insert(std::pair<std::string, std::set<int>>(pname,levelTypes));
-
-              if (!acceptedParameters.empty())
-                mAcceptedParameters.insert(std::pair<std::string, std::set<std::string>>(pname,acceptedParameters));
-
-              if (!ignoredParameters.empty())
-                mIgnoredParameters.insert(std::pair<std::string, std::set<std::string>>(pname,ignoredParameters));
-
-              if (e == 0)
-                mGenerationStatusCheckIgnore.insert(pname);
-
-              if (pList.size() > 1)
-                mProducerDependensies.insert(std::pair<std::string, std::vector<std::string>>(pname,pList));
-            }
-          }
-        }
-      }
+        readProducerLine(st);
     }
     (void)fclose(file);
     mLoopCounter++;
