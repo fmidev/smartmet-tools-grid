@@ -1632,6 +1632,91 @@ void updateLoopEnd()
 
 
 
+/*! \brief Mark the target generation to be removed if it is not available in the source data storage or if it is modified. */
+
+void checkTargetGeneration(T::GenerationInfo *targetGeneration,std::set <T::GenerationId>& generationIdList)
+{
+  T::GenerationInfo *sourceGeneration = mSourceGenerationList.getGenerationInfoByName(targetGeneration->mName);
+  if (sourceGeneration == nullptr)
+  {
+    // The generation information is not available in the source data storage.
+    // So, we should remove the generation from the target data storage.
+
+    PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;OK;%s;",targetGeneration->mName.c_str());
+    PRINT_DATA(mDebugLogPtr, "  -- Remove generation : %s\n", targetGeneration->mName.c_str());
+
+    generationIdList.insert(targetGeneration->mGenerationId);
+  }
+  else if (sourceGeneration->mModificationTime > targetGeneration->mModificationTime)
+  {
+    std::string key = toUpperString(targetGeneration->mName + ":0:0");
+    auto mTime = mReadyGenerations.find(key);
+    if (mTime != mReadyGenerations.end())
+    {
+      // The target generation is marked to be "ready" but it is older than the source
+      // generation. So, we should remove the generation from the target data storage and reload
+      // its information.
+
+      PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;OK;%s;",targetGeneration->mName.c_str());
+      PRINT_DATA(mDebugLogPtr, "  -- Remove modified generation : %s\n", targetGeneration->mName.c_str());
+
+      generationIdList.insert(targetGeneration->mGenerationId);
+    }
+  }
+}
+
+
+
+
+/*! \brief Add the generation information into the target data storage. */
+
+void addTargetGeneration(T::GenerationInfo *sourceGeneration)
+{
+  // Finding producer name:
+  T::ProducerInfo *sourceProducer = mSourceProducerList.getProducerInfoById(sourceGeneration->mProducerId);
+  if (sourceProducer != nullptr)
+  {
+    // Finding producer id from the target data storage.
+    T::ProducerInfo *targetProducer = mTargetProducerList.getProducerInfoByName(sourceProducer->mName);
+    if (targetProducer == nullptr)
+    {
+      Fmi::Exception exception(BCP, "The producer information not found from the target data storage!");
+      exception.addParameter("ProducerName", sourceProducer->mName);
+      throw exception;
+    }
+
+    T::GenerationInfo generationInfo(*sourceGeneration);
+    generationInfo.mProducerId = targetProducer->mProducerId;
+    generationInfo.mSourceId = mSourceId;
+    generationInfo.mStatus = T::GenerationInfo::Status::Running;
+
+    PRINT_DATA(mDebugLogPtr, "  -- Add generation : %s\n", generationInfo.mName.c_str());
+    //sourceGeneration->print(std::cout,0,0);
+
+    int result = mTargetInterface->addGenerationInfo(mSessionId, generationInfo);
+    if (result == 0)
+    {
+      PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;OK;%s;",generationInfo.mName.c_str());
+    }
+    else
+    {
+      PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;FAIL;%s;",generationInfo.mName.c_str());
+    }
+
+    if (result != 0)
+    {
+
+      Fmi::Exception exception(BCP, "Cannot add the generation information into the target data storage!");
+      exception.addParameter("GenerationName", generationInfo.mName);
+      exception.addParameter("Result", ContentServer::getResultString(result));
+      throw exception;
+    }
+  }
+}
+
+
+
+
 /*! \brief Update generations. */
 
 void updateGenerations()
@@ -1646,33 +1731,7 @@ void updateGenerations()
       T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoByIndex(t);
       if (targetGeneration->mSourceId == mSourceId  &&  mProducerIdList.find(targetGeneration->mProducerId) != mProducerIdList.end())
       {
-        T::GenerationInfo *sourceGeneration = mSourceGenerationList.getGenerationInfoByName(targetGeneration->mName);
-        if (sourceGeneration == nullptr)
-        {
-          // The generation information is not available in the source data storage.
-          // So, we should remove the generation from the target data storage.
-
-          PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;OK;%s;",targetGeneration->mName.c_str());
-          PRINT_DATA(mDebugLogPtr, "  -- Remove generation : %s\n", targetGeneration->mName.c_str());
-
-          generationIdList.insert(targetGeneration->mGenerationId);
-        }
-        else if (sourceGeneration->mModificationTime > targetGeneration->mModificationTime)
-        {
-          std::string key = toUpperString(targetGeneration->mName + ":0:0");
-          auto mTime = mReadyGenerations.find(key);
-          if (mTime != mReadyGenerations.end())
-          {
-            // The target generation is marked to be "ready" but it is older than the source
-            // generation. So, we should remove the generation from the target data storage and reload
-            // its information.
-
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;OK;%s;",targetGeneration->mName.c_str());
-            PRINT_DATA(mDebugLogPtr, "  -- Remove modified generation : %s\n", targetGeneration->mName.c_str());
-
-            generationIdList.insert(targetGeneration->mGenerationId);
-          }
-        }
+        checkTargetGeneration(targetGeneration,generationIdList);
       }
     }
 
@@ -1701,46 +1760,7 @@ void updateGenerations()
         {
           // The generation information is not available in the target data storage. So, we should add it.
 
-          // Finding producer name:
-          T::ProducerInfo *sourceProducer = mSourceProducerList.getProducerInfoById(sourceGeneration->mProducerId);
-          if (sourceProducer != nullptr)
-          {
-            // Finding producer id from the target data storage.
-            T::ProducerInfo *targetProducer = mTargetProducerList.getProducerInfoByName(sourceProducer->mName);
-            if (targetProducer == nullptr)
-            {
-              Fmi::Exception exception(BCP, "The producer information not found from the target data storage!");
-              exception.addParameter("ProducerName", sourceProducer->mName);
-              throw exception;
-            }
-
-            T::GenerationInfo generationInfo(*sourceGeneration);
-            generationInfo.mProducerId = targetProducer->mProducerId;
-            generationInfo.mSourceId = mSourceId;
-            generationInfo.mStatus = T::GenerationInfo::Status::Running;
-
-            PRINT_DATA(mDebugLogPtr, "  -- Add generation : %s\n", generationInfo.mName.c_str());
-            //sourceGeneration->print(std::cout,0,0);
-
-            int result = mTargetInterface->addGenerationInfo(mSessionId, generationInfo);
-            if (result == 0)
-            {
-              PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;OK;%s;",generationInfo.mName.c_str());
-            }
-            else
-            {
-              PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;FAIL;%s;",generationInfo.mName.c_str());
-            }
-
-            if (result != 0)
-            {
-
-              Fmi::Exception exception(BCP, "Cannot add the generation information into the target data storage!");
-              exception.addParameter("GenerationName", generationInfo.mName);
-              exception.addParameter("Result", ContentServer::getResultString(result));
-              throw exception;
-            }
-          }
+          addTargetGeneration(sourceGeneration);
         }
       }
     }
