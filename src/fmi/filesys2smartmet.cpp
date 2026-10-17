@@ -1340,6 +1340,245 @@ void updateLoopEnd(ContentServer::ServiceInterface *targetInterface)
 
 
 
+/*! \brief Create the target data storage interface. */
+
+ContentServer::ServiceInterface* createTargetInterface(ContentServer::RedisImplementation*& redisImplementation)
+{
+  ContentServer::ServiceInterface *targetInterface = nullptr;
+
+  if (mStorageType =="redis")
+  {
+    redisImplementation = new ContentServer::RedisImplementation();
+    redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str(),mRedisPassword.c_str());
+    targetInterface = redisImplementation;
+  }
+
+  if (mStorageType == "postgresql")
+  {
+    auto *client = new ContentServer::PostgresqlImplementation();
+    client->init(mPostgresqlConnectionString.c_str(),"",true);
+    targetInterface = client;
+  }
+
+  if (mStorageType =="corba")
+  {
+    auto *client = new ContentServer::Corba::ClientImplementation();
+    client->init(mContentServerIor);
+    targetInterface = client;
+  }
+
+  if (mStorageType =="http")
+  {
+    auto *httpClient = new ContentServer::HTTP::ClientImplementation();
+    httpClient->init(mContentServerUrl);
+    targetInterface = httpClient;
+  }
+
+  return targetInterface;
+}
+
+
+
+
+
+/*! \brief Initialize the logs. */
+
+void initLogs()
+{
+  if (mDebugLogEnabled)
+  {
+    mDebugLog.init(true,mDebugLogFile.c_str(),mDebugLogMaxSize,mDebugLogTruncateSize);
+    mDebugLogPtr = &mDebugLog;
+  }
+
+  if (mProcessingLogEnabled)
+  {
+    mProcessingLog.init(true,mProcessingLogFile.c_str(),mProcessingLogMaxSize,mProcessingLogTruncateSize);
+    mProcessingLogPtr = &mProcessingLog;
+  }
+}
+
+
+
+
+
+/*! \brief Read the list of the source files from the locations. */
+
+void readSourceFileList(std::vector<DataFetcher::FileRec>& fileList)
+{
+  uint serverType = 0;
+  uint protocol = 0;
+  std::string server;
+  std::string dirName;
+
+  DataFetcher_filesys df_filesys;
+  DataFetcher_network df_network;
+
+  for (auto &mLocation : mLocations)
+  {
+    //printf("LOCATION %s\n",location->url.c_str());
+    if (mLocation.type.empty() ||  strcmp(mLocation.type.c_str(),"FS") == 0)
+    {
+      serverType = DataFetcher::ServerType::Filesys;
+      dirName = mLocation.url;
+      df_filesys.getFileList(serverType,protocol,server.c_str(),dirName.c_str(),mLocation.patterns,fileList);
+    }
+    else
+    if (mMemoryMapperEnabled  &&  (mLocation.type == "S3" ||  mLocation.type == "s3"))
+    {
+      serverType = DataFetcher::ServerType::S3;
+      DataFetcher::splitUrl(mLocation.url.c_str(),protocol,server,dirName);
+
+      if (mLocation.authenticationMethod)
+      {
+        memoryMapper.addAccessInfo(server.c_str(),mLocation.authenticationMethod,mLocation.username.c_str(),mLocation.password.c_str());
+        df_network.addAccessInfo(server.c_str(),mLocation.authenticationMethod,mLocation.username.c_str(),mLocation.password.c_str());
+      }
+
+      df_network.getFileList(serverType,protocol,server.c_str(),dirName.c_str(),mLocation.patterns,fileList);
+      //std::cout << "GET : " << dir->c_str() << " : " << server << " : " <<  protocol << " : " << dirName << " : " << fileList.size() << "\n";
+    }
+  }
+}
+
+
+
+
+
+/*! \brief Remove the index cache files that do not have corresponding grid files. */
+
+void removeUnusedCacheFiles(std::vector<DataFetcher::FileRec>& fileList)
+{
+  // Defining index cache filenames
+  std::set<std::string> cacheFiles;
+  char filename[1000];
+  for (auto &it : fileList)
+  {
+    sprintf(filename,"%s:%s",it.server.c_str(),it.filename.c_str());
+    char cacheFilename[1000];
+    getCacheFileName(filename,cacheFilename);
+    cacheFiles.insert(std::string(cacheFilename));
+  }
+
+  // Finding current index cache filenames
+  std::vector<std::string> cachePatterns;
+  cachePatterns.emplace_back("F2S_*");
+  std::set<std::string> cacheDirList;
+  std::vector<std::pair<std::string,std::string>> cacheFileList;
+  getFileList(mCacheDir.c_str(),cachePatterns,false,cacheDirList,cacheFileList);
+
+  // Removing index cache files that do not have corresponding grid files
+  for (auto &it : cacheFileList)
+  {
+    sprintf(filename,"%s:%s",it.first.c_str(),it.second.c_str());
+    if (cacheFiles.find(filename) == cacheFiles.end())
+      (void)remove(filename);
+  }
+}
+
+
+
+
+
+/*! \brief Update the producer and generation information into the target data storage. */
+
+void updateProducersAndGenerations(ContentServer::ServiceInterface *targetInterface,std::vector<DataFetcher::FileRec>& fileList)
+{
+  PRINT_DATA(mDebugLogPtr,"* Reading producer information from the target data storage\n");
+  readTargetProducers(targetInterface);
+
+  PRINT_DATA(mDebugLogPtr,"* Reading producer information from the source data storage\n");
+  readSourceProducers();
+
+  PRINT_DATA(mDebugLogPtr,"* Updating producer information into the target data storage\n");
+  updateProducers(targetInterface);
+
+  PRINT_DATA(mDebugLogPtr,"* Reading updated producer information from the target data storage\n");
+  readTargetProducers(targetInterface);
+
+  PRINT_DATA(mDebugLogPtr,"* Reading generation information from the target data storage\n");
+  readTargetGenerations(targetInterface);
+
+  PRINT_DATA(mDebugLogPtr,"* Reading generation information from the source data storage\n");
+  readSourceGenerations(fileList);
+
+  PRINT_DATA(mDebugLogPtr,"* Updating generation information into the target data storage\n");
+  updateGenerations(targetInterface);
+
+  PRINT_DATA(mDebugLogPtr,"* Reading updated generation information from the target data storage\n");
+  readTargetGenerations(targetInterface);
+}
+
+
+
+
+
+/*! \brief Update the file information into the target data storage. */
+
+void updateFilesAndFilenames(ContentServer::ServiceInterface *targetInterface,ContentServer::RedisImplementation *redisImplementation,std::vector<DataFetcher::FileRec>& fileList)
+{
+  PRINT_DATA(mDebugLogPtr,"* Reading file information from the target data storage\n");
+  readTargetFiles(targetInterface);
+
+  PRINT_DATA(mDebugLogPtr,"* Reading file information from the source data storage\n");
+  readSourceFiles(fileList);
+
+  PRINT_DATA(mDebugLogPtr,"* Updating file information into the target data storage\n");
+  updateFiles(targetInterface);
+
+  if (redisImplementation)
+  {
+    PRINT_DATA(mDebugLogPtr, "* Checking filenames \n");
+    redisImplementation->syncFilenames();
+  }
+}
+
+
+
+
+
+/*! \brief Run one update of the target data storage. */
+
+void runUpdate(const char *configFile,ContentServer::ServiceInterface *targetInterface,ContentServer::RedisImplementation *redisImplementation)
+{
+  PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-START");
+
+  PRINT_DATA(mDebugLogPtr,"\n");
+  PRINT_DATA(mDebugLogPtr,"********************************************************************\n");
+  PRINT_DATA(mDebugLogPtr,"****************************** UPDATE ******************************\n");
+  PRINT_DATA(mDebugLogPtr,"********************************************************************\n");
+
+  readLocations(configFile);
+
+  updateLoopStart(targetInterface);
+
+  //std::set<std::string> dirList;
+  //std::vector<std::pair<std::string,std::string>> fileList;
+
+  std::vector<DataFetcher::FileRec> fileList;
+  readSourceFileList(fileList);
+
+  //for (auto it = fileList.begin(); it != fileList.end(); ++it)
+  //  std::cout << it->filename << ";" << it->size << ";" << utcTimeFromTimeT(it->lastModified) << "\n";
+
+  removeUnusedCacheFiles(fileList);
+
+  updateProducersAndGenerations(targetInterface,fileList);
+
+  updateFilesAndFilenames(targetInterface,redisImplementation,fileList);
+
+
+  PRINT_DATA(mDebugLogPtr,"********************************************************************\n\n");
+
+  updateLoopEnd(targetInterface);
+
+  PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-END");
+}
+
+
+
+
+
 /*! \brief Program entry point. */
 
 int main(int argc, char *argv[])
@@ -1365,45 +1604,9 @@ int main(int argc, char *argv[])
 
     uint waitTime = toInt64(argv[2]);
 
-    if (mStorageType =="redis")
-    {
-      redisImplementation = new ContentServer::RedisImplementation();
-      redisImplementation->init(mRedisAddress.c_str(),mRedisPort,mRedisTablePrefix.c_str(),mRedisPassword.c_str());
-      targetInterface = redisImplementation;
-    }
+    targetInterface = createTargetInterface(redisImplementation);
 
-    if (mStorageType == "postgresql")
-    {
-      auto *client = new ContentServer::PostgresqlImplementation();
-      client->init(mPostgresqlConnectionString.c_str(),"",true);
-      targetInterface = client;
-    }
-
-    if (mStorageType =="corba")
-    {
-      auto *client = new ContentServer::Corba::ClientImplementation();
-      client->init(mContentServerIor);
-      targetInterface = client;
-    }
-
-    if (mStorageType =="http")
-    {
-      auto *httpClient = new ContentServer::HTTP::ClientImplementation();
-      httpClient->init(mContentServerUrl);
-      targetInterface = httpClient;
-    }
-
-    if (mDebugLogEnabled)
-    {
-      mDebugLog.init(true,mDebugLogFile.c_str(),mDebugLogMaxSize,mDebugLogTruncateSize);
-      mDebugLogPtr = &mDebugLog;
-    }
-
-    if (mProcessingLogEnabled)
-    {
-      mProcessingLog.init(true,mProcessingLogFile.c_str(),mProcessingLogMaxSize,mProcessingLogTruncateSize);
-      mProcessingLogPtr = &mProcessingLog;
-    }
+    initLogs();
 
     if (targetInterface == nullptr)
     {
@@ -1417,130 +1620,7 @@ int main(int argc, char *argv[])
     bool ind = true;
     while (ind)
     {
-      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-START");
-
-      PRINT_DATA(mDebugLogPtr,"\n");
-      PRINT_DATA(mDebugLogPtr,"********************************************************************\n");
-      PRINT_DATA(mDebugLogPtr,"****************************** UPDATE ******************************\n");
-      PRINT_DATA(mDebugLogPtr,"********************************************************************\n");
-
-      readLocations(argv[1]);
-
-      updateLoopStart(targetInterface);
-
-      //std::set<std::string> dirList;
-      //std::vector<std::pair<std::string,std::string>> fileList;
-
-      uint serverType = 0;
-      uint protocol = 0;
-      std::string server;
-      std::string dirName;
-
-      DataFetcher_filesys df_filesys;
-      DataFetcher_network df_network;
-      std::vector<DataFetcher::FileRec> fileList;
-
-      for (auto &mLocation : mLocations)
-      {
-        //printf("LOCATION %s\n",location->url.c_str());
-        if (mLocation.type.empty() ||  strcmp(mLocation.type.c_str(),"FS") == 0)
-        {
-          serverType = DataFetcher::ServerType::Filesys;
-          dirName = mLocation.url;
-          df_filesys.getFileList(serverType,protocol,server.c_str(),dirName.c_str(),mLocation.patterns,fileList);
-        }
-        else
-        if (mMemoryMapperEnabled  &&  (mLocation.type == "S3" ||  mLocation.type == "s3"))
-        {
-          serverType = DataFetcher::ServerType::S3;
-          DataFetcher::splitUrl(mLocation.url.c_str(),protocol,server,dirName);
-
-          if (mLocation.authenticationMethod)
-          {
-            memoryMapper.addAccessInfo(server.c_str(),mLocation.authenticationMethod,mLocation.username.c_str(),mLocation.password.c_str());
-            df_network.addAccessInfo(server.c_str(),mLocation.authenticationMethod,mLocation.username.c_str(),mLocation.password.c_str());
-          }
-
-          df_network.getFileList(serverType,protocol,server.c_str(),dirName.c_str(),mLocation.patterns,fileList);
-          //std::cout << "GET : " << dir->c_str() << " : " << server << " : " <<  protocol << " : " << dirName << " : " << fileList.size() << "\n";
-        }
-      }
-
-      //for (auto it = fileList.begin(); it != fileList.end(); ++it)
-      //  std::cout << it->filename << ";" << it->size << ";" << utcTimeFromTimeT(it->lastModified) << "\n";
-
-      // Defining index cache filenames
-      std::set<std::string> cacheFiles;
-      char filename[1000];
-      for (auto &it : fileList)
-      {
-        sprintf(filename,"%s:%s",it.server.c_str(),it.filename.c_str());
-        char cacheFilename[1000];
-        getCacheFileName(filename,cacheFilename);
-        cacheFiles.insert(std::string(cacheFilename));
-      }
-
-      // Finding current index cache filenames
-      std::vector<std::string> cachePatterns;
-      cachePatterns.emplace_back("F2S_*");
-      std::set<std::string> cacheDirList;
-      std::vector<std::pair<std::string,std::string>> cacheFileList;
-      getFileList(mCacheDir.c_str(),cachePatterns,false,cacheDirList,cacheFileList);
-
-      // Removing index cache files that do not have corresponding grid files
-      for (auto &it : cacheFileList)
-      {
-        sprintf(filename,"%s:%s",it.first.c_str(),it.second.c_str());
-        if (cacheFiles.find(filename) == cacheFiles.end())
-          (void)remove(filename);
-      }
-
-      PRINT_DATA(mDebugLogPtr,"* Reading producer information from the target data storage\n");
-      readTargetProducers(targetInterface);
-
-      PRINT_DATA(mDebugLogPtr,"* Reading producer information from the source data storage\n");
-      readSourceProducers();
-
-      PRINT_DATA(mDebugLogPtr,"* Updating producer information into the target data storage\n");
-      updateProducers(targetInterface);
-
-      PRINT_DATA(mDebugLogPtr,"* Reading updated producer information from the target data storage\n");
-      readTargetProducers(targetInterface);
-
-      PRINT_DATA(mDebugLogPtr,"* Reading generation information from the target data storage\n");
-      readTargetGenerations(targetInterface);
-
-      PRINT_DATA(mDebugLogPtr,"* Reading generation information from the source data storage\n");
-      readSourceGenerations(fileList);
-
-      PRINT_DATA(mDebugLogPtr,"* Updating generation information into the target data storage\n");
-      updateGenerations(targetInterface);
-
-      PRINT_DATA(mDebugLogPtr,"* Reading updated generation information from the target data storage\n");
-      readTargetGenerations(targetInterface);
-
-      PRINT_DATA(mDebugLogPtr,"* Reading file information from the target data storage\n");
-      readTargetFiles(targetInterface);
-
-      PRINT_DATA(mDebugLogPtr,"* Reading file information from the source data storage\n");
-      readSourceFiles(fileList);
-
-      PRINT_DATA(mDebugLogPtr,"* Updating file information into the target data storage\n");
-      updateFiles(targetInterface);
-
-      if (redisImplementation)
-      {
-        PRINT_DATA(mDebugLogPtr, "* Checking filenames \n");
-        redisImplementation->syncFilenames();
-      }
-
-
-      PRINT_DATA(mDebugLogPtr,"********************************************************************\n\n");
-
-      updateLoopEnd(targetInterface);
-
-      PRINT_EVENT_LINE(mProcessingLogPtr,"UPDATE-LOOP-END");
-
+      runUpdate(argv[1],targetInterface,redisImplementation);
 
       if (waitTime > 0)
         std::this_thread::sleep_for(std::chrono::seconds(waitTime));
