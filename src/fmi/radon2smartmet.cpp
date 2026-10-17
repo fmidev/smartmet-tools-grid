@@ -705,6 +705,113 @@ std::string getTableInfo(PGconn *conn, const char *tableName, T::ProducerId prod
 
 
 
+/*! \brief Read a file record from the query result row. */
+
+void readFileRec(PGresult *res,int i,FileRec& rec,std::string& forecastPeriod)
+{
+  rec.fileId = getFileId(PQgetvalue(res, i, 0),true);
+  rec.messageIndex = toInt64(PQgetvalue(res, i, 1));
+  rec.filePosition = toInt64(PQgetvalue(res, i, 2));
+  rec.messageSize = toInt64(PQgetvalue(res, i, 3));
+  rec.paramId = toUInt32(PQgetvalue(res, i, 4));
+  rec.levelId = toInt64(PQgetvalue(res, i, 5));
+  rec.levelValue = toInt64(PQgetvalue(res, i, 6));
+  rec.analysisTime = utcTimeToTimeT(PQgetvalue(res, i, 7));
+  rec.forecastTime = utcTimeToTimeT(PQgetvalue(res, i, 8));
+  forecastPeriod = PQgetvalue(res, i, 9);
+  rec.forecastType = toInt64(PQgetvalue(res, i, 10));
+  rec.forecastNumber = toInt64(PQgetvalue(res, i, 11));
+  rec.geometryId = toInt64(PQgetvalue(res, i, 12));
+  rec.producerId = toInt64(PQgetvalue(res, i, 13));
+
+  rec.format = toInt32(PQgetvalue(res, i, 14));
+  rec.serverType = toInt32(PQgetvalue(res, i, 15));
+  rec.server = PQgetvalue(res, i, 16);
+/*
+  rec.aggregation_id = 0;
+  rec.aggregation_period = 0;
+  rec.processing_type_id = 0;
+  rec.processing_type_value = 0;
+  rec.processing_type_value2 = 0;
+*/
+  rec.aggregation_id = toInt32(PQgetvalue(res, i, 17));
+  rec.aggregation_period = toInt64(PQgetvalue(res, i, 18)) / 60;
+  rec.processing_type_id = toInt32(PQgetvalue(res, i, 19));
+
+  rec.processing_type_value = ParamValueMissing;
+  if (!PQgetisnull(res, i, 20))
+    rec.processing_type_value = toFloat(PQgetvalue(res, i, 20));
+
+  rec.processing_type_value2 = ParamValueMissing;
+  if (!PQgetisnull(res, i, 21))
+    rec.processing_type_value2 = toFloat(PQgetvalue(res, i, 21));
+}
+
+
+
+
+/*! \brief Check if the parameter is accepted and not ignored for the producer. */
+
+bool isParameterAccepted(const std::string& producerName,uint paramId)
+{
+  bool accepted = true;
+
+  Identification::FmiParameterDef fmiDef;
+  if (Identification::gridDef.getFmiParameterDefById(paramId, fmiDef))
+  {
+    auto arec = mAcceptedParameters.find(producerName);
+    if (arec != mAcceptedParameters.end()  &&  !arec->second.empty())
+    {
+      if (arec->second.find(fmiDef.mParameterName) == arec->second.end())
+        accepted = false;
+    }
+
+    if (accepted)
+    {
+      auto irec = mIgnoredParameters.find(producerName);
+      if (irec != mIgnoredParameters.end()  &&  !irec->second.empty())
+      {
+        if (irec->second.find(fmiDef.mParameterName) != irec->second.end())
+          accepted = false;
+      }
+    }
+  }
+
+  return accepted;
+}
+
+
+
+
+/*! \brief Add the file record into the file record map. */
+
+void addFileRec(const char *tableName,FileRec& rec,const std::string& forecastPeriod,time_t updateTime,std::string& info)
+{
+  char key[200];
+  sprintf(key, "%s;%u;%d;%d;%d;%ld;%s", tableName, rec.producerId, rec.geometryId, rec.forecastType, rec.forecastNumber, rec.analysisTime, forecastPeriod.c_str());
+
+  auto pos = mFileRecMap.find(key);
+  if (pos == mFileRecMap.end())
+  {
+    FileRecVec vec;
+    vec.updateTime = updateTime;
+    vec.info = info;
+    vec.files.push_back(rec);
+    mFileRecMap.insert(std::pair<std::string, FileRecVec>(key, vec));
+  }
+  else
+  {
+    if (pos->second.info != info)
+      pos->second.files.clear();
+
+    pos->second.info = info;
+    pos->second.files.push_back(rec);
+  }
+}
+
+
+
+
 /*! \brief Read table records. */
 
 void readTableRecords(PGconn *conn, const char *tableName, T::ProducerId producerId, std::string& producerName,uint geometryId,const char *analysisTime, time_t updateTime, std::string& info)
@@ -781,42 +888,8 @@ void readTableRecords(PGconn *conn, const char *tableName, T::ProducerId produce
         return;
 
       FileRec rec;
-      rec.fileId = getFileId(PQgetvalue(res, i, 0),true);
-      rec.messageIndex = toInt64(PQgetvalue(res, i, 1));
-      rec.filePosition = toInt64(PQgetvalue(res, i, 2));
-      rec.messageSize = toInt64(PQgetvalue(res, i, 3));
-      rec.paramId = toUInt32(PQgetvalue(res, i, 4));
-      rec.levelId = toInt64(PQgetvalue(res, i, 5));
-      rec.levelValue = toInt64(PQgetvalue(res, i, 6));
-      rec.analysisTime = utcTimeToTimeT(PQgetvalue(res, i, 7));
-      rec.forecastTime = utcTimeToTimeT(PQgetvalue(res, i, 8));
-      std::string forecastPeriod = PQgetvalue(res, i, 9);
-      rec.forecastType = toInt64(PQgetvalue(res, i, 10));
-      rec.forecastNumber = toInt64(PQgetvalue(res, i, 11));
-      rec.geometryId = toInt64(PQgetvalue(res, i, 12));
-      rec.producerId = toInt64(PQgetvalue(res, i, 13));
-
-      rec.format = toInt32(PQgetvalue(res, i, 14));
-      rec.serverType = toInt32(PQgetvalue(res, i, 15));
-      rec.server = PQgetvalue(res, i, 16);
-/*
-      rec.aggregation_id = 0;
-      rec.aggregation_period = 0;
-      rec.processing_type_id = 0;
-      rec.processing_type_value = 0;
-      rec.processing_type_value2 = 0;
-*/
-      rec.aggregation_id = toInt32(PQgetvalue(res, i, 17));
-      rec.aggregation_period = toInt64(PQgetvalue(res, i, 18)) / 60;
-      rec.processing_type_id = toInt32(PQgetvalue(res, i, 19));
-
-      rec.processing_type_value = ParamValueMissing;
-      if (!PQgetisnull(res, i, 20))
-        rec.processing_type_value = toFloat(PQgetvalue(res, i, 20));
-
-      rec.processing_type_value2 = ParamValueMissing;
-      if (!PQgetisnull(res, i, 21))
-        rec.processing_type_value2 = toFloat(PQgetvalue(res, i, 21));
+      std::string forecastPeriod;
+      readFileRec(res,i,rec,forecastPeriod);
 
       rec.producerName = producerName;
       rec.lastUpdated = updateTime;
@@ -826,52 +899,10 @@ void readTableRecords(PGconn *conn, const char *tableName, T::ProducerId produce
 
       rec.cachingRequested = lt != mProducerLevelTypeCacheList.end()  &&  lt->second.find(rec.levelId) != lt->second.end();
 
-      bool accepted = true;
-
-      Identification::FmiParameterDef fmiDef;
-      if (Identification::gridDef.getFmiParameterDefById(rec.paramId, fmiDef))
-      {
-        auto arec = mAcceptedParameters.find(producerName);
-        if (arec != mAcceptedParameters.end()  &&  !arec->second.empty())
-        {
-          if (arec->second.find(fmiDef.mParameterName) == arec->second.end())
-            accepted = false;
-        }
-
-        if (accepted)
-        {
-          auto irec = mIgnoredParameters.find(producerName);
-          if (irec != mIgnoredParameters.end()  &&  !irec->second.empty())
-          {
-            if (irec->second.find(fmiDef.mParameterName) != irec->second.end())
-              accepted = false;
-          }
-        }
-      }
+      bool accepted = isParameterAccepted(producerName,rec.paramId);
 
       if (accepted)
-      {
-        char key[200];
-        sprintf(key, "%s;%u;%d;%d;%d;%ld;%s", tableName, rec.producerId, rec.geometryId, rec.forecastType, rec.forecastNumber, rec.analysisTime, forecastPeriod.c_str());
-
-        auto pos = mFileRecMap.find(key);
-        if (pos == mFileRecMap.end())
-        {
-          FileRecVec vec;
-          vec.updateTime = updateTime;
-          vec.info = info;
-          vec.files.push_back(rec);
-          mFileRecMap.insert(std::pair<std::string, FileRecVec>(key, vec));
-        }
-        else
-        {
-          if (pos->second.info != info)
-            pos->second.files.clear();
-
-          pos->second.info = info;
-          pos->second.files.push_back(rec);
-        }
-      }
+        addFileRec(tableName,rec,forecastPeriod,updateTime,info);
     }
     PQclear(res);
   }
