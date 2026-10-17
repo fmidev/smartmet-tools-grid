@@ -756,6 +756,162 @@ void readConfigFile(const char* configFile)
     throw Fmi::Exception(BCP, "Constructor failed!", nullptr);
   }
 }
+
+
+
+
+
+/*! \brief Create the content service of the configured content source. */
+
+void createContentService()
+{
+  if (strcasecmp(content_server_content_source_type.c_str(),"redis") == 0)
+  {
+    redisImplementation = new ContentServer::RedisImplementation();
+    redisImplementation->init(content_server_content_source_redis_address.c_str(),content_server_content_source_redis_port,content_server_content_source_redis_tablePrefix.c_str(),content_server_content_source_redis_password.c_str());
+    contentService = redisImplementation;
+  }
+  else if (strcasecmp(content_server_content_source_type.c_str(),"postgresql") == 0)
+  {
+    postgresImplementation = new ContentServer::PostgresqlImplementation();
+    postgresImplementation->init(content_server_primaryConnectionString.c_str(),content_server_secondaryConnectionString.c_str(),false);
+    contentService = postgresImplementation;
+  }
+  else if (strcasecmp(content_server_content_source_type.c_str(),"corba") == 0)
+  {
+    corbaContentClient = new ContentServer::Corba::ClientImplementation();
+    corbaContentClient->init(content_server_content_source_corba_ior);
+    contentService = corbaContentClient;
+  }
+  else if (strcasecmp(content_server_content_source_type.c_str(),"http") == 0)
+  {
+    httpContentClient = new ContentServer::HTTP::ClientImplementation();
+    httpContentClient->init(content_server_content_source_http_url);
+    contentService = httpContentClient;
+  }
+
+  if (contentService == nullptr)
+  {
+    Fmi::Exception exception(BCP,"No acceptable content source defined!");
+    throw exception;
+  }
+}
+
+
+
+
+
+/*! \brief Initialize the content server cache and logs. */
+
+void initContentServerCache()
+{
+  if (content_server_cache_enabled)
+  {
+    cacheImplementation = new ContentServer::CacheImplementation();
+    cacheImplementation->setContentSwap(false,0,0);
+    cacheImplementation->setRequestForwardEnabled(content_server_cache_requestForwardEnabled);
+
+    if (content_server_processing_log_enabled && !content_server_processing_log_file.empty())
+    {
+      mContentServerProcessingLog.init(true,content_server_processing_log_file.c_str(),content_server_processing_log_maxSize,content_server_processing_log_truncateSize);
+      cacheImplementation->setProcessingLog(&mContentServerProcessingLog);
+    }
+
+    if (content_server_debug_log_enabled && !content_server_debug_log_file.empty())
+    {
+      mContentServerDebugLog.init(true,content_server_debug_log_file.c_str(),content_server_debug_log_maxSize,content_server_debug_log_truncateSize);
+      cacheImplementation->setDebugLog(&mContentServerDebugLog);
+    }
+    cacheImplementation->init(CONTENT_SERVER_SESSION_ID,DATA_SERVER_SESSION_ID,contentService);
+    cacheImplementation->setEventListMaxLength(content_server_cache_eventListMaxSize);
+
+    cacheImplementation->startEventProcessing();
+    contentService = cacheImplementation;
+  }
+  else
+  {
+    if (content_server_processing_log_enabled && !content_server_processing_log_file.empty())
+    {
+      mContentServerProcessingLog.init(true,content_server_processing_log_file.c_str(),content_server_processing_log_maxSize,content_server_processing_log_truncateSize);
+      contentService->setProcessingLog(&mContentServerProcessingLog);
+    }
+
+    if (content_server_debug_log_enabled && !content_server_debug_log_file.empty())
+    {
+      mContentServerDebugLog.init(true,content_server_debug_log_file.c_str(),content_server_debug_log_maxSize,content_server_debug_log_truncateSize);
+      contentService->setDebugLog(&mContentServerDebugLog);
+    }
+  }
+}
+
+
+
+
+
+/*! \brief Initialize the data server logs. */
+
+void initDataServerLogs()
+{
+  if (data_server_processing_log_enabled && !data_server_processing_log_file.empty())
+  {
+    mDataServerProcessingLog.init(true,data_server_processing_log_file.c_str(),data_server_processing_log_maxSize,data_server_processing_log_truncateSize);
+    dataService->setProcessingLog(&mDataServerProcessingLog);
+  }
+
+  if (data_server_debug_log_enabled && !data_server_debug_log_file.empty())
+  {
+    mDataServerDebugLog.init(true,data_server_debug_log_file.c_str(),data_server_debug_log_maxSize,data_server_debug_log_truncateSize);
+    dataService->setDebugLog(&mDataServerDebugLog);
+  }
+}
+
+
+
+
+
+/*! \brief Initialize the query server logs. */
+
+void initQueryServerLogs()
+{
+  if (query_server_processing_log_enabled && !query_server_processing_log_file.empty())
+  {
+    mQueryServerProcessingLog.init(true,query_server_processing_log_file.c_str(),query_server_processing_log_maxSize,query_server_processing_log_truncateSize);
+    queryService->setProcessingLog(&mQueryServerProcessingLog);
+  }
+
+  if (query_server_debug_log_enabled  &&  !query_server_debug_log_file.empty())
+  {
+    mQueryServerDebugLog.init(true,query_server_debug_log_file.c_str(),query_server_debug_log_maxSize,query_server_debug_log_truncateSize);
+    queryService->setDebugLog(&mQueryServerDebugLog);
+  }
+}
+
+
+
+
+
+/*! \brief Print the service IOR or store it into the given file. This is necessary for accessing the service. */
+
+void printIor(const char *name,const std::string& ior,const std::string& iorFile)
+{
+  if (iorFile.empty())
+  {
+    printf("\n\n%s\n%s\n",name,ior.c_str());
+  }
+  else
+  {
+    FILE *file = fopen(iorFile.c_str(),"we");
+    if (file == nullptr)
+    {
+      Fmi::Exception exception(BCP,"Cannot create file for IOR!");
+      exception.addParameter("IorFile",iorFile);
+      throw exception;
+    }
+    fprintf(file,"%s\n",ior.c_str());
+    if (fclose(file) != 0)
+      throw Fmi::Exception(BCP, "Failed to close the output file");
+  }
+}
 }  // namespace
 
 
@@ -808,74 +964,9 @@ int main(int argc, char *argv[])
       landCover = std::make_shared<Fmi::LandCover>(landcoverdir);
 
 
-    if (strcasecmp(content_server_content_source_type.c_str(),"redis") == 0)
-    {
-      redisImplementation = new ContentServer::RedisImplementation();
-      redisImplementation->init(content_server_content_source_redis_address.c_str(),content_server_content_source_redis_port,content_server_content_source_redis_tablePrefix.c_str(),content_server_content_source_redis_password.c_str());
-      contentService = redisImplementation;
-    }
-    else if (strcasecmp(content_server_content_source_type.c_str(),"postgresql") == 0)
-    {
-      postgresImplementation = new ContentServer::PostgresqlImplementation();
-      postgresImplementation->init(content_server_primaryConnectionString.c_str(),content_server_secondaryConnectionString.c_str(),false);
-      contentService = postgresImplementation;
-    }
-    else if (strcasecmp(content_server_content_source_type.c_str(),"corba") == 0)
-    {
-      corbaContentClient = new ContentServer::Corba::ClientImplementation();
-      corbaContentClient->init(content_server_content_source_corba_ior);
-      contentService = corbaContentClient;
-    }
-    else if (strcasecmp(content_server_content_source_type.c_str(),"http") == 0)
-    {
-      httpContentClient = new ContentServer::HTTP::ClientImplementation();
-      httpContentClient->init(content_server_content_source_http_url);
-      contentService = httpContentClient;
-    }
+    createContentService();
 
-    if (contentService == nullptr)
-    {
-      Fmi::Exception exception(BCP,"No acceptable content source defined!");
-      throw exception;
-    }
-
-    if (content_server_cache_enabled)
-    {
-      cacheImplementation = new ContentServer::CacheImplementation();
-      cacheImplementation->setContentSwap(false,0,0);
-      cacheImplementation->setRequestForwardEnabled(content_server_cache_requestForwardEnabled);
-
-      if (content_server_processing_log_enabled && !content_server_processing_log_file.empty())
-      {
-        mContentServerProcessingLog.init(true,content_server_processing_log_file.c_str(),content_server_processing_log_maxSize,content_server_processing_log_truncateSize);
-        cacheImplementation->setProcessingLog(&mContentServerProcessingLog);
-      }
-
-      if (content_server_debug_log_enabled && !content_server_debug_log_file.empty())
-      {
-        mContentServerDebugLog.init(true,content_server_debug_log_file.c_str(),content_server_debug_log_maxSize,content_server_debug_log_truncateSize);
-        cacheImplementation->setDebugLog(&mContentServerDebugLog);
-      }
-      cacheImplementation->init(CONTENT_SERVER_SESSION_ID,DATA_SERVER_SESSION_ID,contentService);
-      cacheImplementation->setEventListMaxLength(content_server_cache_eventListMaxSize);
-
-      cacheImplementation->startEventProcessing();
-      contentService = cacheImplementation;
-    }
-    else
-    {
-      if (content_server_processing_log_enabled && !content_server_processing_log_file.empty())
-      {
-        mContentServerProcessingLog.init(true,content_server_processing_log_file.c_str(),content_server_processing_log_maxSize,content_server_processing_log_truncateSize);
-        contentService->setProcessingLog(&mContentServerProcessingLog);
-      }
-
-      if (content_server_debug_log_enabled && !content_server_debug_log_file.empty())
-      {
-        mContentServerDebugLog.init(true,content_server_debug_log_file.c_str(),content_server_debug_log_maxSize,content_server_debug_log_truncateSize);
-        contentService->setDebugLog(&mContentServerDebugLog);
-      }
-    }
+    initContentServerCache();
 
 
 
@@ -894,94 +985,19 @@ int main(int argc, char *argv[])
         query_server_aliasFiles,query_server_producerFile,query_server_producerAliasFiles,query_server_luaFiles,
         query_server_checkGeometryStatus,data_server_methods_enabled);
 
-    if (data_server_processing_log_enabled && !data_server_processing_log_file.empty())
-    {
-      mDataServerProcessingLog.init(true,data_server_processing_log_file.c_str(),data_server_processing_log_maxSize,data_server_processing_log_truncateSize);
-      dataService->setProcessingLog(&mDataServerProcessingLog);
-    }
-
-    if (data_server_debug_log_enabled && !data_server_debug_log_file.empty())
-    {
-      mDataServerDebugLog.init(true,data_server_debug_log_file.c_str(),data_server_debug_log_maxSize,data_server_debug_log_truncateSize);
-      dataService->setDebugLog(&mDataServerDebugLog);
-    }
+    initDataServerLogs();
 
     dataService->startEventProcessing();
 
 
-    if (query_server_processing_log_enabled && !query_server_processing_log_file.empty())
-    {
-      mQueryServerProcessingLog.init(true,query_server_processing_log_file.c_str(),query_server_processing_log_maxSize,query_server_processing_log_truncateSize);
-      queryService->setProcessingLog(&mQueryServerProcessingLog);
-    }
-
-    if (query_server_debug_log_enabled  &&  !query_server_debug_log_file.empty())
-    {
-      mQueryServerDebugLog.init(true,query_server_debug_log_file.c_str(),query_server_debug_log_maxSize,query_server_debug_log_truncateSize);
-      queryService->setDebugLog(&mQueryServerDebugLog);
-    }
+    initQueryServerLogs();
 
     // Let's print the service IOR. This is necessary for accessing the service. Usually the best way
     // to handle an IOR is to store it into an environment variable.
 
-    std::string ior = corbaServer->getContentServiceIor();
-    if (content_server_iorFile.empty())
-    {
-      printf("\n\nContentServer\n%s\n",ior.c_str());
-    }
-    else
-    {
-      FILE *file = fopen(content_server_iorFile.c_str(),"we");
-      if (file == nullptr)
-      {
-        Fmi::Exception exception(BCP,"Cannot create file for IOR!");
-        exception.addParameter("IorFile",content_server_iorFile);
-        throw exception;
-      }
-      fprintf(file,"%s\n",ior.c_str());
-      if (fclose(file) != 0)
-        throw Fmi::Exception(BCP, "Failed to close the output file");
-    }
-
-
-    ior = corbaServer->getDataServiceIor();
-    if (data_server_iorFile.empty())
-    {
-      printf("\n\nDataServer\n%s\n",ior.c_str());
-    }
-    else
-    {
-      FILE *file = fopen(data_server_iorFile.c_str(),"we");
-      if (file == nullptr)
-      {
-        Fmi::Exception exception(BCP,"Cannot create file for IOR!");
-        exception.addParameter("IorFile",data_server_iorFile);
-        throw exception;
-      }
-      fprintf(file,"%s\n",ior.c_str());
-      if (fclose(file) != 0)
-        throw Fmi::Exception(BCP, "Failed to close the output file");
-    }
-
-
-    ior = corbaServer->getQueryServiceIor();
-    if (query_server_iorFile.empty())
-    {
-      printf("\n\nQueryServer\n%s\n",ior.c_str());
-    }
-    else
-    {
-      FILE *file = fopen(query_server_iorFile.c_str(),"we");
-      if (file == nullptr)
-      {
-        Fmi::Exception exception(BCP,"Cannot create file for IOR!");
-        exception.addParameter("IorFile",query_server_iorFile);
-        throw exception;
-      }
-      fprintf(file,"%s\n",ior.c_str());
-      if (fclose(file) != 0)
-        throw Fmi::Exception(BCP, "Failed to close the output file");
-    }
+    printIor("ContentServer",corbaServer->getContentServiceIor(),content_server_iorFile);
+    printIor("DataServer",corbaServer->getDataServiceIor(),data_server_iorFile);
+    printIor("QueryServer",corbaServer->getQueryServiceIor(),query_server_iorFile);
 
     mProducerAliasFileCollection.init(query_server_producerAliasFiles,true);
 
