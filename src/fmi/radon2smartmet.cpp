@@ -2385,6 +2385,68 @@ uint countFileRecords()
 
 
 
+/*! \brief Add the information of a new file which the target data storage does not have. */
+
+void addNewFile(T::GenerationInfo *generation,const FileRec& it,const std::string& filename,ForecastRec& forecast,std::vector<T::FileAndContent>& fileAndContentList)
+{
+  PRINT_DATA(mDebugLogPtr, "**** New file : %s\n", filename.c_str());
+
+
+  T::FileAndContent fc;
+  fc.mFileInfo.mProducerId = generation->mProducerId;
+  fc.mFileInfo.mGenerationId = generation->mGenerationId;
+  fc.mFileInfo.mFileId = 0;
+  fc.mFileInfo.mServerType = it.serverType;
+  fc.mFileInfo.mServer = it.server;
+
+  if (strncasecmp(it.server.c_str(),"http://",7) == 0)
+  {
+    fc.mFileInfo.mProtocol = 1;
+    fc.mFileInfo.mServer = it.server.substr(7);
+  }
+
+  if (strncasecmp(it.server.c_str(),"https://",8) == 0)
+  {
+    fc.mFileInfo.mProtocol = 2;
+    fc.mFileInfo.mServer = it.server.substr(8);
+  }
+
+  if (it.serverType > 1  &&  fc.mFileInfo.mProtocol == 0)
+    fc.mFileInfo.mProtocol = 2;
+
+  fc.mFileInfo.mFileType = it.format;
+  fc.mFileInfo.mName = filename;
+
+  if (it.cachingRequested)
+    fc.mFileInfo.mFlags = T::FileInfo::Flags::LocalCacheRecommended;
+  else
+    fc.mFileInfo.mFlags = 0;
+
+  fc.mFileInfo.mSourceId = mSourceId;
+  fc.mFileInfo.mDeletionTime = forecast.deletionTime;
+
+  fileAndContentList.push_back(fc);
+}
+
+
+
+
+/*! \brief Update the modification time of the generation. */
+
+void updateGenerationModificationTime(T::GenerationInfo *generation,ForecastRec& forecast)
+{
+  if (generation->mModificationTime <= forecast.lastUpdated)
+  {
+    generation->mModificationTime = forecast.lastUpdated;
+    time_t diff = (time(nullptr) - forecast.lastUpdated);
+    if (diff > 300)
+      generation->mModificationTime = forecast.lastUpdated + 1;
+  }
+}
+
+
+
+
 /*! \brief Read source files by forecast time. */
 
 void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loadCounter, uint targetProducerId,T::FileInfoList& targetFileList, std::string& producerName,std::vector<T::FileAndContent>& fileAndContentList, std::vector<FileRec>& fileRecList)
@@ -2403,99 +2465,135 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
       return;
     }
 
-    if (generation->mStatus == T::GenerationInfo::Status::Running || generation->mModificationTime <= forecast.lastUpdated)
-    {
-      //printf("%s:%s:%s\n",forecast.generationName.c_str(),utcTimeFromTimeT(generation->mModificationTime).c_str(),utcTimeFromTimeT(forecast.lastUpdated).c_str());
-
-      generation->mStatus = T::GenerationInfo::Status::Running;
-
-      std::vector<FileRec> recList = readSourceFilesAndContent(conn, forecast.tableName.c_str(), forecast.producerId, producerName, forecast.geometryId, forecast.forecastTypeId,
-          forecast.forecastTypeValue, forecast.analysisTime.c_str(), forecast.forecastPeriod.c_str(), forecast.lastUpdated, loadCounter);
-
-      mContentReadCount += recList.size();
-      PRINT_DATA(mDebugLogPtr, "  -- Read files by forecast time %s:%u:%d:%u:%d : %lu (contentCount = %u)\n", forecast.forecastTime.c_str(), forecast.producerId, forecast.geometryId,
-          forecast.forecastTypeId, forecast.forecastTypeValue, recList.size(), mContentReadCount);
-
-      if (recList.empty())
-        return;
-
-      if (fileReadCount == 0  &&  targetFileList.getLength() == 0)
-      {
-        readTargetFileList(targetProducerId,targetFileList);
-        targetFileList.sort(T::FileInfo::ComparisonMethod::fileName);
-        fileReadCount++;
-      }
-
-      for (auto &it : recList)
-      {
-        if (shutdownRequested)
-          return;
-
-        fileRecList.push_back(it);
-        T::FileInfo fileInfo;
-        std::string filename = getFilename(it.fileId);
-        if (mSourceFilenames.find(it.fileId) == mSourceFilenames.end() && targetFileList.getFileInfoByName(filename) == nullptr)
-        {
-          // The target data storage does not have the current file information. It should be added.
-
-          PRINT_DATA(mDebugLogPtr, "**** New file : %s\n", filename.c_str());
-
-
-          T::FileAndContent fc;
-          fc.mFileInfo.mProducerId = generation->mProducerId;
-          fc.mFileInfo.mGenerationId = generation->mGenerationId;
-          fc.mFileInfo.mFileId = 0;
-          fc.mFileInfo.mServerType = it.serverType;
-          fc.mFileInfo.mServer = it.server;
-
-          if (strncasecmp(it.server.c_str(),"http://",7) == 0)
-          {
-            fc.mFileInfo.mProtocol = 1;
-            fc.mFileInfo.mServer = it.server.substr(7);
-          }
-
-          if (strncasecmp(it.server.c_str(),"https://",8) == 0)
-          {
-            fc.mFileInfo.mProtocol = 2;
-            fc.mFileInfo.mServer = it.server.substr(8);
-          }
-
-          if (it.serverType > 1  &&  fc.mFileInfo.mProtocol == 0)
-            fc.mFileInfo.mProtocol = 2;
-
-          fc.mFileInfo.mFileType = it.format;
-          fc.mFileInfo.mName = filename;
-
-          if (it.cachingRequested)
-            fc.mFileInfo.mFlags = T::FileInfo::Flags::LocalCacheRecommended;
-          else
-            fc.mFileInfo.mFlags = 0;
-
-          fc.mFileInfo.mSourceId = mSourceId;
-          fc.mFileInfo.mDeletionTime = forecast.deletionTime;
-
-          fileAndContentList.push_back(fc);
-        }
-
-        if (mSourceFilenames.find(it.fileId) == mSourceFilenames.end())
-          mSourceFilenames.insert(it.fileId);
-      }
-      if (generation->mModificationTime <= forecast.lastUpdated)
-      {
-        generation->mModificationTime = forecast.lastUpdated;
-        time_t diff = (time(nullptr) - forecast.lastUpdated);
-        if (diff > 300)
-          generation->mModificationTime = forecast.lastUpdated + 1;
-      }
-    }
-    else
+    if (generation->mStatus != T::GenerationInfo::Status::Running && generation->mModificationTime > forecast.lastUpdated)
     {
       mIgnoreGeneration.insert(generation->mGenerationId);
+      return;
     }
+
+    //printf("%s:%s:%s\n",forecast.generationName.c_str(),utcTimeFromTimeT(generation->mModificationTime).c_str(),utcTimeFromTimeT(forecast.lastUpdated).c_str());
+
+    generation->mStatus = T::GenerationInfo::Status::Running;
+
+    std::vector<FileRec> recList = readSourceFilesAndContent(conn, forecast.tableName.c_str(), forecast.producerId, producerName, forecast.geometryId, forecast.forecastTypeId,
+        forecast.forecastTypeValue, forecast.analysisTime.c_str(), forecast.forecastPeriod.c_str(), forecast.lastUpdated, loadCounter);
+
+    mContentReadCount += recList.size();
+    PRINT_DATA(mDebugLogPtr, "  -- Read files by forecast time %s:%u:%d:%u:%d : %lu (contentCount = %u)\n", forecast.forecastTime.c_str(), forecast.producerId, forecast.geometryId,
+        forecast.forecastTypeId, forecast.forecastTypeValue, recList.size(), mContentReadCount);
+
+    if (recList.empty())
+      return;
+
+    if (fileReadCount == 0  &&  targetFileList.getLength() == 0)
+    {
+      readTargetFileList(targetProducerId,targetFileList);
+      targetFileList.sort(T::FileInfo::ComparisonMethod::fileName);
+      fileReadCount++;
+    }
+
+    for (auto &it : recList)
+    {
+      if (shutdownRequested)
+        return;
+
+      fileRecList.push_back(it);
+      T::FileInfo fileInfo;
+      std::string filename = getFilename(it.fileId);
+      if (mSourceFilenames.find(it.fileId) == mSourceFilenames.end() && targetFileList.getFileInfoByName(filename) == nullptr)
+      {
+        // The target data storage does not have the current file information. It should be added.
+
+        addNewFile(generation,it,filename,forecast,fileAndContentList);
+      }
+
+      if (mSourceFilenames.find(it.fileId) == mSourceFilenames.end())
+        mSourceFilenames.insert(it.fileId);
+    }
+    updateGenerationModificationTime(generation,forecast);
   }
   catch (...)
   {
     throw Fmi::Exception(BCP, "Operation failed!", nullptr);
+  }
+}
+
+
+
+
+/*! \brief Create the content information of a file record. */
+
+T::ContentInfo* newContentInfo(T::FileInfo *fileInfo,const FileRec& it)
+{
+  auto *contentInfo = new T::ContentInfo();
+
+  contentInfo->mFileId = fileInfo->mFileId;
+  contentInfo->mFileType = fileInfo->mFileType;
+  contentInfo->mMessageIndex = it.messageIndex;
+  contentInfo->mFilePosition = it.filePosition;
+  contentInfo->mMessageSize = it.messageSize;
+  contentInfo->mProducerId = fileInfo->mProducerId;
+  contentInfo->mGenerationId = fileInfo->mGenerationId;
+  contentInfo->setForecastTime(utcTimeFromTimeT(it.forecastTime));
+  contentInfo->mFmiParameterId = it.paramId;
+  contentInfo->mFmiParameterLevelId = it.levelId;
+  contentInfo->mParameterLevel = it.levelValue;
+  contentInfo->mForecastType = it.forecastType;
+  contentInfo->mForecastNumber = it.forecastNumber;
+  contentInfo->mAggregationId = it.aggregation_id;
+  contentInfo->mAggregationPeriod = it.aggregation_period;
+  contentInfo->mProcessingTypeId = it.processing_type_id;
+  contentInfo->mProcessingTypeValue1 = it.processing_type_value;
+  contentInfo->mProcessingTypeValue2 = it.processing_type_value2;
+  contentInfo->mFlags = 0;
+  contentInfo->mSourceId = mSourceId;
+  contentInfo->mGeometryId = it.geometryId;
+  contentInfo->mModificationTime = it.lastUpdated;
+  contentInfo->mDeletionTime = fileInfo->mDeletionTime;
+
+  Identification::FmiParameterDef fmiDef;
+  if (Identification::gridDef.getFmiParameterDefById(it.paramId, fmiDef))
+  {
+    contentInfo->setFmiParameterName(fmiDef.mParameterName);
+  }
+
+  return contentInfo;
+}
+
+
+
+
+/*! \brief Add the content of a file record to the content list if it does not exist in the target data storage. */
+
+void addTargetContent(T::FileInfoList& targetFileList,FileRec& it,T::ContentInfoList& contentList)
+{
+  std::string filename = getFilename(it.fileId);
+  T::FileInfo *fileInfo = targetFileList.getFileInfoByName(filename);
+  if (fileInfo != nullptr)
+  {
+    UInt64 id = fileInfo->mFileId;
+    id = (id << 32) + it.messageIndex;
+    auto pos = mTargetContentList.find(id);
+    if (pos == mTargetContentList.end())
+    {
+      // The content does not exists. It should be added.
+
+      auto *contentInfo = newContentInfo(fileInfo,it);
+
+      contentList.addContentInfo(contentInfo);
+
+      if (contentList.getLength() >= mMaxMessageSize)
+      {
+        PRINT_EVENT_LINE(mProcessingLogPtr,"CONTENT-ADD;OK;%u (%u/%u);",contentList.getLength(), mContentAddCount, mContentReadCount);
+        PRINT_DATA(mDebugLogPtr, "  -- Add content information : %u (%u/%u)\n", contentList.getLength(), mContentAddCount, mContentReadCount);
+        mTargetInterface->addContentList(mSessionId, contentList);
+        contentList.clear();
+      }
+    }
+  }
+  else
+  {
+    PRINT_DATA(mDebugLogPtr,"#### File info not found : %s\n", filename.c_str());
   }
 }
 
@@ -2523,64 +2621,7 @@ void saveTargetContent(T::ProducerId producerId,std::vector<FileRec>& fileRecLis
 
     for (auto &it : fileRecList)
     {
-      std::string filename = getFilename(it.fileId);
-      T::FileInfo *fileInfo = targetFileList.getFileInfoByName(filename);
-      if (fileInfo != nullptr)
-      {
-        UInt64 id = fileInfo->mFileId;
-        id = (id << 32) + it.messageIndex;
-        auto pos = mTargetContentList.find(id);
-        if (pos == mTargetContentList.end())
-        {
-          // The content does not exists. It should be added.
-
-          auto *contentInfo = new T::ContentInfo();
-
-          contentInfo->mFileId = fileInfo->mFileId;
-          contentInfo->mFileType = fileInfo->mFileType;
-          contentInfo->mMessageIndex = it.messageIndex;
-          contentInfo->mFilePosition = it.filePosition;
-          contentInfo->mMessageSize = it.messageSize;
-          contentInfo->mProducerId = fileInfo->mProducerId;
-          contentInfo->mGenerationId = fileInfo->mGenerationId;
-          contentInfo->setForecastTime(utcTimeFromTimeT(it.forecastTime));
-          contentInfo->mFmiParameterId = it.paramId;
-          contentInfo->mFmiParameterLevelId = it.levelId;
-          contentInfo->mParameterLevel = it.levelValue;
-          contentInfo->mForecastType = it.forecastType;
-          contentInfo->mForecastNumber = it.forecastNumber;
-          contentInfo->mAggregationId = it.aggregation_id;
-          contentInfo->mAggregationPeriod = it.aggregation_period;
-          contentInfo->mProcessingTypeId = it.processing_type_id;
-          contentInfo->mProcessingTypeValue1 = it.processing_type_value;
-          contentInfo->mProcessingTypeValue2 = it.processing_type_value2;
-          contentInfo->mFlags = 0;
-          contentInfo->mSourceId = mSourceId;
-          contentInfo->mGeometryId = it.geometryId;
-          contentInfo->mModificationTime = it.lastUpdated;
-          contentInfo->mDeletionTime = fileInfo->mDeletionTime;
-
-          Identification::FmiParameterDef fmiDef;
-          if (Identification::gridDef.getFmiParameterDefById(it.paramId, fmiDef))
-          {
-            contentInfo->setFmiParameterName(fmiDef.mParameterName);
-          }
-
-          contentList.addContentInfo(contentInfo);
-
-          if (contentList.getLength() >= mMaxMessageSize)
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"CONTENT-ADD;OK;%u (%u/%u);",contentList.getLength(), mContentAddCount, mContentReadCount);
-            PRINT_DATA(mDebugLogPtr, "  -- Add content information : %u (%u/%u)\n", contentList.getLength(), mContentAddCount, mContentReadCount);
-            mTargetInterface->addContentList(mSessionId, contentList);
-            contentList.clear();
-          }
-        }
-      }
-      else
-      {
-        PRINT_DATA(mDebugLogPtr,"#### File info not found : %s\n", filename.c_str());
-      }
+      addTargetContent(targetFileList,it,contentList);
       mContentAddCount++;
     }
 
