@@ -52,6 +52,112 @@ void init()
     throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
 }
+
+
+
+
+
+/*! \brief Set the query attributes given as name=value pairs separated by '|'. */
+
+void setAttributes(QueryServer::Query& query,char *attributes)
+{
+  std::vector<std::string> attrList;
+  splitString(attributes,'|',attrList);
+  for (auto &it : attrList)
+  {
+    std::vector<std::string> partList;
+    splitString(it,'=',partList);
+    if (partList.size() == 2)
+      query.mAttributeList.setAttribute(partList[0],partList[1]);
+  }
+}
+
+
+
+
+
+/*! \brief Add the contour values and colors given on the command line. */
+
+void addContours(int argc,char *argv[],QueryServer::QueryParameter& param,std::vector<uint>& colorList)
+{
+  for (int t=11; t<argc-1; t++)
+  {
+    std::vector<std::string> partList1;
+    splitString(argv[t],':',partList1);
+    param.mContourLowValues.push_back(toDouble(partList1[0].c_str()));
+    if (partList1.size() == 2)
+      colorList.push_back(strtoll(partList1[1].c_str(),nullptr,16));
+    else
+      colorList.push_back(0xFFFFFFFF);
+
+    std::vector<std::string> partList2;
+    splitString(argv[t+1],':',partList2);
+    param.mContourHighValues.push_back(toDouble(partList2[0].c_str()));
+  }
+}
+
+
+
+
+
+/*! \brief Paint the isobands into the image. */
+
+void paintIsobands(ImagePaint& imagePaint,T::ByteData_vec& valueData,const std::vector<uint>& colorList,double mp)
+{
+  if (valueData.empty())
+    return;
+
+  uint c = 250;
+  uint step = 250 / valueData.size();
+
+  uint a = 0;
+  for (auto &it : valueData)
+  {
+    uint col = colorList[a];
+    if (col == 0xFFFFFFFF)
+      col = (c << 16) + (c << 8) + c;
+
+    imagePaint.setFillColor(col);
+    imagePaint.paintWkb(mp,mp,0,0,it);
+    c = c - step;
+    a++;
+  }
+}
+
+
+
+
+
+/*! \brief Save the images of the query results. */
+
+void saveImages(QueryServer::Query& newQuery,const std::vector<uint>& colorList,double mp,bool rotate,const char *filePrefix,uint t)
+{
+  if (newQuery.mAttributeList.getAttributeValue("grid.width") != nullptr && newQuery.mAttributeList.getAttributeValue("grid.height") != nullptr)
+  {
+    int width = toInt32(newQuery.mAttributeList.getAttributeValue("grid.width"));
+    int height = toInt32(newQuery.mAttributeList.getAttributeValue("grid.height"));
+
+    for (auto &it : newQuery.mQueryParameterList)
+    {
+      for (auto v = it.mValueList.begin(); v != it.mValueList.end(); ++v)
+      {
+        //printf("%s (%lu):",v->mForecastTime.c_str(),v->mValueData.size());
+
+        int imageWidth = width*mp;
+        int imageHeight = height*mp;
+
+        ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,0x00000,0xA0A0A0,false,rotate);
+
+        paintIsobands(imagePaint,(*v)->mValueData,colorList,mp);
+
+        char filename[200];
+        sprintf(filename,"%s_%04u.png",filePrefix,t);
+        printf("Saving image : %s\n",filename);
+        imagePaint.savePngImage(filename);
+      }
+    }
+  }
+}
 }  // namespace
 
 
@@ -97,15 +203,7 @@ int main(int argc, char *argv[])
     query.mAttributeList.addAttribute("grid.areaInterpolationMethod",std::to_string(areaInterpolation));
     query.mAttributeList.addAttribute("grid.timeInterpolationMethod",std::to_string(areaInterpolation));
 
-    std::vector<std::string> attrList;
-    splitString(attributes,'|',attrList);
-    for (auto &it : attrList)
-    {
-      std::vector<std::string> partList;
-      splitString(it,'=',partList);
-      if (partList.size() == 2)
-        query.mAttributeList.setAttribute(partList[0],partList[1]);
-    }
+    setAttributes(query,attributes);
 
 
     query.mStartTime = utcTimeToTimeT(argv[7]);
@@ -121,20 +219,7 @@ int main(int argc, char *argv[])
     param.mType = QueryServer::QueryParameter::Type::Isoband;
     param.mLocationType = QueryServer::QueryParameter::LocationType::Geometry;
 
-    for (int t=11; t<argc-1; t++)
-    {
-      std::vector<std::string> partList1;
-      splitString(argv[t],':',partList1);
-      param.mContourLowValues.push_back(toDouble(partList1[0].c_str()));
-      if (partList1.size() == 2)
-        colorList.push_back(strtoll(partList1[1].c_str(),nullptr,16));
-      else
-        colorList.push_back(0xFFFFFFFF);
-
-      std::vector<std::string> partList2;
-      splitString(argv[t+1],':',partList2);
-      param.mContourHighValues.push_back(toDouble(partList2[0].c_str()));
-    }
+    addContours(argc,argv,param,colorList);
 
     query.mQueryParameterList.push_back(param);
 
@@ -152,50 +237,7 @@ int main(int argc, char *argv[])
       int result = service.executeQuery(sessionId,newQuery);
 
       if (result == 0)
-      {
-        if (newQuery.mAttributeList.getAttributeValue("grid.width") != nullptr && newQuery.mAttributeList.getAttributeValue("grid.height") != nullptr)
-        {
-          int width = toInt32(newQuery.mAttributeList.getAttributeValue("grid.width"));
-          int height = toInt32(newQuery.mAttributeList.getAttributeValue("grid.height"));
-
-          for (auto &it : newQuery.mQueryParameterList)
-          {
-            for (auto v = it.mValueList.begin(); v != it.mValueList.end(); ++v)
-            {
-              //printf("%s (%lu):",v->mForecastTime.c_str(),v->mValueData.size());
-
-              int imageWidth = width*mp;
-              int imageHeight = height*mp;
-
-              ImagePaint imagePaint(imageWidth,imageHeight,0xFFFFFFFF,0x00000,0xA0A0A0,false,rotate);
-
-              if (!(*v)->mValueData.empty())
-              {
-                uint c = 250;
-                uint step = 250 / (*v)->mValueData.size();
-
-                uint a = 0;
-                for (auto &it : (*v)->mValueData)
-                {
-                  uint col = colorList[a];
-                  if (col == 0xFFFFFFFF)
-                    col = (c << 16) + (c << 8) + c;
-
-                  imagePaint.setFillColor(col);
-                  imagePaint.paintWkb(mp,mp,0,0,it);
-                  c = c - step;
-                  a++;
-                }
-              }
-
-              char filename[200];
-              sprintf(filename,"%s_%04u.png",filePrefix,t);
-              printf("Saving image : %s\n",filename);
-              imagePaint.savePngImage(filename);
-            }
-          }
-        }
-      }
+        saveImages(newQuery,colorList,mp,rotate,filePrefix,t);
     }
 
     UInt64 endTime = getTime();
