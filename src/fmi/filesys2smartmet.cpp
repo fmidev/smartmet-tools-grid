@@ -883,6 +883,61 @@ void readSourceProducers()
 
 
 
+/*! \brief Remove the producer information from the target data storage. */
+
+void deleteTargetProducer(ContentServer::ServiceInterface *targetInterface,T::ProducerInfo *targetProducer)
+{
+  // The producer information is not available in the source data storage. So, we should remove
+  // it also from the target data storage.
+
+  PRINT_DATA(mDebugLogPtr,"  -- Remove producer : %s\n",targetProducer->mName.c_str());
+  int result = targetInterface->deleteProducerInfoById(mSessionId,targetProducer->mProducerId);
+  if (result != 0)
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;FAIL;%s;",targetProducer->mName.c_str());
+
+    Fmi::Exception exception(BCP,"Cannot delete the producer information from the target data storage!");
+    exception.addParameter("ProducerId",std::to_string(targetProducer->mProducerId));
+    exception.addParameter("ProducerName",targetProducer->mName);
+    exception.addParameter("Result",ContentServer::getResultString(result));
+    throw exception;
+  }
+  PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;OK;%s;",targetProducer->mName.c_str());
+}
+
+
+
+
+
+/*! \brief Add the producer information into the target data storage. */
+
+void addTargetProducer(ContentServer::ServiceInterface *targetInterface,T::ProducerInfo *sourceProducer)
+{
+  // The producer information is not available in the target data storage. So, we should add it.
+
+  T::ProducerInfo producer(*sourceProducer);
+  producer.mProducerId = 0;
+  producer.mSourceId = mSourceId;
+
+  PRINT_DATA(mDebugLogPtr,"  -- Add producer : %s\n",producer.mName.c_str());
+  int result = targetInterface->addProducerInfo(mSessionId,producer);
+  if (result != 0)
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-ADD;FAIL;%s;",producer.mName.c_str());
+
+    Fmi::Exception exception(BCP,"Cannot add the producer information into the target data storage!");
+    exception.addParameter("ProducerId",std::to_string(sourceProducer->mProducerId));
+    exception.addParameter("ProducerName",sourceProducer->mName);
+    exception.addParameter("Result",ContentServer::getResultString(result));
+    throw exception;
+  }
+  PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-ADD;OK;%s;",producer.mName.c_str());
+}
+
+
+
+
+
 /*! \brief Update producers. */
 
 void updateProducers(ContentServer::ServiceInterface *targetInterface)
@@ -901,22 +956,7 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
         T::ProducerInfo *sourceProducer = mSourceProducerList.getProducerInfoByName(targetProducer->mName);
         if (sourceProducer == nullptr)
         {
-          // The producer information is not available in the source data storage. So, we should remove
-          // it also from the target data storage.
-
-          PRINT_DATA(mDebugLogPtr,"  -- Remove producer : %s\n",targetProducer->mName.c_str());
-          int result = targetInterface->deleteProducerInfoById(mSessionId,targetProducer->mProducerId);
-          if (result != 0)
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;FAIL;%s;",targetProducer->mName.c_str());
-
-            Fmi::Exception exception(BCP,"Cannot delete the producer information from the target data storage!");
-            exception.addParameter("ProducerId",std::to_string(targetProducer->mProducerId));
-            exception.addParameter("ProducerName",targetProducer->mName);
-            exception.addParameter("Result",ContentServer::getResultString(result));
-            throw exception;
-          }
-          PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-DELETE;OK;%s;",targetProducer->mName.c_str());
+          deleteTargetProducer(targetInterface,targetProducer);
         }
       }
     }
@@ -931,25 +971,7 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
         T::ProducerInfo *targetProducer = mTargetProducerList.getProducerInfoByName(sourceProducer->mName);
         if (targetProducer == nullptr)
         {
-          // The producer information is not available in the target data storage. So, we should add it.
-
-          T::ProducerInfo producer(*sourceProducer);
-          producer.mProducerId = 0;
-          producer.mSourceId = mSourceId;
-
-          PRINT_DATA(mDebugLogPtr,"  -- Add producer : %s\n",producer.mName.c_str());
-          int result = targetInterface->addProducerInfo(mSessionId,producer);
-          if (result != 0)
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-ADD;FAIL;%s;",producer.mName.c_str());
-
-            Fmi::Exception exception(BCP,"Cannot add the producer information into the target data storage!");
-            exception.addParameter("ProducerId",std::to_string(sourceProducer->mProducerId));
-            exception.addParameter("ProducerName",sourceProducer->mName);
-            exception.addParameter("Result",ContentServer::getResultString(result));
-            throw exception;
-          }
-          PRINT_EVENT_LINE(mProcessingLogPtr,"PRODUCER-ADD;OK;%s;",producer.mName.c_str());
+          addTargetProducer(targetInterface,sourceProducer);
         }
       }
     }
@@ -958,6 +980,58 @@ void updateProducers(ContentServer::ServiceInterface *targetInterface)
   {
     throw Fmi::Exception(BCP,"Operation failed!",nullptr);
   }
+}
+
+
+
+
+
+/*! \brief Remove the generation information from the target data storage. */
+
+void deleteTargetGenerations(ContentServer::ServiceInterface *targetInterface,std::set<T::GenerationId>& generationIdList,std::vector<std::string>& generationNameList)
+{
+  int result = targetInterface->deleteGenerationInfoListByIdList(mSessionId,generationIdList);
+  if (result != 0)
+  {
+    for (auto it = generationNameList.begin(); it != generationNameList.end(); ++it)
+      PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;FAIL;%s;",it->c_str());
+
+    Fmi::Exception exception(BCP,"Cannot delete the generation information from the target data storage!");
+    exception.addParameter("Result",ContentServer::getResultString(result));
+    throw exception;
+  }
+  for (auto it = generationNameList.begin(); it != generationNameList.end(); ++it)
+    PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;OK;%s;",it->c_str());
+}
+
+
+
+
+
+/*! \brief Add the generation information into the target data storage. */
+
+void addTargetGeneration(ContentServer::ServiceInterface *targetInterface,T::GenerationInfo *sourceGeneration)
+{
+  // The generation information is not available in the target data storage. So, we should add it.
+
+
+  T::GenerationInfo generationInfo(*sourceGeneration);
+  generationInfo.mSourceId = mSourceId;
+  generationInfo.mGenerationId = 0;
+
+  PRINT_DATA(mDebugLogPtr,"  -- Add generation : %s\n",generationInfo.mName.c_str());
+
+  int result = targetInterface->addGenerationInfo(mSessionId,generationInfo);
+  if (result != 0)
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;FAIL;%s;",generationInfo.mName.c_str());
+
+    Fmi::Exception exception(BCP,"Cannot add the generation information into the target data storage!");
+    exception.addParameter("GenerationName",generationInfo.mName);
+    exception.addParameter("Result",ContentServer::getResultString(result));
+    throw exception;
+  }
+  PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;OK;%s;",generationInfo.mName.c_str());
 }
 
 
@@ -995,18 +1069,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
 
     if (!generationIdList.empty())
     {
-      int result = targetInterface->deleteGenerationInfoListByIdList(mSessionId,generationIdList);
-      if (result != 0)
-      {
-        for (auto it = generationNameList.begin(); it != generationNameList.end(); ++it)
-          PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;FAIL;%s;",it->c_str());
-
-        Fmi::Exception exception(BCP,"Cannot delete the generation information from the target data storage!");
-        exception.addParameter("Result",ContentServer::getResultString(result));
-        throw exception;
-      }
-      for (auto it = generationNameList.begin(); it != generationNameList.end(); ++it)
-        PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-DELETE;OK;%s;",it->c_str());
+      deleteTargetGenerations(targetInterface,generationIdList,generationNameList);
     }
 
 
@@ -1022,26 +1085,7 @@ void updateGenerations(ContentServer::ServiceInterface *targetInterface)
         T::GenerationInfo *targetGeneration = mTargetGenerationList.getGenerationInfoByName(sourceGeneration->mName);
         if (targetGeneration == nullptr)
         {
-          // The generation information is not available in the target data storage. So, we should add it.
-
-
-          T::GenerationInfo generationInfo(*sourceGeneration);
-          generationInfo.mSourceId = mSourceId;
-          generationInfo.mGenerationId = 0;
-
-          PRINT_DATA(mDebugLogPtr,"  -- Add generation : %s\n",generationInfo.mName.c_str());
-
-          int result = targetInterface->addGenerationInfo(mSessionId,generationInfo);
-          if (result != 0)
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;FAIL;%s;",generationInfo.mName.c_str());
-
-            Fmi::Exception exception(BCP,"Cannot add the generation information into the target data storage!");
-            exception.addParameter("GenerationName",generationInfo.mName);
-            exception.addParameter("Result",ContentServer::getResultString(result));
-            throw exception;
-          }
-          PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;OK;%s;",generationInfo.mName.c_str());
+          addTargetGeneration(targetInterface,sourceGeneration);
         }
       }
     }
