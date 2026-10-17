@@ -1774,6 +1774,90 @@ void updateGenerations()
 
 
 
+/*! \brief Remove the geometry information from the target data storage and set the generation status to running. */
+
+void deleteTargetGeometry(T::GeometryInfo *targetGeometry,T::GenerationInfo *targetGeneration,const std::string& key)
+{
+  PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-DELETE;OK;%lu;%d;%d",targetGeometry->mGenerationId,targetGeometry->mGeometryId,targetGeometry->mLevelId);
+  PRINT_DATA(mDebugLogPtr, "  -- Remove geometry : %s\n",key.c_str());
+
+  int result = mTargetInterface->deleteGeometryInfoById(mSessionId,targetGeometry->mGenerationId,targetGeometry->mGeometryId,targetGeometry->mLevelId);
+  if (result != 0)
+  {
+    Fmi::Exception exception(BCP, "Cannot delete the geometry information from the target data storage!");
+    exception.addParameter("Result", ContentServer::getResultString(result));
+    exception.printError();
+  }
+
+  PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'running': %s\n", targetGeneration->mName.c_str());
+  targetGeneration->mStatus = T::GenerationInfo::Status::Running;
+  result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+  if (result == 0)
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"+ GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
+  }
+  else
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;FAIL;%s;",targetGeneration->mName.c_str());
+  }
+}
+
+
+
+
+/*! \brief Add the geometry information into the target data storage and set the generation status to running. */
+
+void addTargetGeometry(const std::string& gname,T::GenerationInfo *targetGeneration,const GeomRec& geom)
+{
+  // The geometry information is not available in the target data storage. So, we should add it.
+
+  T::GeometryInfo geomInfo;
+  geomInfo.mProducerId = targetGeneration->mProducerId;
+  geomInfo.mGenerationId = targetGeneration->mGenerationId;
+  geomInfo.mGeometryId = geom.geometryId;
+  geomInfo.mLevelId = geom.levelId;
+  geomInfo.mSourceId = mSourceId;
+  geomInfo.mStatus = T::GenerationInfo::Status::Running;
+  geomInfo.mModificationTime = targetGeneration->mModificationTime;
+  geomInfo.mDeletionTime = targetGeneration->mDeletionTime;
+
+  PRINT_DATA(mDebugLogPtr, "  -- Add geometry : %s:%d\n", gname.c_str(),geomInfo.mGeometryId);
+
+  int result = mTargetInterface->addGeometryInfo(mSessionId,geomInfo);
+  if (result == 0)
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-ADD;OK;%lu;%d;%d;",geomInfo.mGenerationId,geomInfo.mGeometryId,geomInfo.mLevelId);
+  }
+  else
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;FAIL;%lu;%d;%d",geomInfo.mGenerationId,geomInfo.mGeometryId,geomInfo.mLevelId);
+  }
+  if (result != 0)
+  {
+    Fmi::Exception exception(BCP, "Cannot add the geometry information into the target data storage!");
+    exception.addParameter("Generation", gname);
+    exception.addParameter("GeometryId", std::to_string(geomInfo.mGeometryId));
+    exception.addParameter("LevelId", std::to_string(geomInfo.mLevelId));
+    exception.addParameter("Result", ContentServer::getResultString(result));
+    throw exception;
+  }
+
+  PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'running': %s\n", targetGeneration->mName.c_str());
+  targetGeneration->mStatus = T::GenerationInfo::Status::Running;
+  result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
+  if (result == 0)
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"* GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
+  }
+  else
+  {
+    PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;FAIL;%s;",targetGeneration->mName.c_str());
+  }
+}
+
+
+
+
 /*! \brief Update geometries. */
 
 void updateGeometries()
@@ -1796,28 +1880,7 @@ void updateGeometries()
           std::string key = toUpperString(st);
           if (mSourceGeometryList.find(key) == mSourceGeometryList.end())
           {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-DELETE;OK;%lu;%d;%d",targetGeometry->mGenerationId,targetGeometry->mGeometryId,targetGeometry->mLevelId);
-            PRINT_DATA(mDebugLogPtr, "  -- Remove geometry : %s\n",key.c_str());
-
-            int result = mTargetInterface->deleteGeometryInfoById(mSessionId,targetGeometry->mGenerationId,targetGeometry->mGeometryId,targetGeometry->mLevelId);
-            if (result != 0)
-            {
-              Fmi::Exception exception(BCP, "Cannot delete the geometry information from the target data storage!");
-              exception.addParameter("Result", ContentServer::getResultString(result));
-              exception.printError();
-            }
-
-            PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'running': %s\n", targetGeneration->mName.c_str());
-            targetGeneration->mStatus = T::GenerationInfo::Status::Running;
-            result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
-            if (result == 0)
-            {
-              PRINT_EVENT_LINE(mProcessingLogPtr,"+ GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
-            }
-            else
-            {
-              PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;FAIL;%s;",targetGeneration->mName.c_str());
-            }
+            deleteTargetGeometry(targetGeometry,targetGeneration,key);
           }
         }
       }
@@ -1833,51 +1896,7 @@ void updateGeometries()
 
         if (targetGeom == nullptr)
         {
-          // The geometry information is not available in the target data storage. So, we should add it.
-
-          T::GeometryInfo geomInfo;
-          geomInfo.mProducerId = targetGeneration->mProducerId;
-          geomInfo.mGenerationId = targetGeneration->mGenerationId;
-          geomInfo.mGeometryId = g.second.geometryId;
-          geomInfo.mLevelId = g.second.levelId;
-          geomInfo.mSourceId = mSourceId;
-          geomInfo.mStatus = T::GenerationInfo::Status::Running;
-          geomInfo.mModificationTime = targetGeneration->mModificationTime;
-          geomInfo.mDeletionTime = targetGeneration->mDeletionTime;
-
-          PRINT_DATA(mDebugLogPtr, "  -- Add geometry : %s:%d\n", gname.c_str(),geomInfo.mGeometryId);
-
-          int result = mTargetInterface->addGeometryInfo(mSessionId,geomInfo);
-          if (result == 0)
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GEOMETRY-ADD;OK;%lu;%d;%d;",geomInfo.mGenerationId,geomInfo.mGeometryId,geomInfo.mLevelId);
-          }
-          else
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-ADD;FAIL;%lu;%d;%d",geomInfo.mGenerationId,geomInfo.mGeometryId,geomInfo.mLevelId);
-          }
-          if (result != 0)
-          {
-            Fmi::Exception exception(BCP, "Cannot add the geometry information into the target data storage!");
-            exception.addParameter("Generation", gname);
-            exception.addParameter("GeometryId", std::to_string(geomInfo.mGeometryId));
-            exception.addParameter("LevelId", std::to_string(geomInfo.mLevelId));
-            exception.addParameter("Result", ContentServer::getResultString(result));
-            throw exception;
-          }
-
-          PRINT_DATA(mDebugLogPtr, "  -- Update generation status to 'running': %s\n", targetGeneration->mName.c_str());
-          targetGeneration->mStatus = T::GenerationInfo::Status::Running;
-          result = mTargetInterface->setGenerationInfo(mSessionId,*targetGeneration);
-          if (result == 0)
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"* GENERATION-STATUS-UPDATE-TO-RUNNING;OK;%s;",targetGeneration->mName.c_str());
-          }
-          else
-          {
-            PRINT_EVENT_LINE(mProcessingLogPtr,"GENERATION-STATUS-UPDATE-TO-RUNNING;FAIL;%s;",targetGeneration->mName.c_str());
-          }
-
+          addTargetGeometry(gname,targetGeneration,g.second);
         }
       }
     }
