@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 26.10.17
+Version: 26.10.26
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -288,6 +288,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Mon Oct 26 2026 Andris Pavēnis <andris.pavenis@fmi.fi> 26.10.26-1.fmi
+- Bump version
+
 * Sat Oct 17 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.17-1.fmi
 - gu_newbase2fmi: take the grid-files configuration file instead of a directory
 - httpServer: do not send an unread buffer when the requested file cannot be opened
