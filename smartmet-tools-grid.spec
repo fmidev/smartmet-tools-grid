@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 26.10.26
+Version: 26.11.2
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -288,6 +288,12 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Mon Nov  2 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.11.2-1.fmi
+- radon2smartmet: abort the update loop if the Radon connection is lost while reading
+  table information or records, instead of deleting the unread files from the target
+- radon2smartmet: clear the per-loop table caches at loop start so that an aborted loop
+  cannot make the next one skip tables
+
 * Mon Oct 26 2026 Andris Pavēnis <andris.pavenis@fmi.fi> 26.10.26-1.fmi
 - Bump version
 

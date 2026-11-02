@@ -659,6 +659,19 @@ void readTargetContentList(std::set<UInt64>& targetContentList)
 
 
 
+/*! \brief Returns true if the connection to the Radon database has been lost.
+
+    A lost connection must abort the update loop: the files that could not be read would
+    otherwise be deleted from the target data storage as if they were gone from Radon. */
+
+bool radonConnectionLost(PGconn *conn)
+{
+  return conn == nullptr || PQstatus(conn) != CONNECTION_OK;
+}
+
+
+
+
 /*! \brief Get table info. */
 
 std::string getTableInfo(PGconn *conn, const char *tableName, T::ProducerId producerId, uint geometryId, const char *analysisTime,time_t& lastUpdate,uint& count)
@@ -693,6 +706,7 @@ std::string getTableInfo(PGconn *conn, const char *tableName, T::ProducerId prod
     {
       Fmi::Exception exception(BCP, "Postgresql error!");
       exception.addParameter("ErrorMessage", PQerrorMessage(conn));
+      PQclear(res);
       throw exception;
     }
 
@@ -720,11 +734,12 @@ std::string getTableInfo(PGconn *conn, const char *tableName, T::ProducerId prod
   catch (...)
   {
     reconnectionRequired = true;
+    if (radonConnectionLost(conn))
+      throw Fmi::Exception(BCP, "Connection to the Radon database lost!", nullptr);
+
     Fmi::Exception exception(BCP, "Operation failed!", nullptr);
     exception.printError();
-    std::string tmp;
-    return tmp;
-    // throw exception;
+    return "";
   }
 }
 
@@ -939,9 +954,11 @@ void readTableRecords(PGconn *conn, const char *tableName, T::ProducerId produce
   catch (...)
   {
     reconnectionRequired = true;
+    if (radonConnectionLost(conn))
+      throw Fmi::Exception(BCP, "Connection to the Radon database lost!", nullptr);
+
     Fmi::Exception exception(BCP, "Operation failed!", nullptr);
     exception.printError();
-    // throw exception;
   }
 }
 
@@ -1006,9 +1023,11 @@ std::vector<FileRec>& readSourceFilesAndContent(
   catch (...)
   {
     reconnectionRequired = true;
+    if (radonConnectionLost(conn))
+      throw Fmi::Exception(BCP, "Connection to the Radon database lost!", nullptr);
+
     Fmi::Exception exception(BCP, "Operation failed!", nullptr);
     exception.printError();
-    // throw exception;
     return emptyRecList;
   }
 }
@@ -2759,6 +2778,12 @@ void updateTargetFiles(PGconn *conn)
   {
     mIgnoreGeneration.clear();
     mFileLoadCounter++;
+
+    // The table caches are normally cleared at the end of the loop, but an aborted loop
+    // leaves them behind. A stale mFileTables entry would make readTableRecords skip the
+    // table, and its files would then be deleted from the target data storage.
+    mTableUpdates.clear();
+    mFileTables.clear();
 
     mContentReadCount = 0;
     mContentAddCount = 0;
