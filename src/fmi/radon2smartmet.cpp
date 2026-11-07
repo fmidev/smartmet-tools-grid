@@ -2502,7 +2502,7 @@ void readSourceFilesByForecastTime(PGconn *conn, ForecastRec& forecast, uint loa
         forecast.forecastTypeValue, forecast.analysisTime.c_str(), forecast.forecastPeriod.c_str(), forecast.lastUpdated, loadCounter);
 
     mContentReadCount += recList.size();
-    PRINT_DATA(mDebugLogPtr, "  -- Read files by forecast time %s:%u:%d:%u:%d : %lu (contentCount = %u)\n", forecast.forecastTime.c_str(), forecast.producerId, forecast.geometryId,
+    PRINT_DATA(mDebugLogPtr, "  -- Read files by forecast time %s:%u:%u:%d:%d : %lu (contentCount = %u)\n", forecast.forecastTime.c_str(), forecast.producerId, forecast.geometryId,
         forecast.forecastTypeId, forecast.forecastTypeValue, recList.size(), mContentReadCount);
 
     if (recList.empty())
