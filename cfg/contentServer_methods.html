@@ -78,7 +78,7 @@ The producer information is stored in ProducerInfo records, which contains the f
 <TR><TD>name</TD><TD>Unique producer name, which is usually a short name of the actual producer (for example FMI).</TD></TR>
 <TR><TD>title</TD><TD>Official name of the producer (for example, "Finnish Meteorological Institute").</TD></TR>
 <TR><TD>description</TD><TD>More information about the current producer.</TD></TR>
-<TR><TD>flags</TD><TD>Additional information flags (32-bits) releated to the current producer. These flags can be used for example for categorizing different producers.</TD></TR>
+<TR><TD>flags</TD><TD>Additional information flags (32-bits) related to the current producer. These flags can be used for example for categorizing different producers.</TD></TR>
 </TABLE>
 
 
@@ -94,7 +94,7 @@ The producer information is stored in ProducerInfo records, which contains the f
 <TABLE border="1" width="100%">
     <TR style="background:#000080; color:#FFFF00; font-size:13pt;"><TD colspan=4><B>METHOD deleteProducerInfoById</B></TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Description</TD><TD colspan=3>Deletes the producer information from the content information database. 
-      This method deletes the ProducerInfo record, all GenerationInfo/FileInfo/ContentInfo recods releated to the current producer.</TD></TR>
+      This method deletes the ProducerInfo record, all GenerationInfo/FileInfo/ContentInfo records related to the current producer.</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Parameters</TD><TD width=40>in</TD><TD width=150>sessionId</TD><TD>Session identifier</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;"></TD><TD>in</TD><TD>producerId</TD><TD>Producer identifier.</TD></TR>
 </TABLE>
@@ -102,7 +102,7 @@ The producer information is stored in ProducerInfo records, which contains the f
 <TABLE border="1" width="100%">
     <TR style="background:#000080; color:#FFFF00; font-size:13pt;"><TD colspan=4><B>METHOD deleteProducerInfoByName</B></TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Description</TD><TD colspan=3>Deletes the producer information from the content information database. 
-      This method deletes the ProducerInfo record, all GenerationInfo/FileInfo/ContentInfo recods releated to the current producer.</TD></TR>
+      This method deletes the ProducerInfo record, all GenerationInfo/FileInfo/ContentInfo records related to the current producer.</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Parameters</TD><TD width=40>in</TD><TD width=150>sessionId</TD><TD>Session identifier</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;"></TD><TD>in</TD><TD>producerName</TD><TD>Producer name.</TD></TR>
 </TABLE>
@@ -153,7 +153,7 @@ a valid "generationId" field value, which tells the generation where they belong
   in different generations. The recommendation is that the name is in format "producerName:originTime" (for example "HIRLAM:20170317T000000")</TD></TR>
 <TR><TD>description</TD><TD>More information about the current generation.</TD></TR>
 <TR><TD>status</TD><TD>The status of the current generation (0 = unknown, 1=valid, 2=incomplete).</TD></TR>
-<TR><TD>flags</TD><TD>Additional information flags (32-bits) releated to the current producer. These flags can be used for example for categorizing 
+<TR><TD>flags</TD><TD>Additional information flags (32-bits) related to the current producer. These flags can be used for example for categorizing 
   different producers.</TD></TR>
 </TABLE>
 
@@ -171,7 +171,7 @@ a valid "generationId" field value, which tells the generation where they belong
 <TABLE border="1" width="100%">
     <TR style="background:#000080; color:#FFFF00; font-size:13pt;"><TD colspan=4><B>METHOD deleteGenerationInfoById</B></TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Description</TD><TD colspan=3>Deletes the generation information from 
-      the content information database. This method deletes the GenerationInfo record and FileInfo and ContentInfo recods releated to the current 
+      the content information database. This method deletes the GenerationInfo record and FileInfo and ContentInfo records related to the current 
       generation.</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Parameters</TD><TD width=40>in</TD><TD width=150>sessionId</TD><TD>Session identifier</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;"></TD><TD>in</TD><TD>generationId</TD><TD>Generation identifier.</TD></TR>
@@ -180,7 +180,7 @@ a valid "generationId" field value, which tells the generation where they belong
 <TABLE border="1" width="100%">
     <TR style="background:#000080; color:#FFFF00; font-size:13pt;"><TD colspan=4><B>METHOD deleteGenerationInfoByName</B></TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Description</TD><TD colspan=3>Deletes the generation information from 
-      the content information database. This method deletes the GenerationInfo record and FileInfo and ContentInfo recods releated to the current generation.</TD></TR>
+      the content information database. This method deletes the GenerationInfo record and FileInfo and ContentInfo records related to the current generation.</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Parameters</TD><TD width=40>in</TD><TD width=150>sessionId</TD><TD>Session identifier</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;"></TD><TD>in</TD><TD>generationName</TD><TD>Generation name.</TD></TR>
 </TABLE>
@@ -188,7 +188,7 @@ a valid "generationId" field value, which tells the generation where they belong
 <TABLE border="1" width="100%">
     <TR style="background:#000080; color:#FFFF00; font-size:13pt;"><TD colspan=4><B>METHOD deleteGenerationInfoListByProducerId</B></TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Description</TD><TD colspan=3>Deletes all the generation information related to the current producer. 
-      This method deletes the all GenerationInfo, FileInfo and ContentInfo recods releated to the current producer.</TD></TR>
+      This method deletes the all GenerationInfo, FileInfo and ContentInfo records related to the current producer.</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Parameters</TD><TD width=40>in</TD><TD width=150>sessionId</TD><TD>Session identifier</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;"></TD><TD>in</TD><TD>producerId</TD><TD>Producer identifier.</TD></TR>
 </TABLE>
@@ -196,7 +196,7 @@ a valid "generationId" field value, which tells the generation where they belong
 <TABLE border="1" width="100%">
     <TR style="background:#000080; color:#FFFF00; font-size:13pt;"><TD colspan=4><B>METHOD deleteGenerationInfoListByProducerName</B></TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Description</TD><TD colspan=3>Deletes all the generation information related to the current producer. 
-      This method deletes the all GenerationInfo, FileInfo and ContentInfo recods releated to the current producer.</TD></TR>
+      This method deletes the all GenerationInfo, FileInfo and ContentInfo records related to the current producer.</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Parameters</TD><TD width=40>in</TD><TD width=150>sessionId</TD><TD>Session identifier</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;"></TD><TD>in</TD><TD>producerName</TD><TD>Producer name.</TD></TR>
 </TABLE>
@@ -279,7 +279,7 @@ a valid "generationId" field value, which tells the generation where they belong
 <TR><TD>groupFlags</TD><TD>A file can belong to 32 different groups, which are indicated by 32-bit group flags. The point is that 
   these groups gives us an opportunity to divide files into different groups according to some criteria. For example, a file 
   might belong to group X, which means that file must be kept in the memory all the time in order to guarantee a fast data access.</TD></TR>
-<TR><TD>flags</TD><TD>Additional information flags (32-bits) releated to the current file. These flags can be used for example 
+<TR><TD>flags</TD><TD>Additional information flags (32-bits) related to the current file. These flags can be used for example 
   to tell that the content of the current file is predefined, which means that the DataServers should use these predefinitions 
   and not to try to find out the content by themselves.</TD></TR>
 </TABLE>
@@ -310,7 +310,7 @@ a valid "generationId" field value, which tells the generation where they belong
 <TABLE border="1" width="100%">
     <TR style="background:#000080; color:#FFFF00; font-size:13pt;"><TD colspan=4><B>METHOD deleteFileInfoById</B></TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Description</TD><TD colspan=3>Deletes the file information from the content 
-      information database. This method deletes the FileInfo record and ContentInfo recods releated to the current file.</TD></TR>
+      information database. This method deletes the FileInfo record and ContentInfo records related to the current file.</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Parameters</TD><TD width=40>in</TD><TD width=150>sessionId</TD><TD>Session identifier</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;"></TD><TD>in</TD><TD>fileId</TD><TD>File identifier.</TD></TR>
 </TABLE>
@@ -318,7 +318,7 @@ a valid "generationId" field value, which tells the generation where they belong
 <TABLE border="1" width="100%">
     <TR style="background:#000080; color:#FFFF00; font-size:13pt;"><TD colspan=4><B>METHOD deleteFileInfoByName</B></TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Description</TD><TD colspan=3>Deletes the file information from the content 
-      information database. This method deletes the FileInfo record and ContentInfo recods releated to the current file.</TD></TR>
+      information database. This method deletes the FileInfo record and ContentInfo records related to the current file.</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Parameters</TD><TD width=40>in</TD><TD width=150>sessionId</TD><TD>Session identifier</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;"></TD><TD>in</TD><TD>fileName</TD><TD>File name.</TD></TR>
 </TABLE>
@@ -326,7 +326,7 @@ a valid "generationId" field value, which tells the generation where they belong
 <TABLE border="1" width="100%">
     <TR style="background:#000080; color:#FFFF00; font-size:13pt;"><TD colspan=4><B>METHOD deleteFileInfoListByProducerId</B></TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Description</TD><TD colspan=3>Deletes all the file information related 
-      to the current producer. This method deletes the all FileInfo and ContentInfo recods releated to the current producer.</TD></TR>
+      to the current producer. This method deletes the all FileInfo and ContentInfo records related to the current producer.</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Parameters</TD><TD width=40>in</TD><TD width=150>sessionId</TD><TD>Session identifier</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;"></TD><TD>in</TD><TD>producerId</TD><TD>Producer identifier.</TD></TR>
 </TABLE>
@@ -334,7 +334,7 @@ a valid "generationId" field value, which tells the generation where they belong
 <TABLE border="1" width="100%">
     <TR style="background:#000080; color:#FFFF00; font-size:13pt;"><TD colspan=4><B>METHOD deleteFileInfoListByProducerName</B></TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Description</TD><TD colspan=3>Deletes all the file information related 
-      to the current producer. This method deletes the all FileInfo and ContentInfo recods releated to the current producer.</TD></TR>
+      to the current producer. This method deletes the all FileInfo and ContentInfo records related to the current producer.</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Parameters</TD><TD width=40>in</TD><TD width=150>sessionId</TD><TD>Session identifier</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;"></TD><TD>in</TD><TD>producerName</TD><TD>Producer name.</TD></TR>
 </TABLE>
@@ -342,7 +342,7 @@ a valid "generationId" field value, which tells the generation where they belong
 <TABLE border="1" width="100%">
     <TR style="background:#000080; color:#FFFF00; font-size:13pt;"><TD colspan=4><B>METHOD deleteFileInfoListByGenerationId</B></TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Description</TD><TD colspan=3>Deletes all the file information related 
-      to the current generation. This method deletes the all FileInfo and ContentInfo recods releated to the current generation.</TD></TR>
+      to the current generation. This method deletes the all FileInfo and ContentInfo records related to the current generation.</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Parameters</TD><TD width=40>in</TD><TD width=150>sessionId</TD><TD>Session identifier</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;"></TD><TD>in</TD><TD>producerId</TD><TD>Producer identifier.</TD></TR>
 </TABLE>
@@ -350,7 +350,7 @@ a valid "generationId" field value, which tells the generation where they belong
 <TABLE border="1" width="100%">
     <TR style="background:#000080; color:#FFFF00; font-size:13pt;"><TD colspan=4><B>METHOD deleteFileInfoListByGenerationName</B></TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Description</TD><TD colspan=3>Deletes all the file information related 
-      to the current generation. This method deletes the all FileInfo and ContentInfo recods releated to the current generation.</TD></TR>
+      to the current generation. This method deletes the all FileInfo and ContentInfo records related to the current generation.</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Parameters</TD><TD width=40>in</TD><TD width=150>sessionId</TD><TD>Session identifier</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;"></TD><TD>in</TD><TD>producerName</TD><TD>Producer name.</TD></TR>
 </TABLE>
@@ -358,7 +358,7 @@ a valid "generationId" field value, which tells the generation where they belong
 <TABLE border="1" width="100%">
     <TR style="background:#000080; color:#FFFF00; font-size:13pt;"><TD colspan=4><B>METHOD deleteFileInfoListByGroupFlags</B></TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Description</TD><TD colspan=3>Deletes all the file information related 
-      to the given groups. This method deletes the all FileInfo and ContentInfo recods releated to the given groups.</TD></TR>
+      to the given groups. This method deletes the all FileInfo and ContentInfo records related to the given groups.</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Parameters</TD><TD width=40>in</TD><TD width=150>sessionId</TD><TD>Session identifier</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;"></TD><TD>in</TD><TD>groupFlags</TD><TD>Group flags.</TD></TR>
 </TABLE>
@@ -464,7 +464,7 @@ search records that match our criteria. After that we know exactly which files a
 <TR><TD>producerId</TD><TD>The producer identifier, which links the current content to a certain producer.</TD></TR>
 <TR><TD>generationId</TD><TD>The generation identifier, which links the current content to a certain generation.</TD></TR>
 <TR><TD>groupFlags</TD><TD>A content file can belong to 32 different groups, which are indicated by 32-bit group flags. 
-  So, these groupFlags should be the same as the groupFlags in the releated FileInfo record.</TD></TR>
+  So, these groupFlags should be the same as the groupFlags in the related FileInfo record.</TD></TR>
 
 <TR><TD>startTime</TD><TD>The start time of the current content. The time format is "YYYYMMDDTHHMMSS". (for example, "20170317T123000")</TD></TR>
 <TR><TD>endTime</TD><TD>The end time of the current content. The time format is "YYYYMMDDTHHMMSS". (for example, "20170317T123000")</TD></TR>
@@ -486,7 +486,7 @@ search records that match our criteria. After that we know exactly which files a
   is available in these DataServers. The field has 64 bits and each bit indicates wheather a DataServer has registered the
   current content. For example, if a DataServer (serverId = 1) has registered the content then the first bit of the serverFlags
   field should be "1".</TD></TR>
-<TR><TD>flags</TD><TD>Additional information flags (32-bits) releated to the current content.</TD></TR>
+<TR><TD>flags</TD><TD>Additional information flags (32-bits) related to the current content.</TD></TR>
 </TABLE>
 </BR>
 
@@ -585,7 +585,7 @@ search records that match our criteria. After that we know exactly which files a
 <TABLE border="1" width="100%">
     <TR style="background:#000080; color:#FFFF00; font-size:13pt;"><TD colspan=4><B>METHOD unregisterContentList</B></TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Description</TD><TD colspan=3>DataServers can use this method for removing all their content registrations. 
-       This is usually done when a DataServer is reseting itself.</TD></TR>
+       This is usually done when a DataServer is resetting itself.</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;">Parameters</TD><TD width=40>in</TD><TD width=150>sessionId</TD><TD>Session identifier</TD></TR>
     <TR><TD style="width:120; background:#000000; color:#FFFFFF; font-size:11pt;"></TD><TD>in</TD><TD>serverId</TD><TD>DataServer identifier, which is unregistering the content.</TD></TR>
 </TABLE>

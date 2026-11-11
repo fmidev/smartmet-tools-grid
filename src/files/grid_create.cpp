@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
 
     if (version != 1 && version != 2)
     {
-      printf("Unknow grib version (%d)!\n",version);
+      printf("Unknown grib version (%d)!\n",version);
       return -2;
     }
 
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
     std::size_t messageCount = sourceGridFile.getNumberOfMessages();
     if (messageCount == 0)
     {
-      printf("No messaes found!\n");
+      printf("No messages found!\n");
       return -3;
     }
 

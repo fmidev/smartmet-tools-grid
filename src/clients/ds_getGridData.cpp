@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     FILE *file = fopen(outputFile,"we");
     if (file == nullptr)
     {
-      fprintf(stdout,"ERROR: Cannot create the ouput file (%s)!\n",outputFile);
+      fprintf(stdout,"ERROR: Cannot create the output file (%s)!\n",outputFile);
       return -6;
     }
 

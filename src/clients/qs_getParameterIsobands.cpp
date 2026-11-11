@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
 
     if (argc < 12)
     {
-      fprintf(stdout,"USAGE: qs_getParameterIsobands <sessionId> <parameter> <attributeList> <areaInterpolation> <multiplyer> <rotate> <startTime> <timeStepSizeInMinutes> <timesteps> <filePrefix> <contourVal1> [..<contourValN>]\n");
+      fprintf(stdout,"USAGE: qs_getParameterIsobands <sessionId> <parameter> <attributeList> <areaInterpolation> <multiplier> <rotate> <startTime> <timeStepSizeInMinutes> <timesteps> <filePrefix> <contourVal1> [..<contourValN>]\n");
       return -1;
     }
 

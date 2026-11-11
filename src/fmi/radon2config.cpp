@@ -615,7 +615,7 @@ void create_fmi_levels(PGconn *conn,const char *dir)
 
       switch (id)
       {
-        case 2:         // Pressure => levels have logarithmic relationship, interpolation possilbe
+        case 2:         // Pressure => levels have logarithmic relationship, interpolation possible
           type = 2;
           units = "Pa";  // We convert hehtopascals to pascals when reading level values
           break;

@@ -27,7 +27,7 @@ These programs are mainly used by FMI (Finnish Meteorological Institute). They a
 
 
 ## Licence
-The Grid Tools moduel is a part of the SmartMet Server (https://github.com/fmidev/smartmet-server), which is published with MIT-license.
+The Grid Tools module is a part of the SmartMet Server (https://github.com/fmidev/smartmet-server), which is published with MIT-license.
 
 ## How to contribute
 Found a bug? Want to implement a new feature? Your contribution is very welcome!

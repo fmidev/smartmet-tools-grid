@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
         else if (r == 0xFF000000)
         {
 
-          // Pixel has no tranparency
+          // Pixel has no transparency
           image.pixel[a] = col2;
         }
         else

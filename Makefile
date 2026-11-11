@@ -28,7 +28,7 @@ INCLUDES += \
 	`pkg-config --cflags icu-i18n` \
 	$(CORBA_INCLUDE)
 
-# Compile options in detault, debug and profile modes
+# Compile options in default, debug and profile modes
 LIBS += $(PREFIX_LDFLAGS) \
 	-lsmartmet-spine \
 	-lsmartmet-macgyver \

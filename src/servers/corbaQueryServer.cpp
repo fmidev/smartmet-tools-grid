@@ -151,7 +151,7 @@ FILE* openMappingFile(const std::string& mappingFile)
     if (file == nullptr)
     {
       Fmi::Exception exception(BCP, "Cannot open a mapping file for writing!");
-      exception.addParameter("Filaname",mappingFile);
+      exception.addParameter("Filename",mappingFile);
       throw exception;
     }
 
