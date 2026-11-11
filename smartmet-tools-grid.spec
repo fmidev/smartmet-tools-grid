@@ -289,7 +289,7 @@ fi
 
 %changelog
 * Wed Nov 11 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.11.11-1.fmi
-- Fixed typos in messages and comments
+- Fixed typos in messages, comments and identifiers
 
 * Mon Nov  2 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.11.2-1.fmi
 - radon2smartmet: abort the update loop if the Radon connection is lost while reading

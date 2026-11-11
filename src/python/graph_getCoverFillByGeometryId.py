@@ -33,7 +33,7 @@ if len(sys.argv) != 8:
   print("USAGE: python graph_getCoverFillByGeometryId.py <geometryId> <coverType> <reverse> <color> <outputFile> <width> <height>")
   sys.exit(-1)
 
-geomeryId = sys.argv[1]
+geometryId = sys.argv[1]
 coverType = int(sys.argv[2])
 reverse = int(sys.argv[3])
 color = sys.argv[4]

@@ -139,18 +139,18 @@ void copyMessageProperties(T::PropertyVec& properties,ConfigurationFile& configu
 {
   Int64 v = 0;
 
-  for (auto &propertie : properties)
+  for (auto &property : properties)
   {
-    if (configurationFile.getAttributeValue(propertie.first.c_str(),v))
+    if (configurationFile.getAttributeValue(property.first.c_str(),v))
     {
-      newMessage->setProperty(propertie.second,v);
-      std::cout << "SET " << propertie.first << " : " << v << "\n";
+      newMessage->setProperty(property.second,v);
+      std::cout << "SET " << property.first << " : " << v << "\n";
     }
     else
-    if (dataMessage->getProperty(propertie.second,v))
+    if (dataMessage->getProperty(property.second,v))
     {
-      std::cout << "*SET " << propertie.first << " : " << v << "\n";
-      newMessage->setProperty(propertie.second,v);
+      std::cout << "*SET " << property.first << " : " << v << "\n";
+      newMessage->setProperty(property.second,v);
     }
   }
 }

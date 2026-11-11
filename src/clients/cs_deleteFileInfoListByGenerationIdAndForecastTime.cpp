@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     T::GenerationId generationId = toInt64(argv[2]);
     uint geometryId = toInt64(argv[3]);
     short forecastType = toInt64(argv[4]);
-    short pertubationNumber = toInt64(argv[5]);
+    short perturbationNumber = toInt64(argv[5]);
     std::string forecastTime = argv[6];
 
     ContentServer::ServiceInterface *service = nullptr;
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     }
 
     UInt64 startTime = getTime();
-    int result = service->deleteFileInfoListByGenerationIdAndForecastTime(sessionId,generationId,geometryId,forecastType,pertubationNumber,forecastTime);
+    int result = service->deleteFileInfoListByGenerationIdAndForecastTime(sessionId,generationId,geometryId,forecastType,perturbationNumber,forecastTime);
     UInt64 endTime = getTime();
 
     if (result != 0)

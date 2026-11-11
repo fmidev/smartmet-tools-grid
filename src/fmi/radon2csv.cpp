@@ -114,7 +114,7 @@ bool producerEnabled(const char *producerName)
 
 /*! \brief Read content. */
 
-void readContent(PGconn * /*conn*/,char *producerId,T::GenerationId generationId,T::FileId fileId,uint fileType,char *geometryId,char *forecastTime,char *fmiParameterId,char *fmiLevelId,char *parameterLevel,char *forecastType,char *pertubationNumber)
+void readContent(PGconn * /*conn*/,char *producerId,T::GenerationId generationId,T::FileId fileId,uint fileType,char *geometryId,char *forecastTime,char *fmiParameterId,char *fmiLevelId,char *parameterLevel,char *forecastType,char *perturbationNumber)
 {
   FUNCTION_TRACE
   try
@@ -177,7 +177,7 @@ void readContent(PGconn * /*conn*/,char *producerId,T::GenerationId generationId
            fmiParameterUnits.c_str(),
            gribParameterId.c_str(),
            forecastType,
-           pertubationNumber,
+           perturbationNumber,
            0, // serverFlags,
            0, // flags,
            sourceId,
