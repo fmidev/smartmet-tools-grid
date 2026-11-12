@@ -3,6 +3,11 @@
  */
 
 #include <macgyver/Exception.h>
+#include <grid-files/common/Point.h>
+#include <grid-files/common/Typedefs.h>
+#include <cstdio>
+#include <string>
+#include <vector>
 #include "grid-files/identification/GridDef.h"
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/GraphFunctions.h"

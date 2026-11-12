@@ -2,6 +2,40 @@
  *  \brief Standalone CORBA server daemon that bundles Content, Data, and Query Server services in a single process.
  */
 
+#include <macgyver/Exception.h>
+#include <macgyver/ThreadName.h>
+#include <pthread.h>
+#include <sys/time.h>
+#include <gis/DEM.h>
+#include <gis/LandCover.h>
+#include <grid-content/contentServer/definition/ProducerInfo.h>
+#include <grid-content/contentServer/definition/ProducerInfoList.h>
+#include <grid-content/contentServer/definition/ServiceInterface.h>
+#include <grid-content/contentServer/definition/ServiceResults.h>
+#include <grid-content/queryServer/definition/AliasFileCollection.h>
+#include <grid-content/queryServer/definition/ParameterMapping.h>
+#include <grid-content/queryServer/definition/ParameterMappingFile.h>
+#include <grid-files/common/ConfigurationFile.h>
+#include <grid-files/common/Log.h>
+#include <grid-files/common/MemoryMapper.h>
+#include <grid-files/grid/Typedefs.h>
+#include <grid-files/identification/FmiParameterDef.h>
+#include <grid-files/identification/FmiParameterId_newbase.h>
+#include <strings.h>
+#include <sys/types.h>
+#include <csignal>
+#include <cstring>
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+#include <vector>
+#include <chrono>
+#include <thread>
+#include <cstdio>
+#include <ctime>
+#include <cstdint>
+#include <set>
+#include <string>
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-content/contentServer/postgresql/PostgresqlImplementation.h"
@@ -10,29 +44,15 @@
 #include "grid-content/contentServer/corba/server/Server.h"
 #include "grid-content/contentServer/corba/server/ServerInterface.h"
 #include "grid-content/dataServer/implementation/ServiceImplementation.h"
-#include "grid-content/dataServer/implementation/ServiceImplementation.h"
 #include "grid-content/dataServer/corba/server/ServerInterface.h"
 #include "grid-content/dataServer/corba/server/Server.h"
 #include "grid-content/queryServer/corba/server/ServerInterface.h"
 #include "grid-content/queryServer/corba/server/Server.h"
 #include "grid-content/queryServer/corba/server/GridServer.h"
 #include "grid-content/queryServer/implementation/ServiceImplementation.h"
-#include <macgyver/Exception.h>
-#include <macgyver/ThreadName.h>
 #include "grid-files/identification/GridDef.h"
 #include "grid-files/common/Typedefs.h"
 #include "grid-files/common/GeneralFunctions.h"
-
-#include <csignal>
-#include <cstring>
-#include <iostream>
-#include <memory>
-#include <pthread.h>
-#include <stdexcept>
-#include <sys/time.h>
-#include <vector>
-#include <chrono>
-#include <thread>
 
 #define CONTENT_SERVER_SESSION_ID 111111111
 #define DATA_SERVER_SESSION_ID 222222222

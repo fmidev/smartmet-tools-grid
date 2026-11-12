@@ -2,22 +2,32 @@
  *  \brief CLI tool that creates a new grid file by projecting data from a source grid file into a template-defined target grid.
  */
 
+#include <macgyver/Exception.h>
+#include <sys/time.h>
+#include <grid-files/common/ConfigurationFile.h>
+#include <grid-files/common/Coordinate.h>
+#include <grid-files/common/Typedefs.h>
+#include <grid-files/grib1/Properties.h>
+#include <grid-files/grib2/Properties.h>
+#include <grid-files/grid/Message.h>
+#include <sys/types.h>
+#include <cstring>
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+#include <cstdio>
+#include <cstdlib>
+#include <string>
+#include <utility>
 #include "grid-files/grid/GridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GridDef.h"
-#include <macgyver/Exception.h>
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/GeneralDefinitions.h"
 //#include "grid-files/common/ImageFunctions.h"
 #include "grid-files/common/FileWriter.h"
 #include "grid-files/grid/Typedefs.h"
 #include "grid-files/grid/ValueCache.h"
-
-#include <cstring>
-#include <iostream>
-#include <stdexcept>
-#include <sys/time.h>
-#include <vector>
 
 
 using namespace SmartMet;

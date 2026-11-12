@@ -2,10 +2,22 @@
  *  \brief CLI tool that renders and saves a filled isoband image of a selected grid message to a PNG file.
  */
 
+#include <macgyver/Exception.h>
+#include <sys/time.h>
+#include <grid-files/common/AttributeList.h>
+#include <grid-files/common/Typedefs.h>
+#include <grid-files/grid/Message.h>
+#include <sys/types.h>
+#include <cstring>
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+#include <cstdio>
+#include <cstdlib>
+#include <string>
 #include "grid-files/grid/GridFile.h"
 #include "grid-files/grid/PrintOptions.h"
 #include "grid-files/identification/GridDef.h"
-#include <macgyver/Exception.h>
 #include "grid-files/common/GeneralFunctions.h"
 #include "grid-files/common/GeneralDefinitions.h"
 #include "grid-files/common/ImageFunctions.h"
@@ -13,12 +25,6 @@
 #include "grid-files/common/GraphFunctions.h"
 #include "grid-files/grid/Typedefs.h"
 #include "grid-files/grid/ValueCache.h"
-
-#include <cstring>
-#include <iostream>
-#include <stdexcept>
-#include <sys/time.h>
-#include <vector>
 
 
 

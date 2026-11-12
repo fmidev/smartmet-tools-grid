@@ -3,14 +3,18 @@
  */
 
 #include <macgyver/Exception.h>
+#include <libpq-fe.h>
+#include <grid-files/common/CoordinateConversions.h>
+#include <grid-files/grid/Typedefs.h>
+#include <grid-files/identification/NewbaseParameterDef.h>
+#include <cstring>
+#include <cstdlib>
+#include <cmath>
+#include <cstdio>
+#include <string>
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/common/GeneralFunctions.h"
-#include "grid-files/common/ShowFunction.h"
 #include "grid-files/identification/GridDef.h"
-
-#include <cstring>
-#include <libpq-fe.h>
-#include <cstdlib>
 
 #define FUNCTION_TRACE FUNCTION_TRACE_OFF
 

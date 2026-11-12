@@ -5,7 +5,6 @@
 #include <macgyver/Exception.h>
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/common/GeneralFunctions.h"
-#include "grid-files/common/ShowFunction.h"
 #include "grid-files/identification/GridDef.h"
 
 #include <cstring>

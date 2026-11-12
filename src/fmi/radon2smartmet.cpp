@@ -6,7 +6,6 @@
 #include "grid-files/common/Log.h"
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/common/GeneralFunctions.h"
-#include "grid-files/common/ShowFunction.h"
 #include "grid-files/identification/GridDef.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-content/contentServer/corba/client/ClientImplementation.h"

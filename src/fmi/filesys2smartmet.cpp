@@ -8,7 +8,6 @@
 #include "grid-files/common/MemoryMapper.h"
 #include "grid-files/common/ShowFunction.h"
 #include "grid-files/common/GeneralFunctions.h"
-#include "grid-files/common/ShowFunction.h"
 #include "grid-files/identification/GridDef.h"
 #include "grid-files/grid/GridFile.h"
 #include "grid-files/common/DataFetcher_network.h"

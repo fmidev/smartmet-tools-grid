@@ -2,6 +2,18 @@
  *  \brief Standalone HTTP server daemon that exposes the Content Server API over HTTP using libmicrohttpd.
  */
 
+#include <microhttpd.h>
+#include <grid-content/contentServer/definition/ServiceInterface.h>
+#include <grid-content/contentServer/http/common/RequestMessage.h>
+#include <grid-content/contentServer/http/common/ResponseMessage.h>
+#include <macgyver/Exception.h>
+#include <strings.h>
+#include <sys/types.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <iostream>
+#include <string>
 #include "grid-content/contentServer/http/server/ServerInterface.h"
 #include "grid-content/contentServer/redis/RedisImplementation.h"
 #include "grid-content/contentServer/cache/CacheImplementation.h"
@@ -11,11 +23,6 @@
 #include "grid-files/common/ConfigurationFile.h"
 #include "grid-files/common/Log.h"
 #include "grid-files/common/GeneralFunctions.h"
-
-#include <cstdio>
-#include <cstring>
-#include <microhttpd.h>
-#include <cstdlib>
 
 using namespace SmartMet;
 
