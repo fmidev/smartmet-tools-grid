@@ -2,7 +2,7 @@
 %define SPECNAME smartmet-tools-%{DIRNAME}
 Summary: SmartMet tools for grid support
 Name: %{SPECNAME}
-Version: 26.11.11
+Version: 26.11.13
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Plugins
@@ -288,6 +288,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Fri Nov 13 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.11.13-1.fmi
+- Added includes no longer provided indirectly by SmartMet library headers
+
 * Wed Nov 11 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.11.11-1.fmi
 - Fixed typos in messages, comments and identifiers
 
